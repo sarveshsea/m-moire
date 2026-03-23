@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ark Prototype</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0a;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .prototype-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: scale(1.02);
+    filter: blur(4px);
+  }
+
+  .scene.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .scene iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .prototype-controls {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 8px 16px;
+    border-radius: 24px;
+    backdrop-filter: blur(10px);
+  }
+
+  .scene-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .scene-dot.active {
+    background: white;
+    transform: scale(1.3);
+  }
+
+  .scene-label {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 6px 16px;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    transition: opacity 0.5s;
+  }
+
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #6366f1, #818cf8);
+    z-index: 1001;
+    transition: width 0.1s linear;
+  }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<div class="scene-label" id="sceneLabel"></div>
+<div class="prototype-container" id="container">
+  <div class="scene active" id="scene-0">
+    <iframe src="http://localhost:5173" loading="eager"></iframe>
+  </div>
+  <div class="scene" id="scene-1">
+    <iframe src="http://localhost:5173/dataviz/RevenueChart" loading="lazy"></iframe>
+  </div>
+</div>
+<div class="prototype-controls" id="controls">
+  <div class="scene-dot active" onclick="goToScene(0)"></div>
+  <div class="scene-dot" onclick="goToScene(1)"></div>
+</div>
+
+<script>
+const scenes = [{"name":"Component Gallery","duration":4000},{"name":"DataViz: RevenueChart","duration":4000}];
+let current = 0;
+let timer = null;
+let elapsed = 0;
+let progressInterval = null;
+
+function goToScene(index) {
+  if (index === current) return;
+
+  document.querySelectorAll('.scene').forEach((el, i) => {
+    el.classList.toggle('active', i === index);
+  });
+  document.querySelectorAll('.scene-dot').forEach((el, i) => {
+    el.classList.toggle('active', i === index);
+  });
+
+  document.getElementById('sceneLabel').textContent = scenes[index].name;
+  current = index;
+  elapsed = 0;
+
+  clearTimeout(timer);
+  startAutoAdvance();
+}
+
+function startAutoAdvance() {
+  const scene = scenes[current];
+  elapsed = 0;
+
+  clearInterval(progressInterval);
+  progressInterval = setInterval(() => {
+    elapsed += 50;
+    const pct = ((current + elapsed / scene.duration) / scenes.length) * 100;
+    document.getElementById('progress').style.width = Math.min(pct, 100) + '%';
+  }, 50);
+
+  timer = setTimeout(() => {
+    if (current < scenes.length - 1) {
+      goToScene(current + 1);
+    } else {
+      clearInterval(progressInterval);
+      document.getElementById('progress').style.width = '100%';
+    }
+  }, scene.duration);
+}
+
+// Keyboard controls
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') {
+    e.preventDefault();
+    if (current < scenes.length - 1) goToScene(current + 1);
+  }
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (current > 0) goToScene(current - 1);
+  }
+});
+
+// Start
+document.getElementById('sceneLabel').textContent = scenes[0].name;
+startAutoAdvance();
+</script>
+</body>
+</html>

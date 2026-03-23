@@ -1,0 +1,77 @@
+{
+  "name": "ActivityChart",
+  "type": "dataviz",
+  "purpose": "Show daily activity trend over the last 30 days",
+  "chartType": "area",
+  "library": "recharts",
+  "dataShape": {
+    "x": "date",
+    "y": "value",
+    "series": [
+      "users",
+      "sessions"
+    ]
+  },
+  "interactions": [
+    "hover-tooltip",
+    "brush"
+  ],
+  "accessibility": {
+    "altText": "required",
+    "keyboardNav": true,
+    "dataTableFallback": true
+  },
+  "responsive": {
+    "mobile": {
+      "height": 200,
+      "simplify": true
+    },
+    "desktop": {
+      "height": 400
+    }
+  },
+  "shadcnWrapper": "Card",
+  "sampleData": [
+    {
+      "date": "Mon",
+      "users": 120,
+      "sessions": 340
+    },
+    {
+      "date": "Tue",
+      "users": 150,
+      "sessions": 420
+    },
+    {
+      "date": "Wed",
+      "users": 180,
+      "sessions": 510
+    },
+    {
+      "date": "Thu",
+      "users": 140,
+      "sessions": 380
+    },
+    {
+      "date": "Fri",
+      "users": 200,
+      "sessions": 580
+    },
+    {
+      "date": "Sat",
+      "users": 90,
+      "sessions": 210
+    },
+    {
+      "date": "Sun",
+      "users": 70,
+      "sessions": 160
+    }
+  ],
+  "tags": [
+    "dashboard",
+    "analytics"
+  ],
+  "createdAt": "2026-03-23T17:52:07.125Z",
+  "updatedAt": "2026-03-23T17:52:07.125Z"
+}

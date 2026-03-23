@@ -1,0 +1,41 @@
+{
+  "name": "Dashboard",
+  "type": "page",
+  "purpose": "Main application dashboard showing KPIs and activity trends",
+  "researchBacking": [],
+  "layout": "dashboard",
+  "sections": [
+    {
+      "name": "metrics-row",
+      "component": "MetricCard",
+      "repeat": 4,
+      "layout": "grid-4",
+      "props": {}
+    },
+    {
+      "name": "activity-chart",
+      "component": "ActivityChart",
+      "repeat": 1,
+      "layout": "full-width",
+      "props": {}
+    }
+  ],
+  "shadcnLayout": [
+    "SidebarProvider",
+    "SidebarInset"
+  ],
+  "responsive": {
+    "mobile": "stack",
+    "tablet": "grid-2",
+    "desktop": "grid-4"
+  },
+  "meta": {
+    "title": "Dashboard",
+    "description": "Overview of key metrics"
+  },
+  "tags": [
+    "dashboard"
+  ],
+  "createdAt": "2026-03-23T17:52:07.126Z",
+  "updatedAt": "2026-03-23T17:52:07.126Z"
+}

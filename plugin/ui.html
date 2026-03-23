@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --bg-card: #111111;
+    --bg-hover: #1a1a1a;
+    --fg: #e0e0e0;
+    --fg-muted: #666666;
+    --border: #222222;
+    --accent: #d4d4d4;
+    --accent-bright: #ffffff;
+    --accent-dim: #444444;
+    --warn: #ffaa00;
+    --error: #ff4444;
+    --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
+    --radius: 3px;
+  }
+
+  body {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--bg);
+    color: var(--fg);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    line-height: 1.6;
+  }
+
+  /* ── Status Bar (top) ─────────────────────────────── */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    flex-shrink: 0;
+  }
+
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .status-indicator.live {
+    background: var(--accent-bright);
+    box-shadow: 0 0 6px rgba(255,255,255,0.4);
+  }
+
+  .status-indicator.scanning {
+    background: var(--warn);
+    animation: blink 1.2s infinite;
+  }
+
+  .status-indicator.dead {
+    background: #333;
+    border: 1px solid #444;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .status-text {
+    flex: 1;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+
+  .status-text.live { color: var(--accent-bright); }
+  .status-text.scanning { color: var(--warn); }
+  .status-text.dead { color: var(--fg-muted); }
+
+  .file-name {
+    font-size: 10px;
+    color: var(--fg-muted);
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Connection Card ──────────────────────────────── */
+  .conn-card {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .conn-card.offline {
+    text-align: center;
+    padding: 16px 14px;
+  }
+
+  .conn-card .label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--fg-muted);
+    margin-bottom: 6px;
+  }
+
+  .conn-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+  }
+
+  .conn-detail .port {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .conn-detail .meta {
+    text-align: right;
+    color: var(--fg-muted);
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  .help-text {
+    font-size: 10px;
+    color: var(--fg-muted);
+    line-height: 1.7;
+  }
+
+  .help-text code {
+    background: var(--bg-hover);
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: var(--accent);
+    font-size: 10px;
+  }
+
+  .retry-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 14px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: var(--radius);
+  }
+
+  .retry-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Tabs ─────────────────────────────────────────── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--fg-muted);
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font-family: var(--mono);
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--fg); background: var(--bg-card); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Panels ───────────────────────────────────────── */
+  .panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+  .panel.active { display: flex; }
+
+  /* ── Activity Panel ───────────────────────────────── */
+  .log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .log-entry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    padding: 3px 0;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+  }
+
+  .log-time { color: var(--fg-muted); flex-shrink: 0; font-size: 10px; }
+  .log-icon { flex-shrink: 0; width: 12px; text-align: center; }
+  .log-msg { flex: 1; word-break: break-word; }
+
+  .log-entry.ok .log-icon { color: var(--accent); }
+  .log-entry.warn .log-icon { color: var(--warn); }
+  .log-entry.err .log-icon { color: var(--error); }
+  .log-entry.info .log-icon { color: #555; }
+
+  /* ── Actions Panel ────────────────────────────────── */
+  .actions {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .action-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg-card);
+  }
+
+  .action-row:hover { border-color: var(--accent); background: var(--bg-hover); }
+  .action-row:active { transform: scale(0.99); }
+
+  .action-key {
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 80px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .action-desc {
+    font-size: 10px;
+    color: var(--fg-muted);
+    flex: 1;
+  }
+
+  .action-row.disabled { opacity: 0.3; pointer-events: none; }
+
+  .action-section {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--fg-muted);
+    margin-top: 8px;
+    margin-bottom: 2px;
+    padding-left: 2px;
+  }
+
+  /* ── Selection Panel ──────────────────────────────── */
+  .sel-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 14px;
+  }
+
+  .sel-empty {
+    text-align: center;
+    color: var(--fg-muted);
+    padding: 40px 20px;
+    font-size: 11px;
+    line-height: 2;
+  }
+
+  .sel-node {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+    background: var(--bg-card);
+  }
+
+  .sel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .sel-name { font-weight: 700; font-size: 11px; }
+  .sel-type {
+    font-size: 9px;
+    padding: 1px 6px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .sel-props {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1px 10px;
+    font-size: 10px;
+    color: var(--fg-muted);
+  }
+
+  .sel-props .k { color: var(--accent); }
+
+  /* ── Scrollbar ────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #444; }
+
+  /* ── Minimize ───────────────────────────────────────── */
+  .minimize-btn {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: none;
+    color: var(--fg-muted);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .minimize-btn:hover { border-color: var(--accent); color: var(--fg); }
+
+  body.minimized .conn-card,
+  body.minimized .tabs,
+  body.minimized .panel { display: none !important; }
+  body.minimized { height: auto; }
+  body.minimized .status-bar { border-bottom: none; }
+
+  /* ── Log Enhancements ──────────────────────────────── */
+  .log-entry .log-detail {
+    flex-basis: 100%;
+    font-size: 9px;
+    color: var(--fg-muted);
+    margin-top: 1px;
+    padding-left: 20px;
+    word-break: break-all;
+    max-height: 60px;
+    overflow-y: auto;
+  }
+
+  .log-entry .log-badge {
+    display: inline-block;
+    font-size: 8px;
+    padding: 0 4px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--fg-muted);
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .log-counter {
+    padding: 6px 14px;
+    font-size: 9px;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Status Bar -->
+<div class="status-bar">
+  <div class="status-indicator dead" id="statusDot"></div>
+  <div class="status-text dead" id="statusText">SCANNING...</div>
+  <div class="file-name" id="fileName"></div>
+  <button class="minimize-btn" id="minimizeBtn" onclick="toggleMinimize()" title="Minimize">_</button>
+</div>
+
+<!-- Connection Card (dynamic) -->
+<div id="connCard"></div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" data-tab="activity" onclick="switchTab('activity')">LOG</button>
+  <button class="tab" data-tab="actions" onclick="switchTab('actions')">ACTIONS</button>
+  <button class="tab" data-tab="selection" onclick="switchTab('selection')">SELECTION</button>
+</div>
+
+<!-- Activity Panel -->
+<div class="panel active" id="panel-activity">
+  <div class="log-counter" id="logCounter">
+    <span id="logStats">0 EVENTS</span>
+    <span id="logSession">SESSION 00:00</span>
+  </div>
+  <div class="log" id="logEl"></div>
+</div>
+
+<!-- Actions Panel -->
+<div class="panel" id="panel-actions">
+  <div class="actions" id="actionsEl">
+    <div class="action-section">DESIGN SYSTEM</div>
+    <div class="action-row" onclick="act('pull-tokens')">
+      <span class="action-key">TOKENS</span>
+      <span class="action-desc">Extract design variables</span>
+    </div>
+    <div class="action-row" onclick="act('pull-components')">
+      <span class="action-key">COMPONENTS</span>
+      <span class="action-desc">List all components</span>
+    </div>
+    <div class="action-row" onclick="act('pull-styles')">
+      <span class="action-key">STYLES</span>
+      <span class="action-desc">Colors, text, effects</span>
+    </div>
+    <div class="action-section">RESEARCH</div>
+    <div class="action-row" onclick="act('stickies')">
+      <span class="action-key">STICKIES</span>
+      <span class="action-desc">Read FigJam stickies</span>
+    </div>
+    <div class="action-section">INSPECT</div>
+    <div class="action-row" onclick="act('selection-info')">
+      <span class="action-key">INSPECT</span>
+      <span class="action-desc">Deep selection data</span>
+    </div>
+    <div class="action-row" onclick="act('page-tree')">
+      <span class="action-key">PAGE TREE</span>
+      <span class="action-desc">Extract IA page structure</span>
+    </div>
+    <div class="action-section">SYNC</div>
+    <div class="action-row" onclick="act('full-sync')">
+      <span class="action-key">FULL SYNC</span>
+      <span class="action-desc">Push tokens + components + styles</span>
+    </div>
+  </div>
+</div>
+
+<!-- Selection Panel -->
+<div class="panel" id="panel-selection">
+  <div class="sel-panel" id="selPanel">
+    <div class="sel-empty">Select something in Figma<br>to inspect it here</div>
+  </div>
+</div>
+
+<script>
+// ── State ───────────────────────────────────────────
+let ws = null;           // Ark CLI connection
+let fcWs = null;         // figma-console MCP connection
+let status = 'dead';     // dead | scanning | live
+let fcStatus = 'dead';   // dead | live
+let connPort = 0;
+let fcPort = 0;
+let connName = '';
+let connectedAt = null;
+let fileInfo = {};
+let scanTimer = null;
+let minimized = false;
+let logCount = { total: 0, ok: 0, warn: 0, err: 0, info: 0 };
+let sessionStart = Date.now();
+let sessionTimer = null;
+const PORT_START = 9223;
+const PORT_END = 9232;
+let currentScanPort = PORT_START;
+
+// Track pending figma-console commands for response routing
+const fcPending = new Map(); // id → true
+
+// ── Heartbeat / Keep-alive ──────────────────────────
+let arkHeartbeat = null;
+let fcHeartbeat = null;
+let arkMissedPongs = 0;
+let fcMissedPongs = 0;
+const HEARTBEAT_MS = 10000;   // ping every 10s
+const MAX_MISSED = 3;         // 3 missed = dead
+let reconnectDelay = 1000;    // backoff start
+const MAX_RECONNECT_DELAY = 15000;
+
+function startArkHeartbeat() {
+  clearInterval(arkHeartbeat);
+  arkMissedPongs = 0;
+  arkHeartbeat = setInterval(() => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    arkMissedPongs++;
+    if (arkMissedPongs > MAX_MISSED) {
+      log('warn', 'Ark heartbeat timeout — reconnecting');
+      ws.close();
+      return;
+    }
+    try { ws.send(JSON.stringify({ type: 'ping' })); } catch {}
+  }, HEARTBEAT_MS);
+}
+
+function startFcHeartbeat() {
+  clearInterval(fcHeartbeat);
+  fcMissedPongs = 0;
+  fcHeartbeat = setInterval(() => {
+    if (!fcWs || fcWs.readyState !== WebSocket.OPEN) return;
+    fcMissedPongs++;
+    if (fcMissedPongs > MAX_MISSED) {
+      log('warn', 'Figma Console heartbeat timeout — reconnecting');
+      fcWs.close();
+      return;
+    }
+    try { fcWs.send(JSON.stringify({ type: 'ping' })); } catch {}
+  }, HEARTBEAT_MS);
+}
+
+// ── Connection (multi-protocol scanning) ────────────
+// Scans ports 9223-9232 for BOTH Ark CLI and figma-console MCP servers.
+// Detects protocol by first message: SERVER_HELLO = figma-console, else = Ark.
+
+function scan() {
+  if (status === 'live' && fcStatus === 'live') return; // both connected
+  if (scanTimer) { clearTimeout(scanTimer); scanTimer = null; }
+  if (status !== 'live') setStatus('scanning');
+  currentScanPort = PORT_START;
+  tryNext();
+}
+
+function scheduleReconnect() {
+  if (scanTimer) return; // already scheduled
+  scanTimer = setTimeout(() => {
+    scanTimer = null;
+    scan();
+  }, reconnectDelay);
+  // Exponential backoff capped at MAX_RECONNECT_DELAY
+  reconnectDelay = Math.min(reconnectDelay * 1.5, MAX_RECONNECT_DELAY);
+}
+
+function resetBackoff() {
+  reconnectDelay = 1000;
+}
+
+function tryNext() {
+  if (currentScanPort > PORT_END) {
+    if (status !== 'live') {
+      setStatus('dead');
+    }
+    renderConn();
+    scheduleReconnect();
+    return;
+  }
+
+  const port = currentScanPort++;
+
+  // Skip ports we're already connected to
+  if (port === connPort || port === fcPort) {
+    tryNext();
+    return;
+  }
+
+  try {
+    const sock = new WebSocket('ws://localhost:' + port);
+    let identified = false;
+    let identifyTimeout = null;
+    let connectTimeout = null;
+
+    // Hard timeout: if nothing happens in 2s, skip this port
+    connectTimeout = setTimeout(() => {
+      if (!identified) {
+        identified = true;
+        try { sock.close(); } catch {}
+        tryNext();
+      }
+    }, 2000);
+
+    function cleanup() {
+      if (identifyTimeout) { clearTimeout(identifyTimeout); identifyTimeout = null; }
+      if (connectTimeout) { clearTimeout(connectTimeout); connectTimeout = null; }
+    }
+
+    sock.onopen = () => {
+      // Wait for first message to determine protocol
+      // Ark sends "identify" message, figma-console sends "SERVER_HELLO"
+      // If no message within 800ms, this is NOT a known server — skip it
+      identifyTimeout = setTimeout(() => {
+        if (!identified) {
+          identified = true;
+          cleanup();
+          // No protocol message received — not an Ark or FC server, skip
+          try { sock.close(); } catch {}
+          tryNext();
+        }
+      }, 800);
+    };
+
+    sock.onmessage = (e) => {
+      let data;
+      try { data = JSON.parse(e.data); } catch { return; }
+
+      // Any message from a connected server resets heartbeat counters
+      if (sock === ws) arkMissedPongs = 0;
+      if (sock === fcWs) fcMissedPongs = 0;
+
+      if (!identified) {
+        identified = true;
+        cleanup();
+        if (data.type === 'SERVER_HELLO') {
+          adoptAsFigmaConsole(sock, port, data);
+        } else if (data.type === 'identify' || data.type === 'pong' || data.name) {
+          // Valid Ark server — sends "identify" on connection
+          adoptAsArk(sock, port);
+          handleMsg(data);
+        } else {
+          // Unknown server, skip
+          try { sock.close(); } catch {}
+          tryNext();
+        }
+        return;
+      }
+
+      // Route to correct handler
+      if (sock === ws) {
+        handleMsg(data);
+      } else if (sock === fcWs) {
+        handleFcMsg(data);
+      }
+    };
+
+    sock.onclose = () => {
+      cleanup();
+      if (sock === ws) {
+        ws = null;
+        connPort = 0;
+        clearInterval(arkHeartbeat);
+        setStatus('dead');
+        renderConn();
+        log('warn', 'Disconnected from Ark');
+        scheduleReconnect();
+      } else if (sock === fcWs) {
+        fcWs = null;
+        fcPort = 0;
+        clearInterval(fcHeartbeat);
+        fcStatus = 'dead';
+        renderConn();
+        log('warn', 'Figma Console MCP disconnected');
+        scheduleReconnect();
+      } else if (!identified) {
+        // Connection closed during scan before identification
+        identified = true;
+        tryNext();
+      }
+    };
+
+    sock.onerror = () => {
+      cleanup();
+      if (!identified) {
+        identified = true;
+        try { sock.close(); } catch {}
+        tryNext();
+      }
+    };
+  } catch {
+    tryNext();
+  }
+}
+
+function adoptAsArk(sock, port) {
+  if (status === 'live') {
+    // Already have an Ark connection, skip
+    sock.close();
+    tryNext();
+    return;
+  }
+
+  ws = sock;
+  connPort = port;
+  connectedAt = new Date();
+  setStatus('live');
+  resetBackoff();
+  startArkHeartbeat();
+  renderConn();
+  log('ok', 'Connected to Ark on port ' + port);
+
+  sock.send(JSON.stringify({
+    type: 'bridge-hello',
+    plugin: 'figma-ark',
+    file: fileInfo.file || 'unknown',
+    fileKey: fileInfo.fileKey || '',
+    editor: fileInfo.editor || 'figma',
+  }));
+
+  // Continue scanning for figma-console
+  if (fcStatus !== 'live') tryNext();
+}
+
+function adoptAsFigmaConsole(sock, port, hello) {
+  if (fcStatus === 'live') {
+    sock.close();
+    tryNext();
+    return;
+  }
+
+  fcWs = sock;
+  fcPort = port;
+  fcStatus = 'live';
+  resetBackoff();
+  startFcHeartbeat();
+  renderConn();
+  log('ok', 'Figma Console MCP on port ' + port + ' (auto-bridged)');
+
+  // Send FILE_INFO handshake
+  sock.send(JSON.stringify({
+    type: 'FILE_INFO',
+    data: {
+      fileName: fileInfo.file || figmaFileName || 'unknown',
+      fileKey: fileInfo.fileKey || '',
+      currentPage: fileInfo.page || '',
+      currentPageId: '',
+      editorType: fileInfo.editor || 'figma',
+      pluginVersion: '1.0.0',
+    }
+  }));
+
+  // Continue scanning for Ark
+  if (status !== 'live') tryNext();
+}
+
+function disconnect() {
+  clearInterval(arkHeartbeat);
+  clearInterval(fcHeartbeat);
+  clearTimeout(scanTimer);
+  scanTimer = null;
+  if (ws) ws.close();
+  ws = null;
+  connPort = 0;
+  setStatus('dead');
+  if (fcWs) fcWs.close();
+  fcWs = null;
+  fcPort = 0;
+  fcStatus = 'dead';
+  renderConn();
+}
+
+// ── Figma Console MCP Protocol ──────────────────────
+// Forward commands directly to code.js using their native protocol.
+// code.js handles ALL figma-console command types natively.
+
+// Global state for figma-console data
+window.__figmaVariablesData = null;
+window.__figmaVariablesReady = false;
+window.__figmaPendingRequests = new Map();
+
+function handleFcMsg(msg) {
+  // Request from figma-console MCP: {id, method, params}
+  if (msg.id && msg.method) {
+    const fcId = msg.id;
+    const method = msg.method;
+    const params = msg.params || {};
+
+    // Track pending request for response routing
+    fcPending.set(fcId, true);
+
+    // Forward directly to code.js using figma-console protocol:
+    // {type: METHOD, requestId: id, ...params}
+    const pluginMsg = Object.assign({ type: method, requestId: fcId }, params);
+    parent.postMessage({ pluginMessage: pluginMsg }, '*');
+
+    log('info', 'FC → ' + method, Object.keys(params).length ? params : null);
+    return;
+  }
+
+  // Server identity (already handled in adoptAsFigmaConsole)
+  if (msg.type === 'SERVER_HELLO') return;
+
+  // Ignore UI management from figma-console
+  if (msg.type === 'RESIZE_UI' || msg.type === 'BOOT_LOAD_UI' || msg.type === 'RELOAD_UI' || msg.type === 'BOOT_FALLBACK') {
+    return;
+  }
+}
+
+// Broadcast Figma events to figma-console MCP
+function fcBroadcast(data) {
+  if (fcWs && fcWs.readyState === WebSocket.OPEN) {
+    fcWs.send(JSON.stringify(data));
+  }
+}
+
+let figmaFileName = '';
+
+function setStatus(s) {
+  status = s;
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+  dot.className = 'status-indicator ' + s;
+  txt.className = 'status-text ' + s;
+
+  if (s === 'live') {
+    txt.textContent = 'CONNECTED';
+  } else if (s === 'scanning') {
+    txt.textContent = 'SCANNING...';
+  } else {
+    txt.textContent = 'OFFLINE';
+  }
+}
+
+// ── Connection Card Rendering ───────────────────────
+
+function renderConn() {
+  const el = document.getElementById('connCard');
+
+  let html = '';
+
+  if (status === 'live') {
+    const elapsed = connectedAt ? timeSince(connectedAt) : '';
+    html += '<div class="conn-card">' +
+      '<div class="label">ARK BRIDGE</div>' +
+      '<div class="conn-detail">' +
+        '<span class="port">:' + connPort + '</span>' +
+        '<span class="meta">' + esc(connName || 'Ark Terminal') + '<br>' + elapsed + '</span>' +
+      '</div>' +
+    '</div>';
+  } else if (status === 'scanning') {
+    html += '<div class="conn-card offline">' +
+      '<div class="help-text">Scanning ports ' + PORT_START + '-' + PORT_END + '...</div>' +
+    '</div>';
+  } else {
+    html += '<div class="conn-card offline">' +
+      '<div class="help-text">' +
+        'No Ark instance found.<br><br>' +
+        'Run <code>ark connect</code> in your terminal.' +
+      '</div>' +
+      '<button class="retry-btn" onclick="scan()">RETRY</button>' +
+    '</div>';
+  }
+
+  // Show figma-console bridge status (compact)
+  if (fcStatus === 'live') {
+    html += '<div class="conn-card" style="padding:6px 14px;border-bottom:1px solid var(--border)">' +
+      '<div class="conn-detail" style="font-size:10px">' +
+        '<span style="color:var(--fg-muted)">FIGMA CONSOLE</span>' +
+        '<span style="color:var(--accent)">:' + fcPort + ' AUTO</span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+// ── Message Handling ────────────────────────────────
+
+function handleMsg(msg) {
+  if (msg.type === 'command' && msg.id && msg.method) {
+    parent.postMessage({
+      pluginMessage: {
+        type: 'command',
+        id: msg.id,
+        method: msg.method,
+        params: msg.params || {},
+      }
+    }, '*');
+    log('info', 'CMD ' + msg.method, msg.params && Object.keys(msg.params).length ? msg.params : null);
+    return;
+  }
+
+  if (msg.type === 'identify') {
+    connName = msg.name || connName;
+    renderConn();
+    log('ok', 'Identified: ' + (msg.name || 'Ark'));
+    return;
+  }
+
+  if (msg.type === 'chat') {
+    log('info', '[' + (msg.from || 'ark') + '] ' + msg.text);
+    return;
+  }
+
+  if (msg.type === 'event') {
+    const level = msg.level === 'success' ? 'ok' : msg.level === 'error' ? 'err' : msg.level || 'info';
+    log(level, msg.message, msg.data || null);
+    return;
+  }
+
+  if (msg.type === 'error') {
+    log('err', msg.message, msg.details || null);
+    return;
+  }
+
+  // Log any unrecognized message types for visibility
+  log('info', 'MSG:' + msg.type, msg.data || null);
+}
+
+function send(data) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(data));
+    return true;
+  }
+  return false;
+}
+
+// ── Actions ─────────────────────────────────────────
+
+function act(action) {
+  if (status !== 'live') {
+    log('warn', 'Not connected — run ark connect first');
+    return;
+  }
+
+  log('info', 'Running: ' + action);
+
+  const cmds = {
+    'pull-tokens':      { method: 'getVariables', params: {} },
+    'pull-components':  { method: 'getComponents', params: {} },
+    'pull-styles':      { method: 'getStyles', params: {} },
+    'stickies':         { method: 'getStickies', params: {} },
+    'selection-info':   { method: 'getSelection', params: {} },
+    'page-tree':        { method: 'getPageTree', params: { depth: 2 } },
+  };
+
+  if (action === 'full-sync') {
+    parent.postMessage({ pluginMessage: { type: 'command', id: 'sync:tokens', method: 'getVariables', params: {} } }, '*');
+    parent.postMessage({ pluginMessage: { type: 'command', id: 'sync:components', method: 'getComponents', params: {} } }, '*');
+    parent.postMessage({ pluginMessage: { type: 'command', id: 'sync:styles', method: 'getStyles', params: {} } }, '*');
+    return;
+  }
+
+  if (action === 'selection-info') {
+    parent.postMessage({ pluginMessage: { type: 'command', id: 'action:selection', method: 'getSelection', params: {} } }, '*');
+    switchTab('selection');
+    return;
+  }
+
+  const cmd = cmds[action];
+  if (cmd) {
+    parent.postMessage({ pluginMessage: { type: 'command', id: 'action:' + action, method: cmd.method, params: cmd.params } }, '*');
+  }
+}
+
+// ── Selection Rendering ─────────────────────────────
+
+function renderSel(nodes) {
+  const panel = document.getElementById('selPanel');
+
+  if (!nodes || nodes.length === 0) {
+    panel.innerHTML = '<div class="sel-empty">Select something in Figma<br>to inspect it here</div>';
+    return;
+  }
+
+  panel.innerHTML = '';
+  for (const n of nodes) {
+    const el = document.createElement('div');
+    el.className = 'sel-node';
+
+    const props = [
+      ['id', n.id],
+      ['x', n.x != null ? n.x.toFixed(0) : null],
+      ['y', n.y != null ? n.y.toFixed(0) : null],
+      ['w', n.width != null ? n.width.toFixed(0) : null],
+      ['h', n.height != null ? n.height.toFixed(0) : null],
+    ];
+    if (n.characters) props.push(['text', n.characters.slice(0, 50)]);
+    if (n.opacity != null && n.opacity < 1) props.push(['opacity', n.opacity.toFixed(2)]);
+    if (n.childCount) props.push(['children', n.childCount]);
+
+    let propsHtml = '';
+    for (const [k, v] of props) {
+      if (v != null) propsHtml += '<span class="k">' + k + '</span><span>' + esc(String(v)) + '</span>';
+    }
+
+    el.innerHTML =
+      '<div class="sel-header">' +
+        '<span class="sel-name">' + esc(n.name) + '</span>' +
+        '<span class="sel-type">' + n.type + '</span>' +
+      '</div>' +
+      '<div class="sel-props">' + propsHtml + '</div>';
+    panel.appendChild(el);
+  }
+}
+
+// ── Log ─────────────────────────────────────────────
+
+function log(level, msg, detail) {
+  const el = document.getElementById('logEl');
+  const icons = { ok: '+', warn: '!', err: 'x', info: '.' };
+
+  // Check if user is near bottom before appending (auto-scroll only if pinned)
+  const wasAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+
+  const entry = document.createElement('div');
+  entry.className = 'log-entry ' + level;
+
+  let html =
+    '<span class="log-time">' + timeStr() + '</span>' +
+    '<span class="log-icon">' + (icons[level] || '.') + '</span>' +
+    '<span class="log-msg">' + esc(msg) + '</span>';
+
+  if (detail) {
+    const detailStr = typeof detail === 'object' ? JSON.stringify(detail, null, 2) : String(detail);
+    html += '<div class="log-detail">' + esc(detailStr) + '</div>';
+  }
+
+  entry.innerHTML = html;
+  el.appendChild(entry);
+
+  // Auto-scroll to bottom if user was already at bottom
+  if (wasAtBottom) {
+    requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+  }
+
+  while (el.children.length > 500) el.removeChild(el.firstChild);
+
+  // Update counters
+  logCount.total++;
+  if (logCount[level] !== undefined) logCount[level]++;
+  updateLogStats();
+}
+
+function updateLogStats() {
+  const stats = document.getElementById('logStats');
+  if (stats) {
+    stats.textContent = logCount.total + ' EVENTS  ' + logCount.ok + '+ ' + logCount.warn + '! ' + logCount.err + 'x';
+  }
+}
+
+function updateSessionTimer() {
+  const el = document.getElementById('logSession');
+  if (el) {
+    const s = Math.floor((Date.now() - sessionStart) / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    el.textContent = 'SESSION ' + String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+  }
+}
+
+function toggleMinimize() {
+  minimized = !minimized;
+  document.body.classList.toggle('minimized', minimized);
+  const btn = document.getElementById('minimizeBtn');
+  btn.textContent = minimized ? '+' : '_';
+  btn.title = minimized ? 'Expand' : 'Minimize';
+}
+
+// ── Tab Switching ───────────────────────────────────
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab[data-tab="' + name + '"]').classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ── Plugin Message Handler ──────────────────────────
+
+onmessage = (event) => {
+  const msg = event.data.pluginMessage;
+  if (!msg) return;
+
+  switch (msg.type) {
+    case 'ready':
+      log('ok', 'Plugin loaded — ' + (msg.data.pages || 0) + ' pages', msg.data);
+      break;
+
+    case 'pong': {
+      fileInfo = msg.data;
+      figmaFileName = msg.data.file || '';
+      document.getElementById('fileName').textContent = figmaFileName;
+      log('info', 'File: ' + (msg.data.file || 'untitled'), { editor: msg.data.editor, fileKey: msg.data.fileKey });
+      break;
+    }
+
+    // ── Figma-console variables data (cached for MCP) ────
+    case 'VARIABLES_DATA': {
+      window.__figmaVariablesData = msg.data;
+      window.__figmaVariablesReady = true;
+      fcBroadcast({ type: 'VARIABLES_DATA', data: msg.data });
+      break;
+    }
+
+    // ── Console capture forwarding to figma-console ──────
+    case 'CONSOLE_CAPTURE': {
+      fcBroadcast({ type: 'CONSOLE_CAPTURE', level: msg.level, message: msg.message, args: msg.args, timestamp: msg.timestamp });
+      break;
+    }
+
+    // ── Figma-console component data (special routing) ───
+    case 'COMPONENT_DATA': {
+      const cdRid = msg.requestId;
+      if (cdRid && fcPending.has(cdRid)) {
+        fcPending.delete(cdRid);
+        fcBroadcast({ id: cdRid, result: msg.data });
+        log('ok', 'FC → component data');
+      }
+      break;
+    }
+
+    case 'COMPONENT_ERROR': {
+      const ceRid = msg.requestId;
+      if (ceRid && fcPending.has(ceRid)) {
+        fcPending.delete(ceRid);
+        fcBroadcast({ id: ceRid, error: msg.error });
+        log('err', 'FC component error: ' + msg.error);
+      }
+      break;
+    }
+
+    case 'selection-changed': {
+      const nodes = msg.data.nodes || [];
+      renderSel(nodes);
+      send({ type: 'selection', data: msg.data });
+      if (nodes.length > 0) {
+        const names = nodes.map(n => n.name).join(', ');
+        log('info', 'Selection: ' + nodes.length + ' node' + (nodes.length > 1 ? 's' : '') + ' — ' + names);
+      }
+      // Broadcast to figma-console
+      fcBroadcast({
+        type: 'SELECTION_CHANGE',
+        data: {
+          selectedNodeIds: nodes.map(n => n.id),
+          selectedNodeCount: nodes.length,
+        }
+      });
+      break;
+    }
+
+    case 'page-changed':
+      log('info', 'Page → ' + msg.data.page, msg.data);
+      send({ type: 'page-changed', data: msg.data });
+      // Broadcast to figma-console
+      fcBroadcast({
+        type: 'PAGE_CHANGE',
+        data: {
+          pageName: msg.data.page,
+          pageId: msg.data.pageId || '',
+        }
+      });
+      // Update FILE_INFO for figma-console
+      fcBroadcast({
+        type: 'FILE_INFO',
+        data: {
+          fileName: figmaFileName,
+          fileKey: fileInfo.fileKey || '',
+          currentPage: msg.data.page,
+          currentPageId: msg.data.pageId || '',
+          editorType: fileInfo.editor || 'figma',
+          pluginVersion: '1.0.0',
+        }
+      });
+      break;
+
+    case 'document-changed': {
+      const changeCount = msg.data.changes || 0;
+      log('info', 'Document changed — ' + changeCount + ' change' + (changeCount !== 1 ? 's' : ''));
+      send({ type: 'document-changed', data: msg.data });
+      // Broadcast to figma-console
+      fcBroadcast({
+        type: 'DOCUMENT_CHANGE',
+        data: {
+          hasNodeChanges: true,
+          changeCount: changeCount,
+          timestamp: Date.now(),
+        }
+      });
+      break;
+    }
+
+    case 'command-response': {
+      const id = msg.id;
+      const resultSize = msg.result ? JSON.stringify(msg.result).length : 0;
+      const sizeLabel = resultSize > 1024 ? (resultSize / 1024).toFixed(1) + 'KB' : resultSize + 'B';
+
+      // Route figma-console responses back
+      if (id && id.startsWith('fc:')) {
+        const origId = fcPending.get(id);
+        fcPending.delete(id);
+        if (origId) {
+          const resp = { id: origId };
+          if (msg.error) {
+            resp.error = msg.error;
+            log('err', 'FC error: ' + msg.error);
+          } else {
+            resp.result = msg.result;
+            log('ok', 'FC → response (' + sizeLabel + ')');
+          }
+          fcBroadcast(resp);
+        }
+        return;
+      }
+
+      // Ark terminal responses
+      if (id && !id.includes(':')) {
+        if (send({ type: 'response', id, result: msg.result, error: msg.error })) {
+          log('ok', 'Response → ' + id + ' (' + sizeLabel + ')');
+        }
+        if (msg.error) log('err', 'Error in ' + id, msg.error);
+        return;
+      }
+
+      if (id && id.startsWith('action:')) {
+        const action = id.replace('action:', '');
+        if (msg.error) {
+          log('err', 'Failed: ' + action, msg.error);
+        } else {
+          log('ok', 'Done: ' + action + ' (' + sizeLabel + ')');
+        }
+        send({ type: 'action-result', action, result: msg.result, error: msg.error });
+      }
+
+      if (id && id.startsWith('sync:')) {
+        const part = id.replace('sync:', '');
+        if (msg.error) {
+          log('err', 'Sync failed: ' + part, msg.error);
+        } else {
+          log('ok', 'Synced: ' + part + ' (' + sizeLabel + ')');
+        }
+        send({ type: 'sync-data', part, result: msg.result, error: msg.error });
+      }
+
+      break;
+    }
+
+    default: {
+      // ── Figma-console _RESULT routing ─────────────────
+      // code.js sends {type: 'METHOD_RESULT', requestId, success, ...data}
+      // We route these back to the figma-console WebSocket as {id, result/error}
+      const msgType = msg.type || '';
+      if (msgType.endsWith('_RESULT') && msg.requestId && fcPending.has(msg.requestId)) {
+        fcPending.delete(msg.requestId);
+        const resp = { id: msg.requestId };
+        if (msg.success === false) {
+          resp.error = msg.error || 'Unknown error';
+          log('err', 'FC: ' + msgType.replace('_RESULT', ''), msg.error);
+        } else {
+          // Build result object from all fields except meta fields
+          const result = {};
+          for (const key in msg) {
+            if (key !== 'type' && key !== 'requestId' && key !== 'success') {
+              result[key] = msg[key];
+            }
+          }
+          resp.result = result;
+          log('ok', 'FC ← ' + msgType.replace('_RESULT', ''));
+        }
+        fcBroadcast(resp);
+      }
+      // Also forward figma-console events (SELECTION_CHANGE, PAGE_CHANGE, etc.)
+      else if (msgType === 'SELECTION_CHANGE' || msgType === 'PAGE_CHANGE' || msgType === 'DOCUMENT_CHANGE') {
+        fcBroadcast(msg);
+      }
+      break;
+    }
+  }
+};
+
+// ── Helpers ─────────────────────────────────────────
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function timeStr() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function timeSince(date) {
+  const s = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (s < 60) return s + 's';
+  if (s < 3600) return Math.floor(s / 60) + 'm';
+  return Math.floor(s / 3600) + 'h ' + Math.floor((s % 3600) / 60) + 'm';
+}
+
+// ── Init ────────────────────────────────────────────
+
+parent.postMessage({ pluginMessage: { type: 'ping' } }, '*');
+renderConn();
+log('info', 'Figma Ark starting...');
+
+// Session timer
+sessionTimer = setInterval(updateSessionTimer, 1000);
+
+// Start scanning for Ark instance
+setTimeout(scan, 300);
+</script>
+</body>
+</html>

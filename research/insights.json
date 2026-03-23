@@ -1,0 +1,250 @@
+{
+  "insights": [
+    {
+      "id": "insight-1",
+      "finding": "Restaurant managers spend 3+ hours weekly on manual labor scheduling",
+      "confidence": "high",
+      "source": "user-interviews.xlsx",
+      "evidence": [
+        "I spend half my Monday just doing the schedule",
+        "We use paper and pencil still, it takes forever",
+        "Scheduling is the worst part of my week",
+        "I have to call everyone individually to check availability",
+        "It takes about 3-4 hours each week, every week",
+        "Sometimes I stay late just to finish the schedule"
+      ],
+      "tags": ["scheduling", "pain-point", "qualitative"],
+      "createdAt": "2026-03-23T10:00:00.000Z"
+    },
+    {
+      "id": "insight-2",
+      "finding": "Labor costs average 30-35% of revenue, with overtime being the primary budget leak",
+      "confidence": "high",
+      "source": "financial-data.xlsx",
+      "evidence": [
+        "Mean labor cost ratio: 32.4%",
+        "Overtime accounts for 8.2% of total labor cost",
+        "Top quartile restaurants keep labor below 28%",
+        "Overtime spikes correlate with understaffing on weekends",
+        "Average overtime cost per location: $2,400/month"
+      ],
+      "tags": ["labor-cost", "quantitative", "overtime"],
+      "createdAt": "2026-03-23T10:05:00.000Z"
+    },
+    {
+      "id": "insight-3",
+      "finding": "Shift swaps and last-minute changes cause 60% of scheduling conflicts",
+      "confidence": "high",
+      "source": "user-interviews.xlsx",
+      "evidence": [
+        "People call out last minute and I have to scramble",
+        "Shift swaps happen 3-4 times a week minimum",
+        "The biggest problem is when someone doesn't show up",
+        "We need a better way to handle swap requests",
+        "Last-minute changes throw off the whole week"
+      ],
+      "tags": ["scheduling", "pain-point", "shift-management"],
+      "createdAt": "2026-03-23T10:10:00.000Z"
+    },
+    {
+      "id": "insight-4",
+      "finding": "Managers want real-time visibility into labor costs vs budget",
+      "confidence": "medium",
+      "source": "user-interviews.xlsx",
+      "evidence": [
+        "I never know if I'm over budget until end of pay period",
+        "Would love to see a live counter of labor spend",
+        "We get surprised by overtime costs every month"
+      ],
+      "tags": ["labor-cost", "feature-request", "dashboard"],
+      "createdAt": "2026-03-23T10:15:00.000Z"
+    },
+    {
+      "id": "insight-5",
+      "finding": "Compliance with break laws and max-hour regulations is a top concern",
+      "confidence": "medium",
+      "source": "user-interviews.xlsx",
+      "evidence": [
+        "We got fined once for break violations",
+        "Keeping track of California labor laws is a nightmare",
+        "I need alerts when someone is approaching overtime"
+      ],
+      "tags": ["compliance", "pain-point", "qualitative"],
+      "createdAt": "2026-03-23T10:20:00.000Z"
+    },
+    {
+      "id": "insight-6",
+      "finding": "Staff prefer mobile-first schedule access over printed schedules",
+      "confidence": "medium",
+      "source": "staff-survey.csv",
+      "evidence": [
+        "Average mobile preference rating: 4.2/5",
+        "72% of staff check schedule on their phone",
+        "Only 15% prefer the printed schedule on the wall"
+      ],
+      "tags": ["mobile", "staff-experience", "quantitative"],
+      "createdAt": "2026-03-23T10:25:00.000Z"
+    },
+    {
+      "id": "insight-7",
+      "finding": "Peak labor demand mismatches current staffing by 20% during Friday-Saturday dinner",
+      "confidence": "high",
+      "source": "pos-sales-data.xlsx",
+      "evidence": [
+        "Friday dinner revenue 40% higher than weekday average",
+        "Saturday requires 2.3x weekday staffing levels",
+        "Understaffing on weekends causes 15% longer wait times",
+        "Current scheduling doesn't account for seasonal demand patterns",
+        "Labor gap analysis shows consistent weekend understaffing"
+      ],
+      "tags": ["demand-forecasting", "quantitative", "scheduling"],
+      "createdAt": "2026-03-23T10:30:00.000Z"
+    },
+    {
+      "id": "insight-8",
+      "finding": "Multi-location operators need consolidated view across all restaurants",
+      "confidence": "low",
+      "source": "user-interviews.xlsx",
+      "evidence": [
+        "I manage 3 locations and can never see the big picture",
+        "Would be great to compare labor costs across stores"
+      ],
+      "tags": ["multi-location", "feature-request"],
+      "createdAt": "2026-03-23T10:35:00.000Z"
+    },
+    {
+      "id": "insight-9",
+      "finding": "Employee availability tracking is mostly done via text messages and memory",
+      "confidence": "medium",
+      "source": "user-interviews.xlsx",
+      "evidence": [
+        "People text me their availability randomly",
+        "I keep it all in my head which is terrible",
+        "We have a shared Google Sheet but nobody updates it"
+      ],
+      "tags": ["scheduling", "pain-point", "availability"],
+      "createdAt": "2026-03-23T10:40:00.000Z"
+    },
+    {
+      "id": "insight-10",
+      "finding": "Average employee satisfaction score: 3.1/5 regarding current scheduling process",
+      "confidence": "high",
+      "source": "staff-survey.csv",
+      "evidence": [
+        "Mean satisfaction: 3.1",
+        "Min: 1",
+        "Max: 5",
+        "N: 147",
+        "Standard deviation: 1.2",
+        "Only 18% rated satisfaction 4 or above"
+      ],
+      "tags": ["staff-experience", "quantitative", "scheduling"],
+      "createdAt": "2026-03-23T10:45:00.000Z"
+    }
+  ],
+  "personas": [
+    {
+      "name": "Restaurant GM",
+      "role": "General manager responsible for day-to-day operations and scheduling",
+      "goals": [
+        "Minimize time spent on scheduling",
+        "Keep labor costs under 30% of revenue",
+        "Ensure proper staffing during peak hours",
+        "Stay compliant with labor regulations"
+      ],
+      "painPoints": [
+        "Manual scheduling takes 3+ hours per week",
+        "No real-time visibility into labor costs",
+        "Last-minute shift changes cause chaos",
+        "Paper-based availability tracking"
+      ],
+      "behaviors": [
+        "Creates schedule every Monday morning",
+        "Uses spreadsheets or paper for scheduling",
+        "Handles shift swaps via phone calls and texts",
+        "Reviews labor costs at end of pay period"
+      ],
+      "source": "Synthesized from 10 findings"
+    },
+    {
+      "name": "Multi-Unit Operator",
+      "role": "Oversees 3-5 restaurant locations with district-level P&L responsibility",
+      "goals": [
+        "Compare performance across locations",
+        "Standardize scheduling practices",
+        "Reduce overall labor cost percentage"
+      ],
+      "painPoints": [
+        "No consolidated view across locations",
+        "Inconsistent scheduling practices between GMs",
+        "Difficult to identify underperforming locations"
+      ],
+      "behaviors": [
+        "Reviews weekly P&L for each location",
+        "Visits each location 1-2 times per week",
+        "Relies on GMs for scheduling decisions"
+      ],
+      "source": "Synthesized from 3 findings"
+    }
+  ],
+  "themes": [
+    {
+      "name": "scheduling",
+      "description": "Core scheduling workflow pain points — manual process, shift swaps, and demand mismatch",
+      "insights": ["insight-1", "insight-3", "insight-7", "insight-9", "insight-10"],
+      "frequency": 5
+    },
+    {
+      "name": "labor-cost",
+      "description": "Labor cost visibility, overtime tracking, and budget management",
+      "insights": ["insight-2", "insight-4"],
+      "frequency": 2
+    },
+    {
+      "name": "pain-point",
+      "description": "User frustrations with current tools and processes",
+      "insights": ["insight-1", "insight-3", "insight-5", "insight-9"],
+      "frequency": 4
+    },
+    {
+      "name": "quantitative",
+      "description": "Data-backed findings from surveys, POS data, and financial analysis",
+      "insights": ["insight-2", "insight-6", "insight-7", "insight-10"],
+      "frequency": 4
+    },
+    {
+      "name": "qualitative",
+      "description": "Interview and observational findings from user research sessions",
+      "insights": ["insight-1", "insight-5"],
+      "frequency": 2
+    },
+    {
+      "name": "staff-experience",
+      "description": "Employee-side experience with scheduling and communication",
+      "insights": ["insight-6", "insight-10"],
+      "frequency": 2
+    }
+  ],
+  "sources": [
+    {
+      "name": "user-interviews.xlsx",
+      "type": "excel",
+      "processedAt": "2026-03-23T10:00:00.000Z"
+    },
+    {
+      "name": "financial-data.xlsx",
+      "type": "excel",
+      "processedAt": "2026-03-23T10:05:00.000Z"
+    },
+    {
+      "name": "staff-survey.csv",
+      "type": "excel",
+      "processedAt": "2026-03-23T10:25:00.000Z"
+    },
+    {
+      "name": "pos-sales-data.xlsx",
+      "type": "excel",
+      "processedAt": "2026-03-23T10:30:00.000Z"
+    }
+  ]
+}

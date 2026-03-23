@@ -1,0 +1,32 @@
+{
+  "name": "RevenueChart",
+  "type": "dataviz",
+  "purpose": "RevenueChart chart",
+  "chartType": "line",
+  "library": "recharts",
+  "dataShape": {
+    "x": "date",
+    "y": "number"
+  },
+  "interactions": [
+    "hover-tooltip"
+  ],
+  "accessibility": {
+    "altText": "required",
+    "keyboardNav": true,
+    "dataTableFallback": true
+  },
+  "responsive": {
+    "mobile": {
+      "height": 200,
+      "simplify": true
+    },
+    "desktop": {
+      "height": 400
+    }
+  },
+  "shadcnWrapper": "Card",
+  "tags": [],
+  "createdAt": "2026-03-23T15:32:05.743Z",
+  "updatedAt": "2026-03-23T15:32:05.743Z"
+}

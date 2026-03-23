@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labor Budgeting Design System — AgenticUI</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      /* Colors */
+      --bg: #0A0A0A;
+      --surface: #141414;
+      --border: #262626;
+      --text-primary: #FAFAFA;
+      --text-secondary: #A1A1AA;
+      --accent-success: #22C55E;
+      --accent-warning: #EAB308;
+      --accent-error: #EF4444;
+      --accent-info: #3B82F6;
+
+      /* Typography */
+      --mono: "IBM Plex Mono", "Space Mono", monospace;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* HEADER / NAVIGATION                       */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-logo {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent-success);
+    }
+
+    .header-nav {
+      display: flex;
+      gap: var(--spacing-lg);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-divider {
+      color: var(--border);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--accent-success);
+      color: var(--bg);
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 2px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* BREADCRUMB                                */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .breadcrumb {
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .breadcrumb a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--accent-info);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* MAIN CONTAINER                           */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--spacing-xl);
+    }
+
+    .section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .section-title::before {
+      content: "┌";
+      margin-right: var(--spacing-sm);
+      color: var(--accent-info);
+    }
+
+    .section-title::after {
+      content: "┐";
+      position: absolute;
+      right: 0;
+      color: var(--accent-info);
+    }
+
+    .subsection-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-top: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* COLOR PALETTE                            */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .color-swatch {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .color-swatch:hover {
+      transform: translateY(-2px);
+      border-color: var(--text-secondary);
+    }
+
+    .swatch-visual {
+      height: 80px;
+      width: 100%;
+    }
+
+    .swatch-info {
+      padding: var(--spacing-sm);
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .swatch-name {
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .swatch-hex {
+      color: var(--text-secondary);
+      font-family: var(--mono);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* TYPOGRAPHY                               */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .typography-stack {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: var(--spacing-lg);
+      border-radius: 3px;
+    }
+
+    .typography-item {
+      display: flex;
+      align-items: baseline;
+      gap: var(--spacing-lg);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: var(--spacing-md);
+    }
+
+    .typography-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .typography-label {
+      min-width: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .typography-h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .typography-h2 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .typography-h3 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .typography-body {
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .typography-caption {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    .typography-label-text {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* BUTTONS                                  */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    button, .btn {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: none;
+      color: var(--text-primary);
+    }
+
+    .btn-primary {
+      background: var(--text-primary);
+      color: var(--bg);
+      border-color: var(--text-primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--surface);
+      color: var(--text-primary);
+      border-color: var(--text-primary);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text-secondary);
+      color: var(--text-secondary);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+    }
+
+    .btn-ghost:hover {
+      color: var(--text-primary);
+    }
+
+    .btn-success {
+      background: transparent;
+      border-color: var(--accent-success);
+      color: var(--accent-success);
+    }
+
+    .btn-success:hover {
+      background: var(--accent-success);
+      color: var(--bg);
+    }
+
+    .btn-warning {
+      background: transparent;
+      border-color: var(--accent-warning);
+      color: var(--accent-warning);
+    }
+
+    .btn-warning:hover {
+      background: var(--accent-warning);
+      color: var(--bg);
+    }
+
+    .btn-error {
+      background: transparent;
+      border-color: var(--accent-error);
+      color: var(--accent-error);
+    }
+
+    .btn-error:hover {
+      background: var(--accent-error);
+      color: var(--bg);
+    }
+
+    .btn-info {
+      background: transparent;
+      border-color: var(--accent-info);
+      color: var(--accent-info);
+    }
+
+    .btn-info:hover {
+      background: var(--accent-info);
+      color: var(--bg);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* INPUT FIELDS                             */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-md);
+      max-width: 320px;
+    }
+
+    label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--surface);
+      color: var(--text-primary);
+      font-family: var(--mono);
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-info);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23A1A1AA' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* BADGES & TAGS                            */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 4px 12px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .badge-active {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--accent-success);
+      color: var(--accent-success);
+    }
+
+    .badge-warning {
+      background: rgba(234, 179, 8, 0.15);
+      border: 1px solid var(--accent-warning);
+      color: var(--accent-warning);
+    }
+
+    .badge-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--accent-error);
+      color: var(--accent-error);
+    }
+
+    .badge-info {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid var(--accent-info);
+      color: var(--accent-info);
+    }
+
+    .badge-muted {
+      background: rgba(161, 161, 170, 0.1);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .badge::before {
+      content: "●";
+      opacity: 0.7;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* CARDS                                    */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .card-showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: var(--text-secondary);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-chrome {
+      display: flex;
+      gap: 6px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .chrome-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .card-header {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .card-body {
+      padding: var(--spacing-md);
+    }
+
+    .card-content {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .card-content:last-child {
+      margin-bottom: 0;
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .metric-trend {
+      font-size: 10px;
+      margin-top: 4px;
+      color: var(--accent-success);
+    }
+
+    .metric-trend.negative {
+      color: var(--accent-error);
+    }
+
+    .employee-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 3px;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .employee-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .employee-role {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .alert-card {
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid var(--accent-error);
+      padding: var(--spacing-md);
+      border-radius: 3px;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .alert-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-error);
+      margin-bottom: 4px;
+    }
+
+    .alert-message {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* TABLES                                   */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      padding: var(--spacing-md);
+      text-align: left;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border-right: 1px solid var(--border);
+    }
+
+    th:last-child {
+      border-right: none;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      padding: var(--spacing-md);
+      border-right: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    td:last-child {
+      border-right: none;
+    }
+
+    .td-numeric {
+      text-align: right;
+      font-family: var(--mono);
+    }
+
+    .td-danger {
+      color: var(--accent-error);
+      font-weight: 700;
+    }
+
+    .td-success {
+      color: var(--accent-success);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* PROGRESS BARS                            */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .progress-item {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .progress-label-name {
+      color: var(--text-primary);
+    }
+
+    .progress-label-value {
+      color: var(--text-secondary);
+    }
+
+    .progress-bar {
+      height: 16px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      color: var(--bg);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 4px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-fill-success {
+      background: linear-gradient(90deg, var(--accent-success) 0%, #16a34a 100%);
+    }
+
+    .progress-fill-warning {
+      background: linear-gradient(90deg, var(--accent-warning) 0%, #ca8a04 100%);
+    }
+
+    .progress-fill-error {
+      background: linear-gradient(90deg, var(--accent-error) 0%, #dc2626 100%);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* CORNER BRACKET FRAMES                    */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .bracket-frame {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: var(--spacing-lg);
+      border-radius: 3px;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .bracket-frame::before {
+      content: "┌─────────────────┐";
+      position: absolute;
+      top: -20px;
+      left: 0;
+      font-size: 11px;
+      color: var(--accent-info);
+      letter-spacing: 1px;
+    }
+
+    .bracket-frame::after {
+      content: "└─────────────────┘";
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      font-size: 11px;
+      color: var(--accent-info);
+      letter-spacing: 1px;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* SIDEBAR NAVIGATION                       */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .sidebar-demo {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      width: 220px;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .sidebar-item {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sidebar-item:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar-item:hover {
+      background: var(--bg);
+      color: var(--text-primary);
+      border-left: 3px solid var(--accent-info);
+      padding-left: calc(var(--spacing-md) - 3px);
+    }
+
+    .sidebar-item.active {
+      background: var(--bg);
+      color: var(--accent-info);
+      border-left: 3px solid var(--accent-info);
+      padding-left: calc(var(--spacing-md) - 3px);
+      font-weight: 700;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* UTILITIES                                */
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-lg);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-lg);
+    }
+
+    .flex-row {
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: center;
+    }
+
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .mb-lg {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .mt-lg {
+      margin-top: var(--spacing-lg);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: var(--spacing-lg);
+      }
+
+      .header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">⚙ LABOR BUDGET</div>
+  <div class="header-nav">
+    <span class="nav-link">Dashboard</span>
+    <span class="nav-divider">/</span>
+    <span class="nav-link">Design System</span>
+    <span class="nav-divider">/</span>
+    <span class="status-badge">Live</span>
+  </div>
+</div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  Dashboard / Design System / Component Library
+</div>
+
+<div class="container">
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- COLOR PALETTE                           -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section">
+    <h2 class="section-title">Color Palette</h2>
+
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="swatch-visual" style="background: #0A0A0A;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Background</div>
+          <div class="swatch-hex">#0A0A0A</div>
+        </div>
+      </div>
+
+      <div class="color-swatch">
+        <div class="swatch-visual" style="background: #141414;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Surface</div>
+          <div class="swatch-hex">#141414</div>
+        </div>
+      </div>
+
+      <div class="color-swatch">
+        <div class="swatch-visual" style="background: #262626;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Border</div>
+          <div class="swatch-hex">#262626</div>
+        </div>
+      </div>
+
+      <div class="color-swatch">
+        <div class="swatch-visual" style="background: #FAFAFA;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Text Primary</div>
+          <div class="swatch-hex">#FAFAFA</div>
+        </div>
+      </div>
+
+      <div class="color-swatch">
+        <div class="swatch-visual" style="background: #A1A1AA;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Text Secondary</div>
+          <div class="swatch-hex">#A1A1AA</div>
+        </div>
+      </div>
+
+      <div class="color-swatch">
+        <div class="swatch-visual" style="background: #22C55E;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Success</div>
+          <div class="swatch-hex">#22C55E</div>
+        </div>
+      </div>
+
+      <div class="color-swatch">
+        <div class="swatch-visual" style="background: #EAB308;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Warning</div>
+          <div class="swatch-hex">#EAB308</div>
+        </div>
+      </div>
+
+      <div class="color-swatch">
+        <div class="swatch-visual" style="background: #EF4444;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Error</div>
+          <div class="swatch-hex">#EF4444</div>
+        </div>
+      </div>
+
+      <div class="color-swatch">
+        <div class="swatch-visual" style="background: #3B82F6;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Info</div>
+          <div class="swatch-hex">#3B82F6</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TYPOGRAPHY SCALE                        -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section">
+    <h2 class="section-title">Typography Scale</h2>
+
+    <div class="typography-stack">
+      <div class="typography-item">
+        <span class="typography-label">H1 (32px)</span>
+        <span class="typography-h1">Restaurant Labor Budget System</span>
+      </div>
+
+      <div class="typography-item">
+        <span class="typography-label">H2 (24px)</span>
+        <span class="typography-h2">Weekly Labor Report</span>
+      </div>
+
+      <div class="typography-item">
+        <span class="typography-label">H3 (18px)</span>
+        <span class="typography-h3">Schedule Overview</span>
+      </div>
+
+      <div class="typography-item">
+        <span class="typography-label">BODY (14px)</span>
+        <span class="typography-body">The quick brown fox jumps over the lazy dog. Monospace typography ensures clarity and precision in data-heavy interfaces.</span>
+      </div>
+
+      <div class="typography-item">
+        <span class="typography-label">CAPTION (12px)</span>
+        <span class="typography-caption">Last updated 23 March 2026 at 14:32 UTC</span>
+      </div>
+
+      <div class="typography-item">
+        <span class="typography-label">LABEL (11px CAPS)</span>
+        <span class="typography-label-text">EMPLOYEE ID</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- BUTTONS                                 -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section">
+    <h2 class="section-title">Buttons</h2>
+
+    <div class="subsection-title">PRIMARY ACTIONS</div>
+    <div class="button-grid">
+      <button class="btn btn-primary">Save Changes</button>
+      <button class="btn btn-primary">Publish Schedule</button>
+      <button class="btn btn-primary">Confirm Shift</button>
+      <button class="btn btn-primary">Export Report</button>
+    </div>
+
+    <div class="subsection-title">SECONDARY ACTIONS</div>
+    <div class="button-grid">
+      <button class="btn btn-secondary">Cancel</button>
+      <button class="btn btn-secondary">Undo</button>
+      <button class="btn btn-secondary">Filter</button>
+      <button class="btn btn-secondary">Sort</button>
+    </div>
+
+    <div class="subsection-title">STATE BUTTONS</div>
+    <div class="button-grid">
+      <button class="btn btn-success">✓ Approve</button>
+      <button class="btn btn-warning">⚠ Review</button>
+      <button class="btn btn-error">✕ Reject</button>
+      <button class="btn btn-info">ⓘ Details</button>
+    </div>
+
+    <div class="subsection-title">GHOST</div>
+    <div class="button-grid">
+      <button class="btn btn-ghost">Learn More</button>
+      <button class="btn btn-ghost">Help</button>
+      <button class="btn btn-ghost">Settings</button>
+      <button class="btn btn-ghost">Close</button>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- INPUT FIELDS                            -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section">
+    <h2 class="section-title">Input Fields</h2>
+
+    <div class="grid-2">
+      <div>
+        <div class="form-group">
+          <label>Employee Name</label>
+          <input type="text" placeholder="Maria Chen" value="Maria Chen">
+        </div>
+
+        <div class="form-group">
+          <label>Scheduled Hours</label>
+          <input type="number" placeholder="40.5" value="40.5">
+        </div>
+
+        <div class="form-group">
+          <label>Search Employee</label>
+          <input type="text" placeholder="Type name or ID...">
+        </div>
+      </div>
+
+      <div>
+        <div class="form-group">
+          <label>Role</label>
+          <select>
+            <option>Select role...</option>
+            <option selected>Line Cook</option>
+            <option>Server</option>
+            <option>Sous Chef</option>
+            <option>Host</option>
+            <option>Manager</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Budget Status</label>
+          <select>
+            <option>All</option>
+            <option selected>Over Budget</option>
+            <option>On Track</option>
+            <option>Under Budget</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea placeholder="Add schedule notes..." rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- BADGES                                  -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section">
+    <h2 class="section-title">Badges & Status Indicators</h2>
+
+    <div class="subsection-title">SHIFT STATUS</div>
+    <div class="badge-row">
+      <span class="badge badge-active">Active Shift</span>
+      <span class="badge badge-warning">Break</span>
+      <span class="badge badge-muted">Off Shift</span>
+      <span class="badge badge-info">Scheduled</span>
+    </div>
+
+    <div class="subsection-title">BUDGET STATUS</div>
+    <div class="badge-row">
+      <span class="badge badge-active">On Budget</span>
+      <span class="badge badge-warning">Approaching Limit</span>
+      <span class="badge badge-error">Over Budget</span>
+    </div>
+
+    <div class="subsection-title">EMPLOYEE STATUS</div>
+    <div class="badge-row">
+      <span class="badge badge-active">Full Time</span>
+      <span class="badge badge-info">Part Time</span>
+      <span class="badge badge-muted">Temporary</span>
+      <span class="badge badge-error">On Leave</span>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- CARDS                                   -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section">
+    <h2 class="section-title">Card Components</h2>
+
+    <div class="subsection-title">METRIC CARDS</div>
+    <div class="card-showcase">
+      <div class="card">
+        <div class="card-chrome">
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+        </div>
+        <div class="card-body">
+          <div class="card-content">
+            <div class="metric-value">$18,240</div>
+            <div class="metric-label">Weekly Labor Cost</div>
+            <div class="metric-trend">↑ 3.2% vs last week</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-chrome">
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+        </div>
+        <div class="card-body">
+          <div class="card-content">
+            <div class="metric-value">87.4%</div>
+            <div class="metric-label">Budget Utilization</div>
+            <div class="metric-trend">On track</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-chrome">
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+        </div>
+        <div class="card-body">
+          <div class="card-content">
+            <div class="metric-value">24</div>
+            <div class="metric-label">Staff Scheduled</div>
+            <div class="metric-trend">3 out on leave</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection-title">EMPLOYEE CARDS</div>
+    <div class="card-showcase">
+      <div class="card">
+        <div class="card-chrome">
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+        </div>
+        <div class="card-body">
+          <div class="employee-avatar">MC</div>
+          <div class="employee-name">Maria Chen</div>
+          <div class="employee-role">Line Cook</div>
+          <div style="margin-top: var(--spacing-md);">
+            <span class="badge badge-active">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-chrome">
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+        </div>
+        <div class="card-body">
+          <div class="employee-avatar">JW</div>
+          <div class="employee-name">James Wilson</div>
+          <div class="employee-role">Server</div>
+          <div style="margin-top: var(--spacing-md);">
+            <span class="badge badge-info">Scheduled</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-chrome">
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+          <span class="chrome-dot"></span>
+        </div>
+        <div class="card-body">
+          <div class="employee-avatar">SK</div>
+          <div class="employee-name">Sofia Kowalski</div>
+          <div class="employee-role">Sous Chef</div>
+          <div style="margin-top: var(--spacing-md);">
+            <span class="badge badge-muted">Off Shift</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection-title">ALERT CARD</div>
+    <div class="alert-card">
+      <div class="alert-title">⚠ Labor Budget Alert</div>
+      <div class="alert-message">
+        Your restaurant is trending 12% over budget for this week. Consider adjusting next week's schedule or reviewing shift allocations.
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TABLES                                  -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section">
+    <h2 class="section-title">Data Table</h2>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Role</th>
+            <th class="td-numeric">Scheduled Hrs</th>
+            <th class="td-numeric">Actual Hrs</th>
+            <th class="td-numeric">Variance</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Maria Chen</td>
+            <td>Line Cook</td>
+            <td class="td-numeric">40.0</td>
+            <td class="td-numeric">40.5</td>
+            <td class="td-numeric td-success">+0.5</td>
+            <td><span class="badge badge-active">On Budget</span></td>
+          </tr>
+          <tr>
+            <td>James Wilson</td>
+            <td>Server</td>
+            <td class="td-numeric">32.0</td>
+            <td class="td-numeric">32.0</td>
+            <td class="td-numeric">0.0</td>
+            <td><span class="badge badge-active">On Budget</span></td>
+          </tr>
+          <tr>
+            <td>Sofia Kowalski</td>
+            <td>Sous Chef</td>
+            <td class="td-numeric">45.0</td>
+            <td class="td-numeric">48.5</td>
+            <td class="td-numeric td-danger">+3.5</td>
+            <td><span class="badge badge-warning">Approaching</span></td>
+          </tr>
+          <tr>
+            <td>Antonio Rossi</td>
+            <td>Pastry Chef</td>
+            <td class="td-numeric">38.0</td>
+            <td class="td-numeric">42.0</td>
+            <td class="td-numeric td-danger">+4.0</td>
+            <td><span class="badge badge-error">Over Budget</span></td>
+          </tr>
+          <tr>
+            <td>Lisa Park</td>
+            <td>Host</td>
+            <td class="td-numeric">24.0</td>
+            <td class="td-numeric">24.0</td>
+            <td class="td-numeric">0.0</td>
+            <td><span class="badge badge-active">On Budget</span></td>
+          </tr>
+          <tr>
+            <td>David Martinez</td>
+            <td>Dishwasher</td>
+            <td class="td-numeric">20.0</td>
+            <td class="td-numeric">20.0</td>
+            <td class="td-numeric">0.0</td>
+            <td><span class="badge badge-active">On Budget</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- PROGRESS BARS                           -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section">
+    <h2 class="section-title">Progress & Budget Bars</h2>
+
+    <div class="subsection-title">LABOR BUDGET UTILIZATION</div>
+
+    <div class="progress-item">
+      <div class="progress-label">
+        <span class="progress-label-name">Monday</span>
+        <span class="progress-label-value">68 / 80 hrs (85%)</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill progress-fill-success" style="width: 85%;">
+          <span style="margin-left: auto; padding-right: 4px;">85%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-item">
+      <div class="progress-label">
+        <span class="progress-label-name">Tuesday</span>
+        <span class="progress-label-value">78 / 80 hrs (97%)</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill progress-fill-warning" style="width: 97%;">
+          <span style="margin-left: auto; padding-right: 4px;">97%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-item">
+      <div class="progress-label">
+        <span class="progress-label-name">Wednesday</span>
+        <span class="progress-label-value">92 / 80 hrs (115%)</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill progress-fill-error" style="width: 100%;">
+          <span style="margin-left: auto; padding-right: 4px;">115%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-item">
+      <div class="progress-label">
+        <span class="progress-label-name">Thursday</span>
+        <span class="progress-label-value">72 / 80 hrs (90%)</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill progress-fill-success" style="width: 90%;">
+          <span style="margin-left: auto; padding-right: 4px;">90%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- BRACKET FRAMES                          -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section" style="margin-top: 60px;">
+    <h2 class="section-title">Bracket Frame Element</h2>
+
+    <div class="bracket-frame" style="margin-top: 30px;">
+      <h3 style="font-size: 16px; font-weight: 700; margin-bottom: var(--spacing-md);">Framed Content Section</h3>
+      <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--spacing-md);">
+        The corner bracket decoration (┌ ┐ └ ┘) provides visual framing for important content sections. This monospace ASCII-art style is a signature element of the AgenticUI aesthetic.
+      </p>
+      <p style="color: var(--text-secondary); font-size: 12px;">
+        Use brackets to frame key metrics, alerts, or important information that needs visual distinction.
+      </p>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- NAVIGATION                              -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section">
+    <h2 class="section-title">Navigation</h2>
+
+    <div class="grid-2">
+      <div>
+        <div class="subsection-title">SIDEBAR MENU</div>
+        <div class="sidebar-demo">
+          <div class="sidebar-item active">Dashboard</div>
+          <div class="sidebar-item">Schedule</div>
+          <div class="sidebar-item">Labor Reports</div>
+          <div class="sidebar-item">Budget Forecast</div>
+          <div class="sidebar-item">Team Members</div>
+          <div class="sidebar-item">Settings</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="subsection-title">BREADCRUMB PATTERN</div>
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: var(--spacing-md); border-radius: 3px; font-size: 12px;">
+          <span style="color: var(--text-secondary);">Dashboard</span>
+          <span style="color: var(--text-secondary); margin: 0 4px;">/</span>
+          <span style="color: var(--text-secondary);">Labor Reports</span>
+          <span style="color: var(--text-secondary); margin: 0 4px;">/</span>
+          <span style="color: var(--accent-info);">Weekly Summary</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- FOOTER                                  -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="section" style="border-top: 1px solid var(--border); padding-top: var(--spacing-lg); margin-top: var(--spacing-xl); text-align: center; color: var(--text-secondary); font-size: 11px;">
+    <p>Labor Budgeting Design System — AgenticUI Aesthetic</p>
+    <p style="margin-top: 8px;">Monospace typography, terminal-paper hybrid, corner brackets, and minimalist styling</p>
+    <p style="margin-top: 8px; font-size: 10px;">Built with IBM Plex Mono • Generated 23 March 2026</p>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ark Preview</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --bg-card: #111111;
+  --bg-hover: #1a1a1a;
+  --fg: #e0e0e0;
+  --fg-muted: #666666;
+  --border: #222222;
+  --accent: #d4d4d4;
+  --accent-bright: #ffffff;
+  --accent-dim: #444444;
+  --chart-1: #ffffff;
+  --chart-2: #888888;
+  --chart-3: #555555;
+  --chart-4: #aaaaaa;
+  --warn: #ffaa00;
+  --error: #ff4444;
+  --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
+  --radius: 3px;
+}
+
+body {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Header ──────────────────────────────── */
+.hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.hdr-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.hdr-title span { color: var(--accent-bright); }
+
+.hdr-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 10px;
+  color: var(--fg-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hdr-stats .n { color: var(--accent-bright); font-weight: 700; margin-right: 3px; }
+
+/* ── Filter Bar ──────────────────────────── */
+.filters {
+  display: flex;
+  gap: 4px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--fg-muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover { border-color: var(--accent); color: var(--fg); }
+.filter-btn.active { background: var(--accent-dim); color: var(--accent-bright); border-color: var(--accent); font-weight: 700; }
+
+/* ── Grid ────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+  padding: 24px;
+}
+
+/* ── Card ────────────────────────────────── */
+.card {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg-card);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.card:hover { border-color: var(--accent-dim); }
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.card-type {
+  font-size: 9px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--fg-muted);
+}
+
+.card-type.component { border-color: var(--accent); color: var(--accent); }
+.card-type.dataviz { border-color: var(--accent); color: var(--accent); }
+.card-type.page { border-color: var(--accent); color: var(--accent); }
+.card-type.design { border-color: var(--accent); color: var(--accent); }
+.card-type.ia { border-color: var(--accent); color: var(--accent); }
+
+.card-body { padding: 16px; }
+
+.card-purpose {
+  font-size: 11px;
+  color: var(--fg-muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+  font-family: var(--mono);
+}
+
+.card-section {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--fg-muted);
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+
+.card-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.tag {
+  font-size: 9px;
+  padding: 1px 7px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--fg-muted);
+  letter-spacing: 0.5px;
+}
+
+/* ── Component Preview ───────────────────── */
+.comp-preview {
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 12px;
+  background: var(--bg);
+}
+
+.comp-variants {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.variant {
+  font-size: 10px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--accent);
+}
+
+.comp-props {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  font-size: 10px;
+}
+
+.comp-props .k { color: var(--accent); }
+.comp-props .v { color: var(--fg-muted); }
+
+.shadcn-base {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.shadcn-chip {
+  font-size: 9px;
+  padding: 2px 8px;
+  background: var(--accent-dim);
+  border-radius: 2px;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+/* ── Chart Preview (SVG) ─────────────────── */
+.chart-wrap {
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--bg);
+  padding: 12px;
+  position: relative;
+}
+
+.chart-wrap svg {
+  width: 100%;
+  height: 120px;
+  display: block;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 10px;
+}
+
+.chart-legend span::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.chart-legend .s1::before { background: var(--chart-1); }
+.chart-legend .s2::before { background: var(--chart-2); }
+
+.chart-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+  font-size: 10px;
+  margin-top: 10px;
+}
+
+.chart-meta .k { color: var(--fg-muted); }
+.chart-meta .v { color: var(--fg); }
+
+/* ── Page Preview ────────────────────────── */
+.page-layout {
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--bg);
+  padding: 8px;
+  min-height: 100px;
+}
+
+.page-section {
+  border: 1px dashed #333;
+  border-radius: 2px;
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+}
+
+.page-section .sec-name { color: var(--accent); font-weight: 600; }
+.page-section .sec-meta { color: var(--fg-muted); }
+
+.page-responsive {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 10px;
+}
+
+.page-responsive .bp {
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.page-responsive .bp .bp-label { color: var(--fg-muted); font-size: 9px; }
+.page-responsive .bp .bp-val { color: var(--fg); }
+
+/* ── Design Preview ──────────────────────── */
+.design-dims {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+
+.spacing-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.spacing-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  padding: 4px 8px;
+  background: var(--bg);
+  border-radius: 2px;
+}
+
+.spacing-item .target { color: var(--accent); min-width: 80px; }
+
+.spacing-visual {
+  height: 6px;
+  background: var(--accent-dim);
+  border-radius: 1px;
+  flex: 1;
+  position: relative;
+}
+
+.spacing-visual .fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+/* ── Color Swatches ──────────────────────── */
+.color-bar {
+  display: flex;
+  gap: 2px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.1s;
+  position: relative;
+}
+
+.swatch:hover { transform: scale(1.3); z-index: 1; }
+
+/* ── Empty State ─────────────────────────── */
+.empty {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--fg-muted);
+  font-size: 12px;
+  line-height: 2;
+}
+
+.empty code {
+  background: var(--bg-card);
+  padding: 2px 8px;
+  border-radius: 2px;
+  color: var(--accent);
+}
+
+/* ── IA Tree ─────────────────────────────── */
+.ia-node {
+  padding: 3px 0 3px var(--indent, 0px);
+  border-left: 1px solid var(--border);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ia-node .ia-type {
+  font-size: 8px;
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ia-node .ia-label { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-title"><span>ARK</span> PREVIEW</div>
+  <div class="hdr-stats">
+    <span><span class="n">4</span>SPECS</span>
+    <span><span class="n">1</span>COMPONENTS</span>
+    <span><span class="n">2</span>DATAVIZ</span>
+    <span><span class="n">1</span>PAGES</span>
+    <span><span class="n">0</span>TOKENS</span>
+    <a href="research.html" style="color:#d4d4d4;text-decoration:none;border:1px solid #444444;padding:2px 10px;border-radius:2px;font-size:10px;letter-spacing:1px;transition:all 0.15s" onmouseover="this.style.borderColor='#d4d4d4'" onmouseout="this.style.borderColor='#444444'">10 RESEARCH</a>
+  </div>
+</div>
+
+
+
+<div class="filters">
+  <button class="filter-btn active" onclick="filter('all',this)">ALL (4)</button>
+  <button class="filter-btn" onclick="filter('component',this)">COMPONENTS (1)</button>
+  <button class="filter-btn" onclick="filter('dataviz',this)">DATAVIZ (2)</button>
+  <button class="filter-btn" onclick="filter('page',this)">PAGES (1)</button>
+  <button class="filter-btn" onclick="filter('design',this)">DESIGN (0)</button>
+  <button class="filter-btn" onclick="filter('ia',this)">IA (0)</button>
+</div>
+
+<div class="grid" id="grid">
+
+
+<div class="card" data-type="component">
+  <div class="card-head">
+    <span class="card-name">MetricCard</span>
+    <span class="card-type component">COMPONENT</span>
+  </div>
+  <div class="card-body">
+    <div class="card-purpose">Display a single KPI metric with title, value, and optional trend indicator</div>
+    <div class="comp-preview">
+      <div class="card-section">VARIANTS</div>
+      <div class="comp-variants">
+        <span class="variant">default</span><span class="variant">compact</span><span class="variant">highlighted</span>
+      </div>
+      <div class="card-section">PROPS</div>
+      <div class="comp-props">
+        <span class="k">title</span><span class="v">string</span><span class="k">value</span><span class="v">string</span><span class="k">change</span><span class="v">string?</span><span class="k">trend</span><span class="v">up | down | flat</span>
+      </div>
+      <div class="card-section">SHADCN BASE</div>
+      <div class="shadcn-base">
+        <span class="shadcn-chip">Card</span><span class="shadcn-chip">Badge</span>
+      </div>
+    </div>
+    <div class="card-tags"><span class="tag">dashboard</span><span class="tag">kpi</span></div>
+  </div>
+</div>
+
+<div class="card" data-type="dataviz">
+  <div class="card-head">
+    <span class="card-name">ActivityChart</span>
+    <span class="card-type dataviz">AREA</span>
+  </div>
+  <div class="card-body">
+    <div class="card-purpose">Show daily activity trend over the last 30 days</div>
+    <div class="chart-wrap">
+      <svg viewBox="0 0 300 120" preserveAspectRatio="none">
+        <path d="M4,92.82758620689656 L52.666666666666664,87.03448275862068 L101.33333333333333,81.24137931034483 L150,88.9655172413793 L198.66666666666666,77.37931034482759 L247.33333333333334,98.62068965517241 L296,102.48275862068965 L296,116 L4,116 Z" fill="var(--chart-1)" opacity="0.15"/>
+        <path d="M4,92.82758620689656 L52.666666666666664,87.03448275862068 L101.33333333333333,81.24137931034483 L150,88.9655172413793 L198.66666666666666,77.37931034482759 L247.33333333333334,98.62068965517241 L296,102.48275862068965" fill="none" stroke="var(--chart-1)" stroke-width="2"/>
+        <path d="M4,50.344827586206904 L52.666666666666664,34.896551724137936 L101.33333333333333,17.51724137931035 L150,42.62068965517241 L198.66666666666666,4 L247.33333333333334,75.44827586206897 L296,85.10344827586206 L296,116 L4,116 Z" fill="var(--chart-2)" opacity="0.15"/>
+        <path d="M4,50.344827586206904 L52.666666666666664,34.896551724137936 L101.33333333333333,17.51724137931035 L150,42.62068965517241 L198.66666666666666,4 L247.33333333333334,75.44827586206897 L296,85.10344827586206" fill="none" stroke="var(--chart-2)" stroke-width="2"/>
+        <line x1="4" y1="4" x2="4" y2="116" stroke="#222" stroke-width="0.5"/>
+        <line x1="52.666666666666664" y1="4" x2="52.666666666666664" y2="116" stroke="#222" stroke-width="0.5"/>
+        <line x1="101.33333333333333" y1="4" x2="101.33333333333333" y2="116" stroke="#222" stroke-width="0.5"/>
+        <line x1="150" y1="4" x2="150" y2="116" stroke="#222" stroke-width="0.5"/>
+        <line x1="198.66666666666666" y1="4" x2="198.66666666666666" y2="116" stroke="#222" stroke-width="0.5"/>
+        <line x1="247.33333333333334" y1="4" x2="247.33333333333334" y2="116" stroke="#222" stroke-width="0.5"/>
+        <line x1="296" y1="4" x2="296" y2="116" stroke="#222" stroke-width="0.5"/>
+      </svg>
+      <div class="chart-legend">
+        <span class="s1">users</span><span class="s2">sessions</span>
+      </div>
+    </div>
+    <div class="chart-meta">
+      <span class="k">Library</span><span class="v">recharts</span>
+      <span class="k">X Axis</span><span class="v">date</span>
+      <span class="k">Y Axis</span><span class="v">value</span>
+      <span class="k">Interactions</span><span class="v">hover-tooltip, brush</span>
+    </div>
+    <div class="card-tags"><span class="tag">dashboard</span><span class="tag">analytics</span></div>
+  </div>
+</div>
+<div class="card" data-type="dataviz">
+  <div class="card-head">
+    <span class="card-name">RevenueChart</span>
+    <span class="card-type dataviz">LINE</span>
+  </div>
+  <div class="card-body">
+    <div class="card-purpose">RevenueChart chart</div>
+    <div style="padding:20px; text-align:center; color:var(--fg-muted); border:1px dashed var(--border); border-radius:2px">No sample data</div>
+    <div class="chart-meta">
+      <span class="k">Library</span><span class="v">recharts</span>
+      <span class="k">X Axis</span><span class="v">date</span>
+      <span class="k">Y Axis</span><span class="v">number</span>
+      <span class="k">Interactions</span><span class="v">hover-tooltip</span>
+    </div>
+    
+  </div>
+</div>
+
+<div class="card" data-type="page">
+  <div class="card-head">
+    <span class="card-name">Dashboard</span>
+    <span class="card-type page">DASHBOARD</span>
+  </div>
+  <div class="card-body">
+    <div class="card-purpose">Main application dashboard showing KPIs and activity trends</div>
+    <div class="page-layout">
+      <div class="page-section">
+        <span class="sec-name">metrics-row</span>
+        <span class="sec-meta">MetricCard &times;4 &middot; grid-4</span>
+      </div><div class="page-section">
+        <span class="sec-name">activity-chart</span>
+        <span class="sec-meta">ActivityChart &middot; full-width</span>
+      </div>
+      
+    </div>
+    <div class="page-responsive">
+      <div class="bp"><span class="bp-label">MOBILE </span><span class="bp-val">stack</span></div>
+      <div class="bp"><span class="bp-label">TABLET </span><span class="bp-val">grid-2</span></div>
+      <div class="bp"><span class="bp-label">DESKTOP </span><span class="bp-val">grid-4</span></div>
+    </div>
+    <div class="card-tags"><span class="tag">dashboard</span></div>
+  </div>
+</div>
+
+
+
+
+
+</div>
+
+<script>
+function filter(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(card => {
+    card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

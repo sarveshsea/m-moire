@@ -1,0 +1,43 @@
+{
+  "name": "Figma Ark",
+  "id": "figma-ark-bridge",
+  "api": "1.0.0",
+  "editorType": ["figma", "figjam", "slides", "dev"],
+  "main": "code.js",
+  "ui": "ui.html",
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"],
+    "reasoning": "Connects to local Ark engine via WebSocket on localhost",
+    "devAllowedDomains": [
+      "http://localhost:9223",
+      "http://localhost:9224",
+      "http://localhost:9225",
+      "http://localhost:9226",
+      "http://localhost:9227",
+      "http://localhost:9228",
+      "http://localhost:9229",
+      "http://localhost:9230",
+      "http://localhost:9231",
+      "http://localhost:9232",
+      "ws://localhost:9223",
+      "ws://localhost:9224",
+      "ws://localhost:9225",
+      "ws://localhost:9226",
+      "ws://localhost:9227",
+      "ws://localhost:9228",
+      "ws://localhost:9229",
+      "ws://localhost:9230",
+      "ws://localhost:9231",
+      "ws://localhost:9232"
+    ]
+  },
+  "permissions": ["teamlibrary"],
+  "relaunchButtons": [
+    {
+      "command": "open",
+      "name": "Open Figma Ark",
+      "multipleSelection": true
+    }
+  ]
+}

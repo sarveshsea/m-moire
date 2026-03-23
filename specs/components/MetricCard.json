@@ -1,0 +1,37 @@
+{
+  "name": "MetricCard",
+  "type": "component",
+  "purpose": "Display a single KPI metric with title, value, and optional trend indicator",
+  "researchBacking": [],
+  "designTokens": {
+    "source": "none",
+    "mapped": false
+  },
+  "variants": [
+    "default",
+    "compact",
+    "highlighted"
+  ],
+  "props": {
+    "title": "string",
+    "value": "string",
+    "change": "string?",
+    "trend": "up | down | flat"
+  },
+  "shadcnBase": [
+    "Card",
+    "Badge"
+  ],
+  "accessibility": {
+    "role": "article",
+    "ariaLabel": "required",
+    "keyboardNav": false
+  },
+  "dataviz": null,
+  "tags": [
+    "dashboard",
+    "kpi"
+  ],
+  "createdAt": "2026-03-23T17:52:07.124Z",
+  "updatedAt": "2026-03-23T17:52:07.124Z"
+}
