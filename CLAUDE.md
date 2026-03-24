@@ -32,6 +32,7 @@ Skills are markdown files in `skills/` that define how agents operate. **Always 
 | **/multi-agent** | `skills/MULTI_AGENT.md` | Parallel agent orchestration with box widgets |
 | **Atomic Design** | `skills/ATOMIC_DESIGN.md` | Atomic Design reference (atoms → pages) |
 | **Dashboard from Research** | `skills/DASHBOARD_FROM_RESEARCH.md` | Research data → interactive dashboards |
+| **/motion-video** | `skills/MOTION_VIDEO_DESIGN.md` | Product animation, UI motion, portfolio videos, Apple-grade reveals |
 
 ## Atomic Design (MANDATORY)
 All components must specify an atomic level. This is enforced in specs and code generation:
