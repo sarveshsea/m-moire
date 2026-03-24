@@ -5,6 +5,7 @@
 
 import type { ComponentSpec } from "../specs/types.js";
 import type { CodegenContext } from "./generator.js";
+import type { DesignToken } from "../engine/registry.js";
 
 interface ComponentCode {
   component: string;
@@ -38,7 +39,8 @@ const SHADCN_IMPORTS: Record<string, string> = {
 export function generateComponent(spec: ComponentSpec, ctx: CodegenContext): ComponentCode {
   const imports = buildImports(spec);
   const propsInterface = buildPropsInterface(spec);
-  const componentBody = buildComponentBody(spec);
+  const tokens = ctx.designSystem?.tokens ?? [];
+  const componentBody = buildComponentBody(spec, tokens);
   const variantTypes = buildVariantType(spec);
 
   // Build destructured props, handling empty props case
@@ -112,17 +114,19 @@ function buildVariantType(spec: ComponentSpec): string {
   return `export type ${spec.name}Variant = ${variants}\n`;
 }
 
-function buildComponentBody(spec: ComponentSpec): string {
+function buildComponentBody(spec: ComponentSpec, tokens: DesignToken[] = []): string {
   const hasCard = spec.shadcnBase.includes("Card");
   const hasBadge = spec.shadcnBase.includes("Badge");
+  const tokenStyles = buildTokenStyles(spec, tokens);
 
   if (hasCard) {
-    return buildCardComponent(spec, hasBadge);
+    return buildCardComponent(spec, hasBadge, tokenStyles);
   }
 
   // Default: simple div wrapper
   const lines = ["  return ("];
-  lines.push(`    <div className={cn("${defaultClasses(spec)}", className)} {...props}>`);
+  const styleAttr = tokenStyles ? ` style={${tokenStyles}}` : "";
+  lines.push(`    <div className={cn("${defaultClasses(spec)}", className)}${styleAttr} {...props}>`);
 
   for (const [name] of Object.entries(spec.props)) {
     lines.push(`      {${name} && <span>{${name}}</span>}`);
@@ -133,14 +137,15 @@ function buildComponentBody(spec: ComponentSpec): string {
   return lines.join("\n");
 }
 
-function buildCardComponent(spec: ComponentSpec, hasBadge: boolean): string {
+function buildCardComponent(spec: ComponentSpec, hasBadge: boolean, tokenStyles?: string): string {
   const props = Object.keys(spec.props);
   const titleProp = props.find((p) => p.toLowerCase().includes("title"));
   const valueProp = props.find((p) => p.toLowerCase().includes("value") || p.toLowerCase().includes("metric"));
   const descProp = props.find((p) => p.toLowerCase().includes("desc") || p.toLowerCase().includes("subtitle"));
 
   const lines = ["  return ("];
-  lines.push(`    <Card className={cn("${defaultClasses(spec)}", className)} {...props}>`);
+  const styleAttr = tokenStyles ? ` style={${tokenStyles}}` : "";
+  lines.push(`    <Card className={cn("${defaultClasses(spec)}", className)}${styleAttr} {...props}>`);
 
   if (titleProp || descProp) {
     lines.push("      <CardHeader>");
@@ -197,4 +202,38 @@ function mapPropType(type: string): string {
   };
 
   return mapping[clean] ?? clean;
+}
+
+/**
+ * Build a CSS variable style object from design tokens that match the component.
+ * Returns a JS object literal string for use in style={...}, or undefined if no tokens match.
+ */
+function buildTokenStyles(spec: ComponentSpec, tokens: DesignToken[]): string | undefined {
+  if (tokens.length === 0) return undefined;
+
+  const name = spec.name.toLowerCase();
+  const styles: string[] = [];
+
+  // Find tokens whose name contains this component's name
+  for (const token of tokens) {
+    const tokenName = token.name.toLowerCase().replace(/[\s/]/g, "-");
+    if (tokenName.includes(name) || name.includes(tokenName.split("-").pop() ?? "")) {
+      const value = Object.values(token.values)[0];
+      if (value !== undefined) {
+        // Use CSS variable reference so it responds to theme changes
+        styles.push(`"${token.cssVariable.replace("--", "")}": "var(${token.cssVariable})"`);
+      }
+    }
+  }
+
+  // Also inject radius tokens if component uses Card
+  if (spec.shadcnBase.includes("Card")) {
+    const radiusToken = tokens.find((t) => t.type === "radius" && t.name.toLowerCase().includes("card"));
+    if (radiusToken) {
+      styles.push(`borderRadius: "var(${radiusToken.cssVariable})"`);
+    }
+  }
+
+  if (styles.length === 0) return undefined;
+  return `{ ${styles.join(", ")} }`;
 }

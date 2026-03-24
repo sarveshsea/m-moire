@@ -8,6 +8,7 @@ import { Registry } from "./registry.js";
 import { FigmaBridge } from "../figma/bridge.js";
 import { ResearchEngine } from "../research/engine.js";
 import { CodeGenerator } from "../codegen/generator.js";
+import { autoSpecFromDesignSystem } from "./auto-spec.js";
 import { createLogger } from "./logger.js";
 import { EventEmitter } from "events";
 import { readFile, writeFile, mkdir } from "fs/promises";
@@ -115,6 +116,41 @@ export class NocheEngine extends EventEmitter {
       timestamp: new Date(),
       data: designSystem,
     } satisfies NocheEvent);
+
+    // Auto-generate specs from pulled components
+    const autoResult = await this.autoSpec();
+    if (autoResult > 0) {
+      this.emit("event", {
+        type: "success",
+        source: "auto-spec",
+        message: `Auto-created ${autoResult} component specs from Figma`,
+        timestamp: new Date(),
+      } satisfies NocheEvent);
+    }
+  }
+
+  /**
+   * Automatically create ComponentSpecs from pulled design system components.
+   * Skips components that already have specs. Returns count of new specs created.
+   */
+  async autoSpec(): Promise<number> {
+    const ds = this.registry.designSystem;
+    if (ds.components.length === 0) return 0;
+
+    const existingSpecs = await this.registry.getAllSpecs();
+    const existingNames = new Set(existingSpecs.map((s) => s.name));
+
+    const { specs, skipped } = autoSpecFromDesignSystem(ds, existingNames);
+
+    for (const spec of specs) {
+      await this.registry.saveSpec(spec);
+    }
+
+    if (skipped.length > 0) {
+      this.log.info(`Auto-spec: skipped ${skipped.length} components (already have specs or invalid names)`);
+    }
+
+    return specs.length;
   }
 
   async generateFromSpec(specName: string): Promise<string> {

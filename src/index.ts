@@ -12,6 +12,8 @@
  *   noche preview           Start HTML preview server
  *   noche status            Show project status
  *   noche sync              Full sync: Figma → specs → code → preview
+ *   noche go                Full pipeline: connect → pull → auto-spec → generate → preview
+ *   noche export            Export generated code into your project
  * *   noche ia <sub>           Information architecture (extract, show, validate)
  * *   noche stickies <url>    Convert FigJam stickies to research
  * *   noche dataviz <name>    Create a dataviz spec
@@ -35,6 +37,8 @@ import { registerInitCommand } from "./commands/init.js";
 import { registerDashboardCommand } from "./commands/dashboard.js";
 import { registerIACommand } from "./commands/ia.js";
 import { registerComposeCommand } from "./commands/compose.js";
+import { registerGoCommand } from "./commands/go.js";
+import { registerExportCommand } from "./commands/export.js";
 
 const program = new Command();
 
@@ -72,6 +76,8 @@ registerInitCommand(program, engine);
 registerDashboardCommand(program, engine);
 registerIACommand(program, engine);
 registerComposeCommand(program, engine);
+registerGoCommand(program, engine);
+registerExportCommand(program, engine);
 
 // Parse and execute
 program.parse();

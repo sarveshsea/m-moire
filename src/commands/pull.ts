@@ -15,6 +15,13 @@ export function registerPullCommand(program: Command, engine: NocheEngine) {
 
       console.log("\n  Pulling design system...\n");
       await engine.pullDesignSystem();
-      console.log("\n  Done. Design system saved to .noche/design-system.json\n");
+
+      const specs = await engine.registry.getAllSpecs();
+      const autoSpecs = specs.filter((s) => s.type === "component" && s.tags?.includes("auto-generated"));
+      console.log(`\n  Done. Design system saved to .noche/design-system.json`);
+      if (autoSpecs.length > 0) {
+        console.log(`  Auto-generated ${autoSpecs.length} component specs — run \`noche generate\` to create code`);
+      }
+      console.log("");
     });
 }
