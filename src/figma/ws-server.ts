@@ -271,7 +271,7 @@ export class NocheWsServer extends EventEmitter {
 
       this.clients.set(clientId, client);
       log.info(`Plugin connected: ${clientId}`);
-      this.emitEvent("success", `Figma plugin connected (${clientId})`);
+      this.emitEvent("success", "Figma plugin connected");
       this.emit("client-connected", client);
 
       // Send identification
@@ -309,7 +309,7 @@ export class NocheWsServer extends EventEmitter {
         this.clients.delete(clientId);
         this.rateLimits.delete(clientId);
         log.info(`Plugin disconnected: ${clientId}`);
-        this.emitEvent("warn", `Figma plugin disconnected (${clientId})`);
+        this.emitEvent("warn", "Figma plugin disconnected");
         this.emit("client-disconnected", clientId);
       });
 

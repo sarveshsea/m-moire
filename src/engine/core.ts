@@ -83,7 +83,7 @@ export class NocheEngine extends EventEmitter {
     this.emit("event", {
       type: "success",
       source: "engine",
-      message: `Ark initialized — ${this._project.framework} project detected`,
+      message: `Noche initialized — detected ${this._project.framework} project`,
       timestamp: new Date(),
       data: this._project,
     } satisfies NocheEvent);
@@ -94,7 +94,7 @@ export class NocheEngine extends EventEmitter {
     this.emit("event", {
       type: "success",
       source: "figma",
-      message: `Bridge server started on port ${port}`,
+      message: `Figma bridge listening on port ${port} — open the Noche plugin to connect`,
       timestamp: new Date(),
     } satisfies NocheEvent);
     return port;
@@ -111,7 +111,7 @@ export class NocheEngine extends EventEmitter {
     this.emit("event", {
       type: "success",
       source: "figma",
-      message: `Pulled ${designSystem.tokens.length} tokens, ${designSystem.components.length} components`,
+      message: `Design system pulled — ${designSystem.tokens.length} tokens, ${designSystem.components.length} components extracted`,
       timestamp: new Date(),
       data: designSystem,
     } satisfies NocheEvent);
@@ -131,7 +131,7 @@ export class NocheEngine extends EventEmitter {
     this.emit("event", {
       type: "success",
       source: "codegen",
-      message: `Generated ${result.files.length} files from spec "${specName}"`,
+      message: `Code generated for ${specName} — ${result.files.length} files written`,
       timestamp: new Date(),
       data: result,
     } satisfies NocheEvent);
@@ -151,7 +151,7 @@ export class NocheEngine extends EventEmitter {
     this.emit("event", {
       type: "success",
       source: "engine",
-      message: `Full sync complete — ${specs.length} specs regenerated`,
+      message: `Sync complete — pulled design system and regenerated ${specs.length} specs`,
       timestamp: new Date(),
     } satisfies NocheEvent);
   }

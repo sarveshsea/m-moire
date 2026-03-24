@@ -143,7 +143,7 @@ export class FigmaBridge extends EventEmitter {
    */
   async connect(): Promise<number> {
     const port = await this.server.start();
-    this.emitEvent("info", `Waiting for Noche plugin on port ${port}...`);
+    this.emitEvent("info", `Waiting for Figma plugin on port ${port}...`);
     return port;
   }
 
@@ -182,7 +182,7 @@ export class FigmaBridge extends EventEmitter {
   }
 
   async extractDesignSystem(): Promise<DesignSystem> {
-    this.emitEvent("info", "Extracting design system from Figma...");
+    this.emitEvent("info", "Pulling design tokens, components, and styles from Figma...");
 
     // Extract tokens (variables)
     const rawTokens = await this.server.sendCommand("getVariables", {}, 60000) as { collections?: RawVariableCollection[] } | null;
@@ -205,7 +205,7 @@ export class FigmaBridge extends EventEmitter {
   }
 
   async extractStickies(): Promise<StickyNote[]> {
-    this.emitEvent("info", "Reading FigJam stickies...");
+    this.emitEvent("info", "Reading sticky notes from FigJam board...");
 
     const result = await this.server.sendCommand("getStickies", {}, 30000) as RawSticky[] | null;
 
@@ -222,7 +222,7 @@ export class FigmaBridge extends EventEmitter {
    * Get the full page tree from Figma — all pages with their top-level frames.
    */
   async getPageTree(depth = 2): Promise<RawPageTree> {
-    this.emitEvent("info", "Extracting page tree from Figma...");
+    this.emitEvent("info", "Reading page structure from Figma...");
     const result = await this.server.sendCommand("getPageTree", { depth }, 60000) as RawPageTree;
     return result;
   }

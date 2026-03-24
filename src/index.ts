@@ -52,10 +52,9 @@ const engine = new NocheEngine({
 
 // Listen for engine events and print them
 engine.on("event", (evt) => {
-  const icons: Record<string, string> = { info: "ℹ", warn: "⚠", error: "✖", success: "✔" };
+  const icons: Record<string, string> = { info: "·", warn: "!", error: "x", success: "+" };
   const icon = icons[evt.type] ?? "·";
-  const time = evt.timestamp.toLocaleTimeString();
-  console.log(`  ${icon} [${time}] ${evt.source}: ${evt.message}`);
+  console.log(`  ${icon} ${evt.message}`);
 });
 
 // Register all commands

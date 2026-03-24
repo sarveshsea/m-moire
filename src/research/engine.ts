@@ -110,7 +110,7 @@ export class ResearchEngine {
     }
 
     await this.save();
-    this.emitEvent("success", `Processed ${stickies.length} stickies → ${themes.length} themes`);
+    this.emitEvent("success", `Processed ${stickies.length} stickies into ${themes.length} themes`);
 
     return parsed;
   }
