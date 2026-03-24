@@ -14,7 +14,7 @@
  */
 
 import { createLogger } from "../engine/logger.js";
-import type { NocheEngine } from "../engine/core.js";
+import type { ArkEngine } from "../engine/core.js";
 import type { DesignToken, DesignSystem, DesignComponent } from "../engine/registry.js";
 import type { AnySpec, ComponentSpec, PageSpec, DataVizSpec } from "../specs/types.js";
 import { AGENT_PROMPTS } from "./prompts.js";
@@ -142,12 +142,12 @@ export function classifyIntent(intent: string): IntentCategory {
 // ── Orchestrator ─────────────────────────────────────────
 
 export class AgentOrchestrator {
-  private engine: NocheEngine;
+  private engine: ArkEngine;
   private planCounter = 0;
   private taskCounter = 0;
   private onUpdate?: (plan: AgentPlan) => void;
 
-  constructor(engine: NocheEngine, onUpdate?: (plan: AgentPlan) => void) {
+  constructor(engine: ArkEngine, onUpdate?: (plan: AgentPlan) => void) {
     this.engine = engine;
     this.onUpdate = onUpdate;
   }

@@ -6,7 +6,7 @@
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { createLogger } from "../engine/logger.js";
-import type { NocheEvent } from "../engine/core.js";
+import type { ArkEvent } from "../engine/core.js";
 import type { Registry, DesignSystem } from "../engine/registry.js";
 import type { AnySpec, ComponentSpec, PageSpec, DataVizSpec } from "../specs/types.js";
 import type { ProjectContext } from "../engine/project-context.js";
@@ -17,7 +17,7 @@ import { generatePage } from "./page-generator.js";
 export interface CodegenConfig {
   outputDir: string;
   registry: Registry;
-  onEvent?: (event: NocheEvent) => void;
+  onEvent?: (event: ArkEvent) => void;
 }
 
 export interface CodegenResult {
@@ -142,7 +142,7 @@ export class CodeGenerator {
     };
   }
 
-  private emitEvent(type: NocheEvent["type"], message: string): void {
+  private emitEvent(type: ArkEvent["type"], message: string): void {
     this.config.onEvent?.({
       type,
       source: "codegen",

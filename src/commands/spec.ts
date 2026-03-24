@@ -32,6 +32,9 @@ export function registerSpecCommand(program: Command, engine: ArkEngine) {
       const newSpec: ComponentSpec = {
         name,
         type: "component",
+        level: "atom",
+        composesSpecs: [],
+        codeConnect: { props: {}, mapped: false },
         purpose: opts.purpose ?? `${name} component`,
         researchBacking: [],
         designTokens: { source: "none", mapped: false },

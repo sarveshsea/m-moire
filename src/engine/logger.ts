@@ -1,5 +1,5 @@
 /**
- * Structured logger for Ark engine.
+ * Structured logger for Noche engine.
  */
 
 import pino from "pino";

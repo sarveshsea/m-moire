@@ -1,7 +1,7 @@
 /**
  * Figma Bridge — Dual-mode transport to Figma.
  *
- * Mode 1 (Server): Starts a WebSocket server, waits for the Figma Ark
+ * Mode 1 (Server): Starts a WebSocket server, waits for the Noche
  *   plugin to connect. Supports multiple simultaneous plugin connections
  *   and chat relay between Figma and terminal.
  *
@@ -143,7 +143,7 @@ export class FigmaBridge extends EventEmitter {
    */
   async connect(): Promise<number> {
     const port = await this.server.start();
-    this.emitEvent("info", `Waiting for Figma Ark plugin on port ${port}...`);
+    this.emitEvent("info", `Waiting for Noche plugin on port ${port}...`);
     return port;
   }
 

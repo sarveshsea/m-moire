@@ -15,7 +15,7 @@ export function registerStatusCommand(program: Command, engine: ArkEngine) {
       const research = engine.research.getStore();
 
       console.log("\n  ┌─────────────────────────────────────────┐");
-      console.log("  │            Ark Project Status            │");
+      console.log("  │            Noche Project Status            │");
       console.log("  └─────────────────────────────────────────┘\n");
 
       // Project

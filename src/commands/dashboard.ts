@@ -38,7 +38,7 @@ interface DashboardData {
 export function registerDashboardCommand(program: Command, engine: ArkEngine) {
   program
     .command("dashboard")
-    .description("Launch the Ark dashboard — view design systems, specs, prototypes, and research on localhost")
+    .description("Launch the Noche dashboard — view design systems, specs, prototypes, and research on localhost")
     .option("-p, --port <port>", "Dashboard port", "3333")
     .option("--build", "Rebuild dashboard before launching")
     .action(async (opts) => {
@@ -54,7 +54,7 @@ export function registerDashboardCommand(program: Command, engine: ArkEngine) {
       const dashDir = join(engine.config.projectRoot, ".ark", "dashboard");
       await mkdir(dashDir, { recursive: true });
 
-      console.log("\n  Building Ark Dashboard...\n");
+      console.log("\n  Building Noche Dashboard...\n");
 
       const project = engine.project;
       const specs = await engine.registry.getAllSpecs();
@@ -133,7 +133,7 @@ function generateAgenticDashboard(data: DashboardData): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ark — Dashboard</title>
+<title>Noche — Dashboard</title>
 <style>
 /* ═══════════════════════════════════════════════════════
    shadcn CSS Variables — AgenticUI skin
@@ -445,7 +445,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
   <!-- Header -->
   <header class="header">
     <div>
-      <div class="logo">Ark</div>
+      <div class="logo">Noche</div>
       <div class="logo-sub">Design Intelligence Engine</div>
     </div>
     <div class="header-actions">

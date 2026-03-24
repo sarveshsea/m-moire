@@ -1,5 +1,5 @@
 /**
- * Live Dashboard Server — HTTP + SSE for the Ark Agent Portal.
+ * Live Dashboard Server — HTTP + SSE for the Noche Agent Portal.
  *
  * Serves the portal HTML and pushes real-time events from the
  * Figma bridge (actions, syncs, selections, page changes) to

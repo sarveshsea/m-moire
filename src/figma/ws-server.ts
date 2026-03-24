@@ -1,7 +1,7 @@
 /**
- * Ark WebSocket Server — Multi-instance bridge server.
+ * Noche WebSocket Server — Multi-instance bridge server.
  *
- * Each Ark engine instance gets its own port (9223-9232).
+ * Each Noche engine instance gets its own port (9223-9232).
  * Multiple Figma plugin instances can connect to the same server.
  * Supports chat relay, command dispatch, and real-time events.
  */
@@ -112,7 +112,7 @@ export class ArkWsServer extends EventEmitter {
       }
     }
 
-    throw new Error("No available ports (9223-9232). Close other Ark instances first.");
+    throw new Error("No available ports (9223-9232). Close other Noche instances first.");
   }
 
   /**

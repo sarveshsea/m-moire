@@ -7,14 +7,14 @@ import { join } from "path";
 export function registerInitCommand(program: Command, engine: ArkEngine) {
   program
     .command("init")
-    .description("Interactive onboarding — set up Ark for your project")
+    .description("Interactive onboarding — set up Noche for your project")
     .action(async () => {
       const root = engine.config.projectRoot;
 
       console.log(`
   ╔══════════════════════════════════════════════════╗
   ║                                                  ║
-  ║            Welcome to Ark                        ║
+  ║            Welcome to Noche                        ║
   ║     AI-Native Design Intelligence Engine         ║
   ║                                                  ║
   ╚══════════════════════════════════════════════════╝
@@ -32,13 +32,13 @@ export function registerInitCommand(program: Command, engine: ArkEngine) {
 
       // Step 2: API Keys guide
       console.log(`\n  Step 2/5: API Keys & Connections\n`);
-      console.log(`    Ark connects to these services. Here's how to set them up:\n`);
+      console.log(`    Noche connects to these services. Here's how to set them up:\n`);
       console.log(`    FIGMA_TOKEN (required for Figma sync)`);
       console.log(`    ─────────────────────────────────────`);
       console.log(`    1. Open Figma → Settings → Account`);
       console.log(`    2. Scroll to "Personal Access Tokens"`);
       console.log(`    3. Click "Generate new token"`);
-      console.log(`    4. Name it "Figma Ark", copy the token`);
+      console.log(`    4. Name it "Noche", copy the token`);
       console.log(`    5. Add to your shell: export FIGMA_TOKEN="figd_xxxxx"`);
       console.log(``);
       console.log(`    FIGMA_FILE_KEY (optional, for default file)`);
@@ -74,6 +74,9 @@ export function registerInitCommand(program: Command, engine: ArkEngine) {
       const metricCard: ComponentSpec = {
         name: "MetricCard",
         type: "component",
+        level: "molecule",
+        composesSpecs: [],
+        codeConnect: { props: {}, mapped: false },
         purpose: "Display a single KPI metric with title, value, and optional trend indicator",
         researchBacking: [],
         designTokens: { source: "none", mapped: false },
@@ -166,7 +169,7 @@ export function registerInitCommand(program: Command, engine: ArkEngine) {
       console.log(`
   ╔══════════════════════════════════════════════════╗
   ║                                                  ║
-  ║            Ark is ready!                         ║
+  ║            Noche is ready!                         ║
   ║                                                  ║
   ╚══════════════════════════════════════════════════╝
 

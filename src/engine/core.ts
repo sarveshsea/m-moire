@@ -1,5 +1,5 @@
 /**
- * Ark Core Engine — Central orchestrator that ties together
+ * Noche Core Engine — Central orchestrator that ties together
  * Figma bridge, research, specs, codegen, and preview.
  */
 
@@ -30,7 +30,7 @@ export interface ArkEvent {
 
 export class ArkEngine extends EventEmitter {
   readonly config: ArkConfig;
-  readonly log = createLogger("ark");
+  readonly log = createLogger("noche");
   readonly registry: Registry;
   readonly figma: FigmaBridge;
   readonly research: ResearchEngine;
@@ -66,7 +66,7 @@ export class ArkEngine extends EventEmitter {
   async init(): Promise<void> {
     if (this._initialized) return;
 
-    this.log.info("Initializing Ark engine...");
+    this.log.info("Initializing Noche engine...");
 
     // Ensure .ark directory exists
     const arkDir = join(this.config.projectRoot, ".ark");

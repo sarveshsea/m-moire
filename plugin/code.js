@@ -1,9 +1,9 @@
 /**
- * Figma Ark — Plugin Main Thread (code.js)
+ * Noche — Plugin Main Thread (code.js)
  *
  * Runs in Figma's sandboxed environment with access to figma.* API.
  * Communicates with ui.html via postMessage, which bridges to BOTH:
- *   - Ark engine (WebSocket)
+ *   - Noche engine (WebSocket)
  *   - figma-console MCP (WebSocket, auto-detected via SERVER_HELLO)
  *
  * This plugin replaces the separate "Figma Desktop Bridge" plugin —
@@ -29,7 +29,7 @@ var __editorType = figma.editorType || 'figma';
 figma.showUI(__html__, {
   width: 420,
   height: 640,
-  title: "Figma Ark",
+  title: "Noche",
   themeColors: true,
 });
 
@@ -230,15 +230,15 @@ var __stickyColors = {
 })();
 
 // ── Message Handler ────────────────────────────────────────
-// Routes messages from BOTH Ark CLI and figma-console MCP
+// Routes messages from BOTH Noche CLI and figma-console MCP
 
 figma.ui.onmessage = async (msg) => {
   const { type, id, method, params } = msg;
 
-  // ── Ark Protocol (type: 'command', method: '...') ──────
+  // ── Noche Protocol (type: 'command', method: '...') ──────
   if (type === "command") {
     try {
-      const result = await handleArkCommand(method, params || {});
+      const result = await handleNocheCommand(method, params || {});
       figma.ui.postMessage({ type: "command-response", id, result });
     } catch (err) {
       figma.ui.postMessage({ type: "command-response", id, error: String(err) });
@@ -271,9 +271,9 @@ figma.ui.onmessage = async (msg) => {
   }
 };
 
-// ── Ark Command Router ────────────────────────────────────
+// ── Noche Command Router ────────────────────────────────────
 
-async function handleArkCommand(method, params) {
+async function handleNocheCommand(method, params) {
   switch (method) {
     case "execute":
       return executeCode(params.code);
@@ -936,7 +936,7 @@ async function handleFigmaConsoleCommand(msg) {
     }
 
     case 'STORE_CLOUD_CONFIG': {
-      // No-op for Ark plugin
+      // No-op for Noche plugin
       ok({});
       break;
     }

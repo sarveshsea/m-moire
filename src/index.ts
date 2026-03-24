@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Ark CLI — AI-Native Design Intelligence Engine
+ * Noche CLI — AI-Native Design Intelligence Engine
  *
  * Commands:
  *   ark connect           Connect to Figma Desktop Bridge
@@ -38,7 +38,7 @@ import { registerIACommand } from "./commands/ia.js";
 const program = new Command();
 
 program
-  .name("ark")
+  .name("noche")
   .description("AI-Native Design Intelligence Engine")
   .version("0.1.0");
 

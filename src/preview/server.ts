@@ -68,7 +68,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background p-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold">Ark Preview Gallery</h1>
+        <h1 className="text-3xl font-bold">Noche Preview Gallery</h1>
         <p className="text-muted-foreground mt-1">
           ${components.length} components · ${dataviz.length} dataviz · ${pages.length} pages
         </p>

@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { ArkEngine } from "../engine/core.js";
 import type { AnySpec } from "../specs/types.js";
 import type { DesignToken } from "../engine/registry.js";
 import type { ResearchStore } from "../research/engine.js";
@@ -35,7 +35,7 @@ interface PreviewData {
   generatedAt: string;
 }
 
-export function registerPreviewCommand(program: Command, engine: NocheEngine) {
+export function registerPreviewCommand(program: Command, engine: ArkEngine) {
   program
     .command("preview")
     .description("Build and serve the Noche component preview gallery")

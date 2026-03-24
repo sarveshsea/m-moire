@@ -1,5 +1,5 @@
 /**
- * Workspace Manager — Stores per-project data outside the Ark repo.
+ * Workspace Manager — Stores per-project data outside the Noche repo.
  * Each project gets a workspace at ~/.ark-workspaces/{workspace-id}/
  * keyed by SHA256 hash of the project's absolute path.
  */

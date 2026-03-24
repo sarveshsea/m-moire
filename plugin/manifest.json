@@ -1,6 +1,6 @@
 {
-  "name": "Figma Ark",
-  "id": "figma-ark-bridge",
+  "name": "Noche",
+  "id": "noche-bridge",
   "api": "1.0.0",
   "editorType": ["figma", "figjam", "slides", "dev"],
   "main": "code.js",
@@ -8,7 +8,7 @@
   "documentAccess": "dynamic-page",
   "networkAccess": {
     "allowedDomains": ["none"],
-    "reasoning": "Connects to local Ark engine via WebSocket on localhost",
+    "reasoning": "Connects to local Noche engine via WebSocket on localhost",
     "devAllowedDomains": [
       "http://localhost:9223",
       "http://localhost:9224",
@@ -36,7 +36,7 @@
   "relaunchButtons": [
     {
       "command": "open",
-      "name": "Open Figma Ark",
+      "name": "Open Noche",
       "multipleSelection": true
     }
   ]

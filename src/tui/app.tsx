@@ -1,5 +1,5 @@
 /**
- * Ark TUI — Terminal User Interface for monitoring and control.
+ * Noche TUI — Terminal User Interface for monitoring and control.
  * Built with Ink (React for terminals).
  */
 

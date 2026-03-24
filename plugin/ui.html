@@ -45,31 +45,38 @@
   }
 
   .status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: 16px;
+    height: 16px;
     flex-shrink: 0;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .status-indicator svg {
+    width: 14px;
+    height: 14px;
     transition: all 0.3s;
   }
 
-  .status-indicator.live {
-    background: var(--accent-bright);
-    box-shadow: 0 0 6px rgba(255,255,255,0.4);
+  .status-indicator.live svg {
+    fill: var(--accent-bright);
+    filter: drop-shadow(0 0 4px rgba(255,255,255,0.5));
   }
 
-  .status-indicator.scanning {
-    background: var(--warn);
-    animation: blink 1.2s infinite;
+  .status-indicator.scanning svg {
+    fill: var(--warn);
+    animation: moon-pulse 1.8s ease-in-out infinite;
   }
 
-  .status-indicator.dead {
-    background: #333;
-    border: 1px solid #444;
+  .status-indicator.dead svg {
+    fill: #333;
   }
 
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+  @keyframes moon-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
   }
 
   .status-text {
@@ -400,7 +407,7 @@
 
 <!-- Status Bar -->
 <div class="status-bar">
-  <div class="status-indicator dead" id="statusDot"></div>
+  <div class="status-indicator dead" id="statusDot"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.46-.06-.92-.1-1.36-.1z" fill="currentColor"/></svg></div>
   <div class="status-text dead" id="statusText">SCANNING...</div>
   <div class="file-name" id="fileName"></div>
   <button class="minimize-btn" id="minimizeBtn" onclick="toggleMinimize()" title="Minimize">_</button>
@@ -472,7 +479,7 @@
 
 <script>
 // ── State ───────────────────────────────────────────
-let ws = null;           // Ark CLI connection
+let ws = null;           // Noche CLI connection
 let fcWs = null;         // figma-console MCP connection
 let status = 'dead';     // dead | scanning | live
 let fcStatus = 'dead';   // dead | live
@@ -494,23 +501,23 @@ let currentScanPort = PORT_START;
 const fcPending = new Map(); // id → true
 
 // ── Heartbeat / Keep-alive ──────────────────────────
-let arkHeartbeat = null;
+let nocheHeartbeat = null;
 let fcHeartbeat = null;
-let arkMissedPongs = 0;
+let nocheMissedPongs = 0;
 let fcMissedPongs = 0;
 const HEARTBEAT_MS = 10000;   // ping every 10s
 const MAX_MISSED = 3;         // 3 missed = dead
 let reconnectDelay = 1000;    // backoff start
 const MAX_RECONNECT_DELAY = 15000;
 
-function startArkHeartbeat() {
-  clearInterval(arkHeartbeat);
-  arkMissedPongs = 0;
-  arkHeartbeat = setInterval(() => {
+function startNocheHeartbeat() {
+  clearInterval(nocheHeartbeat);
+  nocheMissedPongs = 0;
+  nocheHeartbeat = setInterval(() => {
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    arkMissedPongs++;
-    if (arkMissedPongs > MAX_MISSED) {
-      log('warn', 'Ark heartbeat timeout — reconnecting');
+    nocheMissedPongs++;
+    if (nocheMissedPongs > MAX_MISSED) {
+      log('warn', 'Noche heartbeat timeout — reconnecting');
       ws.close();
       return;
     }
@@ -534,8 +541,8 @@ function startFcHeartbeat() {
 }
 
 // ── Connection (multi-protocol scanning) ────────────
-// Scans ports 9223-9232 for BOTH Ark CLI and figma-console MCP servers.
-// Detects protocol by first message: SERVER_HELLO = figma-console, else = Ark.
+// Scans ports 9223-9232 for BOTH Noche CLI and figma-console MCP servers.
+// Detects protocol by first message: SERVER_HELLO = figma-console, else = Noche.
 
 function scan() {
   if (status === 'live' && fcStatus === 'live') return; // both connected
@@ -599,13 +606,13 @@ function tryNext() {
 
     sock.onopen = () => {
       // Wait for first message to determine protocol
-      // Ark sends "identify" message, figma-console sends "SERVER_HELLO"
+      // Noche sends "identify" message, figma-console sends "SERVER_HELLO"
       // If no message within 800ms, this is NOT a known server — skip it
       identifyTimeout = setTimeout(() => {
         if (!identified) {
           identified = true;
           cleanup();
-          // No protocol message received — not an Ark or FC server, skip
+          // No protocol message received — not a Noche or FC server, skip
           try { sock.close(); } catch {}
           tryNext();
         }
@@ -617,7 +624,7 @@ function tryNext() {
       try { data = JSON.parse(e.data); } catch { return; }
 
       // Any message from a connected server resets heartbeat counters
-      if (sock === ws) arkMissedPongs = 0;
+      if (sock === ws) nocheMissedPongs = 0;
       if (sock === fcWs) fcMissedPongs = 0;
 
       if (!identified) {
@@ -626,8 +633,8 @@ function tryNext() {
         if (data.type === 'SERVER_HELLO') {
           adoptAsFigmaConsole(sock, port, data);
         } else if (data.type === 'identify' || data.type === 'pong' || data.name) {
-          // Valid Ark server — sends "identify" on connection
-          adoptAsArk(sock, port);
+          // Valid Noche server — sends "identify" on connection
+          adoptAsNoche(sock, port);
           handleMsg(data);
         } else {
           // Unknown server, skip
@@ -650,10 +657,10 @@ function tryNext() {
       if (sock === ws) {
         ws = null;
         connPort = 0;
-        clearInterval(arkHeartbeat);
+        clearInterval(nocheHeartbeat);
         setStatus('dead');
         renderConn();
-        log('warn', 'Disconnected from Ark');
+        log('warn', 'Disconnected from Noche');
         scheduleReconnect();
       } else if (sock === fcWs) {
         fcWs = null;
@@ -683,9 +690,9 @@ function tryNext() {
   }
 }
 
-function adoptAsArk(sock, port) {
+function adoptAsNoche(sock, port) {
   if (status === 'live') {
-    // Already have an Ark connection, skip
+    // Already have a Noche connection, skip
     sock.close();
     tryNext();
     return;
@@ -696,13 +703,13 @@ function adoptAsArk(sock, port) {
   connectedAt = new Date();
   setStatus('live');
   resetBackoff();
-  startArkHeartbeat();
+  startNocheHeartbeat();
   renderConn();
-  log('ok', 'Connected to Ark on port ' + port);
+  log('ok', 'Connected to Noche on port ' + port);
 
   sock.send(JSON.stringify({
     type: 'bridge-hello',
-    plugin: 'figma-ark',
+    plugin: 'noche',
     file: fileInfo.file || 'unknown',
     fileKey: fileInfo.fileKey || '',
     editor: fileInfo.editor || 'figma',
@@ -740,12 +747,12 @@ function adoptAsFigmaConsole(sock, port, hello) {
     }
   }));
 
-  // Continue scanning for Ark
+  // Continue scanning for Noche
   if (status !== 'live') tryNext();
 }
 
 function disconnect() {
-  clearInterval(arkHeartbeat);
+  clearInterval(nocheHeartbeat);
   clearInterval(fcHeartbeat);
   clearTimeout(scanTimer);
   scanTimer = null;
@@ -832,10 +839,10 @@ function renderConn() {
   if (status === 'live') {
     const elapsed = connectedAt ? timeSince(connectedAt) : '';
     html += '<div class="conn-card">' +
-      '<div class="label">ARK BRIDGE</div>' +
+      '<div class="label">NOCHE BRIDGE</div>' +
       '<div class="conn-detail">' +
         '<span class="port">:' + connPort + '</span>' +
-        '<span class="meta">' + esc(connName || 'Ark Terminal') + '<br>' + elapsed + '</span>' +
+        '<span class="meta">' + esc(connName || 'Noche Terminal') + '<br>' + elapsed + '</span>' +
       '</div>' +
     '</div>';
   } else if (status === 'scanning') {
@@ -845,8 +852,8 @@ function renderConn() {
   } else {
     html += '<div class="conn-card offline">' +
       '<div class="help-text">' +
-        'No Ark instance found.<br><br>' +
-        'Run <code>ark connect</code> in your terminal.' +
+        'No Noche instance found.<br><br>' +
+        'Run <code>noche connect</code> in your terminal.' +
       '</div>' +
       '<button class="retry-btn" onclick="scan()">RETRY</button>' +
     '</div>';
@@ -884,12 +891,12 @@ function handleMsg(msg) {
   if (msg.type === 'identify') {
     connName = msg.name || connName;
     renderConn();
-    log('ok', 'Identified: ' + (msg.name || 'Ark'));
+    log('ok', 'Identified: ' + (msg.name || 'Noche'));
     return;
   }
 
   if (msg.type === 'chat') {
-    log('info', '[' + (msg.from || 'ark') + '] ' + msg.text);
+    log('info', '[' + (msg.from || 'noche') + '] ' + msg.text);
     return;
   }
 
@@ -920,7 +927,7 @@ function send(data) {
 
 function act(action) {
   if (status !== 'live') {
-    log('warn', 'Not connected — run ark connect first');
+    log('warn', 'Not connected — run noche connect first');
     return;
   }
 
@@ -1204,7 +1211,7 @@ onmessage = (event) => {
         return;
       }
 
-      // Ark terminal responses
+      // Noche terminal responses
       if (id && !id.includes(':')) {
         if (send({ type: 'response', id, result: msg.result, error: msg.error })) {
           log('ok', 'Response → ' + id + ' (' + sizeLabel + ')');
@@ -1292,12 +1299,12 @@ function timeSince(date) {
 
 parent.postMessage({ pluginMessage: { type: 'ping' } }, '*');
 renderConn();
-log('info', 'Figma Ark starting...');
+log('info', 'Noche starting...');
 
 // Session timer
 sessionTimer = setInterval(updateSessionTimer, 1000);
 
-// Start scanning for Ark instance
+// Start scanning for Noche instance
 setTimeout(scan, 300);
 </script>
 </body>

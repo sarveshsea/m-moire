@@ -78,13 +78,13 @@ export function registerConnectCommand(program: Command, engine: ArkEngine) {
 `);
 
         console.log("  STEP 1 / 3 — Figma Personal Access Token\n");
-        console.log("  You need a Figma token so Ark can read your designs.\n");
+        console.log("  You need a Figma token so Noche can read your designs.\n");
         console.log("  How to get one:");
         console.log("    1. Open Figma Desktop (or figma.com)");
         console.log("    2. Click your avatar → Settings");
         console.log("    3. Scroll to 'Personal access tokens'");
         console.log("    4. Click 'Generate new token'");
-        console.log("    5. Name it 'Figma Ark'");
+        console.log("    5. Name it 'Noche'");
         console.log("    6. Copy the token (starts with figd_...)\n");
 
         const inputToken = await ask("Paste your Figma token here");
@@ -134,13 +134,13 @@ export function registerConnectCommand(program: Command, engine: ArkEngine) {
         }
 
         // ── Step 3: Install plugin ────────────────────────
-        console.log("  STEP 3 / 3 — Install the Figma Ark Plugin\n");
-        console.log("  The plugin runs inside Figma and talks to Ark over WebSocket.\n");
+        console.log("  STEP 3 / 3 — Install the Noche Plugin\n");
+        console.log("  The plugin runs inside Figma and talks to Noche over WebSocket.\n");
         console.log("  To install it:");
         console.log("    1. Open Figma Desktop");
         console.log("    2. Go to Plugins → Development → Import plugin from manifest");
         console.log(`    3. Select: ${join(root, "plugin", "manifest.json")}`);
-        console.log("    4. The plugin will appear under Plugins → Development → Figma Ark\n");
+        console.log("    4. The plugin will appear under Plugins → Development → Noche\n");
 
         const ready = await ask("Press Enter when ready to connect...");
         void ready;
@@ -155,28 +155,28 @@ export function registerConnectCommand(program: Command, engine: ArkEngine) {
       }
 
       // ── Start the bridge server ─────────────────────────
-      console.log("  Starting Figma Ark bridge server...\n");
+      console.log("  Starting Noche bridge server...\n");
 
       try {
         const port = await engine.connectFigma();
 
         console.log(`  ┌──────────────────────────────────────────────┐`);
-        console.log(`  │  FIGMA ARK BRIDGE — PORT ${String(port).padEnd(22)}│`);
+        console.log(`  │  NOCHE BRIDGE — PORT ${String(port).padEnd(22)}    │`);
         console.log(`  │                                              │`);
         console.log(`  │  In Figma:                                   │`);
-        console.log(`  │    Plugins → Development → Figma Ark → Run   │`);
+        console.log(`  │    Plugins → Development → Noche → Run       │`);
         console.log(`  │    The plugin auto-connects to port ${String(port).padEnd(8)} │`);
         console.log(`  │                                              │`);
         console.log(`  │  Once connected, you can:                    │`);
-        console.log(`  │    ark pull            Sync design tokens    │`);
-        console.log(`  │    ark ia extract app  Extract page tree     │`);
-        console.log(`  │    ark sync            Full pipeline         │`);
+        console.log(`  │    noche pull           Sync design tokens    │`);
+        console.log(`  │    noche ia extract app Extract page tree    │`);
+        console.log(`  │    noche sync           Full pipeline        │`);
         console.log(`  └──────────────────────────────────────────────┘\n`);
 
         // Listen for plugin connections
         engine.figma.on("plugin-connected", (client: BridgeClient) => {
           console.log(`  + Connected: ${client.file} (${client.editor})`);
-          console.log(`    Ready — run \`ark pull\` or \`ark ia extract <name>\` in another terminal.\n`);
+          console.log(`    Ready — run \`noche pull\` or \`noche ia extract <name>\` in another terminal.\n`);
         });
 
         engine.figma.on("plugin-disconnected", () => {
