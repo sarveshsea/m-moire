@@ -12,7 +12,7 @@
  */
 
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
-import { readFile, writeFile } from "fs/promises";
+import { readFile, writeFile, readdir } from "fs/promises";
 import { join } from "path";
 import type { FigmaBridge } from "../figma/bridge.js";
 import type { NocheEngine } from "../engine/core.js";
@@ -143,6 +143,10 @@ export class DashboardServer {
       this.handleCompose(req, res);
     } else if (url === "/api/data") {
       this.handleData(res);
+    } else if (url === "/api/specs") {
+      this.handleSpecs(res);
+    } else if (url === "/preview" || url === "/preview/") {
+      this.handlePreview(res);
     } else {
       res.writeHead(404, { "Content-Type": "text/plain" });
       res.end("Not found");
@@ -386,6 +390,43 @@ export class DashboardServer {
         designSystem: dsRaw ? JSON.parse(dsRaw) : null,
         pageTree: treeRaw ? JSON.parse(treeRaw) : null,
       }));
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    }
+  }
+
+  private async handlePreview(res: ServerResponse): Promise<void> {
+    const root = this.engine.config.projectRoot;
+    try {
+      const html = await readFile(join(root, "preview", "index.html"), "utf-8");
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+      res.end(html);
+    } catch {
+      res.writeHead(404, { "Content-Type": "text/plain" });
+      res.end("preview/index.html not found");
+    }
+  }
+
+  private async handleSpecs(res: ServerResponse): Promise<void> {
+    const root = this.engine.config.projectRoot;
+    const specsDir = join(root, "specs");
+    const result: Record<string, unknown[]> = {};
+    try {
+      for (const sub of ["components", "pages", "dataviz", "design", "ia"]) {
+        try {
+          const files = await readdir(join(specsDir, sub));
+          result[sub] = [];
+          for (const f of files.filter(f => f.endsWith(".json"))) {
+            try {
+              const raw = await readFile(join(specsDir, sub, f), "utf-8");
+              result[sub].push(JSON.parse(raw));
+            } catch { /* skip invalid */ }
+          }
+        } catch { /* dir absent */ }
+      }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(result));
     } catch (err) {
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));

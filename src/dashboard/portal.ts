@@ -381,6 +381,70 @@ body {
 .comp-name { font-weight: 600; }
 .comp-tag  { font-size: 9px; color: var(--fg-muted); margin-left: auto; background: var(--bg); border: 1px solid var(--border); padding: 1px 5px; border-radius: 2px; }
 
+.data-card-head:hover .data-card-arrow { color: var(--accent-bright); }
+.data-card-arrow { font-size: 9px; color: var(--fg-dim); margin-left: 6px; transition: color 0.1s; }
+
+/* ── File explorer ──────────────────────── */
+.data-nav {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+.data-back-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--fg-muted); font-family: var(--mono); font-size: 10px;
+  padding: 3px 10px; border-radius: 2px; cursor: pointer;
+  transition: all 0.1s; letter-spacing: 0.5px;
+}
+.data-back-btn:hover { border-color: var(--accent); color: var(--fg); }
+.data-breadcrumb { font-size: 10px; color: var(--fg-muted); letter-spacing: 1px; text-transform: uppercase; }
+.data-breadcrumb .crumb-active { color: var(--accent-bright); font-weight: 700; }
+
+.data-file-tree { flex: 1; overflow: auto; font-size: 11px; }
+
+.tree-folder {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 16px; cursor: pointer; user-select: none;
+  color: var(--accent); font-weight: 600; letter-spacing: 0.3px;
+  border-bottom: 1px solid #111; transition: background 0.1s;
+}
+.tree-folder:hover { background: var(--bg-hover); }
+.tree-icon { color: var(--fg-dim); width: 10px; text-align: center; font-size: 9px; flex-shrink: 0; transition: transform 0.15s; }
+.tree-folder-count { margin-left: auto; font-size: 9px; color: var(--fg-dim); font-weight: 400; }
+
+.tree-children { display: none; }
+.tree-children.open { display: block; }
+
+.tree-file {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 16px 4px 30px;
+  color: var(--fg-muted); cursor: pointer;
+  border-bottom: 1px solid #0d0d0d; transition: background 0.1s;
+}
+.tree-file:hover { background: var(--bg-hover); color: var(--fg); }
+.tree-file.selected { background: var(--bg-active); color: var(--fg); }
+.tree-swatch { width: 12px; height: 12px; border-radius: 2px; border: 1px solid var(--border); flex-shrink: 0; }
+.tree-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-val { font-size: 9px; color: var(--fg-dim); flex-shrink: 0; max-width: 120px; text-overflow: ellipsis; overflow: hidden; }
+.tree-badge { font-size: 9px; padding: 1px 6px; border-radius: 2px; border: 1px solid; flex-shrink: 0; }
+.tree-badge.atom     { border-color: #9D833E; color: #9D833E; }
+.tree-badge.molecule { border-color: #5A8C7B; color: #5A8C7B; }
+.tree-badge.organism { border-color: #5A7B8C; color: #5A7B8C; }
+.tree-badge.page     { border-color: var(--accent-bright); color: var(--accent-bright); }
+.tree-badge.dataviz  { border-color: var(--fg-muted); color: var(--fg-muted); }
+.tree-badge.design   { border-color: var(--fg-dim); color: var(--fg-dim); }
+
+/* spec detail drawer */
+.tree-detail {
+  display: none; padding: 10px 16px 10px 30px;
+  border-bottom: 1px solid #0d0d0d;
+  background: var(--bg-inset); font-size: 10px; color: var(--fg-muted);
+  line-height: 1.8; white-space: pre-wrap; word-break: break-word;
+}
+.tree-detail.open { display: block; }
+
 /* ── Setup panel ────────────────────── */
 .setup-panel {
   flex: 1; overflow-y: auto;
@@ -722,35 +786,35 @@ body {
     </div>
 
     <div class="sbl">DESIGN SYSTEM</div>
-    <button class="action-btn" onclick="runAction('pull-tokens')" id="btn-pull-tokens">
+    <button class="action-btn" onclick="runAction('pull-tokens','tokens')" id="btn-pull-tokens">
       <span class="label">TOKENS</span>
       <span class="desc">Variables</span>
     </button>
-    <button class="action-btn" onclick="runAction('pull-components')" id="btn-pull-components">
+    <button class="action-btn" onclick="runAction('pull-components','components')" id="btn-pull-components">
       <span class="label">COMPONENTS</span>
       <span class="desc">Library</span>
     </button>
-    <button class="action-btn" onclick="runAction('pull-styles')" id="btn-pull-styles">
+    <button class="action-btn" onclick="runAction('pull-styles','styles')" id="btn-pull-styles">
       <span class="label">STYLES</span>
       <span class="desc">Colors, text, effects</span>
     </button>
 
     <div class="sbl">INSPECT</div>
-    <button class="action-btn" onclick="runAction('inspect')" id="btn-inspect">
+    <button class="action-btn" onclick="runAction('inspect','selection')" id="btn-inspect">
       <span class="label">SELECTION</span>
       <span class="desc">Current node</span>
     </button>
-    <button class="action-btn" onclick="runAction('page-tree')" id="btn-page-tree">
+    <button class="action-btn" onclick="runAction('page-tree','tree')" id="btn-page-tree">
       <span class="label">PAGE TREE</span>
       <span class="desc">IA structure</span>
     </button>
-    <button class="action-btn" onclick="runAction('stickies')" id="btn-stickies">
+    <button class="action-btn" onclick="runAction('stickies','stickies')" id="btn-stickies">
       <span class="label">STICKIES</span>
       <span class="desc">FigJam notes</span>
     </button>
 
     <div class="sbl">SYNC</div>
-    <button class="action-btn" onclick="runAction('full-sync')" id="btn-full-sync">
+    <button class="action-btn" onclick="runAction('full-sync',null)" id="btn-full-sync">
       <span class="label">FULL SYNC</span>
       <span class="desc">Tokens + components + styles</span>
     </button>
@@ -765,6 +829,7 @@ body {
         ${!hasToken ? '<span class="tab-badge"></span>' : ""}
       </button>
       <button class="tab ${initialTab === "feed" ? "active" : ""}" onclick="switchTab('feed', this)">LIVE FEED</button>
+      <button class="tab" onclick="switchTab('atoms', this)">ATOMS</button>
       <button class="tab" onclick="switchTab('data', this)">DATA</button>
       <button class="tab" onclick="switchTab('compose', this)">COMPOSE</button>
     </div>
@@ -869,6 +934,11 @@ body {
       </div>
     </div>
 
+    <!-- ── ATOMS PANEL ── -->
+    <div class="panel" id="panel-atoms" style="overflow:hidden;padding:0">
+      <iframe id="atomsFrame" src="/preview" style="width:100%;flex:1;min-height:0;border:none;display:block" title="Design System Preview"></iframe>
+    </div>
+
     <!-- ── FEED PANEL ── -->
     <div class="panel ${initialTab === "feed" ? "active" : ""}" id="panel-feed">
       <div class="stats-bar" id="statsBar">
@@ -882,62 +952,81 @@ body {
 
     <!-- ── DATA PANEL ── -->
     <div class="panel" id="panel-data">
-      <div class="data-grid">
-        <div class="data-card">
-          <div class="data-card-head">
-            <span class="data-card-title">Tokens</span>
-            <span class="data-card-count" id="tokenCount">0</span>
+
+      <!-- Grid view (default) -->
+      <div id="data-grid-view" style="flex:1;overflow:auto">
+        <div class="data-grid">
+          <div class="data-card">
+            <div class="data-card-head" onclick="openDataView('tokens')" style="cursor:pointer">
+              <span class="data-card-title">Tokens</span>
+              <span class="data-card-count" id="tokenCount">0</span>
+              <span class="data-card-arrow">→</span>
+            </div>
+            <div class="data-card-body" id="tokenData"><div class="data-empty">Run TOKENS to pull</div></div>
           </div>
-          <div class="data-card-body" id="tokenData">
-            <div class="data-empty">Run TOKENS to pull</div>
+          <div class="data-card">
+            <div class="data-card-head" onclick="openDataView('components')" style="cursor:pointer">
+              <span class="data-card-title">Components</span>
+              <span class="data-card-count" id="compCount">0</span>
+              <span class="data-card-arrow">→</span>
+            </div>
+            <div class="data-card-body" id="compData"><div class="data-empty">Run COMPONENTS to pull</div></div>
           </div>
-        </div>
-        <div class="data-card">
-          <div class="data-card-head">
-            <span class="data-card-title">Components</span>
-            <span class="data-card-count" id="compCount">0</span>
+          <div class="data-card">
+            <div class="data-card-head" onclick="openDataView('styles')" style="cursor:pointer">
+              <span class="data-card-title">Styles</span>
+              <span class="data-card-count" id="styleCount">0</span>
+              <span class="data-card-arrow">→</span>
+            </div>
+            <div class="data-card-body" id="styleData"><div class="data-empty">Run STYLES to pull</div></div>
           </div>
-          <div class="data-card-body" id="compData">
-            <div class="data-empty">Run COMPONENTS to pull</div>
+          <div class="data-card">
+            <div class="data-card-head" onclick="openDataView('selection')" style="cursor:pointer">
+              <span class="data-card-title">Selection</span>
+              <span class="data-card-count" id="selCount">0</span>
+              <span class="data-card-arrow">→</span>
+            </div>
+            <div class="data-card-body" id="selData"><div class="data-empty">Select nodes in Figma</div></div>
           </div>
-        </div>
-        <div class="data-card">
-          <div class="data-card-head">
-            <span class="data-card-title">Styles</span>
-            <span class="data-card-count" id="styleCount">0</span>
+          <div class="data-card">
+            <div class="data-card-head" onclick="openDataView('tree')" style="cursor:pointer">
+              <span class="data-card-title">Page Tree</span>
+              <span class="data-card-count" id="treeCount">—</span>
+              <span class="data-card-arrow">→</span>
+            </div>
+            <div class="data-card-body" id="treeData"><div class="data-empty">Run PAGE TREE</div></div>
           </div>
-          <div class="data-card-body" id="styleData">
-            <div class="data-empty">Run STYLES to pull</div>
+          <div class="data-card">
+            <div class="data-card-head" onclick="openDataView('specs')" style="cursor:pointer">
+              <span class="data-card-title">Specs</span>
+              <span class="data-card-count" id="specsCount">—</span>
+              <span class="data-card-arrow">→</span>
+            </div>
+            <div class="data-card-body" id="specsData"><div class="data-empty">Loading specs…</div></div>
           </div>
-        </div>
-        <div class="data-card">
-          <div class="data-card-head">
-            <span class="data-card-title">Selection</span>
-            <span class="data-card-count" id="selCount">0</span>
-          </div>
-          <div class="data-card-body" id="selData">
-            <div class="data-empty">Select nodes in Figma</div>
-          </div>
-        </div>
-        <div class="data-card">
-          <div class="data-card-head">
-            <span class="data-card-title">Page Tree</span>
-            <span class="data-card-count" id="treeCount">—</span>
-          </div>
-          <div class="data-card-body" id="treeData">
-            <div class="data-empty">Run PAGE TREE</div>
-          </div>
-        </div>
-        <div class="data-card">
-          <div class="data-card-head">
-            <span class="data-card-title">Stickies</span>
-            <span class="data-card-count" id="stickyCount">0</span>
-          </div>
-          <div class="data-card-body" id="stickyData">
-            <div class="data-empty">Run STICKIES</div>
+          <div class="data-card">
+            <div class="data-card-head" onclick="openDataView('stickies')" style="cursor:pointer">
+              <span class="data-card-title">Stickies</span>
+              <span class="data-card-count" id="stickyCount">0</span>
+              <span class="data-card-arrow">→</span>
+            </div>
+            <div class="data-card-body" id="stickyData"><div class="data-empty">Run STICKIES</div></div>
           </div>
         </div>
       </div>
+
+      <!-- File-explorer drill-down view -->
+      <div id="data-explorer" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+        <div class="data-nav">
+          <button class="data-back-btn" onclick="closeDataView()">← BACK</button>
+          <span class="data-breadcrumb" id="dataBreadcrumb">DATA</span>
+          <button class="data-back-btn" style="margin-left:auto" onclick="refreshExplorer()">↻ REFRESH</button>
+        </div>
+        <div class="data-file-tree" id="dataFileTree">
+          <div class="data-empty">Loading…</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- ── COMPOSE PANEL ── -->
@@ -1100,12 +1189,12 @@ function handleEvent(msg) {
 
 // ── Store / render ─────────────────────────
 function storeResult(action, result) {
-  if (action === 'pull-tokens')     { store.tokens = result;     renderTokens(result); }
-  if (action === 'pull-components') { store.components = result; renderComponents(result); }
-  if (action === 'pull-styles')     { store.styles = result;     renderStyles(result); }
-  if (action === 'stickies')        { store.stickies = result;   renderStickies(result); }
-  if (action === 'page-tree')       { store.tree = result;       renderTree(result); }
-  if (action === 'inspect')         { const n = result?.nodes || (Array.isArray(result)?result:[]); store.selection=n; renderSelection(n); }
+  if (action === 'pull-tokens')     { store.tokens = result;     renderTokens(result);     if (explorerOpen('tokens'))     renderFileTree('tokens',     result); }
+  if (action === 'pull-components') { store.components = result; renderComponents(result); if (explorerOpen('components')) renderFileTree('components', result); }
+  if (action === 'pull-styles')     { store.styles = result;     renderStyles(result);     if (explorerOpen('styles'))     renderFileTree('styles',     result); }
+  if (action === 'stickies')        { store.stickies = result;   renderStickies(result);   if (explorerOpen('stickies'))   renderFileTree('stickies',   result); }
+  if (action === 'page-tree')       { store.tree = result;       renderTree(result);       if (explorerOpen('tree'))       renderFileTree('tree',       result); }
+  if (action === 'inspect')         { const n = result?.nodes || (Array.isArray(result)?result:[]); store.selection=n; renderSelection(n); if (explorerOpen('selection')) renderFileTree('selection', n); }
 }
 
 function renderTokens(data) {
@@ -1211,9 +1300,16 @@ function updateClients() {
 }
 
 // ── Actions ────────────────────────────────
-function runAction(action) {
+function runAction(action, viewType) {
   const btn = document.getElementById('btn-' + action);
   if (btn) btn.classList.add('running');
+
+  // Navigate to DATA tab + open file explorer immediately
+  if (viewType) {
+    const dataTab = [...document.querySelectorAll('.tab')].find(t => t.textContent.trim() === 'DATA');
+    if (dataTab) switchTab('data', dataTab);
+    openDataView(viewType);
+  }
 
   fetch('/api/action', {
     method: 'POST',
@@ -1435,6 +1531,190 @@ function rgbHex(c) {
   return '#' + r + g + b;
 }
 
+// ── File Explorer ──────────────────────────
+let currentExplorerType = null;
+
+function explorerOpen(type) {
+  return currentExplorerType === type &&
+    document.getElementById('data-explorer').style.display !== 'none';
+}
+
+function openDataView(type) {
+  currentExplorerType = type;
+  document.getElementById('data-grid-view').style.display = 'none';
+  const ex = document.getElementById('data-explorer');
+  ex.style.display = 'flex';
+
+  const labels = {
+    tokens: 'TOKENS', components: 'COMPONENTS', styles: 'STYLES',
+    selection: 'SELECTION', tree: 'PAGE TREE', stickies: 'STICKIES', specs: 'SPECS'
+  };
+  document.getElementById('dataBreadcrumb').innerHTML =
+    'DATA › <span class="crumb-active">' + (labels[type] || type.toUpperCase()) + '</span>';
+
+  renderFileTree(type, store[type]);
+}
+
+function closeDataView() {
+  currentExplorerType = null;
+  document.getElementById('data-explorer').style.display = 'none';
+  document.getElementById('data-grid-view').style.display = 'block';
+}
+
+function refreshExplorer() {
+  if (currentExplorerType) renderFileTree(currentExplorerType, store[currentExplorerType]);
+}
+
+function toggleFolder(id) {
+  const ch = document.getElementById(id);
+  const ic = document.getElementById(id + '-icon');
+  if (!ch) return;
+  const open = ch.classList.toggle('open');
+  if (ic) ic.textContent = open ? '▼' : '▶';
+}
+
+function toggleDetail(id) {
+  const d = document.getElementById(id);
+  if (d) d.classList.toggle('open');
+}
+
+function renderFileTree(type, data) {
+  const el = document.getElementById('dataFileTree');
+  if (!el) return;
+
+  if (type === 'specs') {
+    // Load specs from /api/specs
+    el.innerHTML = '<div class="data-empty" style="padding:20px">Loading specs…</div>';
+    fetch('/api/specs').then(r => r.json()).then(specs => {
+      store.specs = specs;
+      el.innerHTML = buildSpecsTree(specs);
+    }).catch(() => { el.innerHTML = '<div class="data-empty" style="padding:20px">Failed to load specs</div>'; });
+    return;
+  }
+
+  if (!data) {
+    el.innerHTML = '<div class="data-empty" style="padding:20px">No data yet — run the action first</div>';
+    return;
+  }
+
+  let html = '';
+
+  if (type === 'tokens') {
+    const cols = data?.collections || (Array.isArray(data) ? [{ name: 'tokens', variables: data }] : []);
+    for (const col of cols) {
+      const id = 'col-' + col.name.replace(/[^a-z0-9]/gi, '-');
+      html += '<div class="tree-folder" onclick="toggleFolder(\'' + id + '\')">';
+      html += '<span class="tree-icon" id="' + id + '-icon">▶</span>';
+      html += '<span>' + escH(col.name) + '</span>';
+      html += '<span class="tree-folder-count">' + (col.variables?.length || 0) + ' tokens</span>';
+      html += '</div><div class="tree-children" id="' + id + '">';
+      for (const v of (col.variables || [])) {
+        const val = v.valuesByMode ? Object.values(v.valuesByMode)[0] : '';
+        const isColor = v.resolvedType === 'COLOR' && typeof val === 'object' && val && 'r' in val;
+        const hex = isColor ? rgbHex(val) : null;
+        html += '<div class="tree-file">';
+        if (hex) html += '<span class="tree-swatch" style="background:' + hex + '"></span>';
+        html += '<span class="tree-name">' + escH(v.name) + '</span>';
+        html += '<span class="tree-val">' + escH(hex || String(val ?? '')) + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+  } else if (type === 'components') {
+    const comps = Array.isArray(data) ? data : [];
+    for (const c of comps) {
+      const id = 'cmp-' + (c.name || '').replace(/[^a-z0-9]/gi, '-');
+      html += '<div class="tree-folder" onclick="toggleFolder(\'' + id + '\')">';
+      html += '<span class="tree-icon" id="' + id + '-icon">▶</span>';
+      html += '<span>' + escH(c.name) + '</span>';
+      if (c.variants?.length) html += '<span class="tree-folder-count">' + c.variants.length + ' variants</span>';
+      html += '</div><div class="tree-children" id="' + id + '">';
+      for (const v of (c.variants || [])) {
+        html += '<div class="tree-file"><span style="color:var(--accent);margin-right:4px">◆</span><span class="tree-name">' + escH(v) + '</span></div>';
+      }
+      if (c.figmaNodeId) html += '<div class="tree-file"><span class="tree-name" style="color:var(--fg-dim)">node: ' + escH(c.figmaNodeId) + '</span></div>';
+      html += '</div>';
+    }
+
+  } else if (type === 'styles') {
+    const styles = Array.isArray(data) ? data : [];
+    for (const s of styles) {
+      html += '<div class="tree-file">';
+      html += '<span class="tree-name">' + escH(s.name) + '</span>';
+      html += '<span class="tree-val">' + escH(s.styleType || s.type || '') + '</span>';
+      html += '</div>';
+    }
+
+  } else if (type === 'tree') {
+    const pages = data?.pages || [];
+    for (const page of pages) {
+      const id = 'pg-' + page.name.replace(/[^a-z0-9]/gi, '-');
+      html += '<div class="tree-folder" onclick="toggleFolder(\'' + id + '\')">';
+      html += '<span class="tree-icon" id="' + id + '-icon">▶</span>';
+      html += '<span>' + escH(page.name) + '</span>';
+      html += '<span class="tree-badge page" style="margin-left:auto">PAGE</span>';
+      html += '</div><div class="tree-children" id="' + id + '">';
+      for (const child of (page.children || [])) {
+        html += '<div class="tree-file"><span class="tree-name">' + escH(child.name) + '</span>';
+        html += '<span class="tree-val">' + escH(child.type || '') + '</span></div>';
+      }
+      html += '</div>';
+    }
+
+  } else if (type === 'selection') {
+    const nodes = Array.isArray(data) ? data : [];
+    for (const n of nodes) {
+      html += '<div class="tree-file"><span class="tree-name">' + escH(n.name) + '</span>';
+      html += '<span class="tree-val">' + escH(n.type || '') + '</span></div>';
+    }
+
+  } else if (type === 'stickies') {
+    const stickies = Array.isArray(data) ? data : [];
+    for (const s of stickies) {
+      html += '<div class="tree-file"><span class="tree-name">' + escH((s.text || s.id || '').slice(0, 100)) + '</span></div>';
+    }
+  }
+
+  el.innerHTML = html || '<div class="data-empty" style="padding:20px">Empty</div>';
+}
+
+function buildSpecsTree(specs) {
+  const subdirs = { components: 'Components', pages: 'Pages', dataviz: 'DataViz', design: 'Design', ia: 'IA' };
+  let html = '';
+  let total = 0;
+  for (const [sub, label] of Object.entries(subdirs)) {
+    const items = specs[sub] || [];
+    if (!items.length) continue;
+    total += items.length;
+    const id = 'spec-' + sub;
+    html += '<div class="tree-folder" onclick="toggleFolder(\'' + id + '\')">';
+    html += '<span class="tree-icon" id="' + id + '-icon">▶</span>';
+    html += '<span>specs/' + sub + '/</span>';
+    html += '<span class="tree-folder-count">' + items.length + ' files</span>';
+    html += '</div><div class="tree-children" id="' + id + '">';
+    for (const spec of items) {
+      const level = spec.level || spec.atomicLevel || spec.type || '';
+      const did = 'sd-' + (spec.name || '').replace(/[^a-z0-9]/gi, '-');
+      html += '<div class="tree-file" onclick="toggleDetail(\'' + did + '\')">';
+      html += '<span class="tree-name">' + escH(spec.name || '') + '.json</span>';
+      if (level) html += '<span class="tree-badge ' + level + '">' + level.toUpperCase() + '</span>';
+      html += '</div>';
+      html += '<div class="tree-detail" id="' + did + '">';
+      if (spec.purpose || spec.description) html += '<strong>Purpose:</strong> ' + escH(spec.purpose || spec.description) + '\\n';
+      if (spec.shadcnBase?.length) html += '<strong>shadcnBase:</strong> ' + escH(spec.shadcnBase.join(', ')) + '\\n';
+      if (spec.codeConnect?.figmaNodeId) html += '<strong>figmaNode:</strong> ' + escH(spec.codeConnect.figmaNodeId) + '\\n';
+      if (spec.tags?.length) html += '<strong>tags:</strong> ' + escH(spec.tags.join(', '));
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  // Update specs count
+  const cnt = document.getElementById('specsCount');
+  if (cnt) cnt.textContent = total;
+  return html || '<div class="data-empty" style="padding:20px">No spec files found</div>';
+}
+
 // ── Boot ───────────────────────────────────
 connectSSE();
 
@@ -1457,6 +1737,22 @@ fetch('/api/data').then(r => r.json()).then(payload => {
   if (tree?.length) {
     renderTree({ pages: tree.map(p => ({ name: p.name, children: p.frames || [] })) });
     addFeed('info', 'Page tree loaded — ' + tree.length + ' pages');
+  }
+}).catch(() => {});
+
+// Load specs count on boot
+fetch('/api/specs').then(r => r.json()).then(specs => {
+  store.specs = specs;
+  const total = Object.values(specs).reduce((s, a) => s + (Array.isArray(a) ? a.length : 0), 0);
+  const cnt = document.getElementById('specsCount');
+  if (cnt) cnt.textContent = total;
+  const bd = document.getElementById('specsData');
+  if (bd) {
+    const comps = specs.components || [];
+    bd.innerHTML = comps.slice(0, 8).map(s =>
+      '<div class="comp-row"><span class="comp-name">' + escH(s.name) + '</span>' +
+      '<span class="comp-tag">' + escH(s.level || s.atomicLevel || '') + '</span></div>'
+    ).join('') + (comps.length > 8 ? '<div style="color:var(--fg-dim);font-size:9px;padding:4px 0">+' + (comps.length-8) + ' more</div>' : '');
   }
 }).catch(() => {});
 
