@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BidCraft — Commercial Production Estimator</title>
+<title>dibs — commercial production estimator</title>
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -34,8 +35,8 @@
   --shadow-sm: 0 1px 2px rgba(26,26,26,0.04);
   --shadow-md: 0 2px 8px rgba(26,26,26,0.06);
   --shadow-lg: 0 4px 16px rgba(26,26,26,0.08);
-  --radius: 8px;
-  --radius-lg: 12px;
+  --radius: 3px;
+  --radius-lg: 4px;
   --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --mono: 'JetBrains Mono', 'SF Mono', monospace;
 }
@@ -74,7 +75,7 @@ body {
   width: 28px;
   height: 28px;
   background: var(--accent);
-  border-radius: 6px;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,7 +113,7 @@ body {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 3px;
   transition: all 0.15s;
 }
 
@@ -357,7 +358,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .template-chip {
   padding: 6px 14px;
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 3px;
   font-size: 12px;
   color: var(--fg-secondary);
   cursor: pointer;
@@ -404,13 +405,14 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .category-icon {
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: 3px;
   background: var(--accent-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  color: var(--accent);
 }
+.category-icon svg { width: 20px; height: 20px; }
 
 .category-amount {
   font-family: var(--mono);
@@ -452,7 +454,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
   gap: 4px;
   font-size: 11px;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 3px;
   margin-top: 8px;
 }
 
@@ -496,7 +498,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
   width: 120px;
   padding: 6px 12px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 3px;
   background: var(--bg-input);
   font-family: var(--mono);
   font-size: 13px;
@@ -840,7 +842,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 
 .badge {
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 3px;
   font-size: 11px;
   font-weight: 500;
 }
@@ -915,8 +917,8 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 <!-- ══ Top Bar ══════════════════════════ -->
 <div class="topbar">
   <div class="topbar-brand">
-    <div class="topbar-logo">B</div>
-    <div class="topbar-name">BidCraft <span>Nike "Just Do It" 60s TV</span></div>
+    <div class="topbar-logo">d</div>
+    <div class="topbar-name">dibs <span>Nike "Just Do It" 60s TV</span></div>
   </div>
   <div class="topbar-actions">
     <button class="topbar-btn" onclick="window.location.href='index.html'">Back to Ark</button>
@@ -954,7 +956,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 <!-- ══ Step Navigation ═════════════════ -->
 <div class="steps">
   <div class="step completed" onclick="goStep(1)">
-    <div class="step-num">&#10003;</div>
+    <div class="step-num"><i data-lucide="check" style="width:14px;height:14px"></i></div>
     Project Setup
   </div>
   <div class="step-connector"></div>
@@ -986,17 +988,17 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 
     <div class="type-cards">
       <div class="type-card selected" onclick="selectType(this)">
-        <div class="type-card-icon">&#127909;</div>
+        <div class="type-card-icon"><i data-lucide="tv"></i></div>
         <div class="type-card-title">TV Commercial</div>
         <div class="type-card-desc">30s/60s broadcast spots with full production crew</div>
       </div>
       <div class="type-card" onclick="selectType(this)">
-        <div class="type-card-icon">&#128241;</div>
+        <div class="type-card-icon"><i data-lucide="smartphone"></i></div>
         <div class="type-card-title">Digital / Social</div>
         <div class="type-card-desc">Social-first content, vertical video, multi-platform</div>
       </div>
       <div class="type-card" onclick="selectType(this)">
-        <div class="type-card-icon">&#127916;</div>
+        <div class="type-card-icon"><i data-lucide="layers"></i></div>
         <div class="type-card-title">Integrated Campaign</div>
         <div class="type-card-desc">TV + digital + social bundle with shared production</div>
       </div>
@@ -1040,7 +1042,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
     </div>
 
     <div class="quick-search">
-      <span class="quick-search-icon">&#128269;</span>
+      <span class="quick-search-icon"><i data-lucide="search" style="width:16px;height:16px"></i></span>
       <input placeholder="Quick add — type 'gaffer', 'crane', 'colorist'..." />
     </div>
 
@@ -1053,7 +1055,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
       <!-- Crew & Labor -->
       <div class="category-card" onclick="toggleExpand(this)">
         <div class="category-header">
-          <div class="category-icon">&#128100;</div>
+          <div class="category-icon"><i data-lucide="users"></i></div>
           <div class="category-amount">$142,800</div>
         </div>
         <div class="category-name">Crew & Labor</div>
@@ -1088,7 +1090,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
       <!-- Equipment -->
       <div class="category-card">
         <div class="category-header">
-          <div class="category-icon">&#127908;</div>
+          <div class="category-icon"><i data-lucide="camera"></i></div>
           <div class="category-amount">$67,500</div>
         </div>
         <div class="category-name">Equipment</div>
@@ -1100,7 +1102,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
       <!-- Locations & Travel -->
       <div class="category-card">
         <div class="category-header">
-          <div class="category-icon">&#128205;</div>
+          <div class="category-icon"><i data-lucide="map-pin"></i></div>
           <div class="category-amount">$89,200</div>
         </div>
         <div class="category-name">Locations & Travel</div>
@@ -1112,7 +1114,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
       <!-- Talent -->
       <div class="category-card">
         <div class="category-header">
-          <div class="category-icon">&#127917;</div>
+          <div class="category-icon"><i data-lucide="user-check"></i></div>
           <div class="category-amount">$52,000</div>
         </div>
         <div class="category-name">Talent & Casting</div>
@@ -1124,7 +1126,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
       <!-- Art & Props -->
       <div class="category-card">
         <div class="category-header">
-          <div class="category-icon">&#127912;</div>
+          <div class="category-icon"><i data-lucide="palette"></i></div>
           <div class="category-amount">$18,750</div>
         </div>
         <div class="category-name">Art, Props & Wardrobe</div>
@@ -1136,7 +1138,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
       <!-- Post-Production -->
       <div class="category-card">
         <div class="category-header">
-          <div class="category-icon">&#9999;&#65039;</div>
+          <div class="category-icon"><i data-lucide="scissors"></i></div>
           <div class="category-amount">$45,000</div>
         </div>
         <div class="category-name">Post-Production</div>
@@ -1148,7 +1150,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
       <!-- Music & Licensing -->
       <div class="category-card">
         <div class="category-header">
-          <div class="category-icon">&#127925;</div>
+          <div class="category-icon"><i data-lucide="music"></i></div>
           <div class="category-amount">$28,000</div>
         </div>
         <div class="category-name">Music & Licensing</div>
@@ -1160,7 +1162,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
       <!-- Insurance & Legal -->
       <div class="category-card">
         <div class="category-header">
-          <div class="category-icon">&#128196;</div>
+          <div class="category-icon"><i data-lucide="shield"></i></div>
           <div class="category-amount">$12,000</div>
         </div>
         <div class="category-name">Insurance & Legal</div>
@@ -1172,7 +1174,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
       <!-- Contingency -->
       <div class="category-card">
         <div class="category-header">
-          <div class="category-icon">&#128176;</div>
+          <div class="category-icon"><i data-lucide="percent"></i></div>
           <div class="category-amount">$32,000</div>
         </div>
         <div class="category-name">Contingency & Markup</div>
@@ -1230,7 +1232,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
             <span class="day-rate-value">$126,900</span>
           </div>
           <div class="cost-impact">
-            &#9888; Adding a 4th shoot day would add approximately $95,000 to the budget
+            <i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px"></i> Adding a 4th shoot day would add approximately $95,000 to the budget
           </div>
         </div>
 
@@ -1386,22 +1388,22 @@ textarea.form-input { min-height: 100px; resize: vertical; }
     <h3 style="font-size:12px; text-transform:uppercase; letter-spacing:1.5px; color:var(--fg-muted); margin-bottom:16px; font-weight:600;">Export & Share</h3>
     <div class="export-panel">
       <div class="export-option">
-        <div class="export-icon">&#128196;</div>
+        <div class="export-icon"><i data-lucide="file-text"></i></div>
         <div class="export-label">AICP PDF</div>
         <div class="export-desc">Standard bid form format</div>
       </div>
       <div class="export-option">
-        <div class="export-icon">&#128202;</div>
+        <div class="export-icon"><i data-lucide="table"></i></div>
         <div class="export-label">Excel Workbook</div>
         <div class="export-desc">Editable spreadsheet</div>
       </div>
       <div class="export-option">
-        <div class="export-icon">&#128279;</div>
+        <div class="export-icon"><i data-lucide="link"></i></div>
         <div class="export-label">Share Link</div>
         <div class="export-desc">View-only with comments</div>
       </div>
       <div class="export-option">
-        <div class="export-icon">&#128233;</div>
+        <div class="export-icon"><i data-lucide="send"></i></div>
         <div class="export-label">Send to Client</div>
         <div class="export-desc">Email with cover letter</div>
       </div>
@@ -1439,6 +1441,9 @@ document.querySelectorAll('.template-chip').forEach(chip => {
     chip.classList.add('active');
   });
 });
+
+// Initialize Lucide icons
+lucide.createIcons();
 </script>
 </body>
 </html>
