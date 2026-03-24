@@ -105,6 +105,72 @@ export function validateSpec(spec: unknown): ValidationResult {
         suggestion: "Describe what the component does and why it exists in 1-2 sentences",
       });
     }
+
+    // Atomic Design validation
+    const level = comp.level as string | undefined;
+    const composesSpecs = comp.composesSpecs as string[] | undefined;
+    const shadcnBase = comp.shadcnBase as string[] | undefined;
+
+    if (!level) {
+      warnings.push({
+        path: "level",
+        message: "No atomic design level specified",
+        suggestion: "Set level to 'atom', 'molecule', 'organism', or 'template'",
+      });
+    }
+
+    if (level === "atom" && composesSpecs && composesSpecs.length > 0) {
+      warnings.push({
+        path: "composesSpecs",
+        message: "Atoms should not compose other component specs — they are primitives",
+        suggestion: "Remove composesSpecs or change level to 'molecule'",
+      });
+    }
+
+    if (level === "molecule") {
+      if (!composesSpecs || composesSpecs.length === 0) {
+        warnings.push({
+          path: "composesSpecs",
+          message: "Molecules should compose atom specs",
+          suggestion: "Add composesSpecs referencing the atoms this molecule uses",
+        });
+      }
+      if (composesSpecs && composesSpecs.length > 8) {
+        warnings.push({
+          path: "composesSpecs",
+          message: "Molecule composes too many specs — consider splitting into organism",
+          suggestion: "Molecules typically compose 2-5 atoms",
+        });
+      }
+    }
+
+    if (level === "organism" && (!composesSpecs || composesSpecs.length === 0)) {
+      warnings.push({
+        path: "composesSpecs",
+        message: "Organisms should compose molecules and/or atoms",
+        suggestion: "Add composesSpecs referencing the molecules/atoms this organism uses",
+      });
+    }
+
+    // Prop explosion check (applicable to all levels)
+    const props = comp.props as Record<string, string> | undefined;
+    if (props && Object.keys(props).length > 15) {
+      warnings.push({
+        path: "props",
+        message: `Component has ${Object.keys(props).length} props — possible prop explosion`,
+        suggestion: "Consider splitting into smaller components at a higher atomic level",
+      });
+    }
+
+    // Code Connect nudge
+    const codeConnect = comp.codeConnect as Record<string, unknown> | undefined;
+    if (!codeConnect || !codeConnect.mapped) {
+      warnings.push({
+        path: "codeConnect",
+        message: "No Code Connect mapping established",
+        suggestion: "Map this component to its Figma counterpart with codeConnect.figmaNodeId and codeConnect.codebasePath",
+      });
+    }
   }
 
   if (raw.type === "dataviz") {
@@ -124,7 +190,7 @@ export function validateSpec(spec: unknown): ValidationResult {
       warnings.push({
         path: "root",
         message: "IA spec has no root node",
-        suggestion: "Run `ark ia extract` to populate from Figma pages",
+        suggestion: "Run `noche ia extract` to populate from Figma pages",
       });
     }
     const flows = ia.flows as unknown[] | undefined;
@@ -187,7 +253,7 @@ export async function validateCrossRefs(
         warnings.push({
           path: `sections.${section.name}.component`,
           message: `Component spec "${section.component}" not found`,
-          suggestion: `Create it with: ark spec component ${section.component}`,
+          suggestion: `Create it with: noche spec component ${section.component}`,
         });
       }
     }
@@ -199,8 +265,34 @@ export async function validateCrossRefs(
       warnings.push({
         path: "dataviz",
         message: `DataViz spec "${spec.dataviz}" not found`,
-        suggestion: `Create it with: ark dataviz ${spec.dataviz}`,
+        suggestion: `Create it with: noche dataviz ${spec.dataviz}`,
       });
+    }
+  }
+
+  // Atomic Design cross-reference: verify composesSpecs exist and respect hierarchy
+  if (spec.type === "component" && spec.composesSpecs && spec.composesSpecs.length > 0) {
+    const levelOrder = { atom: 0, molecule: 1, organism: 2, template: 3 };
+    const currentLevel = levelOrder[spec.level] ?? 0;
+
+    for (const depName of spec.composesSpecs) {
+      const depSpec = await registry.getSpec(depName);
+      if (!depSpec) {
+        warnings.push({
+          path: "composesSpecs",
+          message: `Composed spec "${depName}" not found`,
+          suggestion: `Create it with: noche spec component ${depName}`,
+        });
+      } else if (depSpec.type === "component") {
+        const depLevel = levelOrder[depSpec.level] ?? 0;
+        if (depLevel >= currentLevel) {
+          warnings.push({
+            path: "composesSpecs",
+            message: `${spec.level} "${spec.name}" composes ${depSpec.level} "${depName}" — atomic hierarchy violation`,
+            suggestion: `A ${spec.level} should only compose lower-level components (atoms < molecules < organisms < templates)`,
+          });
+        }
+      }
     }
   }
 
@@ -226,7 +318,7 @@ export async function validateCrossRefs(
           warnings.push({
             path: `${path}.linkedPageSpec`,
             message: `Page spec "${node.linkedPageSpec}" not found`,
-            suggestion: `Create it with: ark spec page ${node.linkedPageSpec}`,
+            suggestion: `Create it with: noche spec page ${node.linkedPageSpec}`,
           });
         }
       }
@@ -246,7 +338,7 @@ export async function validateCrossRefs(
           warnings.push({
             path: "globals",
             message: `Global nav page spec "${global.linkedPageSpec}" not found`,
-            suggestion: `Create it with: ark spec page ${global.linkedPageSpec}`,
+            suggestion: `Create it with: noche spec page ${global.linkedPageSpec}`,
           });
         }
       }

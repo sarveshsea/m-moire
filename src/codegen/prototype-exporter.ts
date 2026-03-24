@@ -60,7 +60,7 @@ export function generatePlaywrightPrototype(
 
   lines.push(`import { test, expect } from '@playwright/test';`);
   lines.push(``);
-  lines.push(`test.describe('Ark Cinematic Prototype', () => {`);
+  lines.push(`test.describe('Noche Cinematic Prototype', () => {`);
   lines.push(`  test.use({`);
   lines.push(`    viewport: { width: ${config.viewport.width}, height: ${config.viewport.height} },`);
 
@@ -147,7 +147,8 @@ export function generateHtmlPrototype(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ark Prototype</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M25.5 15.5A9.5 9.5 0 0 1 12 25 9.5 9.5 0 0 1 9.5 6.5 12 12 0 1 0 25.5 15.5z' fill='%23e2e8f0'/%3E%3C/svg%3E">
+<title>Noche Prototype</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 

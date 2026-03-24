@@ -1,8 +1,9 @@
 import type { Command } from "commander";
-import type { ArkEngine } from "../engine/core.js";
+import type { NocheEngine } from "../engine/core.js";
 import type { AnySpec } from "../specs/types.js";
 import type { DesignToken } from "../engine/registry.js";
 import type { ResearchStore } from "../research/engine.js";
+import { PreviewApiServer } from "../preview/api-server.js";
 import { writeFile, mkdir, readFile } from "fs/promises";
 import { join, basename } from "path";
 import { spawn } from "child_process";
@@ -34,10 +35,10 @@ interface PreviewData {
   generatedAt: string;
 }
 
-export function registerPreviewCommand(program: Command, engine: ArkEngine) {
+export function registerPreviewCommand(program: Command, engine: NocheEngine) {
   program
     .command("preview")
-    .description("Build and serve the Ark component preview gallery")
+    .description("Build and serve the Noche component preview gallery")
     .option("-p, --port <port>", "Preview server port", "5173")
     .option("--build-only", "Build the preview without serving")
     .action(async (opts) => {
@@ -110,20 +111,43 @@ export function registerPreviewCommand(program: Command, engine: ArkEngine) {
         return;
       }
 
-      console.log(`\n  Starting on http://localhost:${port}\n`);
-
+      // Start the interactive API server (replaces npx serve)
+      const apiServer = new PreviewApiServer(engine, previewDir, port);
       try {
-        const child = spawn("npx", ["-y", "serve", previewDir, "-l", String(port), "-s", "--no-clipboard"], {
-          stdio: "inherit",
-          shell: true,
-        });
+        const actualPort = await apiServer.start();
+        console.log(`\n  Noche Preview (interactive) on http://localhost:${actualPort}`);
+        console.log(`  API endpoints:        http://localhost:${actualPort}/api/`);
+        console.log(`  WebSocket:            ws://localhost:${actualPort}`);
+        console.log(`  Figma bridge:         ${engine.figma.isConnected ? "connected" : "not connected"}`);
+        console.log(`\n  Features:`);
+        console.log(`    - Edit tokens, specs, and components from the browser`);
+        console.log(`    - Changes auto-sync to Figma when connected`);
+        console.log(`    - Agent command palette (Cmd+K) for AI-powered design ops`);
+        console.log(`    - Real-time updates via WebSocket\n`);
 
-        child.on("error", (err) => {
-          console.log(`  npx serve failed (${err.message}), falling back to python3...`);
-          spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
+        // Keep process alive
+        process.on("SIGINT", () => {
+          console.log("\n  Shutting down preview server...");
+          apiServer.stop();
+          process.exit(0);
         });
-      } catch {
-        spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
+      } catch (err) {
+        console.error(`\n  Failed to start API server: ${(err as Error).message}`);
+        console.log("  Falling back to static server...\n");
+
+        try {
+          const child = spawn("npx", ["-y", "serve", previewDir, "-l", String(port), "--no-clipboard"], {
+            stdio: "inherit",
+            shell: true,
+          });
+
+          child.on("error", (serveErr) => {
+            console.log(`  npx serve failed (${serveErr.message}), falling back to python3...`);
+            spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
+          });
+        } catch {
+          spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
+        }
       }
     });
 }
@@ -144,7 +168,8 @@ function generatePreviewHTML(data: PreviewData): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${projectName} — Ark Preview</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M25.5 15.5A9.5 9.5 0 0 1 12 25 9.5 9.5 0 0 1 9.5 6.5 12 12 0 1 0 25.5 15.5z' fill='%23e2e8f0'/%3E%3C/svg%3E">
+<title>${projectName} — Noche Preview</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -608,7 +633,7 @@ ${colorTokens.length > 0 ? `<div class="color-bar">${colorTokens.map((t) => {
 <div class="grid" id="grid">
 ${specs.length === 0 ? `<div class="empty" style="grid-column:1/-1">
   No specs yet.<br>
-  Run <code>ark spec component MyComponent</code> then <code>ark generate</code>
+  Run <code>noche spec component MyComponent</code> then <code>noche generate</code>
 </div>` : ""}
 
 ${components.map((s) => {
@@ -781,7 +806,207 @@ ${ia.map((s) => {
 
 </div>
 
+<!-- ── Agent Command Palette (Cmd+K) ────────── -->
+<div id="cmd-palette" class="cmd-palette hidden">
+  <div class="cmd-overlay" onclick="closePalette()"></div>
+  <div class="cmd-modal">
+    <div class="cmd-header">
+      <span class="cmd-icon">&#9670;</span>
+      <input id="cmd-input" class="cmd-input" type="text" placeholder="Ask Claude to modify your design system..." autocomplete="off" spellcheck="false" />
+      <kbd class="cmd-kbd">ESC</kbd>
+    </div>
+    <div id="cmd-suggestions" class="cmd-suggestions">
+      <div class="cmd-group-label">QUICK ACTIONS</div>
+      <button class="cmd-item" onclick="runAgent('Update color palette to a warm earth-tone theme')"><span class="cmd-item-icon">&#9632;</span> Update color palette</button>
+      <button class="cmd-item" onclick="runAgent('Add spacing tokens based on 8px grid')"><span class="cmd-item-icon">&#9644;</span> Generate spacing scale</button>
+      <button class="cmd-item" onclick="runAgent('Create a typography system with Inter font')"><span class="cmd-item-icon">T</span> Setup typography system</button>
+      <button class="cmd-item" onclick="runAgent('Create a new Card component with title, description, and action')"><span class="cmd-item-icon">&#9724;</span> Create component</button>
+      <button class="cmd-item" onclick="runAgent('Audit design system for accessibility')"><span class="cmd-item-icon">&#10003;</span> Accessibility audit</button>
+      <button class="cmd-item" onclick="runAgent('Sync all changes to Figma')"><span class="cmd-item-icon">&#8644;</span> Sync to Figma</button>
+      <div class="cmd-group-label">DESIGN SYSTEM</div>
+      <button class="cmd-item" onclick="runAgent('Add dark mode to all color tokens')"><span class="cmd-item-icon">&#9789;</span> Add dark mode</button>
+      <button class="cmd-item" onclick="runAgent('Generate a complete shadcn/ui token foundation')"><span class="cmd-item-icon">&#9881;</span> Initialize token system</button>
+      <button class="cmd-item" onclick="runAgent('Generate code for all specs')"><span class="cmd-item-icon">&lt;/&gt;</span> Generate all code</button>
+    </div>
+    <div id="cmd-status" class="cmd-status hidden"></div>
+  </div>
+</div>
+
+<!-- ── Edit Panel (slide-in from right) ─────── -->
+<div id="edit-panel" class="edit-panel hidden">
+  <div class="edit-header">
+    <span id="edit-title">Edit</span>
+    <button class="edit-close" onclick="closeEditPanel()">&times;</button>
+  </div>
+  <div id="edit-body" class="edit-body"></div>
+  <div class="edit-footer">
+    <button id="edit-save" class="edit-save" onclick="saveEdit()">SAVE &amp; SYNC</button>
+    <button class="edit-cancel" onclick="closeEditPanel()">CANCEL</button>
+  </div>
+</div>
+
+<!-- ── Toast Notifications ──────────────────── -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- ── Figma Connection Status Bar ──────────── -->
+<div id="figma-bar" class="figma-bar">
+  <span id="figma-dot" class="figma-dot"></span>
+  <span id="figma-status">Figma: checking...</span>
+  <button class="figma-sync-btn" onclick="runAgent('Sync all changes to Figma')">SYNC</button>
+</div>
+
+<!-- ── Agent Activity Log ──────────────────── -->
+<div id="agent-log" class="agent-log hidden">
+  <div class="agent-log-header">
+    <span>AGENT ACTIVITY</span>
+    <button onclick="toggleAgentLog()" style="background:none;border:none;color:var(--fg-muted);cursor:pointer;font-family:var(--mono)">&times;</button>
+  </div>
+  <div id="agent-log-body" class="agent-log-body"></div>
+</div>
+<button id="agent-log-toggle" class="agent-log-toggle" onclick="toggleAgentLog()">&#9670; AGENT LOG</button>
+
+<style>
+/* ── Command Palette ──────────────────────── */
+.cmd-palette { position:fixed; top:0; left:0; right:0; bottom:0; z-index:100; display:flex; align-items:flex-start; justify-content:center; padding-top:15vh; }
+.cmd-palette.hidden { display:none; }
+.cmd-overlay { position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); }
+.cmd-modal { position:relative; width:600px; max-width:90vw; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+.cmd-header { display:flex; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border); gap:10px; }
+.cmd-icon { color:var(--accent-bright); font-size:14px; }
+.cmd-input { flex:1; background:none; border:none; color:var(--fg); font-family:var(--mono); font-size:13px; outline:none; }
+.cmd-input::placeholder { color:var(--fg-muted); }
+.cmd-kbd { font-size:9px; padding:2px 6px; border:1px solid var(--border); border-radius:2px; color:var(--fg-muted); font-family:var(--mono); }
+.cmd-suggestions { max-height:300px; overflow-y:auto; padding:4px; }
+.cmd-group-label { font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--fg-muted); padding:8px 12px 4px; }
+.cmd-item { display:flex; align-items:center; gap:10px; width:100%; padding:8px 12px; background:none; border:none; color:var(--fg); font-family:var(--mono); font-size:11px; cursor:pointer; border-radius:3px; text-align:left; }
+.cmd-item:hover { background:var(--bg-hover); }
+.cmd-item-icon { width:18px; text-align:center; color:var(--accent); font-size:12px; }
+.cmd-status { padding:12px 16px; border-top:1px solid var(--border); font-size:10px; color:var(--fg-muted); }
+.cmd-status.hidden { display:none; }
+
+/* ── Edit Panel ───────────────────────────── */
+.edit-panel { position:fixed; top:0; right:0; bottom:0; width:420px; max-width:90vw; background:var(--bg-card); border-left:1px solid var(--border); z-index:50; display:flex; flex-direction:column; transform:translateX(0); transition:transform 0.2s; }
+.edit-panel.hidden { transform:translateX(100%); pointer-events:none; }
+.edit-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); font-size:11px; font-weight:700; letter-spacing:0.5px; }
+.edit-close { background:none; border:none; color:var(--fg-muted); font-size:18px; cursor:pointer; font-family:var(--mono); }
+.edit-body { flex:1; overflow-y:auto; padding:16px; }
+.edit-footer { display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--border); }
+.edit-save { flex:1; padding:8px; background:var(--accent-bright); color:var(--bg); border:none; font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:1px; cursor:pointer; border-radius:2px; }
+.edit-save:hover { opacity:0.9; }
+.edit-cancel { padding:8px 16px; background:none; border:1px solid var(--border); color:var(--fg-muted); font-family:var(--mono); font-size:10px; cursor:pointer; border-radius:2px; }
+
+/* ── Edit Form Fields ─────────────────────── */
+.edit-field { margin-bottom:14px; }
+.edit-label { display:block; font-size:9px; letter-spacing:1px; text-transform:uppercase; color:var(--fg-muted); margin-bottom:4px; }
+.edit-input { width:100%; padding:6px 10px; background:var(--bg); border:1px solid var(--border); border-radius:2px; color:var(--fg); font-family:var(--mono); font-size:11px; outline:none; }
+.edit-input:focus { border-color:var(--accent); }
+.edit-color-row { display:flex; align-items:center; gap:8px; }
+.edit-color-swatch { width:32px; height:32px; border-radius:2px; border:1px solid var(--border); cursor:pointer; }
+.edit-color-input { flex:1; }
+
+/* ── Toast ────────────────────────────────── */
+.toast-container { position:fixed; bottom:60px; right:20px; z-index:200; display:flex; flex-direction:column; gap:6px; }
+.toast { padding:8px 16px; background:var(--bg-card); border:1px solid var(--border); border-radius:3px; font-family:var(--mono); font-size:10px; color:var(--fg); animation:slideIn 0.2s ease; max-width:350px; }
+.toast.success { border-color:var(--accent-bright); }
+.toast.error { border-color:var(--error); color:var(--error); }
+.toast.synced { border-left:3px solid var(--accent-bright); }
+@keyframes slideIn { from { transform:translateX(20px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+/* ── Figma Bar ────────────────────────────── */
+.figma-bar { position:fixed; bottom:0; left:0; right:0; display:flex; align-items:center; gap:8px; padding:6px 16px; background:var(--bg-card); border-top:1px solid var(--border); font-size:10px; color:var(--fg-muted); z-index:40; }
+.figma-dot { width:6px; height:6px; border-radius:50%; background:var(--fg-muted); }
+.figma-dot.connected { background:#4ade80; box-shadow:0 0 6px #4ade80; }
+.figma-sync-btn { margin-left:auto; padding:3px 10px; background:none; border:1px solid var(--border); color:var(--fg-muted); font-family:var(--mono); font-size:9px; letter-spacing:1px; cursor:pointer; border-radius:2px; }
+.figma-sync-btn:hover { border-color:var(--accent); color:var(--fg); }
+
+/* ── Agent Log ────────────────────────────── */
+.agent-log { position:fixed; bottom:28px; left:16px; width:380px; max-height:300px; background:var(--bg-card); border:1px solid var(--border); border-radius:3px; z-index:45; display:flex; flex-direction:column; }
+.agent-log.hidden { display:none; }
+.agent-log-header { display:flex; align-items:center; justify-content:space-between; padding:6px 12px; border-bottom:1px solid var(--border); font-size:9px; letter-spacing:1.5px; color:var(--fg-muted); }
+.agent-log-body { flex:1; overflow-y:auto; padding:8px 12px; max-height:250px; }
+.agent-log-entry { padding:3px 0; font-size:10px; border-bottom:1px solid #1a1a1a; }
+.agent-log-entry .step-name { color:var(--accent); }
+.agent-log-entry .step-status { color:var(--fg-muted); margin-left:6px; }
+.agent-log-entry .step-status.completed { color:#4ade80; }
+.agent-log-entry .step-status.failed { color:var(--error); }
+.agent-log-entry .step-status.running { color:var(--warn); }
+.agent-log-toggle { position:fixed; bottom:32px; left:16px; padding:4px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:2px; font-family:var(--mono); font-size:9px; color:var(--fg-muted); cursor:pointer; z-index:44; letter-spacing:0.5px; }
+.agent-log-toggle:hover { border-color:var(--accent); color:var(--fg); }
+
+/* ── Editable cards ───────────────────────── */
+.card[data-editable] { cursor:pointer; }
+.card[data-editable]:hover .card-edit-btn { opacity:1; }
+.card-edit-btn { position:absolute; top:8px; right:48px; padding:2px 8px; background:var(--bg); border:1px solid var(--border); border-radius:2px; font-family:var(--mono); font-size:9px; color:var(--fg-muted); cursor:pointer; opacity:0; transition:opacity 0.15s; letter-spacing:0.5px; }
+.card-edit-btn:hover { border-color:var(--accent); color:var(--fg); }
+.card-head { position:relative; }
+
+/* ── Editable swatches ────────────────────── */
+.swatch[data-editable] { cursor:pointer; }
+.swatch[data-editable]:hover { box-shadow:0 0 0 2px var(--accent-bright); }
+</style>
+
 <script>
+// ── State ──────────────────────────────────
+const API_BASE = window.location.origin;
+let ws = null;
+let currentEdit = null;
+let agentLogVisible = false;
+
+// ── WebSocket Connection ───────────────────
+function connectWs() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(proto + '//' + location.host);
+
+  ws.onopen = () => {
+    console.log('[Noche] WebSocket connected');
+    ws.send(JSON.stringify({ type: 'request-state' }));
+  };
+
+  ws.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      handleWsMessage(msg);
+    } catch {}
+  };
+
+  ws.onclose = () => {
+    console.log('[Noche] WebSocket disconnected, reconnecting...');
+    setTimeout(connectWs, 2000);
+  };
+}
+
+function handleWsMessage(msg) {
+  switch (msg.type) {
+    case 'design-system-updated':
+      if (msg.data && msg.data.action === 'token-updated') {
+        showToast('Token updated: ' + (msg.data.token?.name || ''), 'success');
+      }
+      checkFigmaStatus();
+      break;
+    case 'spec-updated':
+      showToast('Spec updated: ' + (msg.data?.spec?.name || ''), 'success');
+      break;
+    case 'figma-synced':
+      showToast('Synced to Figma: ' + (msg.data?.token || msg.data?.scope || ''), 'synced');
+      break;
+    case 'agent-status':
+      updateAgentLog(msg.data?.task);
+      break;
+    case 'agent-result':
+      updateAgentLog(msg.data?.task);
+      if (msg.data?.task?.status === 'completed') {
+        showToast('Agent completed: ' + (msg.data.task.intent || ''), 'success');
+      } else if (msg.data?.task?.status === 'failed') {
+        showToast('Agent failed: ' + (msg.data.task.error || ''), 'error');
+      }
+      break;
+    case 'error':
+      showToast(msg.data?.message || 'Error', 'error');
+      break;
+  }
+}
+
+// ── Filter ─────────────────────────────────
 function filter(type, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -789,6 +1014,331 @@ function filter(type, btn) {
     card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
   });
 }
+
+// ── Command Palette ────────────────────────
+function openPalette() {
+  document.getElementById('cmd-palette').classList.remove('hidden');
+  const input = document.getElementById('cmd-input');
+  input.value = '';
+  input.focus();
+}
+
+function closePalette() {
+  document.getElementById('cmd-palette').classList.add('hidden');
+  document.getElementById('cmd-status').classList.add('hidden');
+}
+
+async function runAgent(intent) {
+  if (!intent) intent = document.getElementById('cmd-input').value.trim();
+  if (!intent) return;
+
+  const status = document.getElementById('cmd-status');
+  status.classList.remove('hidden');
+  status.innerHTML = '<span style="color:var(--warn)">&#9670;</span> Running agent: ' + escHtml(intent) + '...';
+
+  // Show agent log
+  if (!agentLogVisible) toggleAgentLog();
+
+  try {
+    const res = await fetch(API_BASE + '/api/agent/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        intent: intent,
+        options: { autoSync: true }
+      })
+    });
+    const data = await res.json();
+    if (data.task) {
+      status.innerHTML = '<span style="color:#4ade80">&#10003;</span> Agent started: ' + escHtml(data.task.id);
+      setTimeout(closePalette, 1500);
+    } else {
+      status.innerHTML = '<span style="color:var(--error)">&#10007;</span> ' + (data.error || 'Failed to start agent');
+    }
+  } catch (err) {
+    status.innerHTML = '<span style="color:var(--error)">&#10007;</span> ' + err.message;
+  }
+}
+
+// ── Edit Panel ─────────────────────────────
+function openEditPanel(type, name, data) {
+  currentEdit = { type, name, data };
+  const panel = document.getElementById('edit-panel');
+  const title = document.getElementById('edit-title');
+  const body = document.getElementById('edit-body');
+
+  panel.classList.remove('hidden');
+
+  if (type === 'token') {
+    title.textContent = 'Edit Token: ' + name;
+    body.innerHTML = buildTokenEditForm(data);
+  } else if (type === 'spec') {
+    title.textContent = 'Edit Spec: ' + name;
+    body.innerHTML = buildSpecEditForm(data);
+  }
+}
+
+function closeEditPanel() {
+  document.getElementById('edit-panel').classList.add('hidden');
+  currentEdit = null;
+}
+
+function buildTokenEditForm(token) {
+  const modeEntries = Object.entries(token.values || {});
+  let html = '<div class="edit-field"><label class="edit-label">Name</label><input class="edit-input" id="edit-token-name" value="' + escAttr(token.name) + '" readonly /></div>';
+  html += '<div class="edit-field"><label class="edit-label">Type</label><input class="edit-input" value="' + escAttr(token.type) + '" readonly /></div>';
+  html += '<div class="edit-field"><label class="edit-label">Collection</label><input class="edit-input" value="' + escAttr(token.collection) + '" readonly /></div>';
+
+  for (const [mode, val] of modeEntries) {
+    const strVal = String(val);
+    if (token.type === 'color' && /^#[0-9a-fA-F]{3,8}$/.test(strVal)) {
+      html += '<div class="edit-field"><label class="edit-label">Value (' + escHtml(mode) + ')</label>';
+      html += '<div class="edit-color-row">';
+      html += '<input type="color" class="edit-color-swatch" value="' + escAttr(strVal) + '" oninput="this.nextElementSibling.value=this.value" />';
+      html += '<input class="edit-input edit-color-input" data-mode="' + escAttr(mode) + '" value="' + escAttr(strVal) + '" oninput="this.previousElementSibling.value=this.value" />';
+      html += '</div></div>';
+    } else {
+      html += '<div class="edit-field"><label class="edit-label">Value (' + escHtml(mode) + ')</label>';
+      html += '<input class="edit-input" data-mode="' + escAttr(mode) + '" value="' + escAttr(strVal) + '" /></div>';
+    }
+  }
+
+  html += '<div class="edit-field"><label class="edit-label">CSS Variable</label><input class="edit-input" value="' + escAttr(token.cssVariable || '') + '" readonly /></div>';
+  return html;
+}
+
+function buildSpecEditForm(spec) {
+  let html = '<div class="edit-field"><label class="edit-label">Name</label><input class="edit-input" value="' + escAttr(spec.name) + '" readonly /></div>';
+  html += '<div class="edit-field"><label class="edit-label">Type</label><input class="edit-input" value="' + escAttr(spec.type) + '" readonly /></div>';
+  html += '<div class="edit-field"><label class="edit-label">Purpose</label><textarea class="edit-input" id="edit-spec-purpose" rows="3">' + escHtml(spec.purpose) + '</textarea></div>';
+
+  if (spec.type === 'component') {
+    html += '<div class="edit-field"><label class="edit-label">Variants (comma-separated)</label><input class="edit-input" id="edit-spec-variants" value="' + escAttr((spec.variants || []).join(', ')) + '" /></div>';
+    html += '<div class="edit-field"><label class="edit-label">shadcn Base (comma-separated)</label><input class="edit-input" id="edit-spec-shadcn" value="' + escAttr((spec.shadcnBase || []).join(', ')) + '" /></div>';
+    html += '<div class="edit-field"><label class="edit-label">Props (JSON)</label><textarea class="edit-input" id="edit-spec-props" rows="5">' + escHtml(JSON.stringify(spec.props || {}, null, 2)) + '</textarea></div>';
+  }
+
+  if (spec.type === 'page') {
+    html += '<div class="edit-field"><label class="edit-label">Layout</label><select class="edit-input" id="edit-spec-layout">';
+    for (const l of ['sidebar-main','full-width','centered','dashboard','split','marketing']) {
+      html += '<option' + (spec.layout === l ? ' selected' : '') + '>' + l + '</option>';
+    }
+    html += '</select></div>';
+  }
+
+  if (spec.type === 'dataviz') {
+    html += '<div class="edit-field"><label class="edit-label">Chart Type</label><select class="edit-input" id="edit-spec-charttype">';
+    for (const ct of ['line','bar','area','pie','donut','scatter','radar','composed']) {
+      html += '<option' + (spec.chartType === ct ? ' selected' : '') + '>' + ct + '</option>';
+    }
+    html += '</select></div>';
+  }
+
+  html += '<div class="edit-field"><label class="edit-label">Tags (comma-separated)</label><input class="edit-input" id="edit-spec-tags" value="' + escAttr((spec.tags || []).join(', ')) + '" /></div>';
+  return html;
+}
+
+async function saveEdit() {
+  if (!currentEdit) return;
+
+  try {
+    if (currentEdit.type === 'token') {
+      const token = { ...currentEdit.data };
+      // Collect updated values from form
+      const modeInputs = document.querySelectorAll('#edit-body [data-mode]');
+      for (const input of modeInputs) {
+        token.values[input.dataset.mode] = input.value;
+      }
+      const res = await fetch(API_BASE + '/api/tokens', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('Token saved & syncing to Figma...', 'success');
+        closeEditPanel();
+      } else {
+        showToast('Failed: ' + (data.error || 'Unknown error'), 'error');
+      }
+    } else if (currentEdit.type === 'spec') {
+      const spec = { ...currentEdit.data };
+      const purposeEl = document.getElementById('edit-spec-purpose');
+      if (purposeEl) spec.purpose = purposeEl.value;
+
+      if (spec.type === 'component') {
+        const variantsEl = document.getElementById('edit-spec-variants');
+        if (variantsEl) spec.variants = variantsEl.value.split(',').map(s => s.trim()).filter(Boolean);
+        const shadcnEl = document.getElementById('edit-spec-shadcn');
+        if (shadcnEl) spec.shadcnBase = shadcnEl.value.split(',').map(s => s.trim()).filter(Boolean);
+        const propsEl = document.getElementById('edit-spec-props');
+        if (propsEl) { try { spec.props = JSON.parse(propsEl.value); } catch {} }
+      }
+      if (spec.type === 'page') {
+        const layoutEl = document.getElementById('edit-spec-layout');
+        if (layoutEl) spec.layout = layoutEl.value;
+      }
+      if (spec.type === 'dataviz') {
+        const ctEl = document.getElementById('edit-spec-charttype');
+        if (ctEl) spec.chartType = ctEl.value;
+      }
+      const tagsEl = document.getElementById('edit-spec-tags');
+      if (tagsEl) spec.tags = tagsEl.value.split(',').map(s => s.trim()).filter(Boolean);
+
+      const res = await fetch(API_BASE + '/api/specs/' + encodeURIComponent(spec.name), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(spec)
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('Spec saved!', 'success');
+        closeEditPanel();
+      } else {
+        showToast('Failed: ' + (data.error || 'Unknown error'), 'error');
+      }
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
+// ── Toast ──────────────────────────────────
+function showToast(msg, type) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + (type || '');
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// ── Agent Log ──────────────────────────────
+function toggleAgentLog() {
+  const log = document.getElementById('agent-log');
+  const btn = document.getElementById('agent-log-toggle');
+  agentLogVisible = !agentLogVisible;
+  log.classList.toggle('hidden', !agentLogVisible);
+  btn.style.display = agentLogVisible ? 'none' : '';
+}
+
+function updateAgentLog(task) {
+  if (!task) return;
+  const body = document.getElementById('agent-log-body');
+  let entry = document.getElementById('agent-task-' + task.id);
+  if (!entry) {
+    entry = document.createElement('div');
+    entry.id = 'agent-task-' + task.id;
+    entry.className = 'agent-log-entry';
+    body.prepend(entry);
+  }
+  let html = '<div style="color:var(--accent);margin-bottom:4px;font-size:11px">' + escHtml(task.intent) + '</div>';
+  for (const step of (task.steps || [])) {
+    html += '<div style="padding-left:12px;font-size:10px"><span class="step-name">' + escHtml(step.name) + '</span>';
+    html += '<span class="step-status ' + step.status + '">' + step.status;
+    if (step.detail) html += ' — ' + escHtml(step.detail);
+    html += '</span></div>';
+  }
+  if (task.status === 'completed') html += '<div style="color:#4ade80;font-size:9px;margin-top:3px">&#10003; COMPLETED</div>';
+  if (task.status === 'failed') html += '<div style="color:var(--error);font-size:9px;margin-top:3px">&#10007; FAILED: ' + escHtml(task.error || '') + '</div>';
+  entry.innerHTML = html;
+  body.scrollTop = 0;
+}
+
+// ── Figma Status ───────────────────────────
+async function checkFigmaStatus() {
+  try {
+    const res = await fetch(API_BASE + '/api/figma/status');
+    const data = await res.json();
+    const dot = document.getElementById('figma-dot');
+    const status = document.getElementById('figma-status');
+    if (data.connected) {
+      dot.classList.add('connected');
+      const clientCount = (data.clients || []).length;
+      status.textContent = 'Figma: connected (' + clientCount + ' plugin' + (clientCount !== 1 ? 's' : '') + ')';
+    } else {
+      dot.classList.remove('connected');
+      status.textContent = 'Figma: not connected';
+    }
+  } catch {
+    document.getElementById('figma-dot').classList.remove('connected');
+    document.getElementById('figma-status').textContent = 'Figma: offline';
+  }
+}
+
+// ── Make Cards Editable ────────────────────
+function makeCardsEditable() {
+  // Color swatches
+  document.querySelectorAll('.swatch').forEach(swatch => {
+    swatch.setAttribute('data-editable', 'true');
+    swatch.addEventListener('click', async () => {
+      const name = swatch.getAttribute('title')?.split(':')[0]?.trim();
+      if (!name) return;
+      try {
+        const res = await fetch(API_BASE + '/api/tokens');
+        const data = await res.json();
+        const token = (data.tokens || []).find(t => t.name === name);
+        if (token) openEditPanel('token', name, token);
+      } catch (err) { showToast('Failed to load token', 'error'); }
+    });
+  });
+
+  // Spec cards
+  document.querySelectorAll('.card').forEach(card => {
+    const nameEl = card.querySelector('.card-name');
+    if (!nameEl) return;
+    const name = nameEl.textContent.trim();
+    const type = card.dataset.type;
+    card.setAttribute('data-editable', 'true');
+
+    // Add edit button
+    const head = card.querySelector('.card-head');
+    if (head) {
+      const btn = document.createElement('button');
+      btn.className = 'card-edit-btn';
+      btn.textContent = 'EDIT';
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+          const res = await fetch(API_BASE + '/api/specs/' + encodeURIComponent(name));
+          const data = await res.json();
+          if (data.spec) openEditPanel('spec', name, data.spec);
+          else showToast('Spec not found', 'error');
+        } catch (err) { showToast('Failed to load spec', 'error'); }
+      });
+      head.appendChild(btn);
+    }
+  });
+}
+
+// ── Keyboard Shortcuts ─────────────────────
+document.addEventListener('keydown', (e) => {
+  // Cmd+K or Ctrl+K — open command palette
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    openPalette();
+  }
+  // Escape — close panels
+  if (e.key === 'Escape') {
+    closePalette();
+    closeEditPanel();
+  }
+  // Enter in command palette — run agent
+  if (e.key === 'Enter' && !document.getElementById('cmd-palette').classList.contains('hidden')) {
+    e.preventDefault();
+    runAgent();
+  }
+});
+
+// ── Helpers ────────────────────────────────
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Init ───────────────────────────────────
+connectWs();
+checkFigmaStatus();
+setInterval(checkFigmaStatus, 10000);
+makeCardsEditable();
 </script>
 </body>
 </html>`;
@@ -814,7 +1364,8 @@ function generateResearchDashboard(research: ResearchStore, generatedAt: string)
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ark Research</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M25.5 15.5A9.5 9.5 0 0 1 12 25 9.5 9.5 0 0 1 9.5 6.5 12 12 0 1 0 25.5 15.5z' fill='%23e2e8f0'/%3E%3C/svg%3E">
+<title>Noche Research</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1423,7 +1974,7 @@ body {
       </div>` : ""}
       ${i.tags.length > 0 ? `<div class="insight-tags">${i.tags.map(t => `<span class="insight-tag">${esc(t)}</span>`).join("")}</div>` : ""}
     </div>`).join("\n    ")}
-    ${insights.length === 0 ? `<div class="empty-note">No insights yet. Run <code>ark research from-file</code> or <code>ark research from-stickies</code></div>` : ""}
+    ${insights.length === 0 ? `<div class="empty-note">No insights yet. Run <code>noche research from-file</code> or <code>noche research from-stickies</code></div>` : ""}
   </div>
 </div>
 
@@ -1449,7 +2000,7 @@ body {
         ${relatedInsights.length > 3 ? `<div style="font-size:9px;color:var(--fg-dim);padding-top:4px">+${relatedInsights.length - 3} more insights</div>` : ""}
       </div>`;
     }).join("\n    ")}
-    ${themes.length === 0 ? `<div class="empty-note" style="grid-column:1/-1">No themes yet. Run <code>ark research synthesize</code></div>` : ""}
+    ${themes.length === 0 ? `<div class="empty-note" style="grid-column:1/-1">No themes yet. Run <code>noche research synthesize</code></div>` : ""}
   </div>
 </div>
 
@@ -1470,7 +2021,7 @@ body {
         <ul class="persona-list">${p.behaviors.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : ""}
       </div>
     </div>`).join("\n    ")}
-    ${personas.length === 0 ? `<div class="empty-note" style="grid-column:1/-1">No personas yet. Run <code>ark research synthesize</code></div>` : ""}
+    ${personas.length === 0 ? `<div class="empty-note" style="grid-column:1/-1">No personas yet. Run <code>noche research synthesize</code></div>` : ""}
   </div>
 </div>
 

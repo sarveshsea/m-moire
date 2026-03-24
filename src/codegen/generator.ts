@@ -6,7 +6,7 @@
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { createLogger } from "../engine/logger.js";
-import type { ArkEvent } from "../engine/core.js";
+import type { NocheEvent } from "../engine/core.js";
 import type { Registry, DesignSystem } from "../engine/registry.js";
 import type { AnySpec, ComponentSpec, PageSpec, DataVizSpec } from "../specs/types.js";
 import type { ProjectContext } from "../engine/project-context.js";
@@ -17,7 +17,7 @@ import { generatePage } from "./page-generator.js";
 export interface CodegenConfig {
   outputDir: string;
   registry: Registry;
-  onEvent?: (event: ArkEvent) => void;
+  onEvent?: (event: NocheEvent) => void;
 }
 
 export interface CodegenResult {
@@ -77,12 +77,26 @@ export class CodeGenerator {
     return result;
   }
 
+  /**
+   * Maps atomic level to output folder following Atomic Design methodology.
+   * atoms → components/ui/, molecules → components/molecules/, etc.
+   */
+  private getAtomicDir(spec: ComponentSpec): string {
+    switch (spec.level) {
+      case "atom": return `components/ui/${spec.name}`;
+      case "molecule": return `components/molecules/${spec.name}`;
+      case "organism": return `components/organisms/${spec.name}`;
+      case "template": return `components/templates/${spec.name}`;
+      default: return `components/${spec.name}`;
+    }
+  }
+
   private async generateComponentFiles(
     spec: ComponentSpec,
     ctx: CodegenContext
   ): Promise<CodegenResult> {
     const code = generateComponent(spec, ctx);
-    const dir = `components/${spec.name}`;
+    const dir = this.getAtomicDir(spec);
 
     return {
       entryFile: `${dir}/${spec.name}.tsx`,
@@ -128,7 +142,7 @@ export class CodeGenerator {
     };
   }
 
-  private emitEvent(type: ArkEvent["type"], message: string): void {
+  private emitEvent(type: NocheEvent["type"], message: string): void {
     this.config.onEvent?.({
       type,
       source: "codegen",

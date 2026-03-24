@@ -1,5 +1,5 @@
 /**
- * Spec Type Definitions — The foundation of Ark's spec-driven approach.
+ * Spec Type Definitions — The foundation of Noche's spec-driven approach.
  * Every component, page, and dataviz starts as a spec.
  */
 
@@ -7,9 +7,23 @@ import { z } from "zod";
 
 // ── Component Spec ──────────────────────────────────────────────
 
+export const AtomicLevelSchema = z.enum(["atom", "molecule", "organism", "template"]).describe(
+  "Atomic Design level — atoms are primitives, molecules compose atoms, organisms compose molecules, templates define page layouts"
+);
+
+export type AtomicLevel = z.infer<typeof AtomicLevelSchema>;
+
+export const CodeConnectSchema = z.object({
+  figmaNodeId: z.string().optional().describe("Figma component node ID"),
+  codebasePath: z.string().optional().describe("Path to codebase component (e.g., src/components/ui/button.tsx)"),
+  props: z.record(z.string()).default({}).describe("Figma property → code prop mapping"),
+  mapped: z.boolean().default(false),
+}).describe("Code Connect mapping between Figma component and codebase");
+
 export const ComponentSpecSchema = z.object({
   name: z.string(),
   type: z.literal("component"),
+  level: AtomicLevelSchema.default("atom").describe("Atomic Design level"),
   purpose: z.string().describe("What this component does and why it exists"),
   researchBacking: z.array(z.string()).default([]).describe("References to research findings"),
   designTokens: z.object({
@@ -19,6 +33,8 @@ export const ComponentSpecSchema = z.object({
   variants: z.array(z.string()).default(["default"]),
   props: z.record(z.string()).default({}).describe("Prop name → type string"),
   shadcnBase: z.array(z.string()).default([]).describe("Which shadcn components to build on"),
+  composesSpecs: z.array(z.string()).default([]).describe("Names of component specs this composes (for molecules/organisms)"),
+  codeConnect: CodeConnectSchema.default({}).describe("Code Connect mapping to Figma"),
   accessibility: z.object({
     role: z.string().optional(),
     ariaLabel: z.enum(["required", "optional", "none"]).default("optional"),

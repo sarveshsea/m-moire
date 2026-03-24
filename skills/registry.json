@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "description": "Noche skill registry — defines available skills and their activation context",
+  "defaultSkill": "SUPERPOWER",
+  "skills": [
+    {
+      "id": "superpower",
+      "name": "SUPERPOWER",
+      "file": "skills/SUPERPOWER.md",
+      "description": "Autonomous superagent — default operating mode for all sessions",
+      "activateOn": "always",
+      "chains": ["figma-use", "figma-generate-library", "figma-generate-design"]
+    },
+    {
+      "id": "figma-use",
+      "name": "/figma-use",
+      "file": "skills/FIGMA_USE.md",
+      "description": "Foundational Figma canvas skill — structure, principles, operations",
+      "activateOn": "figma-canvas-operation",
+      "prerequisite": null
+    },
+    {
+      "id": "figma-generate-design",
+      "name": "/figma-generate-design",
+      "file": "skills/FIGMA_GENERATE_DESIGN.md",
+      "description": "Create new designs using existing components and variables",
+      "activateOn": "design-creation",
+      "prerequisite": "figma-use"
+    },
+    {
+      "id": "figma-generate-library",
+      "name": "/figma-generate-library",
+      "file": "skills/FIGMA_GENERATE_LIBRARY.md",
+      "description": "Create Figma component library from codebase",
+      "activateOn": "library-creation",
+      "prerequisite": "figma-use"
+    },
+    {
+      "id": "multi-agent",
+      "name": "/multi-agent",
+      "file": "skills/MULTI_AGENT.md",
+      "description": "Parallel agent workflows with box widgets and coordination",
+      "activateOn": "multi-instance",
+      "prerequisite": "figma-use"
+    },
+    {
+      "id": "atomic-design",
+      "name": "Atomic Design",
+      "file": "skills/ATOMIC_DESIGN.md",
+      "description": "Complete reference for Atomic Design methodology with shadcn/ui mappings",
+      "activateOn": "component-creation",
+      "prerequisite": null
+    },
+    {
+      "id": "dashboard-from-research",
+      "name": "Dashboard from Research",
+      "file": "skills/DASHBOARD_FROM_RESEARCH.md",
+      "description": "Generate interactive dashboards from research data",
+      "activateOn": "research-to-dashboard",
+      "prerequisite": null
+    }
+  ],
+  "activationContexts": {
+    "always": "Loaded at session start",
+    "figma-canvas-operation": "Any Figma canvas read/write operation",
+    "design-creation": "Creating new screens, pages, or layouts",
+    "library-creation": "Building or syncing component libraries",
+    "multi-instance": "Multiple Claude agents operating simultaneously",
+    "component-creation": "Creating or modifying component specs",
+    "research-to-dashboard": "Transforming research data into visual dashboards"
+  }
+}
