@@ -184,6 +184,34 @@ footer a { color: var(--accent); text-decoration: none; }
 
     <div class="commits">
       <div class="commit">
+        <div class="commit-hash">fc71ca1</div>
+        <div class="commit-body">
+          <div class="commit-msg">Add /motion-video skill &mdash; product animation &amp; UI motion superagent</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24 15:44</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">7b2cda3</div>
+        <div class="commit-body">
+          <div class="commit-msg">Add auto-spec engine, noche go, noche export, and token-aware codegen</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24 14:33</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">709bb57</div>
+        <div class="commit-body">
+          <div class="commit-msg">Clean up CLI output &mdash; human-readable logs, suppress internal noise</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24 14:10</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">82895d6</div>
+        <div class="commit-body">
+          <div class="commit-msg">Clean preview of user-project content, wire /api/specs to registry</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24 13:55</div>
+        </div>
+      </div>
+      <div class="commit">
         <div class="commit-hash">a20c747</div>
         <div class="commit-body">
           <div class="commit-msg">Finalize ark &rarr; noche rename across entire codebase</div>
@@ -255,13 +283,37 @@ footer a { color: var(--accent); text-decoration: none; }
       </div>
       <div class="decision">
         <div class="decision-icon">&raquo;</div>
-        <div class="decision-text"><strong>Skills Architecture.</strong> 9 skill files in skills/ with freedom levels (maximum, high, read-only, reference). Agents load relevant skills before acting.</div>
+        <div class="decision-text"><strong>Skills Architecture.</strong> 10 skill files in skills/ with freedom levels (maximum, high, read-only, reference). Agents load relevant skills before acting.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Auto-Spec Engine.</strong> <code style="color:var(--accent);background:var(--accent-dim);padding:1px 4px;border-radius:2px">noche pull</code> auto-creates ComponentSpecs from Figma components. Infers atomic level, shadcn base, and props.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Single-Command Pipeline.</strong> <code style="color:var(--accent);background:var(--accent-dim);padding:1px 4px;border-radius:2px">noche go</code> runs the full pipeline in one command: connect &rarr; pull &rarr; auto-spec &rarr; generate &rarr; preview.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Token-Aware Codegen.</strong> Generated components inject CSS variable references from pulled design tokens automatically.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Motion Video Skill.</strong> /motion-video superagent for Apple-grade product animation, portfolio videos, motion tokens, and Figma &rarr; After Effects pipeline.</div>
       </div>
     </div>
 
     <div class="files-changed">
-      <button class="files-toggle" onclick="this.nextElementSibling.classList.toggle('open')">+ 40 files changed</button>
+      <button class="files-toggle" onclick="this.nextElementSibling.classList.toggle('open')">+ 50 files changed</button>
       <div class="files-list">
+        <span class="file-added">A</span> src/engine/auto-spec.ts &mdash; auto-spec engine<br>
+        <span class="file-added">A</span> src/commands/go.ts &mdash; single-command pipeline<br>
+        <span class="file-added">A</span> src/commands/export.ts &mdash; export generated code<br>
+        <span class="file-added">A</span> skills/MOTION_VIDEO_DESIGN.md &mdash; motion/video superagent<br>
+        <span class="file-modified">M</span> src/codegen/shadcn-mapper.ts &mdash; token-aware codegen<br>
+        <span class="file-modified">M</span> src/engine/core.ts &mdash; autoSpec() method<br>
+        <span class="file-modified">M</span> src/commands/pull.ts &mdash; auto-spec count output<br>
+        <span class="file-modified">M</span> src/index.ts &mdash; register go + export commands<br>
         <span class="file-added">A</span> assets/noche-moon.svg<br>
         <span class="file-added">A</span> skills/DASHBOARD_FROM_RESEARCH.md<br>
         <span class="file-added">A</span> skills/FIGMA_AUDIT.md<br>
