@@ -6,6 +6,24 @@ This changelog tracks Noche itself: every version, commit, and architectural dec
 
 ---
 
+## labor-budgeting fork — 2026-03-24
+
+### Commits
+| Hash | Message |
+|------|---------|
+| `da757ac` | Fork: Labor Budgeting 3.1 bridge setup with full portal upgrade |
+
+### Key Changes
+- **REST Extraction** — `src/figma/rest-client.ts` pulls tokens, components, styles, and target node directly via Figma REST API. No plugin required for data extraction.
+- **Port Probe Fix** — `ws-server.ts` now WebSocket-probes each port before binding, correctly skipping ports occupied by Figma Console MCP on IPv6 loopback (::1) even when IPv4 (0.0.0.0) is technically free.
+- **Portal Upgrade** — Setup wizard tab (3-step: token → file key → plugin install), Compose tab (natural language → orchestrator), auto-load design system data from `.noche/` cache on DATA tab.
+- **`/api/data` endpoint** — Serves cached design system + page tree JSON to the portal without requiring a live plugin connection.
+- **`/api/setup` endpoint** — Saves FIGMA_TOKEN/FIGMA_FILE_KEY to `.env.local` from the browser dashboard.
+- **Engine env loader** — `init()` now reads `.env.local` / `.env` into `process.env` automatically.
+- **Labor Budgeting 3.1** — Pre-configured in `.env.local`: fileKey `aHoArFXJNTUUcKcvI5zNSj`, node `5305:8228`. Extracted 121 color tokens, 26 components (Button, Navigation, Form, Data Display, Overlay, Feedback, Layout), 8 text/effect styles, 16-page tree.
+
+---
+
 ## v0.1.0 — 2026-03-24
 
 ### Commits

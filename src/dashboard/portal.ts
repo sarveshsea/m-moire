@@ -52,6 +52,7 @@ export function generatePortalHTML(config: PortalConfig): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Noche — ${esc(projectName)}</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cdefs%3E%3CradialGradient id='m' cx='0.4' cy='0.35' r='0.65'%3E%3Cstop offset='0%25' stop-color='%23f5f0e6'/%3E%3Cstop offset='100%25' stop-color='%23c2b48c'/%3E%3C/radialGradient%3E%3CradialGradient id='s' cx='0.7' cy='0.5' r='0.55'%3E%3Cstop offset='0%25' stop-color='%231a1a2e' stop-opacity='0'/%3E%3Cstop offset='100%25' stop-color='%230d0d1a' stop-opacity='0.7'/%3E%3C/radialGradient%3E%3CclipPath id='c'%3E%3Ccircle cx='120' cy='120' r='52'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle cx='120' cy='120' r='52' fill='url(%23m)'/%3E%3Ccircle cx='120' cy='120' r='52' fill='url(%23s)' clip-path='url(%23c)'/%3E%3Cellipse cx='106' cy='104' rx='22' ry='26' fill='white' opacity='0.07' clip-path='url(%23c)'/%3E%3C/svg%3E">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1436,6 +1437,44 @@ function rgbHex(c) {
 
 // ── Boot ───────────────────────────────────
 connectSSE();
+
+// Auto-load cached design system from /api/data
+fetch('/api/data').then(r => r.json()).then(payload => {
+  const ds = payload.designSystem;
+  const tree = payload.pageTree;
+
+  if (ds) {
+    if (ds.tokens?.length)     renderTokens({ collections: tokensToCollections(ds.tokens) });
+    if (ds.components?.length) renderComponents(ds.components);
+    if (ds.styles?.length)     renderStyles(ds.styles);
+    addFeed('ok',
+      'Design system loaded — ' +
+      (ds.tokens?.length||0) + ' tokens · ' +
+      (ds.components?.length||0) + ' components · ' +
+      (ds.styles?.length||0) + ' styles'
+    );
+  }
+  if (tree?.length) {
+    renderTree({ pages: tree.map(p => ({ name: p.name, children: p.frames || [] })) });
+    addFeed('info', 'Page tree loaded — ' + tree.length + ' pages');
+  }
+}).catch(() => {});
+
+// Convert flat DesignToken[] → collections shape for renderTokens
+function tokensToCollections(tokens) {
+  const map = {};
+  for (const t of tokens) {
+    const col = t.collection || 'default';
+    if (!map[col]) map[col] = { name: col, variables: [] };
+    const firstVal = Object.values(t.values || {})[0];
+    map[col].variables.push({
+      name: t.name,
+      resolvedType: t.type === 'color' ? 'COLOR' : 'FLOAT',
+      valuesByMode: { default: firstVal },
+    });
+  }
+  return Object.values(map);
+}
 </script>
 </body>
 </html>`;

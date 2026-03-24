@@ -94,12 +94,19 @@ export class NocheWsServer extends EventEmitter {
 
   /**
    * Start the WebSocket server, scanning ports 9223-9232 for an available one.
+   * Probes each port first (any interface) so we don't shadow a process already
+   * listening on IPv6 localhost while IPv4 is technically free.
    */
   async start(): Promise<number> {
     const startPort = this.config.port ?? 9223;
     const endPort = 9232;
 
     for (let p = startPort; p <= endPort; p++) {
+      const occupied = await this.probePort(p);
+      if (occupied) {
+        log.info(`Port ${p} already occupied — skipping`);
+        continue;
+      }
       try {
         await this.startOnPort(p);
         this.port = p;
@@ -108,11 +115,34 @@ export class NocheWsServer extends EventEmitter {
         this.emitEvent("success", `Bridge server started on port ${p}`);
         return p;
       } catch {
-        // Port in use, try next
+        // bind failed anyway, try next
       }
     }
 
     throw new Error("No available ports (9223-9232). Close other Noche instances first.");
+  }
+
+  /** Returns true if something is already answering on ws://localhost:port */
+  private probePort(port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      const ws = new WebSocket(`ws://localhost:${port}`);
+      const timer = setTimeout(() => {
+        ws.terminate?.();
+        try { ws.close(); } catch {}
+        resolve(false); // nothing answered in time → port free
+      }, 600);
+
+      ws.on("open", () => {
+        clearTimeout(timer);
+        try { ws.close(); } catch {}
+        resolve(true); // something is listening
+      });
+
+      ws.on("error", () => {
+        clearTimeout(timer);
+        resolve(false); // connection refused → port free
+      });
+    });
   }
 
   /**

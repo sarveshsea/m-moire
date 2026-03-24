@@ -13,6 +13,7 @@ import { createLogger } from "./logger.js";
 import { EventEmitter } from "events";
 import { readFile, writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import { extractFromREST, type FigmaExtractResult } from "../figma/rest-client.js";
 
 export interface NocheConfig {
   projectRoot: string;
@@ -73,6 +74,9 @@ export class NocheEngine extends EventEmitter {
     const arkDir = join(this.config.projectRoot, ".noche");
     await mkdir(arkDir, { recursive: true });
 
+    // Load .env.local / .env into process.env
+    await this.loadEnvFile();
+
     // Detect project context
     this._project = await detectProject(this.config.projectRoot);
     await this.saveProjectContext();
@@ -102,8 +106,26 @@ export class NocheEngine extends EventEmitter {
   }
 
   async pullDesignSystem(): Promise<void> {
+    // Prefer REST API (token + file key available) — no plugin required
+    const token = this.config.figmaToken || process.env.FIGMA_TOKEN;
+    const fileKey = this.config.figmaFileKey || process.env.FIGMA_FILE_KEY;
+    const nodeId = process.env.FIGMA_NODE_ID;
+
+    if (token && fileKey) {
+      const result = await this.pullDesignSystemViaREST(token, fileKey, nodeId);
+      this.emit("event", {
+        type: "success",
+        source: "figma",
+        message: `REST pull: ${result.designSystem.tokens.length} tokens, ${result.designSystem.components.length} components, ${result.designSystem.styles.length} styles`,
+        timestamp: new Date(),
+        data: result,
+      } satisfies NocheEvent);
+      return;
+    }
+
+    // Fallback: require plugin connection
     if (!this.figma.isConnected) {
-      throw new Error("Not connected to Figma. Run `noche connect` first.");
+      throw new Error("No Figma token+fileKey configured and not connected to plugin. Run `noche connect` or set FIGMA_TOKEN + FIGMA_FILE_KEY.");
     }
 
     const designSystem = await this.figma.extractDesignSystem();
@@ -153,6 +175,28 @@ export class NocheEngine extends EventEmitter {
     return specs.length;
   }
 
+  async pullDesignSystemViaREST(token: string, fileKey: string, nodeId?: string): Promise<FigmaExtractResult> {
+    this.emit("event", {
+      type: "info",
+      source: "figma",
+      message: `REST extraction from file ${fileKey}${nodeId ? ` node ${nodeId}` : ""}…`,
+      timestamp: new Date(),
+    } satisfies NocheEvent);
+
+    const result = await extractFromREST(token, fileKey, nodeId);
+    await this.registry.updateDesignSystem(result.designSystem);
+
+    // Persist page tree + target node to .noche/
+    const nocheDir = join(this.config.projectRoot, ".noche");
+    await mkdir(nocheDir, { recursive: true });
+    await writeFile(join(nocheDir, "page-tree.json"), JSON.stringify(result.pageTree, null, 2));
+    if (result.targetNode) {
+      await writeFile(join(nocheDir, "target-node.json"), JSON.stringify(result.targetNode, null, 2));
+    }
+
+    return result;
+  }
+
   async generateFromSpec(specName: string): Promise<string> {
     const spec = await this.registry.getSpec(specName);
     if (!spec) {
@@ -196,5 +240,32 @@ export class NocheEngine extends EventEmitter {
     if (!this._project) return;
     const path = join(this.config.projectRoot, ".noche", "project.json");
     await writeFile(path, JSON.stringify(this._project, null, 2));
+  }
+
+  /** Load .env.local then .env into process.env (simple key=value parser, no deps) */
+  private async loadEnvFile(): Promise<void> {
+    for (const file of [".env.local", ".env"]) {
+      try {
+        const content = await readFile(join(this.config.projectRoot, file), "utf-8");
+        for (const line of content.split("\n")) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith("#")) continue;
+          const eq = trimmed.indexOf("=");
+          if (eq === -1) continue;
+          const key = trimmed.slice(0, eq).trim();
+          const raw = trimmed.slice(eq + 1).trim();
+          const value = raw.startsWith('"') && raw.endsWith('"')
+            ? raw.slice(1, -1)
+            : raw.startsWith("'") && raw.endsWith("'")
+              ? raw.slice(1, -1)
+              : raw;
+          if (key && !process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+      } catch {
+        // file absent — skip
+      }
+    }
   }
 }

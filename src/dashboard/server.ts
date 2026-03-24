@@ -141,6 +141,8 @@ export class DashboardServer {
       this.handleSetup(req, res);
     } else if (url === "/api/compose" && req.method === "POST") {
       this.handleCompose(req, res);
+    } else if (url === "/api/data") {
+      this.handleData(res);
     } else {
       res.writeHead(404, { "Content-Type": "text/plain" });
       res.end("Not found");
@@ -369,6 +371,25 @@ export class DashboardServer {
   private handleEventLog(res: ServerResponse): void {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(this.eventLog.slice(-100)));
+  }
+
+  private async handleData(res: ServerResponse): Promise<void> {
+    const root = this.engine.config.projectRoot;
+    const nocheDir = join(root, ".noche");
+    try {
+      const [dsRaw, treeRaw] = await Promise.all([
+        readFile(join(nocheDir, "design-system.json"), "utf-8").catch(() => null),
+        readFile(join(nocheDir, "page-tree.json"), "utf-8").catch(() => null),
+      ]);
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({
+        designSystem: dsRaw ? JSON.parse(dsRaw) : null,
+        pageTree: treeRaw ? JSON.parse(treeRaw) : null,
+      }));
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    }
   }
 
   // ── Env helpers ──────────────────────────────────────
