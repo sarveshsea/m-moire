@@ -3,25 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M25.5 15.5A9.5 9.5 0 0 1 12 25 9.5 9.5 0 0 1 9.5 6.5 12 12 0 1 0 25.5 15.5z' fill='%23e2e8f0'/%3E%3C/svg%3E">
-<title>Noche Changelog</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%23ffffff'/%3E%3C/svg%3E">
+<title>mémoire</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0a0a0a;
-  --bg-card: #111111;
-  --bg-hover: #1a1a1a;
-  --fg: #e0e0e0;
-  --fg-muted: #666666;
-  --border: #1e1e1e;
-  --accent: #9D833E;
-  --accent-bright: #C4A35A;
-  --accent-dim: #3D3520;
-  --success: #22C55E;
-  --warn: #EAB308;
-  --error: #EF4444;
-  --info: #3B82F6;
+  --bg: #111113;
+  --bg-card: #19191c;
+  --bg-hover: #222226;
+  --fg: #ffffff;
+  --fg-muted: #636369;
+  --border: #2a2a2e;
+  --accent: #a0a0a6;
+  --accent-bright: #ffffff;
+  --accent-dim: #1e1e22;
+  --chart-1: #ffffff;
+  --chart-2: #a0a0a6;
+  --chart-3: #636369;
+  --chart-4: #d0d0d4;
+  --warn: #a0a0a6;
+  --error: #f87171;
+  --success: #a0a0a6;
+  --info: #636369;
   --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
   --radius: 2px;
 }
@@ -38,24 +42,34 @@ body {
 
 ::selection { background: var(--accent-dim); color: var(--accent-bright); }
 
+/* ── Global Nav (matches index.html) ── */
 .hdr {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 24px; border-bottom: 1px solid var(--border);
   background: var(--bg-card); position: sticky; top: 0; z-index: 10;
 }
-.hdr-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-.hdr-title span { color: var(--accent-bright); }
-.hdr-nav { display: flex; gap: 16px; font-size: 10px; align-items: center; }
-.nav-link {
-  color: #d4d4d4; text-decoration: none; border: 1px solid #444;
-  padding: 2px 10px; border-radius: 2px; font-size: 10px; letter-spacing: 1px; transition: all 0.15s;
+.hdr-left { display: flex; align-items: center; gap: 10px; }
+.hdr-moon { flex-shrink: 0; }
+.hdr-project { font-size: 16px; font-weight: 700; letter-spacing: 1px; color: var(--accent-bright); }
+.hdr-sep { color: var(--accent-dim); font-size: 14px; font-weight: 300; }
+.hdr-title { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--fg-muted); }
+.hdr-nav { display: flex; gap: 2px; }
+.hdr-nav-link {
+  padding: 6px 14px; font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--fg-muted); text-decoration: none;
+  border: 1px solid transparent; border-radius: 2px; transition: all 0.15s; cursor: pointer;
 }
-.nav-link:hover { border-color: #d4d4d4; }
-.nav-link.active { color: var(--accent-bright); border-color: var(--accent-bright); font-weight: 700; }
+.hdr-nav-link:hover { color: var(--fg); border-color: var(--border); }
+.hdr-nav-link.active { color: var(--accent-bright); border-color: var(--accent-dim); background: var(--accent-dim); }
 
+/* ── Page Hero ── */
 .hero {
-  padding: 32px 24px; border-bottom: 1px solid var(--border);
-  background: var(--accent-dim);
+  padding: 48px 32px 40px; border-bottom: 1px solid var(--border);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
 }
 .hero h1 { font-size: 18px; font-weight: 700; color: var(--accent-bright); letter-spacing: 2px; margin-bottom: 6px; }
 .hero p { font-size: 11px; color: var(--fg-muted); }
@@ -77,7 +91,7 @@ body {
   width: 10px; height: 10px; border-radius: 50%;
   background: var(--accent); border: 2px solid var(--bg);
 }
-.version.latest::before { background: var(--success); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+.version.latest::before { background: var(--success); box-shadow: 0 0 8px rgba(160,160,166,0.3); }
 
 .version-header {
   display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px;
@@ -91,8 +105,8 @@ body {
   font-size: 8px; padding: 2px 8px; border-radius: 2px;
   font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
 }
-.label-latest { background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid var(--success); }
-.label-initial { background: rgba(59,130,246,0.15); color: var(--info); border: 1px solid var(--info); }
+.label-latest { background: rgba(160,160,166,0.12); color: var(--success); border: 1px solid var(--success); }
+.label-initial { background: rgba(99,99,105,0.12); color: var(--info); border: 1px solid var(--info); }
 
 .commits { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .commit {
@@ -137,6 +151,12 @@ body {
   transition: color 0.15s;
 }
 .files-toggle:hover { color: var(--accent); }
+
+/* ── Visual Previews ──────────────────── */
+.preview-row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+.preview-card { flex: 1; min-width: 260px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.preview-label { padding: 4px 8px; font-size: 8px; letter-spacing: 1px; color: var(--fg-muted); text-transform: uppercase; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+.preview-body { padding: 12px; background: #fafaf8; font-family: Inter, -apple-system, sans-serif; }
 .files-list {
   display: none; margin-top: 8px; padding: 10px 14px;
   border: 1px solid var(--border); border-radius: var(--radius);
@@ -158,20 +178,1052 @@ footer a { color: var(--accent); text-decoration: none; }
 <body>
 
 <div class="hdr">
-  <div class="hdr-title"><span>NOCHE</span> CHANGELOG</div>
+  <div class="hdr-left">
+    <div class="hdr-project">mémoire</div>
+    <span class="hdr-sep">/</span>
+    <div class="hdr-title">CHANGELOG</div>
+  </div>
   <div class="hdr-nav">
-    <a href="index.html" class="nav-link">PREVIEW</a>
-    <a href="design-system.html" class="nav-link">DESIGN SYSTEM</a>
-    <a href="changelog.html" class="nav-link active">CHANGELOG</a>
+    <a href="index.html" class="hdr-nav-link">Screens</a>
+    <a href="index.html#research" class="hdr-nav-link">Research</a>
+    <a href="index.html#specs" class="hdr-nav-link">Specs</a>
+    <a href="index.html#system" class="hdr-nav-link">Tokens</a>
+    <a href="changelog.html" class="hdr-nav-link active">Changelog</a>
   </div>
 </div>
 
 <div class="hero">
+  <div class="hero-badge">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+    VERSION HISTORY
+  </div>
   <h1>Version Changelog</h1>
-  <p>Commits, changes, and key design decisions for every release of Noche.</p>
+  <p>Commits, changes, and key design decisions for every release of Mémoire.</p>
 </div>
 
 <div class="container">
+
+<!-- ── DIBS Product Changelog ──────────────────── -->
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="4" fill="#c4a35a"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="12" font-weight="700" font-family="Inter,sans-serif">d</text></svg>
+  <div style="font-size:16px;font-weight:700;letter-spacing:3px;color:var(--accent-bright);text-transform:uppercase">Dibs</div>
+  <div style="font-size:10px;color:var(--fg-muted);letter-spacing:0.5px">AICP Budget Intelligence Product</div>
+  <div style="flex:1;height:1px;background:var(--border)"></div>
+</div>
+
+<div class="timeline">
+
+  <!-- Iteration 11 -->
+  <div class="version latest">
+    <div class="version-header">
+      <div class="version-tag">Iteration 11</div>
+      <div class="version-date">2026-03-24</div>
+      <span class="version-label label-latest">LATEST</span>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">noche-simplify</div>
+        <div class="commit-body">
+          <div class="commit-msg">Simplified Mémoire preview &mdash; removed 4 screen cards, replaced with single &ldquo;View Dibs&rdquo; card linking to dashboard</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">return-btn</div>
+        <div class="commit-body">
+          <div class="commit-msg">Added frosted glass return-to-Mémoire button (bottom-right) on all 9 Dibs pages &mdash; backdrop blur, subtle border, left-arrow icon</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">sidebar-toggle</div>
+        <div class="commit-body">
+          <div class="commit-msg">Fixed sidebar collapse toggle jumping between pages &mdash; normalized justify-content to flex-end across all pages</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">active-bids</div>
+        <div class="commit-body">
+          <div class="commit-msg">Added &ldquo;Active Bids&rdquo; section to sidebar nav with Nike &ldquo;Just Do It&rdquo; 60s TV bid &mdash; global update across all 9 pages</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decisions-title">Changes</div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Sidebar Nav Restructured.</strong> Navigation now has three sections: core pages (Dashboard, New Bid, Bid Board), active bids with gold dot indicators, and settings. The &ldquo;Active Bids&rdquo; section label auto-hides when the sidebar collapses.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Mémoire Hub Simplified.</strong> The 4-card multi-section Screens tab was replaced with a single &ldquo;View Dibs&rdquo; card that shows a live iframe preview of the dashboard. Less noise, clearer entry point.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Return-to-Mémoire Pattern.</strong> Every Dibs page now has a frosted glass back button (fixed, bottom-right). Uses backdrop-filter blur, rgba background, and a left-arrow SVG &mdash; tuned for visibility on light paper backgrounds.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Sidebar Toggle Consistency.</strong> The collapse/expand chevron was jumping position between pages due to mixed justify-content values (space-between vs flex-end). All pages now use flex-end for stable icon placement.</div>
+      </div>
+    </div>
+
+    <!-- Visual Previews -->
+    <div class="preview-row">
+      <div class="preview-card" style="flex:1.2">
+        <div class="preview-label">Sidebar Nav &mdash; Active Bids Section</div>
+        <div class="preview-body" style="padding:0;font-family:Inter,sans-serif;overflow:hidden;background:#fff">
+          <!-- Sidebar mockup -->
+          <div style="width:100%;background:#fff;padding:12px 0">
+            <!-- Dashboard -->
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;margin:0 8px;border-radius:6px;background:rgba(157,131,62,0.08)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9d833e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span style="font-size:11px;font-weight:600;color:#9d833e">Dashboard</span>
+            </div>
+            <!-- New Bid -->
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;margin:2px 8px;border-radius:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              <span style="font-size:11px;font-weight:500;color:#999">New Bid</span>
+            </div>
+            <!-- Bid Board -->
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;margin:2px 8px;border-radius:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="4" height="18"/><rect x="10" y="3" width="4" height="10"/><rect x="16" y="3" width="4" height="14"/></svg>
+              <span style="font-size:11px;font-weight:500;color:#999">Bid Board</span>
+            </div>
+            <!-- Divider -->
+            <div style="height:1px;background:#f0f0f0;margin:8px 16px"></div>
+            <!-- Section label -->
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:#bbb;font-weight:600;padding:4px 14px 2px;margin-left:8px">Active Bids</div>
+            <!-- Nike bid -->
+            <div style="display:flex;align-items:center;gap:7px;padding:7px 14px;margin:2px 8px;border-radius:6px">
+              <div style="width:6px;height:6px;border-radius:50%;background:#9d833e;flex-shrink:0"></div>
+              <span style="font-size:11px;font-weight:500;color:#999">Nike &ldquo;Just Do It&rdquo;</span>
+            </div>
+            <!-- Divider -->
+            <div style="height:1px;background:#f0f0f0;margin:8px 16px"></div>
+            <!-- Settings -->
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;margin:2px 8px;border-radius:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span style="font-size:11px;font-weight:500;color:#999">Settings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="preview-card" style="flex:1.8">
+        <div class="preview-label">Mémoire Hub &mdash; Single &ldquo;View Dibs&rdquo; Card</div>
+        <div class="preview-body" style="padding:16px;background:#161618;font-family:Inter,sans-serif">
+          <!-- Simulated mémoire hub card -->
+          <div style="border:1px solid #2a2a2e;border-radius:4px;overflow:hidden;max-width:280px;margin:0 auto">
+            <!-- Thumbnail area -->
+            <div style="height:100px;background:linear-gradient(135deg,#F7F3EE 0%,#efe9df 100%);display:flex;align-items:center;justify-content:center;position:relative">
+              <!-- Mini dashboard mockup -->
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:8px;width:90%">
+                <div style="background:#fff;border-radius:2px;padding:4px 6px;border:1px solid #e5e2d9">
+                  <div style="font-size:5px;color:#999">Bids Out</div>
+                  <div style="font-size:9px;font-weight:700;color:#1a1a1a">5</div>
+                </div>
+                <div style="background:#fff;border-radius:2px;padding:4px 6px;border:1px solid #e5e2d9">
+                  <div style="font-size:5px;color:#999">Won</div>
+                  <div style="font-size:9px;font-weight:700;color:#1a1a1a">$1.8M</div>
+                </div>
+                <div style="background:#fff;border-radius:2px;padding:4px 6px;border:1px solid #e5e2d9">
+                  <div style="font-size:5px;color:#999">Due</div>
+                  <div style="font-size:9px;font-weight:700;color:#1a1a1a">2</div>
+                </div>
+              </div>
+            </div>
+            <!-- Card info -->
+            <div style="padding:10px 12px;background:#1c1c1f;display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:16px;height:16px;border-radius:3px;background:#9d833e;display:flex;align-items:center;justify-content:center">
+                  <span style="font-size:9px;font-weight:700;color:#fff">d</span>
+                </div>
+                <span style="font-size:11px;font-weight:500;color:#e0e0e0">View Dibs</span>
+              </div>
+              <span style="font-size:8px;padding:2px 6px;border-radius:2px;background:rgba(157,131,62,0.15);color:#c4a35a;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Product</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="preview-row">
+      <div class="preview-card">
+        <div class="preview-label">Return-to-Mémoire Button &mdash; Frosted Glass</div>
+        <div class="preview-body" style="padding:20px 24px;background:#fafaf8;font-family:Inter,sans-serif;display:flex;align-items:center;justify-content:flex-end;position:relative">
+          <!-- Simulated page content behind -->
+          <div style="position:absolute;left:12px;top:12px;font-size:7px;color:#ccc;letter-spacing:0.5px">page content &hellip;</div>
+          <!-- Frosted button -->
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.08);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a4540" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="preview-card">
+        <div class="preview-label">Sidebar Toggle &mdash; Fixed Position (flex-end)</div>
+        <div class="preview-body" style="padding:0;font-family:Inter,sans-serif;overflow:hidden;background:#fff">
+          <div style="display:flex;align-items:center;justify-content:flex-end;padding:12px 14px;border-bottom:1px solid #f0f0f0">
+            <div style="width:24px;height:24px;border-radius:4px;border:1px solid #eee;display:flex;align-items:center;justify-content:center">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            </div>
+          </div>
+          <div style="padding:8px 14px;font-size:8px;color:#bbb;text-align:center">
+            <span style="text-decoration:line-through;color:#ddd">space-between</span> &rarr; <span style="color:#9d833e;font-weight:600">flex-end</span> &mdash; toggle stays pinned right
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 10 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 10</div>
+      <div class="version-date">2026-03-24</div>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">stepper-v2</div>
+        <div class="commit-body">
+          <div class="commit-msg">Moved bid type/template selection from dashboard modal into Budget Editor as Step 1 &mdash; 4-step stepper: Type &rarr; Inputs &rarr; Budget &rarr; Review</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">modal-rm</div>
+        <div class="commit-body">
+          <div class="commit-msg">Removed Create New Bid modal from dashboard &mdash; New Bid button navigates directly to dibs.html</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">nav-cleanup</div>
+        <div class="commit-body">
+          <div class="commit-msg">Removed Line Items nav links from Bid Board sidebar, Collaborate product nav, and changelog preview</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">widget-fix</div>
+        <div class="commit-body">
+          <div class="commit-msg">Fixed Line Items widget running total &mdash; card background instead of page background, proper border-radius</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">sticky-fix</div>
+        <div class="commit-body">
+          <div class="commit-msg">Fixed Budget Editor sticky section nav &mdash; no content bleed-through, improved pill spacing</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decisions-title">Changes</div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>No Modals for Creation Flows.</strong> The 4-step bid creation wizard belongs in the stepper, not in a modal overlay on the dashboard. Modals are for confirmations and quick actions, not multi-step forms. The stepper provides more space, better navigation, and consistent back/forward flow.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Line Items Page Fully Retired.</strong> The standalone Line Items page was consolidated into a dashboard widget in Iteration 5. All remaining nav links (Bid Board sidebar, Collaborate product bar, changelog preview) have been removed.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Widget Visual Containment.</strong> All widget sections &mdash; including footer/summary rows &mdash; now use the card background color (#FFFFFF), not the page background (#F7F3EE). Running total row matches the widget surface with proper bottom border-radius.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Sticky Nav Bleed-Through Fix.</strong> Budget Editor section nav bar (A&ndash;E pills) now uses a 40px box-shadow extension above the sticky element to prevent scrolling content from being visible behind it. Both default and stuck states include this shadow.</div>
+      </div>
+    </div>
+
+    <!-- Visual Previews -->
+    <div class="preview-row">
+      <div class="preview-card" style="flex:2">
+        <div class="preview-label">4-Step Stepper &mdash; Type Selection as Step 1</div>
+        <div class="preview-body" style="padding:10px;font-family:Inter,sans-serif;display:flex;gap:12px">
+          <!-- Stepper sidebar -->
+          <div style="width:80px;flex-shrink:0;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:5px">
+              <div style="width:16px;height:16px;border-radius:50%;background:#9D833E;color:#fff;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center">01</div>
+              <span style="font-size:8px;font-weight:600;color:#9D833E">Type</span>
+            </div>
+            <div style="width:1px;height:8px;background:#e5e2d9;margin-left:8px"></div>
+            <div style="display:flex;align-items:center;gap:5px">
+              <div style="width:16px;height:16px;border-radius:50%;border:1px solid #ddd;color:#999;font-size:7px;font-weight:600;display:flex;align-items:center;justify-content:center">02</div>
+              <span style="font-size:8px;color:#999">Inputs</span>
+            </div>
+            <div style="width:1px;height:8px;background:#e5e2d9;margin-left:8px"></div>
+            <div style="display:flex;align-items:center;gap:5px">
+              <div style="width:16px;height:16px;border-radius:50%;border:1px solid #ddd;color:#999;font-size:7px;font-weight:600;display:flex;align-items:center;justify-content:center">03</div>
+              <span style="font-size:8px;color:#999">Budget</span>
+            </div>
+            <div style="width:1px;height:8px;background:#e5e2d9;margin-left:8px"></div>
+            <div style="display:flex;align-items:center;gap:5px">
+              <div style="width:16px;height:16px;border-radius:50%;border:1px solid #ddd;color:#999;font-size:7px;font-weight:600;display:flex;align-items:center;justify-content:center">04</div>
+              <span style="font-size:8px;color:#999">Review</span>
+            </div>
+          </div>
+          <!-- Type cards grid -->
+          <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4px">
+            <div style="padding:6px 8px;border:1px solid #9D833E;border-radius:4px;background:rgba(157,131,62,0.06)">
+              <div style="width:14px;height:14px;border-radius:3px;background:#9D833E;margin-bottom:4px;display:flex;align-items:center;justify-content:center">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+              </div>
+              <div style="font-size:8px;font-weight:600;color:#1a1a1a">TV Commercial</div>
+              <div style="font-size:6px;color:#999">Full AICP A-E</div>
+            </div>
+            <div style="padding:6px 8px;border:1px solid #e5e2d9;border-radius:4px">
+              <div style="width:14px;height:14px;border-radius:3px;background:rgba(157,131,62,0.08);margin-bottom:4px"></div>
+              <div style="font-size:8px;font-weight:600;color:#1a1a1a">Digital / Social</div>
+              <div style="font-size:6px;color:#999">Simplified crew</div>
+            </div>
+            <div style="padding:6px 8px;border:1px solid #e5e2d9;border-radius:4px">
+              <div style="width:14px;height:14px;border-radius:3px;background:rgba(157,131,62,0.08);margin-bottom:4px"></div>
+              <div style="font-size:8px;font-weight:600;color:#1a1a1a">Integrated</div>
+              <div style="font-size:6px;color:#999">Multi-platform</div>
+            </div>
+            <div style="padding:6px 8px;border:1px solid #e5e2d9;border-radius:4px">
+              <div style="width:14px;height:14px;border-radius:3px;background:rgba(157,131,62,0.08);margin-bottom:4px"></div>
+              <div style="font-size:8px;font-weight:600;color:#1a1a1a">Photo / Stills</div>
+              <div style="font-size:6px;color:#999">Print, e-comm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="preview-row">
+      <div class="preview-card">
+        <div class="preview-label">Line Items Widget &mdash; Fixed Running Total</div>
+        <div class="preview-body" style="padding:0;font-family:Inter,sans-serif;overflow:hidden;border-radius:0 0 4px 4px">
+          <!-- Category grid -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+            <div style="display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid #e5e2d9;border-right:1px solid #e5e2d9">
+              <span style="font-size:8px;color:#666;display:flex;align-items:center;gap:3px"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Crew</span>
+              <span style="font-size:8px;font-weight:600;font-family:'SF Mono',monospace">$142,800</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid #e5e2d9">
+              <span style="font-size:8px;color:#666;display:flex;align-items:center;gap:3px"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Equipment</span>
+              <span style="font-size:8px;font-weight:600;font-family:'SF Mono',monospace">$67,500</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid #e5e2d9;border-right:1px solid #e5e2d9">
+              <span style="font-size:8px;color:#666">Locations</span>
+              <span style="font-size:8px;font-weight:600;font-family:'SF Mono',monospace">$89,200</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid #e5e2d9">
+              <span style="font-size:8px;color:#666">Talent</span>
+              <span style="font-size:8px;font-weight:600;font-family:'SF Mono',monospace">$52,000</span>
+            </div>
+          </div>
+          <!-- Running total — now matches card bg -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#ffffff;border-top:1px solid #e5e2d9;border-radius:0 0 4px 4px">
+            <div>
+              <div style="font-size:7px;text-transform:uppercase;letter-spacing:0.8px;color:#999">Running Total</div>
+              <div style="font-size:14px;font-weight:700;color:#1a1a1a;font-family:'SF Mono',monospace">$487,250</div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <div style="text-align:right"><div style="font-size:6px;text-transform:uppercase;letter-spacing:0.5px;color:#999">Items</div><div style="font-size:9px;font-weight:500;color:#666;font-family:'SF Mono',monospace">142 / 186</div></div>
+              <div style="text-align:right"><div style="font-size:6px;text-transform:uppercase;letter-spacing:0.5px;color:#999">AI Conf.</div><div style="font-size:9px;font-weight:500;color:#666;font-family:'SF Mono',monospace">76%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="preview-card">
+        <div class="preview-label">Sticky Section Nav &mdash; No Bleed-Through</div>
+        <div class="preview-body" style="padding:0;font-family:Inter,sans-serif;overflow:hidden;display:flex;flex-direction:column">
+          <!-- Simulated content behind -->
+          <div style="background:#fafaf8;padding:4px 10px;font-size:7px;color:#ccc;text-align:center;border-bottom:1px solid #e5e2d9">
+            &uarr; content scrolls behind &mdash; hidden by shadow &uarr;
+          </div>
+          <!-- Sticky nav bar -->
+          <div style="display:flex;gap:4px;padding:8px 10px;background:#fafaf8;border-bottom:1px solid #d5d0c8;box-shadow:0 -20px 0 0 #fafaf8, 0 2px 6px rgba(0,0,0,0.06)">
+            <div style="display:flex;align-items:center;gap:3px;padding:3px 8px;border-radius:100px;background:rgba(157,131,62,0.08);border:1px solid rgba(157,131,62,0.2)">
+              <span style="width:12px;height:12px;border-radius:50%;background:#9D833E;color:#fff;font-size:6px;font-weight:700;display:flex;align-items:center;justify-content:center">A</span>
+              <span style="font-size:7px;font-weight:600;color:#9D833E">Pre-Prod</span>
+              <span style="font-size:7px;color:#9D833E;font-family:'SF Mono',monospace">$62K</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:3px;padding:3px 8px;border-radius:100px;border:1px solid #e5e2d9">
+              <span style="width:12px;height:12px;border-radius:50%;background:#e5e2d9;color:#666;font-size:6px;font-weight:700;display:flex;align-items:center;justify-content:center">B</span>
+              <span style="font-size:7px;color:#666">Production</span>
+              <span style="font-size:7px;color:#999;font-family:'SF Mono',monospace">$185K</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:3px;padding:3px 8px;border-radius:100px;border:1px solid #e5e2d9">
+              <span style="width:12px;height:12px;border-radius:50%;background:#e5e2d9;color:#666;font-size:6px;font-weight:700;display:flex;align-items:center;justify-content:center">C</span>
+              <span style="font-size:7px;color:#666">Post</span>
+              <span style="font-size:7px;color:#999;font-family:'SF Mono',monospace">$45K</span>
+            </div>
+          </div>
+          <!-- Content below -->
+          <div style="background:#fafaf8;padding:6px 10px;font-size:7px;color:#999">
+            <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #eee"><span>Director</span><span style="font-family:'SF Mono',monospace">$15,000</span></div>
+            <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #eee"><span>Producer</span><span style="font-family:'SF Mono',monospace">$12,500</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 9 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 9</div>
+      <div class="version-date">2026-03-24</div>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">nav-unify</div>
+        <div class="commit-body">
+          <div class="commit-msg">Unified sidebar navigation across all Dibs pages &mdash; removed Rate Intelligence, added Bid Board</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">settings</div>
+        <div class="commit-body">
+          <div class="commit-msg">Full Settings page &mdash; Profile, Defaults, Collaboration Rules, Notifications, Data &amp; Export</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">kpi-rework</div>
+        <div class="commit-body">
+          <div class="commit-msg">Dashboard KPIs replaced with production-relevant metrics &mdash; Bids Out, Won This Quarter, Avg Budget, Due This Week</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">notifs</div>
+        <div class="commit-body">
+          <div class="commit-msg">Notifications overlay &mdash; tabbed panel (All / Deadlines / Approvals / Updates) with production-relevant alerts</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+      <div class="commit">
+        <div class="commit-hash">ai-drawer</div>
+        <div class="commit-body">
+          <div class="commit-msg">AI Assistant drawer nested as flex sibling instead of fixed overlay &mdash; removed Versions tab</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decisions-title">Changes</div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Sidebar-First Navigation.</strong> All Dibs pages now share the same shell: dark global-nav bar + fixed vertical sidebar with Dashboard, New Bid, Bid Board, and Settings. Consistent active-state indicator (2px accent border-right).</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Rate Intelligence Removed.</strong> Removed from sidebar nav and dashboard widgets. Rate data will surface contextually inside bid creation and AI chat instead of as a standalone page.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Bid Board Restructured.</strong> dibs-comparison.html rebuilt from topbar + horizontal product-nav to the standard global-nav + sidebar layout. Page header now matches dashboard pattern with &ldquo;8 bids&rdquo; count and action buttons.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Budget Editor Nav.</strong> Compact nav links (12px, 14px icons) added above the wizard stepper in dibs.html sidebar &mdash; enables cross-page navigation without losing the step-by-step flow.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Win Rate Chart.</strong> 6-month trend (Oct 22% &rarr; Mar 34%) with +8% vs industry benchmark. Stacked bars: gold for wins, warm-gray for total bids.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Settings Page.</strong> dibs-settings.html with 5 tabbed sections: Profile, Default Settings (currency, markup, tax, fiscal year), Collaboration Rules (toggle-based with tooltips), Notification Preferences, and Data &amp; Export. All nav links across pages now route to settings.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Production KPIs.</strong> Replaced vanity metrics (Active Bids, Total Pipeline, Win Rate, Avg Bid Time) with actionable stats: Bids Out (with awaiting-response count), Won This Quarter (dollar value + win ratio), Avg Budget (across all bids), Due This Week (with urgency alert).</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Notifications Overlay.</strong> Bell icon in global nav opens a tabbed notification panel. Categories: All, Deadlines, Approvals, Updates. Each notification has project code badges (NKE-041, CCL-018), time-ago stamps, and mark-all-read. Panel closes on backdrop click or close button.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>AI Drawer Nested.</strong> AI Assistant changed from a fixed overlay (position:fixed, z-index:201, translateX) to a properly nested flex sibling of .main inside .app-layout. Opens by expanding width from 0 to 360px, pushing content instead of covering it. Versions tab removed &mdash; only Chat and Context remain.</div>
+      </div>
+    </div>
+
+    <!-- Visual Previews -->
+    <div class="preview-row">
+      <div class="preview-card">
+        <div class="preview-label">Production KPIs</div>
+        <div class="preview-body" style="display:flex;gap:6px;padding:8px;font-family:Inter,sans-serif">
+          <div style="flex:1;background:#fafaf8;border:1px solid #e5e2d9;border-radius:2px;padding:6px 8px">
+            <div style="font-size:7px;color:#999;letter-spacing:0.5px">BIDS OUT</div>
+            <div style="font-size:16px;font-weight:700;color:#1a1a1a;margin:2px 0">5</div>
+            <div style="font-size:7px;color:#999">2 awaiting response</div>
+          </div>
+          <div style="flex:1;background:#fafaf8;border:1px solid #e5e2d9;border-radius:2px;padding:6px 8px">
+            <div style="font-size:7px;color:#999;letter-spacing:0.5px">WON THIS QTR</div>
+            <div style="font-size:16px;font-weight:700;color:#1a1a1a;margin:2px 0">$1.8M</div>
+            <div style="font-size:7px;color:#22C55E">3 of 9 awarded</div>
+          </div>
+          <div style="flex:1;background:#fafaf8;border:1px solid #e5e2d9;border-radius:2px;padding:6px 8px">
+            <div style="font-size:7px;color:#999;letter-spacing:0.5px">AVG BUDGET</div>
+            <div style="font-size:16px;font-weight:700;color:#1a1a1a;margin:2px 0">$340K</div>
+            <div style="font-size:7px;color:#999">Across 12 bids</div>
+          </div>
+          <div style="flex:1;background:#fafaf8;border:1px solid #e5e2d9;border-radius:2px;padding:6px 8px">
+            <div style="font-size:7px;color:#999;letter-spacing:0.5px">DUE THIS WEEK</div>
+            <div style="font-size:16px;font-weight:700;color:#1a1a1a;margin:2px 0">2</div>
+            <div style="font-size:7px;color:#EF4444">1 due tomorrow</div>
+          </div>
+        </div>
+      </div>
+      <div class="preview-card">
+        <div class="preview-label">Notifications Panel</div>
+        <div class="preview-body" style="padding:8px;font-family:Inter,sans-serif;background:#fafaf8">
+          <div style="display:flex;gap:8px;margin-bottom:6px;border-bottom:1px solid #e5e2d9;padding-bottom:4px">
+            <span style="font-size:8px;color:#9D833E;font-weight:600;border-bottom:1px solid #9D833E;padding-bottom:2px">All</span>
+            <span style="font-size:8px;color:#999">Deadlines</span>
+            <span style="font-size:8px;color:#999">Approvals</span>
+            <span style="font-size:8px;color:#999">Updates</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:6px;padding:4px;background:rgba(157,131,62,0.04);border-radius:2px">
+              <div style="width:6px;height:6px;border-radius:50%;background:#EF4444;flex-shrink:0"></div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:8px;font-weight:600;color:#1a1a1a">NKE-041 bid due tomorrow</div>
+                <div style="font-size:7px;color:#999">2h ago</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;padding:4px;border-radius:2px">
+              <div style="width:6px;height:6px;border-radius:50%;background:#22C55E;flex-shrink:0"></div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:8px;font-weight:600;color:#1a1a1a">Rate card approved &mdash; CCL-018</div>
+                <div style="font-size:7px;color:#999">4h ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="preview-row">
+      <div class="preview-card">
+        <div class="preview-label">Nested AI Drawer</div>
+        <div class="preview-body" style="display:flex;gap:0;padding:0;height:80px">
+          <div style="flex:1;background:#fafaf8;padding:8px;border-right:1px solid #e5e2d9">
+            <div style="font-size:8px;color:#999;margin-bottom:4px">BUDGET EDITOR</div>
+            <div style="display:flex;gap:4px">
+              <div style="flex:1;background:#e5e2d9;height:8px;border-radius:1px"></div>
+              <div style="flex:1;background:#e5e2d9;height:8px;border-radius:1px"></div>
+            </div>
+            <div style="margin-top:6px;background:#e5e2d9;height:30px;border-radius:1px"></div>
+          </div>
+          <div style="width:100px;background:#1a1a1a;padding:6px;border-left:1px solid #333">
+            <div style="display:flex;gap:4px;margin-bottom:4px">
+              <span style="font-size:7px;color:#9D833E;border-bottom:1px solid #9D833E;padding-bottom:1px">Chat</span>
+              <span style="font-size:7px;color:#666">Context</span>
+            </div>
+            <div style="background:#222;border-radius:2px;padding:3px;margin-bottom:3px">
+              <div style="font-size:6px;color:#999">Check line item rates...</div>
+            </div>
+            <div style="background:rgba(157,131,62,0.15);border-radius:2px;padding:3px">
+              <div style="font-size:6px;color:#C4A35A">Found 3 rate issues</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="preview-card">
+        <div class="preview-label">Settings Page</div>
+        <div class="preview-body" style="padding:8px;font-family:Inter,sans-serif;background:#fafaf8">
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <span style="font-size:7px;padding:2px 5px;background:rgba(157,131,62,0.12);color:#9D833E;border-radius:1px;font-weight:600">Profile</span>
+            <span style="font-size:7px;color:#999;padding:2px 5px">Defaults</span>
+            <span style="font-size:7px;color:#999;padding:2px 5px">Collab</span>
+            <span style="font-size:7px;color:#999;padding:2px 5px">Notifs</span>
+            <span style="font-size:7px;color:#999;padding:2px 5px">Data</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:7px;color:#666">Display Name</span>
+              <div style="width:60px;height:10px;background:#e5e2d9;border-radius:1px"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:7px;color:#666">Default Currency</span>
+              <div style="width:30px;height:10px;background:#e5e2d9;border-radius:1px"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:7px;color:#666">Require approval</span>
+              <div style="width:20px;height:10px;background:#9D833E;border-radius:5px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 8 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 8</div>
+      <div class="version-date">2026-03-24</div>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">ai-chat</div>
+        <div class="commit-body">
+          <div class="commit-msg">Rebuilt AI Assistant &mdash; chat-first with message bubbles, 10+ query types, action buttons, quick chips</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decisions-title">Changes</div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Chat-First AI.</strong> Chat is now the default tab. Proper message bubbles: gold for user, light surface for AI. Typing indicator with animated dots. Send button with arrow icon.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>10+ Query Types.</strong> AI now understands: totals, biggest section, crew/post costs, savings opportunities ($6K potential), market benchmarks ($420K&ndash;$510K range), validation issues, markups/fees, shoot day impact with +1/-1 actions, and help.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Quick-Action Chips.</strong> Six starter chips (Total, Biggest section, Find savings, Shoot days, Benchmark, Validate) appear on first open &mdash; zero-friction entry into any analysis.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Inline Action Buttons.</strong> Bot responses include contextual actions (+1 Day, -1 Day, Show Insights, Show All) that execute directly from the chat bubble.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Smart Fallback.</strong> Unknown queries no longer show &ldquo;Try:&rdquo; &mdash; instead show current bid state with grand total, issue count, and actionable buttons.</div>
+      </div>
+    </div>
+
+    <!-- Visual Preview -->
+    <div class="preview-row">
+      <div class="preview-card">
+        <div class="preview-label">AI Chat Bubbles</div>
+        <div class="preview-body" style="display:flex;flex-direction:column;gap:6px;padding:10px">
+          <div style="align-self:flex-end;background:#9d833e;color:#fff;padding:6px 10px;border-radius:10px 10px 3px 10px;font-size:9px">how can I save?</div>
+          <div style="align-self:flex-start;background:var(--bg-card);border:1px solid var(--border);padding:6px 10px;border-radius:10px 10px 10px 3px;font-size:9px;color:var(--fg-muted)">Top 3 savings: Camera Op -$1,050, Volume -$3,200, Bundle -$1,800. Total: -$6,050</div>
+        </div>
+      </div>
+      <div class="preview-card">
+        <div class="preview-label">Quick-Action Chips</div>
+        <div class="preview-body" style="display:flex;flex-wrap:wrap;gap:4px;padding:8px">
+          <span style="padding:3px 8px;border-radius:100px;border:1px solid var(--border);font-size:8px;color:var(--fg-muted)">Total</span>
+          <span style="padding:3px 8px;border-radius:100px;border:1px solid var(--border);font-size:8px;color:var(--fg-muted)">Biggest section</span>
+          <span style="padding:3px 8px;border-radius:100px;border:1px solid var(--border);font-size:8px;color:var(--fg-muted)">Find savings</span>
+          <span style="padding:3px 8px;border-radius:100px;border:1px solid var(--border);font-size:8px;color:var(--fg-muted)">Benchmark</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 7 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 7</div>
+      <div class="version-date">2026-03-24</div>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">global-nav</div>
+        <div class="commit-body">
+          <div class="commit-msg">Dark global navigation bar across all dibs pages, Review step flow improvements</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decisions-title">Changes</div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Global Dark Top Nav.</strong> Replaced the old 6-item product navigation bar with a dark (#1a1a1a) 48px fixed top nav across all three active pages &mdash; Dashboard, Budget Editor, Rates. Includes brand logo, nav tabs, settings, notifications with badge, and user avatar.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Enterprise Navigation Pattern.</strong> SAP/Workday-style global chrome &mdash; consistent across the entire app, dark on light contrast, active tab highlighting, icon-only action buttons with tooltips.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Review Step Flow.</strong> Budget Editor step 3 (Review) now has three actions: Back to Budget, Continue to Dashboard, and Export Budget &mdash; no more dead ends.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Old Product Nav Removed.</strong> The 6-tab horizontal nav (Dashboard, Budget Editor, Line Items, Compare, Rates, Collaborate) is gone. The dark global nav replaces it with a cleaner 3-tab structure matching actual app pages.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Layout Adjustments.</strong> Sidebar and main content areas offset by 48px (margin-top / top) to accommodate the fixed global nav without overlapping content.</div>
+      </div>
+    </div>
+
+    <!-- Visual Previews -->
+    <div class="preview-row">
+      <div class="preview-card">
+        <div class="preview-label">Global Navigation Bar</div>
+        <div class="preview-body">
+          <div style="display:flex;align-items:center;height:32px;padding:0 12px;background:#1a1a1a;border-radius:4px;gap:0;font-size:9px">
+            <div style="display:flex;align-items:center;gap:6px;margin-right:16px">
+              <div style="width:16px;height:16px;background:#9d833e;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700">d</div>
+              <span style="color:#fff;font-weight:600;font-size:10px">dibs</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:2px">
+              <span style="padding:3px 8px;color:#fff;background:rgba(255,255,255,0.1);border-radius:2px;font-weight:600;font-size:8px">Dashboard</span>
+              <span style="padding:3px 8px;color:#888;font-size:8px">Budget Editor</span>
+              <span style="padding:3px 8px;color:#888;font-size:8px">Rates</span>
+            </div>
+            <div style="flex:1"></div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <div style="width:20px;height:20px;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#777">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5.5" cy="5.5" r="4"/><path d="M8 8l2.5 2.5"/></svg>
+              </div>
+              <div style="width:20px;height:20px;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#777;position:relative">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8.5 3.5a3.5 3.5 0 0 0-7 0v2l-1 2h9l-1-2v-2z"/><path d="M3.5 7.5v.5a1.5 1.5 0 0 0 3 0v-.5"/></svg>
+                <span style="position:absolute;top:2px;right:2px;width:4px;height:4px;background:#c45a5a;border-radius:50%;border:1px solid #1a1a1a"></span>
+              </div>
+            </div>
+            <div style="width:18px;height:18px;border-radius:50%;background:#9d833e;color:#fff;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-left:6px">MC</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-card">
+        <div class="preview-label">Review Step &mdash; Three Exit Actions</div>
+        <div class="preview-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fafaf8;border:1px solid #e8e8e8;border-radius:4px;font-size:8px">
+            <div style="display:flex;align-items:center;gap:4px;color:#4a4a4a;font-weight:500">
+              <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2L3 5l4 3"/></svg>
+              Back to Budget
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="padding:3px 8px;background:#f5f4f1;border:1px solid #e8e8e8;border-radius:2px;color:#4a4a4a;font-weight:500;display:flex;align-items:center;gap:4px">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="8" height="8" rx="1"/><path d="M1 3.5h8"/></svg>
+                Continue to Dashboard
+              </div>
+              <div style="padding:3px 8px;background:#2c2c2e;border-radius:2px;color:#fff;font-weight:600;display:flex;align-items:center;gap:4px">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6l2 2 4-4"/></svg>
+                Export Budget
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 6 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 6</div>
+      <div class="version-date">2026-03-24</div>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">nav+cards</div>
+        <div class="commit-body">
+          <div class="commit-msg">Full app navigation, archive banners, budget sections as unified cards, icon cleanup</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decisions-title">Changes</div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Product Navigation Bar.</strong> 6-item horizontal nav (Dashboard, Budget Editor, Line Items, Compare, Rates, Collaborate) added to the budget editor &mdash; previously isolated with only a sidebar back-link to Mémoire.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Archive Banners.</strong> Iteration 1 and 2 pages now show a warm-toned banner with &ldquo;Archived &mdash; Iteration N&rdquo; badge, link to current version, and full cross-page navigation back to all app screens and Mémoire Hub.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Budget Cards Contain Content.</strong> Sections A&ndash;E now render as unified cards: white surface, border, border-radius, and shadow wrapping the header, categories, and all line items together. Categories separated by subtle border-top dividers.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Icons Removed.</strong> Category chevrons and line-item expand-toggle icons stripped for cleaner data density. Click the item name to expand OT/fringes/allowance details.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Zero Loose Pages.</strong> All 8 Dibs HTML screens are now reachable from every other screen. No dead ends, no orphaned archives.</div>
+      </div>
+    </div>
+
+    <!-- Visual Previews -->
+    <div class="preview-row">
+      <div class="preview-card">
+        <div class="preview-label">Budget Card Layout &mdash; Section B: Production</div>
+        <div class="preview-body">
+          <div style="background:#fff;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:20px;height:20px;border-radius:4px;background:#9d833e;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">B</div>
+                <span style="font-size:11px;font-weight:600;color:#1a1a1a">Production</span>
+                <span style="font-size:9px;color:#999">29 items</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:8px;color:#999;background:#f5f5f4;padding:1px 6px;border-radius:100px;font-family:'JetBrains Mono',monospace">61%</span>
+                <span style="font-size:12px;font-weight:700;color:#1a1a1a;font-family:'JetBrains Mono',monospace">$220,510</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 14px">
+              <div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;font-weight:600;color:#4a4a4a">Crew</span><span style="font-size:8px;color:#999">8</span></div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:7px;padding:1px 5px;border-radius:100px;background:rgba(234,179,8,0.1);color:#b8860b;font-weight:600;text-transform:uppercase;letter-spacing:0.3px">Needs Review</span>
+                <span style="font-size:10px;font-weight:600;color:#1a1a1a;font-family:'JetBrains Mono',monospace">$93,716</span>
+              </div>
+            </div>
+            <div style="border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;padding:7px 14px">
+              <div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;font-weight:600;color:#4a4a4a">Talent</span><span style="font-size:8px;color:#999">5</span></div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:7px;padding:1px 5px;border-radius:100px;background:rgba(234,179,8,0.1);color:#b8860b;font-weight:600;text-transform:uppercase;letter-spacing:0.3px">Needs Review</span>
+                <span style="font-size:10px;font-weight:600;color:#1a1a1a;font-family:'JetBrains Mono',monospace">$46,985</span>
+              </div>
+            </div>
+            <div style="border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;padding:7px 14px">
+              <div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;font-weight:600;color:#4a4a4a">Equipment</span><span style="font-size:8px;color:#999">5</span></div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:7px;padding:1px 5px;border-radius:100px;background:rgba(34,197,94,0.1);color:#2d8a4e;font-weight:600;text-transform:uppercase;letter-spacing:0.3px">Complete</span>
+                <span style="font-size:10px;font-weight:600;color:#1a1a1a;font-family:'JetBrains Mono',monospace">$28,500</span>
+              </div>
+            </div>
+            <div style="border-top:1px solid #f0f0f0;padding:5px 14px;font-size:8px;color:#999">
+              <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:#4a4a4a">Director</span><span style="font-family:'JetBrains Mono',monospace">3</span><span style="font-family:'JetBrains Mono',monospace">$8,000</span><span style="font-weight:600;font-family:'JetBrains Mono',monospace;color:#1a1a1a">$24,000</span></div>
+              <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:#4a4a4a">Director of Photography</span><span style="font-family:'JetBrains Mono',monospace">3</span><span style="font-family:'JetBrains Mono',monospace">$4,500</span><span style="font-weight:600;font-family:'JetBrains Mono',monospace;color:#1a1a1a">$20,841</span></div>
+              <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:#4a4a4a">Camera Operator</span><span style="font-family:'JetBrains Mono',monospace">3</span><span style="font-family:'JetBrains Mono',monospace">$2,200</span><span style="font-weight:600;font-family:'JetBrains Mono',monospace;color:#1a1a1a">$10,930</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-card">
+        <div class="preview-label">Navigation &mdash; Product Bar + Archive Banner</div>
+        <div class="preview-body">
+          <div style="margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:2px;padding:5px 10px;background:#f5f5f4;border-radius:6px;border:1px solid #e8e8e8;font-size:9px">
+              <span style="padding:3px 7px;color:#999;font-weight:500">Dashboard</span>
+              <span style="padding:3px 7px;background:rgba(157,131,62,0.08);color:#9d833e;font-weight:600;border-radius:3px">Budget Editor</span>
+              <span style="padding:3px 7px;color:#999;font-weight:500">Compare</span>
+              <span style="padding:3px 7px;color:#999;font-weight:500">Rates</span>
+              <span style="padding:3px 7px;color:#999;font-weight:500">Collaborate</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:5px 10px;background:rgba(253,246,233,0.9);border-radius:4px;border:1px solid #cfc5b4;font-size:8px">
+            <span style="padding:1px 6px;border-radius:2px;background:rgba(157,131,62,0.12);color:#705918;font-weight:600;font-size:7px;text-transform:uppercase;letter-spacing:0.3px">Archived &mdash; Iteration 1</span>
+            <span style="color:#9d833e;font-weight:500">View Current Version</span>
+            <span style="flex:1"></span>
+            <span style="color:#8c8279">Dashboard</span>
+            <span style="color:#8c8279">Rates</span>
+            <span style="color:#8c8279">Mémoire Hub</span>
+          </div>
+          <div style="margin-top:12px;font-size:8px;color:#666;line-height:1.6">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>
+              <span>dibs.html &rarr; 6-item product nav added</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>
+              <span>dibs-v1.html &rarr; archive banner + nav links</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>
+              <span>dibs-v2.html &rarr; archive banner + nav links</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>
+              <span>8/8 pages connected &mdash; zero loose screens</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 5 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 5</div>
+      <div class="version-date">2026-03-24</div>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">widgets</div>
+        <div class="commit-body">
+          <div class="commit-msg">Consolidate Compare Budgets and Line Items into dashboard widgets &mdash; remove standalone pages</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decisions-title">Changes</div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Bid Comparison Widget.</strong> Triple bid comparison (Prettybird, MJZ, Park Pictures) consolidated from standalone page into a compact dashboard widget. Shows 3 bid cards with totals and diffs, AI recommendation one-liner, and variance heatmap sorted by severity (Post 38%, Talent 35%, Contingency 34%).</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Line Items Widget.</strong> 877-line standalone editor page replaced with a compact 2-column category grid showing all 9 AICP budget categories with totals, AI fill percentage (76%), and a running total bar ($487,250 with items filled, sections, and confidence).</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Removed Redundant Sections.</strong> Activity Feed, Quick Actions panel, and sidebar nav links to Compare Bids and Line Items all removed. Dashboard now shows everything in one view without page switching.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Win Rate Upgraded.</strong> Win Rate chart moved into a consistent widget card with header showing current rate (34%, +8% vs industry) alongside comparison and line items widgets.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Cross-Page Links Updated.</strong> All dibs pages (Budget Editor, Rates, Collab) and the Mémoire preview gallery now route to the dashboard instead of removed standalone pages.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 4 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 4</div>
+      <div class="version-date">2026-03-24</div>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">dashboard</div>
+        <div class="commit-body">
+          <div class="commit-msg">Dashboard modals &mdash; Collaboration and Templates pages consolidated into modal overlays, compact KPIs</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decisions-title">Changes</div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Share Modal.</strong> Collaboration page removed. Sharing now triggered from dashboard header &mdash; includes team management, role assignment (Owner/Editor/Viewer), invite by email, and version history.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Templates Modal.</strong> Templates page removed. Searchable template library opens as a modal from the sidebar with 6 production presets (National TV :30, Quick Social, Large Integrated, Photo/E-commerce, Animation/VFX, Documentary).</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Compact KPI Cards.</strong> Stat cards reduced in vertical height &mdash; tighter padding (14px 16px), smaller type (22px values, 10px labels), narrower gaps (12px) for a denser dashboard layout.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Streamlined Navigation.</strong> Sidebar cleaned up by removing standalone Collaboration and Templates page links. Fewer pages, same functionality via modals.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 3 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 3</div>
+      <div class="version-date">2026-03-24</div>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">stepper</div>
+        <div class="commit-body">
+          <div class="commit-msg">Vertical stepper wizard &mdash; 3-step guided flow replacing spreadsheet layout</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decisions">
+      <div class="decisions-title">Changes</div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Fixed Sidebar Navigation.</strong> 280px sidebar with numbered steps (01, 02, 03), active/completed state indicators, and step connectors. Grand total + progress bar always visible.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Step 1: Inputs.</strong> Three grouped input cards (Project Details, Shoot Parameters, Usage &amp; Financials) with clean grid layout.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Step 2: Budget.</strong> Full AICP sections A&ndash;E with section nav, categories, and line-item editing carried forward from v2.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Step 3: Review.</strong> Totals grid, section breakdown with bar charts, project summary, and AI insight card.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>Warm Paper Aesthetic.</strong> Light surface (#fafaf8) with Ink Gold accents, 12px radius cards, tonal layering.</div>
+      </div>
+      <div class="decision">
+        <div class="decision-icon">&raquo;</div>
+        <div class="decision-text"><strong>All Logic Preserved.</strong> Calculation engine, dependency DAG, validation, AI drawer, search, keyboard shortcuts unchanged.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 2 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 2</div>
+      <div class="version-date">2026-03-24</div>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">v2</div>
+        <div class="commit-body">
+          <div class="commit-msg">Full AICP form with unit types, conditional fields, validation engine, and data visualization</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Iteration 1 -->
+  <div class="version">
+    <div class="version-header">
+      <div class="version-tag">Iteration 1</div>
+      <div class="version-date">2026-03-24</div>
+      <span class="version-label label-initial">INITIAL</span>
+    </div>
+
+    <div class="commits">
+      <div class="commit">
+        <div class="commit-hash">v1</div>
+        <div class="commit-body">
+          <div class="commit-msg">Initial AICP bid form with 4-step wizard, 9 categories, Architectural Ledger design system</div>
+          <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-24</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── MÉMOIRE Engine Changelog ──────────────────── -->
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;margin-top:48px">
+  <div style="font-size:16px;font-weight:700;letter-spacing:3px;color:var(--accent-bright);text-transform:uppercase">Mémoire</div>
+  <div style="font-size:10px;color:var(--fg-muted);letter-spacing:0.5px">AI-Native Design Intelligence Engine</div>
+  <div style="flex:1;height:1px;background:var(--border)"></div>
+</div>
+
 <div class="timeline">
 
   <!-- v0.1.0 -->
@@ -287,11 +1339,11 @@ footer a { color: var(--accent); text-decoration: none; }
       </div>
       <div class="decision">
         <div class="decision-icon">&raquo;</div>
-        <div class="decision-text"><strong>Auto-Spec Engine.</strong> <code style="color:var(--accent);background:var(--accent-dim);padding:1px 4px;border-radius:2px">noche pull</code> auto-creates ComponentSpecs from Figma components. Infers atomic level, shadcn base, and props.</div>
+        <div class="decision-text"><strong>Auto-Spec Engine.</strong> <code style="color:var(--accent);background:var(--accent-dim);padding:1px 4px;border-radius:2px">mémoire pull</code> auto-creates ComponentSpecs from Figma components. Infers atomic level, shadcn base, and props.</div>
       </div>
       <div class="decision">
         <div class="decision-icon">&raquo;</div>
-        <div class="decision-text"><strong>Single-Command Pipeline.</strong> <code style="color:var(--accent);background:var(--accent-dim);padding:1px 4px;border-radius:2px">noche go</code> runs the full pipeline in one command: connect &rarr; pull &rarr; auto-spec &rarr; generate &rarr; preview.</div>
+        <div class="decision-text"><strong>Single-Command Pipeline.</strong> <code style="color:var(--accent);background:var(--accent-dim);padding:1px 4px;border-radius:2px">mémoire go</code> runs the full pipeline in one command: connect &rarr; pull &rarr; auto-spec &rarr; generate &rarr; preview.</div>
       </div>
       <div class="decision">
         <div class="decision-icon">&raquo;</div>
@@ -404,7 +1456,7 @@ footer a { color: var(--accent); text-decoration: none; }
 </div>
 
 <footer>
-  <p>Noche v0.1.0 &middot; <a href="https://github.com/sarveshsea/noche">github.com/sarveshsea/noche</a></p>
+  <p>Mémoire v0.1.0 &middot; <a href="https://github.com/sarveshsea/noche">github.com/sarveshsea/noche</a></p>
 </footer>
 
 </body>

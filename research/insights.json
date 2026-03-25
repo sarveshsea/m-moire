@@ -2,249 +2,1319 @@
   "insights": [
     {
       "id": "insight-1",
-      "finding": "Restaurant managers spend 3+ hours weekly on manual labor scheduling",
+      "finding": "Agency producers manually populate 311-399+ line items in Excel-based AICP bid forms, causing errors and formula breakage",
       "confidence": "high",
-      "source": "user-interviews.xlsx",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
       "evidence": [
-        "I spend half my Monday just doing the schedule",
-        "We use paper and pencil still, it takes forever",
-        "Scheduling is the worst part of my week",
-        "I have to call everyone individually to check availability",
-        "It takes about 3-4 hours each week, every week",
-        "Sometimes I stay late just to finish the schedule"
+        "AICP bid form contains 311-399+ line items across sections A through X",
+        "Hot Budget (industry standard) is a single-user Excel macro workbook \u2014 Mac only",
+        "Line producers start with crew rates (Section B), then build out equipment, locations, art dept, talent, post",
+        "Manual entry across 300+ items is error-prone with frequent formula breakage",
+        "No single tool covers create-manage-compare-review-track across the full workflow"
       ],
-      "tags": ["scheduling", "pain-point", "qualitative"],
-      "createdAt": "2026-03-23T10:00:00.000Z"
+      "tags": [
+        "bid-creation",
+        "pain-point"
+      ],
+      "createdAt": "2026-03-24T10:00:00.000Z"
     },
     {
       "id": "insight-2",
-      "finding": "Labor costs average 30-35% of revenue, with overtime being the primary budget leak",
+      "finding": "Version chaos: bid revisions circulate as email attachments with no structured change tracking",
       "confidence": "high",
-      "source": "financial-data.xlsx",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
       "evidence": [
-        "Mean labor cost ratio: 32.4%",
-        "Overtime accounts for 8.2% of total labor cost",
-        "Top quartile restaurants keep labor below 28%",
-        "Overtime spikes correlate with understaffing on weekends",
-        "Average overtime cost per location: $2,400/month"
+        "Multiple bid revisions emailed as file attachments (v1, v2, v2_final, v2_final_FINAL)",
+        "No built-in change tracking \u2014 changes between bid versions require manual comparison",
+        "Client/agency may not see what changed between revisions",
+        "Hot Budget is single-user desktop-only; no real-time collaboration",
+        "EP and line producer cannot work simultaneously on the same bid"
       ],
-      "tags": ["labor-cost", "quantitative", "overtime"],
-      "createdAt": "2026-03-23T10:05:00.000Z"
+      "tags": [
+        "version-control",
+        "pain-point",
+        "collaboration"
+      ],
+      "createdAt": "2026-03-24T10:01:00.000Z"
     },
     {
       "id": "insight-3",
-      "finding": "Shift swaps and last-minute changes cause 60% of scheduling conflicts",
+      "finding": "Triple bid comparison is entirely manual \u2014 agency producers compare 3+ bids section-by-section in separate Excel files",
       "confidence": "high",
-      "source": "user-interviews.xlsx",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
       "evidence": [
-        "People call out last minute and I have to scramble",
-        "Shift swaps happen 3-4 times a week minimum",
-        "The biggest problem is when someone doesn't show up",
-        "We need a better way to handle swap requests",
-        "Last-minute changes throw off the whole week"
+        "Agency producer must manually compare 3+ bid forms section-by-section",
+        "No standardized comparison tool \u2014 done in spreadsheets or side-by-side printouts",
+        "Identifying cost discrepancies across bids requires line-by-line inspection",
+        "BriefBid manages the RFP process but does not provide line-item comparison",
+        "Time-consuming, inconsistent comparison criteria across reviewers"
       ],
-      "tags": ["scheduling", "pain-point", "shift-management"],
-      "createdAt": "2026-03-23T10:10:00.000Z"
+      "tags": [
+        "triple-bid-process",
+        "pain-point"
+      ],
+      "createdAt": "2026-03-24T10:02:00.000Z"
     },
     {
       "id": "insight-4",
-      "finding": "Managers want real-time visibility into labor costs vs budget",
-      "confidence": "medium",
-      "source": "user-interviews.xlsx",
+      "finding": "Navigating 300+ line items across sections A-X creates severe cognitive overload for producers",
+      "confidence": "high",
+      "source": "AICP_FORM_DEEP_ANALYSIS.md",
       "evidence": [
-        "I never know if I'm over budget until end of pay period",
-        "Would love to see a live counter of labor spend",
-        "We get surprised by overtime costs every month"
+        "Sections A through X span pre-production, crew, equipment, locations, talent, post-production, and custom items",
+        "Scrolling through a single Excel workbook with multiple tabs makes it easy to miss sections",
+        "Topsheet (page 1) rolls up category totals but detail lives deep in section tabs",
+        "Recent expansion of post-production sections Q-W added complexity",
+        "Producers maintain separate client-facing (topsheet) and internal (full breakdown) views"
       ],
-      "tags": ["labor-cost", "feature-request", "dashboard"],
-      "createdAt": "2026-03-23T10:15:00.000Z"
+      "tags": [
+        "cognitive-load",
+        "pain-point",
+        "form-structure"
+      ],
+      "createdAt": "2026-03-24T10:03:00.000Z"
     },
     {
       "id": "insight-5",
-      "finding": "Compliance with break laws and max-hour regulations is a top concern",
-      "confidence": "medium",
-      "source": "user-interviews.xlsx",
+      "finding": "SAG-AFTRA and IATSE rate lookups are manual \u2014 producers reference external sources for talent and crew rates",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
       "evidence": [
-        "We got fined once for break violations",
-        "Keeping track of California labor laws is a nightmare",
-        "I need alerts when someone is approaching overtime"
+        "SAG-AFTRA rates, IATSE rates, and equipment rental rates must be manually referenced",
+        "Annual wage bumps built into IATSE-AICP agreements \u2014 not a single flat rate",
+        "Different rates by region and IATSE local (665, 798, 399, etc.)",
+        "2024 Low Budget Digital Waiver changed session and overtime rate negotiability",
+        "Outdated rates and calculation errors are common when referencing externally"
       ],
-      "tags": ["compliance", "pain-point", "qualitative"],
-      "createdAt": "2026-03-23T10:20:00.000Z"
+      "tags": [
+        "union-compliance",
+        "pain-point"
+      ],
+      "createdAt": "2026-03-24T10:04:00.000Z"
     },
     {
       "id": "insight-6",
-      "finding": "Staff prefer mobile-first schedule access over printed schedules",
-      "confidence": "medium",
-      "source": "staff-survey.csv",
+      "finding": "Markup calculations (25% production fee, 3% insurance, 15% travel handling) are manually applied and error-prone",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
       "evidence": [
-        "Average mobile preference rating: 4.2/5",
-        "72% of staff check schedule on their phone",
-        "Only 15% prefer the printed schedule on the wall"
+        "Standard production company markup: 25% applied to below-the-line subtotal",
+        "Insurance: 3% on Sections A-K production costs",
+        "Travel handling fee: 15% minimum when travel requirements are simple",
+        "Above-the-line vs below-the-line distinction affects which markups apply",
+        "Math errors in high-stakes financial documents can cost jobs"
       ],
-      "tags": ["mobile", "staff-experience", "quantitative"],
-      "createdAt": "2026-03-23T10:25:00.000Z"
+      "tags": [
+        "markup-complexity",
+        "bid-creation"
+      ],
+      "createdAt": "2026-03-24T10:05:00.000Z"
     },
     {
       "id": "insight-7",
-      "finding": "Peak labor demand mismatches current staffing by 20% during Friday-Saturday dinner",
+      "finding": "No single tool covers the end-to-end workflow: create bid, manage triple bid, compare, review, track actuals",
       "confidence": "high",
-      "source": "pos-sales-data.xlsx",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
       "evidence": [
-        "Friday dinner revenue 40% higher than weekday average",
-        "Saturday requires 2.3x weekday staffing levels",
-        "Understaffing on weekends causes 15% longer wait times",
-        "Current scheduling doesn't account for seasonal demand patterns",
-        "Labor gap analysis shows consistent weekend understaffing"
+        "Bid creation: Hot Budget / Saturation / GetActual",
+        "Triple bid management: BriefBid or manual email",
+        "Bid comparison: manual in Excel \u2014 no dedicated tool",
+        "Client review/approval: email/PDF or meeting",
+        "Actuals tracking: Wrapbook / separate system",
+        "Version control: manual file naming conventions"
       ],
-      "tags": ["demand-forecasting", "quantitative", "scheduling"],
-      "createdAt": "2026-03-23T10:30:00.000Z"
+      "tags": [
+        "tool-limitations",
+        "pain-point"
+      ],
+      "createdAt": "2026-03-24T10:06:00.000Z"
     },
     {
       "id": "insight-8",
-      "finding": "Multi-location operators need consolidated view across all restaurants",
-      "confidence": "low",
-      "source": "user-interviews.xlsx",
+      "finding": "88% of spreadsheets contain at least one formula error of 1%+ magnitude",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
       "evidence": [
-        "I manage 3 locations and can never see the big picture",
-        "Would be great to compare labor costs across stores"
+        "Ray Panko (U. Hawaii) foundational research on spreadsheet error rates",
+        "94% of business spreadsheets have critical errors per 2024 Frontiers of Computer Science study",
+        "2-5% of all formula cells contain errors even for experienced users",
+        "With 311-399+ line items and markup dependencies, probability of at least one material error per bid approaches certainty"
       ],
-      "tags": ["multi-location", "feature-request"],
-      "createdAt": "2026-03-23T10:35:00.000Z"
+      "tags": [
+        "spreadsheet-errors",
+        "bid-creation"
+      ],
+      "createdAt": "2026-03-24T10:07:00.000Z"
     },
     {
       "id": "insight-9",
-      "finding": "Employee availability tracking is mostly done via text messages and memory",
+      "finding": "Cloud-native tools (Saturation, GetActual) are emerging but Hot Budget remains the industry standard",
       "confidence": "medium",
-      "source": "user-interviews.xlsx",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
       "evidence": [
-        "People text me their availability randomly",
-        "I keep it all in my head which is terrible",
-        "We have a shared Google Sheet but nobody updates it"
+        "Hot Budget: Excel macro, single-user, Mac-only, ~$199 \u2014 dominant for AICP topsheets",
+        "Saturation: cloud-native, real-time collaboration, Wrapbook integration",
+        "GetActual: live multi-party budgets, bid package PDF export",
+        "BlinkBid: cloud-based with AICP/AICE pre-populated catalogs, e-signatures",
+        "Cloud migration underway but slow \u2014 familiarity with Excel keeps Hot Budget dominant"
       ],
-      "tags": ["scheduling", "pain-point", "availability"],
-      "createdAt": "2026-03-23T10:40:00.000Z"
+      "tags": [
+        "tool-limitations",
+        "market-context"
+      ],
+      "createdAt": "2026-03-24T10:08:00.000Z"
     },
     {
       "id": "insight-10",
-      "finding": "Average employee satisfaction score: 3.1/5 regarding current scheduling process",
-      "confidence": "high",
-      "source": "staff-survey.csv",
+      "finding": "Holding companies (WPP, Publicis, Omnicom) are centralizing production, creating in-house vs. independent tensions",
+      "confidence": "medium",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
       "evidence": [
-        "Mean satisfaction: 3.1",
-        "Min: 1",
-        "Max: 5",
-        "N: 147",
-        "Standard deviation: 1.2",
-        "Only 18% rated satisfaction 4 or above"
+        "WPP Production \u2014 single global platform combining Hogarth with group production teams",
+        "Publicis operating as one company for a decade with Prodigious in-house production",
+        "Omnicom Production mirrors WPP's consolidation model",
+        "In-house production sometimes competes in triple bids against independents \u2014 conflict of interest",
+        "Centralized rate databases and procurement teams are competitive differentiators"
       ],
-      "tags": ["staff-experience", "quantitative", "scheduling"],
-      "createdAt": "2026-03-23T10:45:00.000Z"
-    }
-  ],
-  "personas": [
-    {
-      "name": "Restaurant GM",
-      "role": "General manager responsible for day-to-day operations and scheduling",
-      "goals": [
-        "Minimize time spent on scheduling",
-        "Keep labor costs under 30% of revenue",
-        "Ensure proper staffing during peak hours",
-        "Stay compliant with labor regulations"
+      "tags": [
+        "triple-bid-process",
+        "market-context",
+        "regulatory"
       ],
-      "painPoints": [
-        "Manual scheduling takes 3+ hours per week",
-        "No real-time visibility into labor costs",
-        "Last-minute shift changes cause chaos",
-        "Paper-based availability tracking"
-      ],
-      "behaviors": [
-        "Creates schedule every Monday morning",
-        "Uses spreadsheets or paper for scheduling",
-        "Handles shift swaps via phone calls and texts",
-        "Reviews labor costs at end of pay period"
-      ],
-      "source": "Synthesized from 10 findings"
+      "createdAt": "2026-03-24T10:09:00.000Z"
     },
     {
-      "name": "Multi-Unit Operator",
-      "role": "Oversees 3-5 restaurant locations with district-level P&L responsibility",
-      "goals": [
-        "Compare performance across locations",
-        "Standardize scheduling practices",
-        "Reduce overall labor cost percentage"
+      "id": "insight-11",
+      "finding": "AI-driven production promises 30-60% cost savings, creating new budget line items and estimation challenges",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "AI production cost savings: 30-60% vs conventional methods",
+        "Projects that took 6+ months now completed in days with AI tools",
+        "AI-Video market growing from $3.86B (2024) to $42.29B (2033) \u2014 32.2% CAGR",
+        "Companies increasing AI spending by nearly 40%",
+        "No standard AICP line items for AI-specific costs yet"
       ],
-      "painPoints": [
-        "No consolidated view across locations",
-        "Inconsistent scheduling practices between GMs",
-        "Difficult to identify underperforming locations"
+      "tags": [
+        "ai-impact",
+        "market-context"
       ],
-      "behaviors": [
-        "Reviews weekly P&L for each location",
-        "Visits each location 1-2 times per week",
-        "Relies on GMs for scheduling decisions"
+      "createdAt": "2026-03-24T10:10:00.000Z"
+    },
+    {
+      "id": "insight-12",
+      "finding": "Bid win rates average 17-25% \u2014 production companies invest significant time in losing bids",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Average win rates: 17-25% (4-6:1 bid ratio)",
+        "RFP-to-award timeline: 10-16 weeks total",
+        "Typical bid turnaround: 3 working days for initial compilation",
+        "Production companies sink significant time and money into bid prep with no guarantee",
+        "Private work target: 4:1 bid ratio (25%+ win rate)"
       ],
-      "source": "Synthesized from 3 findings"
+      "tags": [
+        "bid-economics",
+        "triple-bid-process"
+      ],
+      "createdAt": "2026-03-24T10:11:00.000Z"
+    },
+    {
+      "id": "insight-13",
+      "finding": "Cost estimation relies on producer experience \u2014 no systematic rate databases lead to inconsistent pricing",
+      "confidence": "medium",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "Institutional knowledge is the primary source for cost estimation",
+        "Junior producers struggle without experienced mentorship for rate benchmarks",
+        "No industry-wide published benchmarks for estimation error rates",
+        "Regional cost variations have limited comparative data available",
+        "Smart defaults from rate databases would eliminate guesswork"
+      ],
+      "tags": [
+        "pain-point",
+        "bid-creation"
+      ],
+      "createdAt": "2026-03-24T10:12:00.000Z"
+    },
+    {
+      "id": "insight-14",
+      "finding": "The AICP form is a directed acyclic graph (DAG) of financial calculations \u2014 changing shoot days cascades to crew, equipment, location, catering, and travel",
+      "confidence": "high",
+      "source": "AICP_FORM_DEEP_ANALYSIS.md",
+      "evidence": [
+        "The form is NOT just a form \u2014 it is simultaneously a rules engine, a calculation graph, and a reporting tool",
+        "OT calculations (1.5x after 8hrs, 2x after 12hrs), union rate cards, markup rules are embedded",
+        "Changing one variable cascades to multiple dependent sections",
+        "Dependencies are implicit in the current Excel-based tools",
+        "No tool provides impact preview before committing changes"
+      ],
+      "tags": [
+        "dependency-awareness",
+        "form-structure"
+      ],
+      "createdAt": "2026-03-24T10:13:00.000Z"
+    },
+    {
+      "id": "insight-15",
+      "finding": "Users are forced to be the computation engine \u2014 performing mental simulations, manual dependency tracking, and memory-based navigation",
+      "confidence": "high",
+      "source": "AICP_FORM_DEEP_ANALYSIS.md",
+      "evidence": [
+        "The real problem is not 'the form is long' \u2014 the system does not externalize complexity",
+        "Users hold budget totals, category breakdowns, and dependency chains simultaneously",
+        "No search or filter across 300+ rows",
+        "No persistent context \u2014 users lose position constantly across tabs",
+        "No diff tracking, change logs, or dependency mapping"
+      ],
+      "tags": [
+        "cognitive-load",
+        "ux-patterns",
+        "pain-point"
+      ],
+      "createdAt": "2026-03-24T10:14:00.000Z"
+    },
+    {
+      "id": "insight-16",
+      "finding": "Each AICP bid costs $10,000-$12,000+ in labor and hard costs \u2014 at 17-25% win rates, $50-72K is spent per won job",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Each bid: $10-12K in hard costs and producer labor",
+        "6 bids x $10-12K = $50-72K total investment per won project",
+        "Mid-level agency producer ($51/hr) spends 24 hours on single bid = $1,224 labor",
+        "Triple bid agency-side labor: $3,672-$5,508 per job",
+        "Mid-sized agency (50-100 bids/year): $183K-$551K wasted annually in producer time"
+      ],
+      "tags": [
+        "bid-economics",
+        "time-waste"
+      ],
+      "createdAt": "2026-03-24T10:15:00.000Z"
+    },
+    {
+      "id": "insight-17",
+      "finding": "Total quantifiable waste for a 200-bid agency: $1.07M-$1.6M/year in producer time, rework, and revision cycles",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Producer labor per bid: $1,224 (24hrs at $51/hr)",
+        "Revision overhead: 2-3 rounds per bid",
+        "Triple bid comparison labor: $3,672-$5,508 per job",
+        "Error correction and rework time",
+        "Cancelled bid losses: $10-12K+ per cancellation"
+      ],
+      "tags": [
+        "bid-economics",
+        "time-waste"
+      ],
+      "createdAt": "2026-03-24T10:16:00.000Z"
+    },
+    {
+      "id": "insight-18",
+      "finding": "DOJ subpoenaed WPP, Publicis, Omnicom, and IPG in 2016-2017 for alleged bid rigging \u2014 cleared in 2018 but systemic concerns remain",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "DOJ issued civil investigative demands to holding company subsidiaries",
+        "Companies cleared in 2018 but the investigation highlighted systemic triple-bid fairness concerns",
+        "In-house production arms compete against independent production companies with information advantage",
+        "Agency is simultaneously competitor and judge in triple bid process",
+        "No transparency into whether other bidders are agency-owned entities"
+      ],
+      "tags": [
+        "regulatory",
+        "triple-bid-process"
+      ],
+      "createdAt": "2026-03-24T10:17:00.000Z"
+    },
+    {
+      "id": "insight-19",
+      "finding": "Bids get cancelled because the agency never sold the job to the client \u2014 $10-12K+ loss per cancellation with zero compensation",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Production companies have no visibility into whether the job is real",
+        "No standard compensation for bid preparation time on cancelled projects",
+        "Information asymmetry: prod companies don't know who else is bidding or if job is real",
+        "Free pitch labor: treatments + creative approaches with no compensation for losers"
+      ],
+      "tags": [
+        "triple-bid-process",
+        "bid-economics"
+      ],
+      "createdAt": "2026-03-24T10:18:00.000Z"
+    },
+    {
+      "id": "insight-20",
+      "finding": "The AICP form expanded from sections A-N to A-X, with Q-W incorporating AICE post-production and social deliverables",
+      "confidence": "high",
+      "source": "AICP_FORM_DEEP_ANALYSIS.md",
+      "evidence": [
+        "Original form had sections A through N",
+        "Post-production sections Q through W added for AICE integration",
+        "Social media deliverables introduced new category-specific line items",
+        "Expansion increased complexity without corresponding UX improvements",
+        "Section navigation became more complex with the expanded form"
+      ],
+      "tags": [
+        "form-structure",
+        "pain-point"
+      ],
+      "createdAt": "2026-03-24T10:19:00.000Z"
+    },
+    {
+      "id": "insight-21",
+      "finding": "94% of business spreadsheets have critical errors per 2024 Frontiers of Computer Science study by Prof. Pak-Lok Poon",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "94% error rate across business spreadsheets",
+        "2-5% of all formula cells contain errors even with experienced users",
+        "Errors compound across dependent calculations in AICP markup chain",
+        "Financial impact is amplified by the high-stakes nature of production budgets"
+      ],
+      "tags": [
+        "spreadsheet-errors",
+        "bid-creation"
+      ],
+      "createdAt": "2026-03-24T10:20:00.000Z"
+    },
+    {
+      "id": "insight-22",
+      "finding": "Hot Budget is Mac-only with no cloud collaboration, locking out Windows users and distributed teams entirely",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Hot Budget runs as an Excel macro workbook \u2014 Mac only",
+        "No cloud sync, no real-time collaboration",
+        "Read-only bug triggered by slash characters in filenames",
+        "No version history beyond manual file saving",
+        "Excel 365 compatibility issues documented"
+      ],
+      "tags": [
+        "tool-limitations",
+        "collaboration"
+      ],
+      "createdAt": "2026-03-24T10:21:00.000Z"
+    },
+    {
+      "id": "insight-23",
+      "finding": "ABID \u2014 AICP's own digital bid management platform \u2014 launched October 2020 and went offline December 15, 2024",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "AICP launched ABID as official digital bidding platform",
+        "Platform ran for 4 years before shutdown",
+        "Industry's own attempt at modernizing bid workflow failed",
+        "No official replacement announced",
+        "Demonstrates difficulty of solving this workflow at industry level"
+      ],
+      "tags": [
+        "tool-limitations",
+        "regulatory"
+      ],
+      "createdAt": "2026-03-24T10:22:00.000Z"
+    },
+    {
+      "id": "insight-24",
+      "finding": "Changing usage rights from 'Digital US 13 weeks' to 'All Media Global 1 Year' can 10x talent costs \u2014 the form does not surface this dependency",
+      "confidence": "high",
+      "source": "AICP_FORM_INPUT_SPEC.md",
+      "evidence": [
+        "Usage/Rights is the largest cost variable after crew",
+        "Session fees, buyout multipliers, and usage fees all cascade from usage selection",
+        "Territory expansion (US to Global) multiplies base rates",
+        "Duration expansion (13 weeks to 1 year) further multiplies",
+        "No warning or impact preview when changing usage fields"
+      ],
+      "tags": [
+        "dependency-awareness",
+        "markup-complexity"
+      ],
+      "createdAt": "2026-03-24T10:23:00.000Z"
+    },
+    {
+      "id": "insight-25",
+      "finding": "AD overtime begins at hour 12, not hour 10 like the rest of the crew \u2014 an easy-to-miss rule and documented source of errors",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "AICP rules specify different OT thresholds by department",
+        "Standard crew OT: 1.5x after 10 hours, 2x after 12 hours",
+        "AD department OT: starts at 12th hour, not 10th",
+        "This exception is frequently missed in manual bid construction",
+        "Formula errors from applying wrong OT threshold are common"
+      ],
+      "tags": [
+        "markup-complexity",
+        "union-compliance"
+      ],
+      "createdAt": "2026-03-24T10:24:00.000Z"
+    },
+    {
+      "id": "insight-26",
+      "finding": "SAG-AFTRA 2024 Low Budget Digital Waiver unified connected and unconnected shoot rates, removing free negotiation on session and overtime",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "2024 waiver restructured the Low Budget Digital rate card",
+        "Connected and unconnected shoot rates unified into single structure",
+        "Free negotiation on session and OT rates removed",
+        "MPU extended to 1 year from first use or 13 weeks after last production date",
+        "Producers must now use fixed rate tables instead of negotiated rates"
+      ],
+      "tags": [
+        "union-compliance",
+        "regulatory"
+      ],
+      "createdAt": "2026-03-24T10:25:00.000Z"
+    },
+    {
+      "id": "insight-27",
+      "finding": "IATSE-AICP agreement restructured to annual wage bumps, requiring dynamic budget escalation modeling",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "Not a flat contract rate \u2014 annual escalators built in",
+        "Different rates by IATSE local (665, 798, 399, etc.)",
+        "Producers must reference correct year and region for accurate rates",
+        "No automated rate lookup in current bidding tools",
+        "Manual reference to external PDFs and websites for rate sheets"
+      ],
+      "tags": [
+        "union-compliance",
+        "markup-complexity"
+      ],
+      "createdAt": "2026-03-24T10:26:00.000Z"
+    },
+    {
+      "id": "insight-28",
+      "finding": "The US video/film production market is valued at $40.9 billion in 2025, growing at 2% YoY",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "IBISWorld / Simulmedia market size data",
+        "Steady growth despite economic headwinds",
+        "National commercial production tier: $50K-$500K+ per project",
+        "Local: $3K-$15K, Regional: $15K-$50K",
+        "Crew per day: $10K-$100K+; Equipment: $5K-$50K"
+      ],
+      "tags": [
+        "market-context"
+      ],
+      "createdAt": "2026-03-24T10:27:00.000Z"
+    },
+    {
+      "id": "insight-29",
+      "finding": "AI-Video market growing from $3.86B (2024) to $42.29B (2033) at 32.2% CAGR \u2014 fastest-growing segment in production",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "Runway, Sora, Veo driving AI-video adoption",
+        "Virtual production hardware costs dropped 40% since 2022",
+        "Projects that took 6+ months now completed in days",
+        "No standard AICP line items for AI-specific costs",
+        "New budget categories emerging: tokens, compute, AI tool licensing"
+      ],
+      "tags": [
+        "ai-impact",
+        "market-context"
+      ],
+      "createdAt": "2026-03-24T10:28:00.000Z"
+    },
+    {
+      "id": "insight-30",
+      "finding": "Virtual production hardware costs dropped 40% since 2022, making LED volume stages viable for mid-budget productions",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "LED volume stages previously only viable for tentpole films",
+        "40% hardware cost reduction opens mid-budget commercial market",
+        "New budget line items needed for virtual production",
+        "Mixed shoot approaches (practical + virtual) create estimation complexity",
+        "Equipment rental vs. purchase decisions shift cost modeling"
+      ],
+      "tags": [
+        "ai-impact",
+        "market-context"
+      ],
+      "createdAt": "2026-03-24T10:29:00.000Z"
+    },
+    {
+      "id": "insight-31",
+      "finding": "Companies increasing AI budget spending by nearly 40%, with cost allocations shifting toward AI tools across pre- and post-production",
+      "confidence": "medium",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "Budget allocations shifting from traditional to AI-augmented workflows",
+        "Pre-production: AI for storyboarding, location scouting, casting",
+        "Post-production: AI for VFX, color grading, sound design",
+        "Cost savings not yet standardized in AICP form structure",
+        "No industry consensus on how to budget AI tool costs"
+      ],
+      "tags": [
+        "ai-impact",
+        "market-context"
+      ],
+      "createdAt": "2026-03-24T10:30:00.000Z"
+    },
+    {
+      "id": "insight-32",
+      "finding": "Progressive disclosure is the critical UX pattern: show section summaries first, expand to individual line items on demand",
+      "confidence": "high",
+      "source": "AICP_FORM_DEEP_ANALYSIS.md",
+      "evidence": [
+        "NNGroup research supports progressive disclosure for complex data",
+        "Section A-X summaries as primary view",
+        "Expand to individual line items on demand",
+        "Reduces cognitive load from 300+ rows to manageable sections",
+        "Topsheet concept already exists \u2014 needs better digital implementation"
+      ],
+      "tags": [
+        "ux-patterns",
+        "feature-request"
+      ],
+      "createdAt": "2026-03-24T10:31:00.000Z"
+    },
+    {
+      "id": "insight-33",
+      "finding": "Inline editing with keyboard navigation (Tab/Enter/Escape) is the baseline UX requirement for data-dense financial tools",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Power users (producers) expect spreadsheet-like keyboard navigation",
+        "Tab between cells, Enter to confirm, Escape to cancel",
+        "Double-click to edit cell content",
+        "Arrow keys for navigation between rows and columns",
+        "Reference products: Airtable, Linear, Notion all implement this pattern"
+      ],
+      "tags": [
+        "ux-patterns",
+        "feature-request"
+      ],
+      "createdAt": "2026-03-24T10:32:00.000Z"
+    },
+    {
+      "id": "insight-34",
+      "finding": "Side-by-side bid comparison across all 311+ line items with variance highlighting is the highest-priority missing feature",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Agency producers currently compare 3+ bids manually in separate Excel files",
+        "No tool provides line-item level comparison across bids",
+        "Variance highlighting would surface cost discrepancies instantly",
+        "Cost consultants need this for audit and compliance review",
+        "Currently takes 4-6 hours per comparison round"
+      ],
+      "tags": [
+        "feature-request",
+        "triple-bid-process"
+      ],
+      "createdAt": "2026-03-24T10:33:00.000Z"
+    },
+    {
+      "id": "insight-35",
+      "finding": "Version history with branching is the direct replacement for 'final-v3-ACTUAL.xlsx' naming conventions",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Git-like revision tracking for bid versions",
+        "Branch for client-specific adjustments",
+        "Merge changes back to master bid",
+        "Diff view between versions with change summaries",
+        "Auto-generated revision notes: '+$12K due to crew increase'"
+      ],
+      "tags": [
+        "feature-request",
+        "version-control"
+      ],
+      "createdAt": "2026-03-24T10:34:00.000Z"
+    },
+    {
+      "id": "insight-36",
+      "finding": "Impact preview before committing changes is the core dependency-awareness feature: 'changing shoot days will affect X items by $Y'",
+      "confidence": "high",
+      "source": "AICP_FORM_DEEP_ANALYSIS.md",
+      "evidence": [
+        "Users need to see cascade effects before making changes",
+        "Shoot days affect crew, equipment, locations, catering, travel",
+        "Currently no way to preview impact without manual calculation",
+        "Would eliminate 'surprise' budget changes that break targets",
+        "Reference: Figma's constraint preview before resize"
+      ],
+      "tags": [
+        "feature-request",
+        "dependency-awareness"
+      ],
+      "createdAt": "2026-03-24T10:35:00.000Z"
+    },
+    {
+      "id": "insight-37",
+      "finding": "Role presets with current union rates (DP $3,500/day, Gaffer $1,800/day, PA $250/day) would eliminate the most repetitive manual entry",
+      "confidence": "high",
+      "source": "AICP_FORM_INPUT_SPEC.md",
+      "evidence": [
+        "Most common crew roles are repeated across every bid",
+        "Rate lookup is manual \u2014 checking external PDFs and websites",
+        "Presets with region-specific rates would save hours per bid",
+        "Annual rate escalators could be built into presets",
+        "Template system from previous bids would reduce cold-start time"
+      ],
+      "tags": [
+        "feature-request",
+        "markup-complexity"
+      ],
+      "createdAt": "2026-03-24T10:36:00.000Z"
+    },
+    {
+      "id": "insight-38",
+      "finding": "WCAG 2.1 AA requires role='grid' for interactive data grids, with roving tabindex and aria-sort on sortable columns",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "role='grid' not role='table' for interactive financial grids",
+        "Roving tabindex for cell navigation",
+        "aria-sort on sortable columns, aria-colcount/aria-rowcount for virtualized grids",
+        "4.5:1 contrast ratio for normal text",
+        "Color must not be sole conveyor of over/under budget state"
+      ],
+      "tags": [
+        "accessibility",
+        "ux-patterns"
+      ],
+      "createdAt": "2026-03-24T10:37:00.000Z"
+    },
+    {
+      "id": "insight-39",
+      "finding": "Undo support for all financial edits is required under WCAG 2.1 AA criterion 3.3.4 (Error Prevention)",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "WCAG 3.3.4: Error Prevention for legal, financial, or data transactions",
+        "All financial edits must be reversible",
+        "Multi-level undo for complex editing sessions",
+        "Undo history should survive session refresh",
+        "Currently no undo in Excel-based AICP tools beyond Ctrl+Z"
+      ],
+      "tags": [
+        "accessibility",
+        "feature-request"
+      ],
+      "createdAt": "2026-03-24T10:38:00.000Z"
+    },
+    {
+      "id": "insight-40",
+      "finding": "Showbiz Budgeting 10 requires $399 license \u2014 its complexity is designed for production accountants, not commercial producers",
+      "confidence": "medium",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "$399 base license with cloud as additional subscription",
+        "Steep learning curve designed for film/TV production accounting",
+        "Per-machine licensing model",
+        "Not optimized for AICP commercial production workflow",
+        "Cloud collaboration is an add-on, not built-in"
+      ],
+      "tags": [
+        "tool-limitations",
+        "market-context"
+      ],
+      "createdAt": "2026-03-24T10:39:00.000Z"
+    },
+    {
+      "id": "insight-41",
+      "finding": "The RFP-to-award pipeline spans 10-16 weeks \u2014 a timeline mismatch with the 3-day bid turnaround expectation",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "5 stages: planning, RFP development, distribution, evaluation, selection",
+        "10-16 weeks total cycle",
+        "Initial bid turnaround: 3 working days expected",
+        "Multiple revision rounds within the cycle",
+        "Timeline pressure creates quality tradeoffs in bid accuracy"
+      ],
+      "tags": [
+        "time-waste",
+        "bid-economics",
+        "triple-bid-process"
+      ],
+      "createdAt": "2026-03-24T10:40:00.000Z"
+    },
+    {
+      "id": "insight-42",
+      "finding": "Straightforward project bids come within 5-10% of each other, meaning weeks of triple-bid overhead yields marginal price differentiation",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Competitive bids converge on similar pricing for standard projects",
+        "Weeks of comparison effort for <10% price spread",
+        "Agency overhead for managing triple bid process is significant",
+        "Cost consultants further narrow the price band",
+        "Value differentiation shifts to creative treatment, not price"
+      ],
+      "tags": [
+        "triple-bid-process",
+        "bid-economics"
+      ],
+      "createdAt": "2026-03-24T10:41:00.000Z"
+    },
+    {
+      "id": "insight-43",
+      "finding": "Production companies must bid against agency-owned production units where the agency is simultaneously competitor and judge",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "In-house production arms of holding companies compete in triple bids",
+        "Agency has access to competing bids while also submitting their own",
+        "No transparency into whether other bidders are agency-owned",
+        "Information asymmetry disadvantages independent production companies",
+        "Cost savings from in-house may not reflect true market pricing"
+      ],
+      "tags": [
+        "triple-bid-process",
+        "regulatory"
+      ],
+      "createdAt": "2026-03-24T10:42:00.000Z"
+    },
+    {
+      "id": "insight-44",
+      "finding": "Cost consultants are 'perpetual pain' \u2014 hidden markups get buried in line items to survive audit scrutiny",
+      "confidence": "medium",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "LBBOnline describes cost consultants as 'perpetual pain' for production companies",
+        "Markups get restructured across line items to avoid flagging",
+        "15% variance threshold triggers line-by-line audit",
+        "Production companies develop strategies to distribute markup",
+        "Creates adversarial dynamic between producers and auditors"
+      ],
+      "tags": [
+        "triple-bid-process",
+        "markup-complexity"
+      ],
+      "createdAt": "2026-03-24T10:43:00.000Z"
+    },
+    {
+      "id": "insight-45",
+      "finding": "DEI budget line items are emerging as standard \u2014 Fortune 1000 average is $1.5M/year (range $30K-$5.1M)",
+      "confidence": "medium",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "DEI line items becoming expected in production budgets",
+        "Fortune 1000 average: $1.5M/year, median: $1.2M",
+        "Wide range: $30K to $5.1M depending on company size",
+        "No standardized AICP form field for DEI costs",
+        "Budget allocated across crew hiring, vendor selection, accessibility"
+      ],
+      "tags": [
+        "market-context",
+        "form-structure"
+      ],
+      "createdAt": "2026-03-24T10:44:00.000Z"
+    },
+    {
+      "id": "insight-46",
+      "finding": "Corporate Transparency Act (Jan 1, 2024) requires 32M+ US businesses including production companies to report beneficial ownership",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "Effective January 1, 2024",
+        "32M+ US businesses affected",
+        "Production companies must disclose beneficial ownership to FinCEN",
+        "Additional compliance burden for small production companies",
+        "May affect how shell entities and LLCs are used in production"
+      ],
+      "tags": [
+        "regulatory"
+      ],
+      "createdAt": "2026-03-24T10:45:00.000Z"
+    },
+    {
+      "id": "insight-47",
+      "finding": "Airtable, Linear, Figma, and Stripe Dashboard are primary reference products for bidding tool UX",
+      "confidence": "high",
+      "source": "AICP_BIDDING_PAIN_POINTS_DEEP_RESEARCH.md",
+      "evidence": [
+        "Airtable: linked records, database views, relational data",
+        "Linear: keyboard-first, command palette, real-time updates",
+        "Figma: real-time multiplayer, shared cursors, version history",
+        "Stripe Dashboard: financial hierarchy, drill-down from totals to transactions",
+        "All four combine data density with progressive disclosure"
+      ],
+      "tags": [
+        "ux-patterns",
+        "feature-request"
+      ],
+      "createdAt": "2026-03-24T10:46:00.000Z"
+    },
+    {
+      "id": "insight-48",
+      "finding": "Five core jobs-to-be-done: Construct fast, Understand where money goes, Adjust and see impact, Defend costs, Iterate across versions",
+      "confidence": "high",
+      "source": "AICP_FORM_DEEP_ANALYSIS.md",
+      "evidence": [
+        "Construct: add line items quickly, reuse previous bids, stay within targets",
+        "Understand: where money is going, which sections are heavy, what drives cost",
+        "Adjust: change assumptions, see impact instantly across dependent calculations",
+        "Defend: explain costs clearly to stakeholders with data-backed justification",
+        "Iterate: multiple revisions, compare versions, maintain accuracy through changes"
+      ],
+      "tags": [
+        "ux-patterns",
+        "form-structure"
+      ],
+      "createdAt": "2026-03-24T10:47:00.000Z"
+    },
+    {
+      "id": "insight-49",
+      "finding": "The global advertisement production services market is $1.93B (2024), projected to reach $3.66B by 2033 at 7.4% CAGR",
+      "confidence": "high",
+      "source": "AICP_BIDDING_INDUSTRY_RESEARCH.md",
+      "evidence": [
+        "Market Growth Reports data",
+        "7.4% compound annual growth rate",
+        "Growth driven by digital content demand and multi-platform deliverables",
+        "Social media deliverables expanding the total addressable market",
+        "Regional growth varies \u2014 US and Asia-Pacific leading"
+      ],
+      "tags": [
+        "market-context"
+      ],
+      "createdAt": "2026-03-24T10:48:00.000Z"
+    },
+    {
+      "id": "insight-50",
+      "finding": "The AICP form's 4-level hierarchy (Section > Category > Line Item > Calculation) demands a tree-based UI with expand/collapse at every level",
+      "confidence": "high",
+      "source": "AICP_FORM_DEEP_ANALYSIS.md",
+      "evidence": [
+        "L1: Sections (A-X) \u2014 macro budget buckets",
+        "L2: Categories \u2014 crew, talent, equipment, locations, travel within sections",
+        "L3: Line Items \u2014 individual cost entries (e.g., DP @ $3,500/day x 3 days)",
+        "L4: Calculations \u2014 subtotals, markups, contingency, grand total",
+        "Tree-based navigation enables drill-down without losing context"
+      ],
+      "tags": [
+        "form-structure",
+        "feature-request",
+        "ux-patterns"
+      ],
+      "createdAt": "2026-03-24T10:49:00.000Z"
     }
   ],
   "themes": [
     {
-      "name": "scheduling",
-      "description": "Core scheduling workflow pain points — manual process, shift swaps, and demand mismatch",
-      "insights": ["insight-1", "insight-3", "insight-7", "insight-9", "insight-10"],
+      "name": "pain-point",
+      "description": "Core user frustrations with existing bidding tools, processes, and manual workflows",
+      "insights": [
+        "insight-1",
+        "insight-2",
+        "insight-3",
+        "insight-4",
+        "insight-5",
+        "insight-7",
+        "insight-13",
+        "insight-15",
+        "insight-20"
+      ],
+      "frequency": 9
+    },
+    {
+      "name": "ai-impact",
+      "description": "AI is compressing VFX/post costs by 28-40%, creating new budget categories and rendering traditional estimation frameworks obsolete",
+      "insights": [
+        "insight-11",
+        "insight-29",
+        "insight-30",
+        "insight-31"
+      ],
+      "frequency": 4
+    },
+    {
+      "name": "competitive-landscape",
+      "description": "Seven+ tools with zero end-to-end coverage \u2014 ABID failure, Saturation/BlinkBid cloud migration, missing intelligence layers",
+      "insights": [
+        "insight-9",
+        "insight-22",
+        "insight-23",
+        "insight-40"
+      ],
+      "frequency": 4
+    },
+    {
+      "name": "bid-creation",
+      "description": "Pain points in creating AICP bid forms \u2014 manual entry, complex structure, formula errors across 300+ line items",
+      "insights": [
+        "insight-1",
+        "insight-6",
+        "insight-8",
+        "insight-13",
+        "insight-21"
+      ],
       "frequency": 5
     },
     {
-      "name": "labor-cost",
-      "description": "Labor cost visibility, overtime tracking, and budget management",
-      "insights": ["insight-2", "insight-4"],
+      "name": "bid-economics",
+      "description": "Win rates, cost per bid, waste quantification, and the economics of the triple bid process",
+      "insights": [
+        "insight-12",
+        "insight-16",
+        "insight-17",
+        "insight-19",
+        "insight-41",
+        "insight-42"
+      ],
+      "frequency": 6
+    },
+    {
+      "name": "cognitive-load",
+      "description": "Users forced to be the computation engine \u2014 mental simulations, dependency tracking, memory-based navigation",
+      "insights": [
+        "insight-4",
+        "insight-15"
+      ],
       "frequency": 2
     },
     {
-      "name": "pain-point",
-      "description": "User frustrations with current tools and processes",
-      "insights": ["insight-1", "insight-3", "insight-5", "insight-9"],
+      "name": "collaboration",
+      "description": "Lack of real-time collaboration, version control, and structured revision tracking in bid workflows",
+      "insights": [
+        "insight-2",
+        "insight-5",
+        "insight-22"
+      ],
+      "frequency": 3
+    },
+    {
+      "name": "form-structure",
+      "description": "AICP sections A-X, 4-level hierarchy, topsheet, above-the-line vs below-the-line distinctions",
+      "insights": [
+        "insight-4",
+        "insight-14",
+        "insight-20",
+        "insight-45",
+        "insight-48",
+        "insight-50"
+      ],
+      "frequency": 6
+    },
+    {
+      "name": "triple-bid-process",
+      "description": "Systemic issues with the triple bid requirement \u2014 DOJ investigation, agency self-dealing, information asymmetry",
+      "insights": [
+        "insight-3",
+        "insight-10",
+        "insight-12",
+        "insight-18",
+        "insight-19",
+        "insight-34",
+        "insight-41",
+        "insight-42",
+        "insight-43",
+        "insight-44"
+      ],
+      "frequency": 10
+    },
+    {
+      "name": "markup-complexity",
+      "description": "25% production fee, 3% insurance, 15% travel handling, fringe loading, overtime rules, and usage/rights cascades",
+      "insights": [
+        "insight-6",
+        "insight-24",
+        "insight-25",
+        "insight-27",
+        "insight-37",
+        "insight-44"
+      ],
+      "frequency": 6
+    },
+    {
+      "name": "union-compliance",
+      "description": "SAG-AFTRA, IATSE, DGA rate changes \u2014 non-overlapping calendars, AI frameworks, annual wage bumps",
+      "insights": [
+        "insight-5",
+        "insight-25",
+        "insight-26",
+        "insight-27"
+      ],
       "frequency": 4
     },
     {
-      "name": "quantitative",
-      "description": "Data-backed findings from surveys, POS data, and financial analysis",
-      "insights": ["insight-2", "insight-6", "insight-7", "insight-10"],
-      "frequency": 4
+      "name": "market-context",
+      "description": "$40.9B US market, AI savings, virtual production trends, global growth, DEI budgets",
+      "insights": [
+        "insight-9",
+        "insight-10",
+        "insight-11",
+        "insight-28",
+        "insight-29",
+        "insight-30",
+        "insight-31",
+        "insight-40",
+        "insight-45",
+        "insight-49"
+      ],
+      "frequency": 10
     },
     {
-      "name": "qualitative",
-      "description": "Interview and observational findings from user research sessions",
-      "insights": ["insight-1", "insight-5"],
-      "frequency": 2
+      "name": "dependency-awareness",
+      "description": "Shoot day cascade effects, hidden dependency chains, usage/rights cost multipliers",
+      "insights": [
+        "insight-14",
+        "insight-24",
+        "insight-36"
+      ],
+      "frequency": 3
     },
     {
-      "name": "staff-experience",
-      "description": "Employee-side experience with scheduling and communication",
-      "insights": ["insight-6", "insight-10"],
-      "frequency": 2
+      "name": "ux-patterns",
+      "description": "Progressive disclosure, inline editing, data grid design, keyboard-first, reference products",
+      "insights": [
+        "insight-15",
+        "insight-32",
+        "insight-33",
+        "insight-38",
+        "insight-47",
+        "insight-48",
+        "insight-50"
+      ],
+      "frequency": 7
+    },
+    {
+      "name": "feature-request",
+      "description": "High-leverage product opportunities: hierarchy, dependency mapping, version diff, impact preview, rate presets",
+      "insights": [
+        "insight-32",
+        "insight-33",
+        "insight-34",
+        "insight-35",
+        "insight-36",
+        "insight-37",
+        "insight-39",
+        "insight-47",
+        "insight-50"
+      ],
+      "frequency": 9
+    },
+    {
+      "name": "regulatory",
+      "description": "CTA 2024, ABID shutdown, DOJ investigation, bid rigging history, SAG-AFTRA/IATSE contract changes",
+      "insights": [
+        "insight-10",
+        "insight-18",
+        "insight-23",
+        "insight-26",
+        "insight-43",
+        "insight-46"
+      ],
+      "frequency": 6
+    },
+    {
+      "name": "tool-limitations",
+      "description": "Hot Budget Mac-only lock-in, Showbiz complexity, ABID shutdown, Excel fragility, no cloud collaboration",
+      "insights": [
+        "insight-7",
+        "insight-9",
+        "insight-22",
+        "insight-23",
+        "insight-40"
+      ],
+      "frequency": 5
+    }
+  ],
+  "personas": [
+    {
+      "name": "Sarah Chen \u2014 Agency Producer",
+      "role": "Senior Agency Producer, Publicis Groupe \u2014 8 years in broadcast production. Manages $2-5M annual bid volume across 15-20 projects.",
+      "quote": "I spend more time formatting Excel cells than actually evaluating creative treatments.",
+      "goals": [
+        "Create accurate AICP bids quickly under tight 3-day deadlines",
+        "Compare triple bids efficiently and present clear recommendations to client",
+        "Keep bid revisions organized across multiple stakeholders",
+        "Ensure SAG-AFTRA/IATSE compliance without manual rate lookups"
+      ],
+      "painPoints": [
+        "Comparing 3+ bids section-by-section in separate Excel files takes 4-6 hours",
+        "No real-time collaboration \u2014 EP and line producer can't work simultaneously",
+        "Version chaos: v1, v2, v2_final, v2_final_FINAL across email threads",
+        "Client asks 'what changed?' between revisions with no diff tool available"
+      ],
+      "behaviors": [
+        "Distributes bid specs to 3+ production companies simultaneously",
+        "Reviews topsheet summaries first, then dives into section detail",
+        "Uses Hot Budget or Excel-based AICP forms for bid creation",
+        "Presents recommended production company to client with cost justification"
+      ],
+      "tools": [
+        "Hot Budget",
+        "Excel",
+        "Outlook",
+        "Slack",
+        "Google Sheets"
+      ],
+      "frustration": 85,
+      "experience": "8 years",
+      "bidVolume": "$2-5M/year",
+      "source": "Synthesized from 15 findings"
+    },
+    {
+      "name": "Marcus Rivera \u2014 Line Producer",
+      "role": "Freelance Line Producer \u2014 12 years in commercial production. Builds 6-8 AICP bid packages per month for production companies competing in triple bids.",
+      "quote": "I know every IATSE local's rate by heart because I've looked them up a thousand times. Half my value is just knowing what things cost.",
+      "goals": [
+        "Hit target budget range while covering all production needs accurately",
+        "Populate 311+ line items with current union rates and equipment costs",
+        "Deliver complete bid package (topsheet + breakdown + letter) in 3 working days",
+        "Minimize markup calculation errors on high-stakes financial documents"
+      ],
+      "painPoints": [
+        "Scrolling through 300+ line items in Excel with no progressive disclosure",
+        "Manually looking up SAG-AFTRA / IATSE rates from external PDFs and websites",
+        "Maintaining separate client-facing topsheet and internal detailed breakdown",
+        "Multi-format deliverables \u2014 social, broadcast, digital each need separate bids"
+      ],
+      "behaviors": [
+        "Always starts with crew rates (Section B) \u2014 the largest variable cost",
+        "Builds out equipment, locations, art dept, talent, then post-production in order",
+        "Applies 25% production fee, 3% insurance, 15% travel handling at the end",
+        "Works with EP to adjust bid up or down to fit competitive budget range"
+      ],
+      "tools": [
+        "Hot Budget",
+        "Showbiz Budgeting",
+        "Excel",
+        "Wrapbook"
+      ],
+      "frustration": 72,
+      "experience": "12 years",
+      "bidVolume": "6-8 bids/month",
+      "source": "Synthesized from 12 findings"
+    },
+    {
+      "name": "Diana Okafor \u2014 Cost Consultant",
+      "role": "Independent Cost Consultant \u2014 15 years in production accounting. Hired by brands and agencies to audit bids, flag overcharges, and ensure AICP compliance.",
+      "quote": "Every production company formats their bid slightly differently. I'm comparing apples to oranges in three different spreadsheets.",
+      "goals": [
+        "Identify inflated or understated line items across 3+ competing bids",
+        "Ensure bids comply with AICP standards and union rate minimums",
+        "Deliver clear, defensible comparison reports to client business affairs",
+        "Track bid-to-actual variance for post-production reconciliation"
+      ],
+      "painPoints": [
+        "No automated comparison tool \u2014 must review each bid line by line in Excel",
+        "Different bidders structure sections differently, breaking side-by-side alignment",
+        "Rate benchmarking relies on personal database built over 15 years",
+        "No standard diff to see what changed between bid revision v3 and v4"
+      ],
+      "behaviors": [
+        "Opens all 3+ bids simultaneously on dual monitors",
+        "Flags any line item variance above 15% threshold between competing bids",
+        "Cross-references SAG-AFTRA rate sheets and IATSE local agreements",
+        "Provides written analysis with recommend / flag / reject per section"
+      ],
+      "tools": [
+        "Excel (advanced)",
+        "Hot Budget",
+        "PDF markup",
+        "SAG-AFTRA portal"
+      ],
+      "frustration": 90,
+      "experience": "15 years",
+      "bidVolume": "200+ reviews/year",
+      "source": "Synthesized from 10 findings"
     }
   ],
   "sources": [
     {
-      "name": "user-interviews.xlsx",
-      "type": "excel",
-      "processedAt": "2026-03-23T10:00:00.000Z"
+      "name": "aicp.com \u2014 Bidding Resources & Guidelines",
+      "type": "regulatory",
+      "processedAt": "2026-03-24T09:00:00.000Z"
     },
     {
-      "name": "financial-data.xlsx",
-      "type": "excel",
-      "processedAt": "2026-03-23T10:05:00.000Z"
+      "name": "IBISWorld / Simulmedia \u2014 Market Size Data 2025",
+      "type": "report",
+      "processedAt": "2026-03-24T09:01:00.000Z"
     },
     {
-      "name": "staff-survey.csv",
-      "type": "excel",
-      "processedAt": "2026-03-23T10:25:00.000Z"
+      "name": "SAG-AFTRA \u2014 Rate Sheets 2024-2025",
+      "type": "regulatory",
+      "processedAt": "2026-03-24T09:02:00.000Z"
     },
     {
-      "name": "pos-sales-data.xlsx",
-      "type": "excel",
-      "processedAt": "2026-03-23T10:30:00.000Z"
+      "name": "Wrapbook \u2014 AICP Bid Form Guide & SAG Rates",
+      "type": "web",
+      "processedAt": "2026-03-24T09:03:00.000Z"
+    },
+    {
+      "name": "Market Growth Reports \u2014 Ad Production Services",
+      "type": "report",
+      "processedAt": "2026-03-24T09:04:00.000Z"
+    },
+    {
+      "name": "Busy Like / Vitrina AI \u2014 AI Production Budget Trends",
+      "type": "web",
+      "processedAt": "2026-03-24T09:05:00.000Z"
+    },
+    {
+      "name": "Diversio / Medium \u2014 DEI Budget Data",
+      "type": "report",
+      "processedAt": "2026-03-24T09:06:00.000Z"
+    },
+    {
+      "name": "Morgan Lewis / Akin Gump \u2014 Corporate Transparency Act",
+      "type": "regulatory",
+      "processedAt": "2026-03-24T09:07:00.000Z"
+    },
+    {
+      "name": "MediaPost / Shots.net \u2014 ABID Platform Coverage",
+      "type": "web",
+      "processedAt": "2026-03-24T09:08:00.000Z"
+    },
+    {
+      "name": "Fishbowl / Glassdoor \u2014 Producer Voice Forums",
+      "type": "forum",
+      "processedAt": "2026-03-24T09:09:00.000Z"
+    },
+    {
+      "name": "Ray Panko / Pak-Lok Poon \u2014 Spreadsheet Error Studies",
+      "type": "report",
+      "processedAt": "2026-03-24T09:10:00.000Z"
+    },
+    {
+      "name": "Glassdoor / ZipRecruiter \u2014 Producer Salary Data 2025",
+      "type": "report",
+      "processedAt": "2026-03-24T09:11:00.000Z"
+    },
+    {
+      "name": "LBBOnline / TrinityP3 \u2014 Cost Consultant Research",
+      "type": "web",
+      "processedAt": "2026-03-24T09:12:00.000Z"
+    },
+    {
+      "name": "Frame by Brand / Saturation.io \u2014 Tool Comparisons",
+      "type": "web",
+      "processedAt": "2026-03-24T09:13:00.000Z"
+    },
+    {
+      "name": "Marketing Dive / Ad Age \u2014 DOJ Investigation Coverage",
+      "type": "web",
+      "processedAt": "2026-03-24T09:14:00.000Z"
+    },
+    {
+      "name": "NNGroup / Pencil & Paper \u2014 UX & Progressive Disclosure",
+      "type": "report",
+      "processedAt": "2026-03-24T09:15:00.000Z"
+    },
+    {
+      "name": "W3C WAI / AG Grid / MDN \u2014 Accessibility Standards",
+      "type": "report",
+      "processedAt": "2026-03-24T09:16:00.000Z"
+    },
+    {
+      "name": "AICP Form Deep Analysis + Input Spec \u2014 Domain Expert",
+      "type": "report",
+      "processedAt": "2026-03-24T09:17:00.000Z"
     }
-  ]
+  ],
+  "generatedAt": "2026-03-25T10:00:00.000Z"
 }

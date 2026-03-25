@@ -1,0 +1,21 @@
+{
+  "framework": "vite",
+  "language": "typescript",
+  "styling": {
+    "tailwind": false,
+    "cssModules": false,
+    "styledComponents": false
+  },
+  "shadcn": {
+    "installed": false,
+    "components": []
+  },
+  "designTokens": {
+    "source": "none",
+    "tokenCount": 0
+  },
+  "paths": {
+    "components": "src/components"
+  },
+  "detectedAt": "2026-03-25T05:22:17.272Z"
+}
