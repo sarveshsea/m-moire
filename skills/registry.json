@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "description": "Noche skill registry — defines available skills, activation contexts, and dependencies",
+  "description": "Mémoire skill registry — defines available skills, activation contexts, and dependencies",
   "defaultSkill": "SUPERPOWER",
   "skills": [
     {

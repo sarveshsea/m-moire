@@ -1,4 +1,4 @@
-# Ark Security Review — Comprehensive Assessment
+# Mémoire Security Review — Comprehensive Assessment
 
 **Date:** 2025-03-23
 **Scope:** Full codebase security audit focusing on plugin sandboxing, input validation, WebSocket security, environment variables, and OWASP Top 10
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The Ark codebase demonstrates generally sound security practices with proper input validation frameworks (Zod), environment variable isolation, and defensive programming patterns. However, several vulnerabilities require immediate attention:
+The Mémoire codebase demonstrates generally sound security practices with proper input validation frameworks (Zod), environment variable isolation, and defensive programming patterns. However, several vulnerabilities require immediate attention:
 
 1. **CRITICAL:** Plugin code execution uses `new Function()` with inadequate blocklist
 2. **CRITICAL:** Prototype exporter generates code with unescaped user input in template strings
@@ -22,12 +22,12 @@ The Ark codebase demonstrates generally sound security practices with proper inp
 
 ### 1. CRITICAL — Plugin Code Execution Insufficient Blocklist
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/plugin/code.js`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/plugin/code.js`
 **Lines:** 184-214
 **Severity:** CRITICAL (Remote Code Execution)
 
 **Issue:**
-The `executeCode()` function uses `new Function()` to dynamically execute code from the Ark engine with a blocklist of dangerous patterns. However, the blocklist is insufficient:
+The `executeCode()` function uses `new Function()` to dynamically execute code from the Mémoire engine with a blocklist of dangerous patterns. However, the blocklist is insufficient:
 
 ```javascript
 const BLOCKED_PATTERNS = [
@@ -144,7 +144,7 @@ async function executeCode(code) {
 
 ### 2. CRITICAL — Prototype Exporter Code Injection via Unescaped Template Strings
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/codegen/prototype-exporter.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/codegen/prototype-exporter.ts`
 **Lines:** 82, 101-117 (generatePlaywrightPrototype)
 **Severity:** CRITICAL (Code Injection)
 
@@ -254,7 +254,7 @@ function validateSelector(selector: string): string {
 
 ### 3. HIGH — Dashboard HTML Missing Escaping in Multiple Locations
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/commands/dashboard.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/commands/dashboard.ts`
 **Lines:** Multiple (see below)
 **Severity:** HIGH (DOM-based XSS)
 
@@ -364,7 +364,7 @@ function escapeJs(str: string): string {
 
 ### 4. HIGH — WebSocket Server Missing Rate Limiting
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/figma/ws-server.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/figma/ws-server.ts`
 **Lines:** 270-287 (handleMessage)
 **Severity:** HIGH (Denial of Service)
 
@@ -475,7 +475,7 @@ ws.on("message", (data) => {
 
 ### 5. HIGH — File Path Traversal in Registry (Partial)
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/engine/registry.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/engine/registry.ts`
 **Lines:** 129-141, 164-185
 **Severity:** HIGH (Path Traversal via Directory Traversal)
 
@@ -487,7 +487,7 @@ async saveSpec(spec: AnySpec): Promise<void> {
   this.specs.set(spec.name, spec);
 
   const typeDir = specTypeDir(spec.type);
-  const dir = join(this.nocheDir, "..", "specs", typeDir);
+  const dir = join(this.memoireDir, "..", "specs", typeDir);
   await mkdir(dir, { recursive: true });
 
   // Spec name used directly in filename
@@ -535,7 +535,7 @@ async saveSpec(spec: AnySpec): Promise<void> {
   this.specs.set(spec.name, spec);
 
   const typeDir = specTypeDir(spec.type);
-  const dir = join(this.nocheDir, "..", "specs", typeDir);
+  const dir = join(this.memoireDir, "..", "specs", typeDir);
   await mkdir(dir, { recursive: true });
 
   const filePath = join(dir, `${spec.name}.json`);
@@ -560,7 +560,7 @@ async saveSpec(spec: AnySpec): Promise<void> {
 
 ### 6. MEDIUM — Missing CORS/Origin Validation on WebSocket Server
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/figma/ws-server.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/figma/ws-server.ts`
 **Lines:** 224-230
 **Severity:** MEDIUM (Information Disclosure / Unauthorized Access)
 
@@ -621,7 +621,7 @@ private startOnPort(port: number): Promise<void> {
 
 ### 7. MEDIUM — Environment Variable Exposure in Error Messages
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/index.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/index.ts`
 **Lines:** 44-48
 **Severity:** MEDIUM (Information Disclosure)
 
@@ -648,13 +648,13 @@ logger.error('Failed to connect', { config: engine.config });
 Implement config sanitization:
 
 ```typescript
-interface NocheConfig {
+interface MemoireConfig {
   projectRoot: string;
   figmaToken?: string;
   figmaFileKey?: string;
 }
 
-function sanitizeConfig(config: NocheConfig): Record<string, unknown> {
+function sanitizeConfig(config: MemoireConfig): Record<string, unknown> {
   return {
     projectRoot: config.projectRoot,
     figmaTokenSet: !!config.figmaToken,
@@ -670,7 +670,7 @@ logger.error('Failed to connect', { config: sanitizeConfig(engine.config) });
 
 ### 8. LOW — Playground Code Evaluation Scope
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/codegen/prototype-exporter.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/codegen/prototype-exporter.ts`
 **Lines:** 107
 **Severity:** LOW (Code Quality - not exploitable in practice)
 

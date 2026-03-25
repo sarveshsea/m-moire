@@ -1,14 +1,14 @@
 /**
- * `noche go` — Single command that runs the entire pipeline:
+ * `memi go` — Single command that runs the entire pipeline:
  * init → connect → pull → auto-spec → generate → preview
  *
  * Zero friction. One command. Everything happens.
  */
 
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 
-export function registerGoCommand(program: Command, engine: NocheEngine) {
+export function registerGoCommand(program: Command, engine: MemoireEngine) {
   program
     .command("go")
     .description("Run the full pipeline: connect → pull → generate → preview")
@@ -16,7 +16,7 @@ export function registerGoCommand(program: Command, engine: NocheEngine) {
     .option("--no-generate", "Skip code generation (pull and auto-spec only)")
     .option("-p, --port <port>", "Preview server port", "3333")
     .action(async (opts) => {
-      console.log("\n  Noche — starting full pipeline\n");
+      console.log("\n  Mémoire — starting full pipeline\n");
 
       // 1. Initialize
       await engine.init();
@@ -26,7 +26,7 @@ export function registerGoCommand(program: Command, engine: NocheEngine) {
       if (!engine.figma.isConnected) {
         const port = await engine.connectFigma();
         console.log(`\n  Waiting for Figma plugin to connect on port ${port}...`);
-        console.log("  Open the Noche plugin in Figma Desktop.\n");
+        console.log("  Open the Mémoire plugin in Figma Desktop.\n");
 
         // Wait for connection with timeout
         await waitForConnection(engine, 120000);
@@ -67,11 +67,11 @@ export function registerGoCommand(program: Command, engine: NocheEngine) {
         console.log(`\n  Preview running at http://localhost:${previewPort}\n`);
       }
 
-      console.log("  Pipeline complete. Noche is live.\n");
+      console.log("  Pipeline complete. Mémoire is live.\n");
     });
 }
 
-function waitForConnection(engine: NocheEngine, timeout: number): Promise<void> {
+function waitForConnection(engine: MemoireEngine, timeout: number): Promise<void> {
   return new Promise((resolve, reject) => {
     if (engine.figma.isConnected) {
       resolve();
@@ -80,7 +80,7 @@ function waitForConnection(engine: NocheEngine, timeout: number): Promise<void> 
 
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error("Timed out waiting for Figma plugin (2 minutes). Make sure the Noche plugin is running."));
+      reject(new Error("Timed out waiting for Figma plugin (2 minutes). Make sure the Mémoire plugin is running."));
     }, timeout);
 
     const onConnect = () => {

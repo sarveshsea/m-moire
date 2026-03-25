@@ -16,9 +16,9 @@ Full autonomy over data interpretation, visualization choices, and dashboard lay
 
 ### Step 1: Ingest Research Data
 ```
-noche research from-file <path>     → Excel/CSV parsing
-noche research from-stickies        → FigJam sticky notes
-noche research synthesize           → Combine all sources
+memi research from-file <path>     → Excel/CSV parsing
+memi research from-stickies        → FigJam sticky notes
+memi research synthesize           → Combine all sources
 ```
 
 Output: `research/insights.json` with structured findings.
@@ -47,26 +47,26 @@ Relational → Flow diagrams, matrices, maps
 For each visualization need, create the right spec type:
 
 ```
-KPI metric → noche spec component MetricCard (molecule)
+KPI metric → memi spec component MetricCard (molecule)
   props: { title, value, change, trend, icon }
 
-Trend chart → noche spec dataviz TrendChart
+Trend chart → memi spec dataviz TrendChart
   chartType: "area" | "line"
   dataShape: { x: "date", y: "value", series: [...] }
 
-Comparison → noche spec dataviz ComparisonChart
+Comparison → memi spec dataviz ComparisonChart
   chartType: "bar"
   dataShape: { category: "string", values: [...] }
 
-The dashboard page → noche spec page ResearchDashboard
+The dashboard page → memi spec page ResearchDashboard
   layout: "dashboard"
   sections: [metrics-row, charts-row, insights-section, quotes]
 ```
 
 ### Step 4: Generate Code
 ```
-noche generate                      → all specs → React + Tailwind
-noche preview                       → localhost preview server
+memi generate                      → all specs → React + Tailwind
+memi preview                       → localhost preview server
 ```
 
 ### Step 5: Design in Figma (Optional)

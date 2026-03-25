@@ -765,6 +765,126 @@ ${JSON.stringify(spec, null, 2)}
 - Barrel export (index.ts)`;
 }
 
+// ── Motion & Animation Prompts ────────────────────────────
+
+function motionAnalysis(intent: string, specs: AnySpec[]): string {
+  const components = specs.filter(s => s.type === "component").map(s => s.name);
+  const pages = specs.filter(s => s.type === "page").map(s => s.name);
+  return `You are a **Motion Design Specialist** analyzing animation needs.
+
+Intent: "${intent}"
+
+Existing components: ${components.join(", ") || "none"}
+Existing pages: ${pages.join(", ") || "none"}
+
+Classify every motion candidate using this decision tree:
+- User interaction feedback → Micro-interaction (100-350ms)
+- Navigation/state change → Macro-transition (300-500ms)
+- Feature showcase/first impression → Hero animation (800-1200ms)
+- Data presentation → Data viz animation (500ms+)
+- Portfolio/marketing → Full video pipeline (30-60s)
+
+For each candidate, specify:
+1. Element name and type
+2. Motion category (micro/macro/hero/dataviz/video)
+3. Trigger (hover, click, scroll, load, intersection)
+4. Duration range
+5. Easing recommendation (ease-out for entrances, ease-in for exits, spring for interactions)
+6. Accessibility: respect prefers-reduced-motion`;
+}
+
+function motionTokens(intent: string, ds: DesignSystem): string {
+  const existingTokens = ds.tokens.filter(t => t.cssVariable.includes("motion"));
+  return `You are a **Motion Token Engineer** creating a motion design token system.
+
+Intent: "${intent}"
+
+Existing motion tokens: ${existingTokens.length > 0 ? existingTokens.map(t => `${t.name}: ${JSON.stringify(t.values)}`).join("\n") : "none"}
+
+Create a complete motion token set as CSS custom properties:
+
+**Durations:**
+- --motion-instant: 100ms (micro-feedback)
+- --motion-fast: 160ms (hover states, toggles)
+- --motion-normal: 240ms (standard transitions)
+- --motion-slow: 400ms (page transitions, modals)
+- --motion-slower: 600ms (hero reveals)
+- --motion-cinematic: 1000ms (showcase animations)
+
+**Easings (cubic-bezier):**
+- --ease-default: cubic-bezier(0.25, 0.1, 0.25, 1)
+- --ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19)
+- --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1)
+- --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1)
+- --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1)
+- --ease-bounce: cubic-bezier(0.34, 1.3, 0.64, 1)
+
+**Staggers:**
+- --stagger-fast: 30ms
+- --stagger-normal: 50ms
+- --stagger-slow: 80ms
+
+Output each as a DesignToken with type "other", collection "motion".`;
+}
+
+function motionSpecify(intent: string, components: string[]): string {
+  return `You are a **Motion Spec Writer** creating animation specifications.
+
+Intent: "${intent}"
+Target components: ${components.join(", ") || "all"}
+
+For each component, write a motion spec that includes:
+
+1. **States**: idle, hover, active, focus, enter, exit, loading
+2. **Transitions**: Which properties animate between states
+3. **Timing**: Duration token + easing token for each transition
+4. **Stagger**: If children animate, specify stagger delay
+5. **Scroll triggers**: IntersectionObserver threshold for scroll-driven animations
+6. **Reduced motion**: Fallback behavior (instant state change, no animation)
+
+Format as a structured spec that maps directly to:
+- Tailwind classes: transition-*, duration-*, ease-*
+- CSS @keyframes for complex sequences
+- Framer Motion variants for React components
+
+Key rules:
+- Entrance: always ease-out (decelerating into rest)
+- Exit: always ease-in (accelerating away)
+- Hover/interaction: ease-spring for satisfying feedback
+- Never animate layout properties (width/height) — use transform/opacity
+- GPU-only: transform, opacity, filter, clip-path`;
+}
+
+function motionCodegen(intent: string): string {
+  return `You are a **Motion Code Generator** producing animation code.
+
+Intent: "${intent}"
+
+Generate production-ready motion code using:
+
+1. **CSS approach** (preferred for simple transitions):
+   - Tailwind transition utilities
+   - CSS custom properties for tokens
+   - @media (prefers-reduced-motion: reduce) override
+
+2. **Framer Motion** (for complex sequences):
+   - AnimatePresence for mount/unmount
+   - variants object pattern
+   - useInView for scroll triggers
+   - layout animations for list reorder
+
+3. **CSS @keyframes** (for hero/showcase):
+   - Named keyframes with token-based timing
+   - animation-play-state for scroll-driven control
+
+Output format:
+- "use client" directive
+- Import from framer-motion if needed
+- Tailwind classes for simple transitions
+- Utility hook: useReducedMotion()
+- All durations reference motion tokens`;
+}
+
 // ── Export ────────────────────────────────────────────────
 
 export const AGENT_PROMPTS = {
@@ -842,4 +962,10 @@ export const AGENT_PROMPTS = {
   // Spec
   specValidation,
   specCodegen,
+
+  // Motion & Animation
+  motionAnalysis,
+  motionTokens,
+  motionSpecify,
+  motionCodegen,
 };

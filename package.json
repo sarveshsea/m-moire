@@ -1,10 +1,10 @@
 {
-  "name": "noche",
+  "name": "memoire",
   "version": "0.1.0",
   "description": "AI-Native Design Intelligence Engine — Figma + Research + Spec-Driven Code Generation",
   "type": "module",
   "bin": {
-    "noche": "./dist/index.js"
+    "memi": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -16,13 +16,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sarveshsea/noche.git"
+    "url": "git+https://github.com/sarveshsea/memoire.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sarveshsea/noche/issues"
+    "url": "https://github.com/sarveshsea/memoire/issues"
   },
-  "homepage": "https://github.com/sarveshsea/noche#readme",
+  "homepage": "https://github.com/sarveshsea/memoire#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",
     "commander": "^12.1.0",

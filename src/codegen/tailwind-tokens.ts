@@ -24,7 +24,7 @@ export async function writeTokenFiles(
 
   // 2. Tailwind config extension
   const tailwindCode = generateTailwindExtend(tokens);
-  const tailwindPath = join(outputDir, "noche-tokens.ts");
+  const tailwindPath = join(outputDir, "memoire-tokens.ts");
   await writeFile(tailwindPath, tailwindCode);
 
   // 3. Raw JSON
@@ -40,8 +40,8 @@ export async function writeTokenFiles(
  */
 export function generateShadcnTokenMapping(tokens: DesignToken[]): string {
   const lines: string[] = [
-    "/* Noche Design Tokens — mapped from Figma to shadcn CSS variables */",
-    "/* Auto-generated — re-run `noche tokens` to update */",
+    "/* Mémoire Design Tokens — mapped from Figma to shadcn CSS variables */",
+    "/* Auto-generated — re-run `memi tokens` to update */",
     "",
     "@layer base {",
     "  :root {",

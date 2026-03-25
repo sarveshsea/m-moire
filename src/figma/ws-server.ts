@@ -1,7 +1,7 @@
 /**
- * Noche WebSocket Server — Multi-instance bridge server.
+ * Mémoire WebSocket Server — Multi-instance bridge server.
  *
- * Each Noche engine instance gets its own port (9223-9232).
+ * Each Mémoire engine instance gets its own port (9223-9232).
  * Multiple Figma plugin instances can connect to the same server.
  * Supports chat relay, command dispatch, and real-time events.
  */
@@ -9,7 +9,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import { createLogger } from "../engine/logger.js";
 import { EventEmitter } from "events";
-import type { NocheEvent } from "../engine/core.js";
+import type { MemoireEvent } from "../engine/core.js";
 
 const log = createLogger("ws-server");
 
@@ -23,12 +23,12 @@ export interface BridgeClient {
   lastPing: Date;
 }
 
-export interface NocheWsServerConfig {
+export interface MemoireWsServerConfig {
   port?: number;
   instanceName?: string;
   onCommand?: (method: string, params: Record<string, unknown>) => Promise<unknown>;
   onChat?: (text: string, fromPlugin: string) => void;
-  onEvent?: (event: NocheEvent) => void;
+  onEvent?: (event: MemoireEvent) => void;
 }
 
 /** Shape of messages received from the Figma plugin */
@@ -59,8 +59,8 @@ const RATE_LIMIT = {
   windowMs: 60_000,
 };
 
-export class NocheWsServer extends EventEmitter {
-  private config: NocheWsServerConfig;
+export class MemoireWsServer extends EventEmitter {
+  private config: MemoireWsServerConfig;
   private wss: WebSocketServer | null = null;
   private clients = new Map<string, BridgeClient>();
   private rateLimits = new Map<string, RateLimit>();
@@ -75,7 +75,7 @@ export class NocheWsServer extends EventEmitter {
   }>();
   private commandId = 0;
 
-  constructor(config: NocheWsServerConfig = {}) {
+  constructor(config: MemoireWsServerConfig = {}) {
     super();
     this.config = config;
   }
@@ -104,7 +104,7 @@ export class NocheWsServer extends EventEmitter {
         await this.startOnPort(p);
         this.port = p;
         this._running = true;
-        log.info(`Noche WS server listening on port ${p}`);
+        log.info(`Mémoire WS server listening on port ${p}`);
         this.emitEvent("success", `Bridge server started on port ${p}`);
         return p;
       } catch {
@@ -112,7 +112,7 @@ export class NocheWsServer extends EventEmitter {
       }
     }
 
-    throw new Error("No available ports (9223-9232). Close other Noche instances first.");
+    throw new Error("No available ports (9223-9232). Close other Mémoire instances first.");
   }
 
   /**
@@ -183,14 +183,14 @@ export class NocheWsServer extends EventEmitter {
     this.broadcast({
       type: "chat",
       text,
-      from: this.config.instanceName ?? "noche-terminal",
+      from: this.config.instanceName ?? "memoire-terminal",
     });
   }
 
   /**
    * Send an event notification to all plugins.
    */
-  sendEvent(event: NocheEvent): void {
+  sendEvent(event: MemoireEvent): void {
     this.broadcast({
       type: "event",
       level: event.type,
@@ -277,7 +277,7 @@ export class NocheWsServer extends EventEmitter {
       // Send identification
       ws.send(JSON.stringify({
         type: "identify",
-        name: this.config.instanceName ?? `Noche Terminal`,
+        name: this.config.instanceName ?? `Mémoire Terminal`,
         port: this.port,
       }));
 
@@ -308,6 +308,16 @@ export class NocheWsServer extends EventEmitter {
       ws.on("close", () => {
         this.clients.delete(clientId);
         this.rateLimits.delete(clientId);
+
+        // Reject all pending commands — no point waiting 30s for timeout
+        if (this.clients.size === 0) {
+          for (const [id, pending] of this.pendingCommands.entries()) {
+            clearTimeout(pending.timeout);
+            pending.reject(new Error("Figma plugin disconnected"));
+            this.pendingCommands.delete(id);
+          }
+        }
+
         log.info(`Plugin disconnected: ${clientId}`);
         this.emitEvent("warn", "Figma plugin disconnected");
         this.emit("client-disconnected", clientId);
@@ -431,8 +441,8 @@ export class NocheWsServer extends EventEmitter {
     return null;
   }
 
-  private emitEvent(type: NocheEvent["type"], message: string): void {
-    const event: NocheEvent = {
+  private emitEvent(type: MemoireEvent["type"], message: string): void {
+    const event: MemoireEvent = {
       type,
       source: "ws-server",
       message,

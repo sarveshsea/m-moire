@@ -1,28 +1,28 @@
 #!/usr/bin/env node
 
 /**
- * Noche CLI — AI-Native Design Intelligence Engine
+ * Mémoire CLI — AI-Native Design Intelligence Engine
  *
  * Commands:
- * *   noche connect           Connect to Figma Desktop Bridge
- * *   noche pull              Pull design system from Figma
- * *   noche research <sub>    Run research pipeline
- *   noche spec <type> <n>   Create or edit a spec
- *   noche generate <spec>   Generate code from spec
- *   noche preview           Start HTML preview server
- *   noche status            Show project status
- *   noche sync              Full sync: Figma → specs → code → preview
- *   noche go                Full pipeline: connect → pull → auto-spec → generate → preview
- *   noche export            Export generated code into your project
- * *   noche ia <sub>           Information architecture (extract, show, validate)
- * *   noche stickies <url>    Convert FigJam stickies to research
- * *   noche dataviz <name>    Create a dataviz spec
- * *   noche page <name>       Create a page spec
- * *   noche tokens            Export design tokens
+ * *   memi connect           Connect to Figma Desktop Bridge
+ * *   memi pull              Pull design system from Figma
+ * *   memi research <sub>    Run research pipeline
+ *   memi spec <type> <n>   Create or edit a spec
+ *   memi generate <spec>   Generate code from spec
+ *   memi preview           Start HTML preview server
+ *   memi status            Show project status
+ *   memi sync              Full sync: Figma → specs → code → preview
+ *   memi go                Full pipeline: connect → pull → auto-spec → generate → preview
+ *   memi export            Export generated code into your project
+ * *   memi ia <sub>           Information architecture (extract, show, validate)
+ * *   memi stickies <url>    Convert FigJam stickies to research
+ * *   memi dataviz <name>    Create a dataviz spec
+ * *   memi page <name>       Create a page spec
+ * *   memi tokens            Export design tokens
  */
 
 import { Command } from "commander";
-import { NocheEngine } from "./engine/core.js";
+import { MemoireEngine } from "./engine/core.js";
 import { registerConnectCommand } from "./commands/connect.js";
 import { registerPullCommand } from "./commands/pull.js";
 import { registerResearchCommand } from "./commands/research.js";
@@ -39,16 +39,19 @@ import { registerIACommand } from "./commands/ia.js";
 import { registerComposeCommand } from "./commands/compose.js";
 import { registerGoCommand } from "./commands/go.js";
 import { registerExportCommand } from "./commands/export.js";
+import { registerDaemonCommand } from "./commands/daemon.js";
+import { registerDoctorCommand } from "./commands/doctor.js";
+import { registerHeartbeatCommand } from "./commands/heartbeat.js";
 
 const program = new Command();
 
 program
-  .name("noche")
+  .name("memi")
   .description("AI-Native Design Intelligence Engine")
   .version("0.1.0");
 
 // Create engine instance (shared across commands)
-const engine = new NocheEngine({
+const engine = new MemoireEngine({
   projectRoot: process.cwd(),
   figmaToken: process.env.FIGMA_TOKEN,
   figmaFileKey: process.env.FIGMA_FILE_KEY,
@@ -78,6 +81,9 @@ registerIACommand(program, engine);
 registerComposeCommand(program, engine);
 registerGoCommand(program, engine);
 registerExportCommand(program, engine);
+registerDaemonCommand(program, engine);
+registerDoctorCommand(program, engine);
+registerHeartbeatCommand(program, engine);
 
 // Parse and execute
 program.parse();

@@ -1,9 +1,9 @@
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import { buildScenesFromSpecs, exportPrototype } from "../codegen/prototype-exporter.js";
 import { join } from "path";
 
-export function registerPrototypeCommand(program: Command, engine: NocheEngine) {
+export function registerPrototypeCommand(program: Command, engine: MemoireEngine) {
   program
     .command("prototype")
     .description("Generate a cinematic prototype with Playwright video + interactive HTML")
@@ -24,7 +24,7 @@ export function registerPrototypeCommand(program: Command, engine: NocheEngine) 
       const scenes = await buildScenesFromSpecs(engine.registry, opts.previewUrl);
 
       if (scenes.length === 0) {
-        console.log("  No specs found. Create some with `noche spec` first.\n");
+        console.log("  No specs found. Create some with `memi spec` first.\n");
         return;
       }
 

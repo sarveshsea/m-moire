@@ -190,7 +190,7 @@ export function validateSpec(spec: unknown): ValidationResult {
       warnings.push({
         path: "root",
         message: "IA spec has no root node",
-        suggestion: "Run `noche ia extract` to populate from Figma pages",
+        suggestion: "Run `memi ia extract` to populate from Figma pages",
       });
     }
     const flows = ia.flows as unknown[] | undefined;
@@ -253,7 +253,7 @@ export async function validateCrossRefs(
         warnings.push({
           path: `sections.${section.name}.component`,
           message: `Component spec "${section.component}" not found`,
-          suggestion: `Create it with: noche spec component ${section.component}`,
+          suggestion: `Create it with: memi spec component ${section.component}`,
         });
       }
     }
@@ -265,7 +265,7 @@ export async function validateCrossRefs(
       warnings.push({
         path: "dataviz",
         message: `DataViz spec "${spec.dataviz}" not found`,
-        suggestion: `Create it with: noche dataviz ${spec.dataviz}`,
+        suggestion: `Create it with: memi dataviz ${spec.dataviz}`,
       });
     }
   }
@@ -281,7 +281,7 @@ export async function validateCrossRefs(
         warnings.push({
           path: "composesSpecs",
           message: `Composed spec "${depName}" not found`,
-          suggestion: `Create it with: noche spec component ${depName}`,
+          suggestion: `Create it with: memi spec component ${depName}`,
         });
       } else if (depSpec.type === "component") {
         const depLevel = levelOrder[depSpec.level] ?? 0;
@@ -318,7 +318,7 @@ export async function validateCrossRefs(
           warnings.push({
             path: `${path}.linkedPageSpec`,
             message: `Page spec "${node.linkedPageSpec}" not found`,
-            suggestion: `Create it with: noche spec page ${node.linkedPageSpec}`,
+            suggestion: `Create it with: memi spec page ${node.linkedPageSpec}`,
           });
         }
       }
@@ -338,7 +338,7 @@ export async function validateCrossRefs(
           warnings.push({
             path: "globals",
             message: `Global nav page spec "${global.linkedPageSpec}" not found`,
-            suggestion: `Create it with: noche spec page ${global.linkedPageSpec}`,
+            suggestion: `Create it with: memi spec page ${global.linkedPageSpec}`,
           });
         }
       }

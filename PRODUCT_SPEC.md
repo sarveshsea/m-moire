@@ -1,10 +1,10 @@
-# Ark — AI-Native Design Intelligence Engine
+# Mémoire — AI-Native Design Intelligence Engine
 
 ## Vision
 
-Ark is a spec-driven design intelligence engine that bridges Figma, research, and code generation into a single adaptive system. It connects to Figma via MCP, performs deep user research, converts qualitative data (sticky notes, spreadsheets, interviews) into structured insights, and generates production-ready components using shadcn/ui — all while maintaining a live HTML preview environment for visual consistency.
+Mémoire is a spec-driven design intelligence engine that bridges Figma, research, and code generation into a single adaptive system. It connects to Figma via MCP, performs deep user research, converts qualitative data (sticky notes, spreadsheets, interviews) into structured insights, and generates production-ready components using shadcn/ui — all while maintaining a live HTML preview environment for visual consistency.
 
-Ark learns your project, grows with you, and treats your design system as a living API.
+Mémoire learns your project, grows with you, and treats your design system as a living API.
 
 ---
 
@@ -13,7 +13,7 @@ Ark learns your project, grows with you, and treats your design system as a livi
 1. **Spec-First** — Every component, page, and data visualization starts from a structured spec before any code is generated.
 2. **Research-Grounded** — Design decisions are backed by user research, not assumptions. Research flows directly into specs.
 3. **Always Renderable** — Every feature builds into a live HTML environment so you can see what you're building at all times.
-4. **Project-Aware** — Ark understands the project it's in, adapts to its conventions, and grows its knowledge over time.
+4. **Project-Aware** — Mémoire understands the project it's in, adapts to its conventions, and grows its knowledge over time.
 5. **shadcn-Native** — All UI output uses shadcn/ui components. No custom component libraries. No reinventing wheels.
 
 ---
@@ -22,7 +22,7 @@ Ark learns your project, grows with you, and treats your design system as a livi
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                    ARK ENGINE                        │
+│                    MÉMOIRE ENGINE                        │
 │                                                      │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
 │  │  Figma   │  │ Research │  │  Spec Engine     │  │
@@ -94,15 +94,15 @@ Raw Input → Parse → Classify → Cluster → Synthesize → Output
 - `research/*.md` — Human-readable research reports
 
 **Commands:**
-- `noche research from-stickies <figma-url>` — Convert FigJam stickies to research
-- `noche research from-file <path>` — Parse Excel/CSV research data
-- `noche research web <topic>` — Deep online research with source attribution
-- `noche research synthesize` — Combine all research into unified insights
-- `noche research report` — Generate formatted research report
+- `memi research from-stickies <figma-url>` — Convert FigJam stickies to research
+- `memi research from-file <path>` — Parse Excel/CSV research data
+- `memi research web <topic>` — Deep online research with source attribution
+- `memi research synthesize` — Combine all research into unified insights
+- `memi research report` — Generate formatted research report
 
 ### 3. Spec Engine
 
-Every UI element in Ark starts as a spec. Specs are structured documents that define what a component is, why it exists, and how it behaves — before any code is written.
+Every UI element in Mémoire starts as a spec. Specs are structured documents that define what a component is, why it exists, and how it behaves — before any code is written.
 
 **Spec Types:**
 
@@ -209,7 +209,7 @@ All generated code uses shadcn/ui. No exceptions.
 
 ### 5. HTML Preview Environment
 
-A persistent, live-reloading HTML environment that renders everything Ark generates.
+A persistent, live-reloading HTML environment that renders everything Mémoire generates.
 
 **Architecture:**
 - Vite dev server running in background
@@ -221,7 +221,7 @@ A persistent, live-reloading HTML environment that renders everything Ark genera
 
 **File Structure:**
 ```
-noche/
+memoire/
 ├── preview/
 │   ├── index.html          # Gallery entry point
 │   ├── pages/              # Page-level previews
@@ -244,14 +244,14 @@ Enhanced terminal interface for monitoring and control.
 
 ### 7. Project Context Engine
 
-Ark understands the project it's in and adapts.
+Mémoire understands the project it's in and adapts.
 
 **On First Run:**
 - Scans `package.json`, `tsconfig.json`, `tailwind.config.*`
 - Detects framework (Next.js, Remix, Vite, etc.)
 - Identifies existing shadcn components
 - Maps existing design tokens
-- Creates `.noche/project.json` context file
+- Creates `.memoire/project.json` context file
 
 **Ongoing:**
 - Tracks which specs have been generated vs. modified by hand
@@ -259,7 +259,7 @@ Ark understands the project it's in and adapts.
 - Suggests new components based on patterns it sees
 - Updates token mappings when Figma design system changes
 
-**Context File (.noche/project.json):**
+**Context File (.memoire/project.json):**
 ```json
 {
   "framework": "nextjs",
@@ -282,23 +282,23 @@ Ark understands the project it's in and adapts.
 
 ### 8. Claude Command Interface
 
-Ark exposes commands that work as Claude Code slash commands.
+Mémoire exposes commands that work as Claude Code slash commands.
 
 **Commands:**
 | Command | Description |
 |---------|-------------|
-| `noche connect` | Connect to Figma via Desktop Bridge |
-| `noche pull` | Pull latest design system from Figma |
-| `noche research <subcommand>` | Run research pipeline |
-| `noche spec <type> <name>` | Create or edit a spec |
-| `noche generate <spec>` | Generate code from spec |
-| `noche preview` | Start HTML preview server |
-| `noche status` | Show project status in TUI |
-| `noche sync` | Full sync: Figma → specs → code → preview |
-| `noche stickies <figma-url>` | Convert FigJam stickies to research |
-| `noche dataviz <name>` | Create a new dataviz spec |
-| `noche page <name>` | Create a new page spec |
-| `noche tokens` | Export design tokens as CSS/Tailwind |
+| `memi connect` | Connect to Figma via Desktop Bridge |
+| `memi pull` | Pull latest design system from Figma |
+| `memi research <subcommand>` | Run research pipeline |
+| `memi spec <type> <name>` | Create or edit a spec |
+| `memi generate <spec>` | Generate code from spec |
+| `memi preview` | Start HTML preview server |
+| `memi status` | Show project status in TUI |
+| `memi sync` | Full sync: Figma → specs → code → preview |
+| `memi stickies <figma-url>` | Convert FigJam stickies to research |
+| `memi dataviz <name>` | Create a new dataviz spec |
+| `memi page <name>` | Create a new page spec |
+| `memi tokens` | Export design tokens as CSS/Tailwind |
 
 ---
 
@@ -307,14 +307,14 @@ Ark exposes commands that work as Claude Code slash commands.
 ### Flow 1: FigJam Stickies → Research → Component Spec → Code
 
 ```
-1. User runs: noche stickies https://figma.com/board/xyz
-2. Ark reads FigJam board via MCP
+1. User runs: memi stickies https://figma.com/board/xyz
+2. Mémoire reads FigJam board via MCP
 3. Stickies are parsed, clustered by affinity
 4. Research engine synthesizes themes and insights
 5. Insights stored in research/insights.json
-6. User runs: noche spec component InsightCard
+6. User runs: memi spec component InsightCard
 7. Spec references research findings
-8. User runs: noche generate InsightCard
+8. User runs: memi generate InsightCard
 9. shadcn Card + Badge component generated
 10. HTML preview auto-updates with new component
 ```
@@ -322,12 +322,12 @@ Ark exposes commands that work as Claude Code slash commands.
 ### Flow 2: Excel User Research → Personas → Page Layout
 
 ```
-1. User runs: noche research from-file survey-results.xlsx
+1. User runs: memi research from-file survey-results.xlsx
 2. Excel parsed into structured data table
 3. Research engine extracts patterns, generates personas
-4. User runs: noche spec page UserDashboard
+4. User runs: memi spec page UserDashboard
 5. Spec includes persona-driven section priorities
-6. User runs: noche generate UserDashboard
+6. User runs: memi generate UserDashboard
 7. Full page layout generated with shadcn Sidebar + content area
 8. Preview shows responsive layout at all breakpoints
 ```
@@ -335,12 +335,12 @@ Ark exposes commands that work as Claude Code slash commands.
 ### Flow 3: Figma Design System → Token Sync → DataViz
 
 ```
-1. User runs: noche connect (establishes Figma bridge)
-2. User runs: noche pull (extracts design system)
+1. User runs: memi connect (establishes Figma bridge)
+2. User runs: memi pull (extracts design system)
 3. Tokens mapped to Tailwind CSS variables
-4. User runs: noche dataviz RevenueChart
+4. User runs: memi dataviz RevenueChart
 5. Spec defines chart type, data shape, interactions
-6. User runs: noche generate RevenueChart
+6. User runs: memi generate RevenueChart
 7. Recharts component generated, wrapped in shadcn Card
 8. Uses design tokens for colors, typography
 9. Preview shows chart with sample data
@@ -351,11 +351,11 @@ Ark exposes commands that work as Claude Code slash commands.
 ## File Structure
 
 ```
-noche/
+memoire/
 ├── PRODUCT_SPEC.md              # This file
 ├── package.json
 ├── tsconfig.json
-├── .noche/                         # Project context (auto-generated)
+├── .memoire/                         # Project context (auto-generated)
 │   ├── project.json              # Project detection results
 │   └── figma-session.json        # Active Figma connection state
 │
@@ -409,15 +409,15 @@ noche/
 │   │   └── theme.ts              # TUI color theme
 │   │
 │   └── commands/
-│       ├── connect.ts            # noche connect
-│       ├── pull.ts               # noche pull
-│       ├── research.ts           # noche research <sub>
-│       ├── spec.ts               # noche spec <type> <name>
-│       ├── generate.ts           # noche generate <spec>
-│       ├── preview.ts            # noche preview
-│       ├── status.ts             # noche status
-│       ├── sync.ts               # noche sync
-│       └── tokens.ts             # noche tokens
+│       ├── connect.ts            # memi connect
+│       ├── pull.ts               # memi pull
+│       ├── research.ts           # memi research <sub>
+│       ├── spec.ts               # memi spec <type> <name>
+│       ├── generate.ts           # memi generate <spec>
+│       ├── preview.ts            # memi preview
+│       ├── status.ts             # memi status
+│       ├── sync.ts               # memi sync
+│       └── tokens.ts             # memi tokens
 │
 ├── specs/                        # User-created specs
 │   ├── components/

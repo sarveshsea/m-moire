@@ -1,5 +1,5 @@
 /**
- * Live Dashboard Server — HTTP + SSE for the Noche Agent Portal.
+ * Live Dashboard Server — HTTP + SSE for the Mémoire Agent Portal.
  *
  * Serves the portal HTML and pushes real-time events from the
  * Figma bridge (actions, syncs, selections, page changes) to
@@ -11,7 +11,7 @@
 
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import type { FigmaBridge } from "../figma/bridge.js";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import { createLogger } from "../engine/logger.js";
 import { generatePortalHTML } from "./portal.js";
 
@@ -23,7 +23,7 @@ interface SSEClient {
 }
 
 export class DashboardServer {
-  private engine: NocheEngine;
+  private engine: MemoireEngine;
   private bridge: FigmaBridge;
   private server: ReturnType<typeof createServer> | null = null;
   private sseClients: SSEClient[] = [];
@@ -32,7 +32,7 @@ export class DashboardServer {
   private eventLog: { ts: number; type: string; data: unknown }[] = [];
   private maxEventLog = 200;
 
-  constructor(engine: NocheEngine, port = 3333) {
+  constructor(engine: MemoireEngine, port = 3333) {
     this.engine = engine;
     this.bridge = engine.figma;
     this.port = port;

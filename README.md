@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/noche-moon.svg" alt="Noche" width="200" height="200" />
+  <img src="assets/memoire-moon.svg" alt="Mémoire" width="200" height="200" />
 </p>
 
-<h1 align="center">Noche</h1>
+<h1 align="center">Mémoire</h1>
 
 <p align="center">
   AI-native design intelligence engine.<br/>
@@ -43,8 +43,8 @@ Before you start, you need these installed on your computer:
 ### Step 1: Clone and install
 
 ```bash
-git clone https://github.com/sarveshsea/noche.git
-cd noche
+git clone https://github.com/sarveshsea/memoire.git
+cd memoire
 npm install
 ```
 
@@ -60,13 +60,13 @@ npm run build
 2. Click your avatar (top-left) > **Settings**
 3. Scroll to **Personal access tokens**
 4. Click **Generate new token**
-5. Name it whatever you want (e.g. "noche")
+5. Name it whatever you want (e.g. "memoire")
 6. Copy the token (you'll need it in Step 4)
 
 ### Step 4: Connect to Figma
 
 ```bash
-npx noche connect
+npx memi connect
 ```
 
 It will ask for your Figma token. Paste it. Done.
@@ -75,10 +75,10 @@ It will ask for your Figma token. Paste it. Done.
 
 1. Open **Figma Desktop** (not the browser version)
 2. Go to **Plugins** > **Development** > **Import plugin from manifest**
-3. Navigate to the `noche/plugin/manifest.json` file you cloned
+3. Navigate to the `memoire/plugin/manifest.json` file you cloned
 4. Click **Open**
 
-That's it. The plugin auto-connects to Noche. You'll see "AGENT CONNECTED" in the plugin panel.
+That's it. The plugin auto-connects to Mémoire. You'll see "AGENT CONNECTED" in the plugin panel.
 
 ---
 
@@ -87,7 +87,7 @@ That's it. The plugin auto-connects to Noche. You'll see "AGENT CONNECTED" in th
 ### Pull your design system from Figma
 
 ```bash
-npx noche pull
+npx memi pull
 ```
 
 This extracts all your colors, spacing, typography, components, and styles from the connected Figma file.
@@ -95,7 +95,7 @@ This extracts all your colors, spacing, typography, components, and styles from 
 ### Create a component spec
 
 ```bash
-npx noche spec component MetricCard
+npx memi spec component MetricCard
 ```
 
 This creates `specs/components/MetricCard.json`. Edit it to describe what the component does, its variants, props, and which shadcn/ui components it uses.
@@ -103,7 +103,7 @@ This creates `specs/components/MetricCard.json`. Edit it to describe what the co
 ### Create a page spec
 
 ```bash
-npx noche spec page Dashboard
+npx memi spec page Dashboard
 ```
 
 Same thing but for full pages. Define sections, layout, and responsive behavior.
@@ -111,13 +111,13 @@ Same thing but for full pages. Define sections, layout, and responsive behavior.
 ### Generate code
 
 ```bash
-npx noche generate MetricCard
+npx memi generate MetricCard
 ```
 
 Or generate everything at once:
 
 ```bash
-npx noche generate --all
+npx memi generate --all
 ```
 
 Generated code goes to `generated/` organized by atomic level:
@@ -137,7 +137,7 @@ generated/
 ### Preview your generated code
 
 ```bash
-npx noche preview
+npx memi preview
 ```
 
 Opens a localhost server showing all your specs and generated components. Look for the moon icon in your browser tab.
@@ -145,13 +145,13 @@ Opens a localhost server showing all your specs and generated components. Look f
 ### Full sync (pull + generate everything)
 
 ```bash
-npx noche sync
+npx memi sync
 ```
 
 ### Export design tokens
 
 ```bash
-npx noche tokens
+npx memi tokens
 ```
 
 Outputs CSS variables, Tailwind config, and JSON.
@@ -159,7 +159,7 @@ Outputs CSS variables, Tailwind config, and JSON.
 ### Check project status
 
 ```bash
-npx noche status
+npx memi status
 ```
 
 Shows what's connected, how many specs exist, and what's been generated.
@@ -168,12 +168,12 @@ Shows what's connected, how many specs exist, and what's been generated.
 
 ## Using with Claude
 
-Noche is built for Claude to drive. Open Claude Code in the project directory and it knows what to do — the CLAUDE.md and skills/ files teach it everything.
+Mémoire is built for Claude to drive. Open Claude Code in the project directory and it knows what to do — the CLAUDE.md and skills/ files teach it everything.
 
 ### Basic usage
 
 ```bash
-cd noche
+cd memoire
 claude
 ```
 
@@ -205,13 +205,13 @@ You can run multiple Claude instances at the same time. Each one connects on its
 
 ```bash
 # Terminal 1
-npx noche connect --role token-engineer --name "Token Agent"
+npx memi connect --role token-engineer --name "Token Agent"
 
 # Terminal 2
-npx noche connect --role component-architect --name "Component Agent"
+npx memi connect --role component-architect --name "Component Agent"
 
 # Terminal 3
-npx noche connect --role layout-designer --name "Layout Agent"
+npx memi connect --role layout-designer --name "Layout Agent"
 ```
 
 The Figma plugin auto-discovers all of them. Each agent shows a color-coded box in Figma:
@@ -223,7 +223,7 @@ The Figma plugin auto-discovers all of them. Each agent shows a color-coded box 
 
 ## Figma MCP Setup
 
-Noche works with two MCP servers. You don't need both, but they complement each other.
+Mémoire works with two MCP servers. You don't need both, but they complement each other.
 
 ### Official Figma MCP Server (recommended)
 
@@ -263,39 +263,39 @@ This gives `figma_execute`, `figma_take_screenshot`, `figma_search_components`, 
 
 | Command | What it does |
 |---------|-------------|
-| `noche connect` | Connect to Figma |
-| `noche pull` | Pull design system from Figma |
-| `noche spec component <name>` | Create a component spec |
-| `noche spec page <name>` | Create a page spec |
-| `noche spec dataviz <name>` | Create a data visualization spec |
-| `noche generate [name]` | Generate code from specs |
-| `noche generate --all` | Generate code from all specs |
-| `noche tokens` | Export design tokens |
-| `noche preview` | Start preview server |
-| `noche sync` | Full sync (pull + regenerate) |
-| `noche status` | Show project status |
-| `noche research from-file <path>` | Import research from Excel/CSV |
-| `noche research from-stickies` | Import research from Figma stickies |
-| `noche research synthesize` | AI-synthesize research insights |
-| `noche research report` | Generate research report |
-| `noche compose "<intent>"` | Agent orchestrator — natural language → plan → execute |
-| `noche dashboard` | Launch the Noche dashboard on localhost |
-| `noche ia extract <name>` | Extract information architecture from Figma |
-| `noche ia show [name]` | Print IA tree to terminal |
-| `noche ia validate [name]` | Cross-reference validate IA specs |
+| `memi connect` | Connect to Figma |
+| `memi pull` | Pull design system from Figma |
+| `memi spec component <name>` | Create a component spec |
+| `memi spec page <name>` | Create a page spec |
+| `memi spec dataviz <name>` | Create a data visualization spec |
+| `memi generate [name]` | Generate code from specs |
+| `memi generate --all` | Generate code from all specs |
+| `memi tokens` | Export design tokens |
+| `memi preview` | Start preview server |
+| `memi sync` | Full sync (pull + regenerate) |
+| `memi status` | Show project status |
+| `memi research from-file <path>` | Import research from Excel/CSV |
+| `memi research from-stickies` | Import research from Figma stickies |
+| `memi research synthesize` | AI-synthesize research insights |
+| `memi research report` | Generate research report |
+| `memi compose "<intent>"` | Agent orchestrator — natural language → plan → execute |
+| `memi dashboard` | Launch the Mémoire dashboard on localhost |
+| `memi ia extract <name>` | Extract information architecture from Figma |
+| `memi ia show [name]` | Print IA tree to terminal |
+| `memi ia validate [name]` | Cross-reference validate IA specs |
 
 ---
 
 ## Project structure
 
 ```
-noche/
+memoire/
   CLAUDE.md            <- Instructions for Claude (read this if you're curious)
   skills/              <- Skill files that teach Claude how to operate
   specs/               <- JSON specs for components, pages, dataviz
   generated/           <- Generated React + TypeScript + Tailwind code
   preview/             <- Preview server HTML files
-  plugin/              <- Figma plugin (auto-connects to Noche)
+  plugin/              <- Figma plugin (auto-connects to Mémoire engine)
   src/
     engine/            <- Core orchestrator
     figma/             <- Figma bridge (WebSocket)
@@ -314,24 +314,24 @@ noche/
 ## Troubleshooting
 
 ### "Plugin not connecting"
-1. Make sure Noche is running (`npx noche connect`)
+1. Make sure Mémoire is running (`npx memi connect`)
 2. Make sure you're using **Figma Desktop**, not browser
 3. Make sure the plugin is imported from `plugin/manifest.json`
 4. The plugin scans ports 9223-9232 automatically. If all are taken, close other instances
 
 ### "No design system found"
-1. Run `npx noche pull` first
+1. Run `npx memi pull` first
 2. Make sure your Figma file has variables/styles/components defined
 3. Check your Figma token hasn't expired
 
 ### "Generate not working"
-1. You need specs first: `npx noche spec component MyComponent`
+1. You need specs first: `npx memi spec component MyComponent`
 2. Edit the spec JSON to define variants, props, and shadcnBase
-3. Then run `npx noche generate MyComponent`
+3. Then run `npx memi generate MyComponent`
 
 ### "Preview shows nothing"
-1. Generate code first: `npx noche generate --all`
-2. Then start preview: `npx noche preview`
+1. Generate code first: `npx memi generate --all`
+2. Then start preview: `npx memi preview`
 
 ---
 

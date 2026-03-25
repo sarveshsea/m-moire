@@ -334,6 +334,49 @@
 
   .sel-props .k { color: var(--accent); }
 
+  /* ── Connection Quality Dot ──────────────────────── */
+  .conn-quality {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .conn-quality.healthy { background: #4ade80; }
+  .conn-quality.degraded { background: #facc15; }
+  .conn-quality.reconnecting { background: #facc15; animation: quality-blink 1.2s ease-in-out infinite; }
+  .conn-quality.disconnected { background: #f87171; }
+
+  @keyframes quality-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── Status Bar Detail Line ────────────────────────── */
+  .status-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 9px;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+  .status-detail .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .status-detail .detail-val {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
   /* ── Scrollbar ────────────────────────────────────── */
   ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -360,6 +403,7 @@
   .minimize-btn:hover { border-color: var(--accent); color: var(--fg); }
 
   body.minimized .conn-card,
+  body.minimized .status-detail,
   body.minimized .tabs,
   body.minimized .panel { display: none !important; }
   body.minimized { height: auto; }
@@ -409,8 +453,17 @@
 <div class="status-bar">
   <div class="status-indicator dead" id="statusDot"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.46-.06-.92-.1-1.36-.1z" fill="currentColor"/></svg></div>
   <div class="status-text dead" id="statusText">SCANNING...</div>
+  <span class="conn-quality disconnected" id="connQuality" title="Connection quality"></span>
   <div class="file-name" id="fileName"></div>
   <button class="minimize-btn" id="minimizeBtn" onclick="toggleMinimize()" title="Minimize">_</button>
+</div>
+
+<!-- Status Detail Bar -->
+<div class="status-detail" id="statusDetail">
+  <div class="detail-item">PORT <span class="detail-val" id="detailPort">--</span></div>
+  <div class="detail-item">CLIENTS <span class="detail-val" id="detailClients">0</span></div>
+  <div class="detail-item">PING <span class="detail-val" id="detailLatency">--</span></div>
+  <div class="detail-item">QUEUE <span class="detail-val" id="detailQueue">0</span></div>
 </div>
 
 <!-- Connection Card (dynamic) -->
@@ -479,7 +532,7 @@
 
 <script>
 // ── State ───────────────────────────────────────────
-let ws = null;           // Noche CLI connection
+let ws = null;           // Mémoire CLI connection
 let fcWs = null;         // figma-console MCP connection
 let status = 'dead';     // dead | scanning | live
 let fcStatus = 'dead';   // dead | live
@@ -501,26 +554,133 @@ let currentScanPort = PORT_START;
 const fcPending = new Map(); // id → true
 
 // ── Heartbeat / Keep-alive ──────────────────────────
-let nocheHeartbeat = null;
+let memoireHeartbeat = null;
 let fcHeartbeat = null;
-let nocheMissedPongs = 0;
+let memoireMissedPongs = 0;
 let fcMissedPongs = 0;
 const HEARTBEAT_MS = 10000;   // ping every 10s
 const MAX_MISSED = 3;         // 3 missed = dead
 let reconnectDelay = 1000;    // backoff start
-const MAX_RECONNECT_DELAY = 15000;
+const MAX_RECONNECT_DELAY = 16000;
 
-function startNocheHeartbeat() {
-  clearInterval(nocheHeartbeat);
-  nocheMissedPongs = 0;
-  nocheHeartbeat = setInterval(() => {
+// ── Latency Tracking ────────────────────────────────
+let memoirePingSentAt = 0;
+let memoireLatencyHistory = [];  // last 10 ping latencies
+let lastPingLatency = 0;
+const LATENCY_HISTORY_SIZE = 10;
+const HIGH_LATENCY_THRESHOLD = 500; // ms
+let latencyWarned = false;
+
+function recordLatency(ms) {
+  lastPingLatency = ms;
+  memoireLatencyHistory.push(ms);
+  if (memoireLatencyHistory.length > LATENCY_HISTORY_SIZE) {
+    memoireLatencyHistory.shift();
+  }
+  const avg = memoireLatencyHistory.reduce((a, b) => a + b, 0) / memoireLatencyHistory.length;
+  if (avg > HIGH_LATENCY_THRESHOLD && !latencyWarned) {
+    latencyWarned = true;
+    log('warn', 'High avg latency: ' + avg.toFixed(0) + 'ms — connection may be degraded');
+    updateConnectionQuality('degraded');
+  } else if (avg <= HIGH_LATENCY_THRESHOLD && latencyWarned) {
+    latencyWarned = false;
+    updateConnectionQuality('healthy');
+  }
+  updateStatusBar();
+}
+
+function getAvgLatency() {
+  if (memoireLatencyHistory.length === 0) return 0;
+  return memoireLatencyHistory.reduce((a, b) => a + b, 0) / memoireLatencyHistory.length;
+}
+
+// ── Connection Quality Indicator ─────────────────────
+// States: healthy (green), degraded (yellow), reconnecting (yellow blink), disconnected (red)
+let connQualityState = 'disconnected';
+
+function updateConnectionQuality(state) {
+  connQualityState = state;
+  const dot = document.getElementById('connQuality');
+  if (dot) {
+    dot.className = 'conn-quality ' + state;
+    const titles = {
+      healthy: 'Connected — healthy',
+      degraded: 'Connected — high latency',
+      reconnecting: 'Reconnecting...',
+      disconnected: 'Disconnected'
+    };
+    dot.title = titles[state] || state;
+  }
+}
+
+function updateStatusBar() {
+  const portEl = document.getElementById('detailPort');
+  const clientsEl = document.getElementById('detailClients');
+  const latencyEl = document.getElementById('detailLatency');
+  const queueEl = document.getElementById('detailQueue');
+
+  if (portEl) portEl.textContent = connPort > 0 ? ':' + connPort : '--';
+
+  if (clientsEl) {
+    let clients = 0;
+    if (status === 'live') clients++;
+    if (fcStatus === 'live') clients++;
+    clientsEl.textContent = String(clients);
+  }
+
+  if (latencyEl) {
+    if (lastPingLatency > 0) {
+      latencyEl.textContent = lastPingLatency + 'ms';
+      latencyEl.style.color = lastPingLatency > HIGH_LATENCY_THRESHOLD ? 'var(--warn)' : '';
+    } else {
+      latencyEl.textContent = '--';
+      latencyEl.style.color = '';
+    }
+  }
+
+  if (queueEl) {
+    queueEl.textContent = String(commandQueue.length);
+  }
+}
+
+// ── Command Queue (offline buffering) ───────────────
+const commandQueue = [];
+const MAX_QUEUED_COMMANDS = 50;
+
+function queueCommand(msg) {
+  if (commandQueue.length >= MAX_QUEUED_COMMANDS) {
+    commandQueue.shift(); // drop oldest
+  }
+  commandQueue.push(msg);
+  log('info', 'Queued command (' + commandQueue.length + '/' + MAX_QUEUED_COMMANDS + '): ' + (msg.method || msg.type || 'unknown'));
+}
+
+function replayCommandQueue() {
+  if (commandQueue.length === 0) return;
+  const count = commandQueue.length;
+  log('info', 'Replaying ' + count + ' queued command' + (count !== 1 ? 's' : '') + '...');
+  while (commandQueue.length > 0) {
+    const msg = commandQueue.shift();
+    parent.postMessage({ pluginMessage: msg }, '*');
+  }
+  log('ok', 'Replayed ' + count + ' queued command' + (count !== 1 ? 's' : ''));
+}
+
+function startMemoireHeartbeat() {
+  clearInterval(memoireHeartbeat);
+  memoireMissedPongs = 0;
+  memoireLatencyHistory = [];
+  latencyWarned = false;
+  memoireHeartbeat = setInterval(() => {
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    nocheMissedPongs++;
-    if (nocheMissedPongs > MAX_MISSED) {
-      log('warn', 'Noche heartbeat timeout — reconnecting');
+    memoireMissedPongs++;
+    if (memoireMissedPongs >= MAX_MISSED) {
+      log('warn', 'Mémoire heartbeat timeout (' + MAX_MISSED + ' missed) — reconnecting');
+      updateConnectionQuality('disconnected');
       ws.close();
       return;
     }
+    memoirePingSentAt = Date.now();
     try { ws.send(JSON.stringify({ type: 'ping' })); } catch {}
   }, HEARTBEAT_MS);
 }
@@ -531,8 +691,8 @@ function startFcHeartbeat() {
   fcHeartbeat = setInterval(() => {
     if (!fcWs || fcWs.readyState !== WebSocket.OPEN) return;
     fcMissedPongs++;
-    if (fcMissedPongs > MAX_MISSED) {
-      log('warn', 'Figma Console heartbeat timeout — reconnecting');
+    if (fcMissedPongs >= MAX_MISSED) {
+      log('warn', 'Figma Console heartbeat timeout (' + MAX_MISSED + ' missed) — reconnecting');
       fcWs.close();
       return;
     }
@@ -541,8 +701,8 @@ function startFcHeartbeat() {
 }
 
 // ── Connection (multi-protocol scanning) ────────────
-// Scans ports 9223-9232 for BOTH Noche CLI and figma-console MCP servers.
-// Detects protocol by first message: SERVER_HELLO = figma-console, else = Noche.
+// Scans ports 9223-9232 for BOTH Mémoire CLI and figma-console MCP servers.
+// Detects protocol by first message: SERVER_HELLO = figma-console, else = Mémoire.
 
 function scan() {
   if (status === 'live' && fcStatus === 'live') return; // both connected
@@ -554,12 +714,14 @@ function scan() {
 
 function scheduleReconnect() {
   if (scanTimer) return; // already scheduled
+  log('info', 'Reconnecting in ' + (reconnectDelay / 1000).toFixed(1) + 's...');
+  updateConnectionQuality('reconnecting');
   scanTimer = setTimeout(() => {
     scanTimer = null;
     scan();
   }, reconnectDelay);
-  // Exponential backoff capped at MAX_RECONNECT_DELAY
-  reconnectDelay = Math.min(reconnectDelay * 1.5, MAX_RECONNECT_DELAY);
+  // Exponential backoff: 1s, 2s, 4s, 8s, 16s (cap at 16s)
+  reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
 }
 
 function resetBackoff() {
@@ -606,13 +768,13 @@ function tryNext() {
 
     sock.onopen = () => {
       // Wait for first message to determine protocol
-      // Noche sends "identify" message, figma-console sends "SERVER_HELLO"
+      // Mémoire sends "identify" message, figma-console sends "SERVER_HELLO"
       // If no message within 800ms, this is NOT a known server — skip it
       identifyTimeout = setTimeout(() => {
         if (!identified) {
           identified = true;
           cleanup();
-          // No protocol message received — not a Noche or FC server, skip
+          // No protocol message received — not a Mémoire or FC server, skip
           try { sock.close(); } catch {}
           tryNext();
         }
@@ -624,7 +786,13 @@ function tryNext() {
       try { data = JSON.parse(e.data); } catch { return; }
 
       // Any message from a connected server resets heartbeat counters
-      if (sock === ws) nocheMissedPongs = 0;
+      if (sock === ws) {
+        memoireMissedPongs = 0;
+        if (memoirePingSentAt > 0) {
+          recordLatency(Date.now() - memoirePingSentAt);
+          memoirePingSentAt = 0;
+        }
+      }
       if (sock === fcWs) fcMissedPongs = 0;
 
       if (!identified) {
@@ -633,8 +801,8 @@ function tryNext() {
         if (data.type === 'SERVER_HELLO') {
           adoptAsFigmaConsole(sock, port, data);
         } else if (data.type === 'identify' || data.type === 'pong' || data.name) {
-          // Valid Noche server — sends "identify" on connection
-          adoptAsNoche(sock, port);
+          // Valid Mémoire server — sends "identify" on connection
+          adoptAsMemoire(sock, port);
           handleMsg(data);
         } else {
           // Unknown server, skip
@@ -657,10 +825,10 @@ function tryNext() {
       if (sock === ws) {
         ws = null;
         connPort = 0;
-        clearInterval(nocheHeartbeat);
+        clearInterval(memoireHeartbeat);
         setStatus('dead');
         renderConn();
-        log('warn', 'Disconnected from Noche');
+        log('warn', 'Disconnected from Mémoire');
         scheduleReconnect();
       } else if (sock === fcWs) {
         fcWs = null;
@@ -690,9 +858,9 @@ function tryNext() {
   }
 }
 
-function adoptAsNoche(sock, port) {
+function adoptAsMemoire(sock, port) {
   if (status === 'live') {
-    // Already have a Noche connection, skip
+    // Already have a Mémoire connection, skip
     sock.close();
     tryNext();
     return;
@@ -703,13 +871,19 @@ function adoptAsNoche(sock, port) {
   connectedAt = new Date();
   setStatus('live');
   resetBackoff();
-  startNocheHeartbeat();
+  startMemoireHeartbeat();
+  updateConnectionQuality('healthy');
   renderConn();
-  log('ok', 'Connected to Noche on port ' + port);
+  log('ok', 'Connected to Mémoire on port ' + port);
+
+  // Replay any queued commands from while disconnected
+  if (commandQueue.length > 0) {
+    setTimeout(() => replayCommandQueue(), 200);
+  }
 
   sock.send(JSON.stringify({
     type: 'bridge-hello',
-    plugin: 'noche',
+    plugin: 'memoire',
     file: fileInfo.file || 'unknown',
     fileKey: fileInfo.fileKey || '',
     editor: fileInfo.editor || 'figma',
@@ -747,12 +921,12 @@ function adoptAsFigmaConsole(sock, port, hello) {
     }
   }));
 
-  // Continue scanning for Noche
+  // Continue scanning for Mémoire
   if (status !== 'live') tryNext();
 }
 
 function disconnect() {
-  clearInterval(nocheHeartbeat);
+  clearInterval(memoireHeartbeat);
   clearInterval(fcHeartbeat);
   clearTimeout(scanTimer);
   scanTimer = null;
@@ -764,6 +938,9 @@ function disconnect() {
   fcWs = null;
   fcPort = 0;
   fcStatus = 'dead';
+  lastPingLatency = 0;
+  memoireLatencyHistory = [];
+  updateConnectionQuality('disconnected');
   renderConn();
 }
 
@@ -822,11 +999,15 @@ function setStatus(s) {
 
   if (s === 'live') {
     txt.textContent = 'CONNECTED';
+    updateConnectionQuality('healthy');
   } else if (s === 'scanning') {
     txt.textContent = 'SCANNING...';
+    updateConnectionQuality('reconnecting');
   } else {
     txt.textContent = 'OFFLINE';
+    updateConnectionQuality('disconnected');
   }
+  updateStatusBar();
 }
 
 // ── Connection Card Rendering ───────────────────────
@@ -839,10 +1020,10 @@ function renderConn() {
   if (status === 'live') {
     const elapsed = connectedAt ? timeSince(connectedAt) : '';
     html += '<div class="conn-card">' +
-      '<div class="label">NOCHE BRIDGE</div>' +
+      '<div class="label">MÉMOIRE BRIDGE</div>' +
       '<div class="conn-detail">' +
         '<span class="port">:' + connPort + '</span>' +
-        '<span class="meta">' + esc(connName || 'Noche Terminal') + '<br>' + elapsed + '</span>' +
+        '<span class="meta">' + esc(connName || 'Mémoire Terminal') + '<br>' + elapsed + '</span>' +
       '</div>' +
     '</div>';
   } else if (status === 'scanning') {
@@ -852,8 +1033,8 @@ function renderConn() {
   } else {
     html += '<div class="conn-card offline">' +
       '<div class="help-text">' +
-        'No Noche instance found.<br><br>' +
-        'Run <code>noche connect</code> in your terminal.' +
+        'No Mémoire instance found.<br><br>' +
+        'Run <code>memi connect</code> in your terminal.' +
       '</div>' +
       '<button class="retry-btn" onclick="scan()">RETRY</button>' +
     '</div>';
@@ -870,6 +1051,7 @@ function renderConn() {
   }
 
   el.innerHTML = html;
+  updateStatusBar();
 }
 
 // ── Message Handling ────────────────────────────────
@@ -891,12 +1073,12 @@ function handleMsg(msg) {
   if (msg.type === 'identify') {
     connName = msg.name || connName;
     renderConn();
-    log('ok', 'Identified: ' + (msg.name || 'Noche'));
+    log('ok', 'Identified: ' + (msg.name || 'Mémoire'));
     return;
   }
 
   if (msg.type === 'chat') {
-    log('info', '[' + (msg.from || 'noche') + '] ' + msg.text);
+    log('info', '[' + (msg.from || 'memoire') + '] ' + msg.text);
     return;
   }
 
@@ -920,6 +1102,10 @@ function send(data) {
     ws.send(JSON.stringify(data));
     return true;
   }
+  // Queue commands for replay on reconnect
+  if (data && data.type === 'command' || (data && data.method)) {
+    queueCommand(data);
+  }
   return false;
 }
 
@@ -927,7 +1113,7 @@ function send(data) {
 
 function act(action) {
   if (status !== 'live') {
-    log('warn', 'Not connected — run noche connect first');
+    log('warn', 'Not connected — run memi connect first');
     return;
   }
 
@@ -1211,7 +1397,7 @@ onmessage = (event) => {
         return;
       }
 
-      // Noche terminal responses
+      // Mémoire terminal responses
       if (id && !id.includes(':')) {
         if (send({ type: 'response', id, result: msg.result, error: msg.error })) {
           log('ok', 'Response → ' + id + ' (' + sizeLabel + ')');
@@ -1299,12 +1485,12 @@ function timeSince(date) {
 
 parent.postMessage({ pluginMessage: { type: 'ping' } }, '*');
 renderConn();
-log('info', 'Noche starting...');
+log('info', 'Mémoire starting...');
 
 // Session timer
 sessionTimer = setInterval(updateSessionTimer, 1000);
 
-// Start scanning for Noche instance
+// Start scanning for Mémoire instance
 setTimeout(scan, 300);
 </script>
 </body>

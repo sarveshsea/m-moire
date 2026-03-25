@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import type { AnySpec, IASpec, IANode } from "../specs/types.js";
 import type { DesignToken } from "../engine/registry.js";
 import type { ResearchInsight, ResearchTheme, ResearchStore } from "../research/engine.js";
@@ -35,10 +35,10 @@ interface DashboardData {
   figma: { running: boolean; port: number; clients: { id: string; file: string; editor: string; connectedAt: string }[] };
 }
 
-export function registerDashboardCommand(program: Command, engine: NocheEngine) {
+export function registerDashboardCommand(program: Command, engine: MemoireEngine) {
   program
     .command("dashboard")
-    .description("Launch the Noche dashboard — view design systems, specs, prototypes, and research on localhost")
+    .description("Launch the Mémoire dashboard — view design systems, specs, prototypes, and research on localhost")
     .option("-p, --port <port>", "Dashboard port", "3333")
     .option("--build", "Rebuild dashboard before launching")
     .action(async (opts) => {
@@ -51,10 +51,10 @@ export function registerDashboardCommand(program: Command, engine: NocheEngine) 
       await engine.init();
       await engine.research.load();
 
-      const dashDir = join(engine.config.projectRoot, ".noche", "dashboard");
+      const dashDir = join(engine.config.projectRoot, ".memoire", "dashboard");
       await mkdir(dashDir, { recursive: true });
 
-      console.log("\n  Building Noche Dashboard...\n");
+      console.log("\n  Building Mémoire Dashboard...\n");
 
       const project = engine.project;
       const specs = await engine.registry.getAllSpecs();
@@ -133,7 +133,7 @@ function generateAgenticDashboard(data: DashboardData): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Noche — Dashboard</title>
+<title>Mémoire — Dashboard</title>
 <style>
 /* ═══════════════════════════════════════════════════════
    shadcn CSS Variables — AgenticUI skin
@@ -445,7 +445,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
   <!-- Header -->
   <header class="header">
     <div>
-      <div class="logo">Noche</div>
+      <div class="logo">Mémoire</div>
       <div class="logo-sub">Design Intelligence Engine</div>
     </div>
     <div class="header-actions">
@@ -547,7 +547,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
           </tbody>
         </table>
       </div>
-    </div>` : `<div class="section"><div class="empty">No specs yet. Run <code>noche init</code> to start.</div></div>`}
+    </div>` : `<div class="section"><div class="empty">No specs yet. Run <code>memi init</code> to start.</div></div>`}
   </div>
 
   <!-- Tokens Panel -->
@@ -583,7 +583,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
       </div>
     </div>` : ""}
 
-    ${tokens.length === 0 ? `<div class="empty">No tokens yet. Run <code>noche connect</code> then <code>noche pull</code></div>` : ""}
+    ${tokens.length === 0 ? `<div class="empty">No tokens yet. Run <code>memi connect</code> then <code>memi pull</code></div>` : ""}
   </div>
 
   <!-- Components Panel -->
@@ -607,7 +607,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
           </div>
         </div>`;
       }).join("")}
-    </div>` : `<div class="empty">No components. Run <code>noche spec component MyComponent</code></div>`}
+    </div>` : `<div class="empty">No components. Run <code>memi spec component MyComponent</code></div>`}
   </div>
 
   <!-- DataViz Panel -->
@@ -630,7 +630,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
           </div>
         </div>`;
       }).join("")}
-    </div>` : `<div class="empty">No dataviz. Run <code>noche spec dataviz MyChart</code></div>`}
+    </div>` : `<div class="empty">No dataviz. Run <code>memi spec dataviz MyChart</code></div>`}
   </div>
 
   <!-- Pages Panel -->
@@ -654,7 +654,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
           </div>
         </div>`;
       }).join("")}
-    </div>` : `<div class="empty">No pages. Run <code>noche spec page MyPage</code></div>`}
+    </div>` : `<div class="empty">No pages. Run <code>memi spec page MyPage</code></div>`}
   </div>
 
   <!-- Design Panel -->
@@ -699,7 +699,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
           ${s.linkedSpecs.map((l: string) => `<span class="badge badge-muted" style="margin:2px">${esc(l)}</span>`).join("")}` : ""}
         </div>`;
       }).join("")}
-    </div>` : `<div class="empty">No design specs. Run <code>noche spec design MyDesign</code> for pixel-level annotations.</div>`}
+    </div>` : `<div class="empty">No design specs. Run <code>memi spec design MyDesign</code> for pixel-level annotations.</div>`}
   </div>
 
   <!-- IA Panel -->
@@ -749,7 +749,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
           <div>${ia.globals.map((g) => `<span class="badge badge-info" style="margin:2px">${esc(g.label)}${g.linkedPageSpec ? ` → ${esc(g.linkedPageSpec)}` : ""}</span>`).join("")}</div>` : ""}
         </div>
       </div>`;
-    }).join("") : `<div class="empty">No IA specs. Run <code>noche ia extract MyIA</code> to extract from Figma or <code>noche ia create MyIA</code>.</div>`}
+    }).join("") : `<div class="empty">No IA specs. Run <code>memi ia extract MyIA</code> to extract from Figma or <code>memi ia create MyIA</code>.</div>`}
   </div>
 
   <!-- Research Panel -->
@@ -773,7 +773,7 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
         </tr>`).join("")}
         </tbody>
       </table>
-    </div>` : `<div class="empty">No research. Run <code>noche research from-file data.xlsx</code></div>`}
+    </div>` : `<div class="empty">No research. Run <code>memi research from-file data.xlsx</code></div>`}
   </div>
 
   <!-- Figma Panel -->
@@ -801,10 +801,10 @@ tr:hover td { background: hsl(var(--muted) / 0.4); }
       <div class="card" style="line-height:2.2; font-size:12px">
         <div><strong>1.</strong> Get Figma token: <code>Figma &rarr; Settings &rarr; Personal Access Tokens</code></div>
         <div><strong>2.</strong> Set env: <code>export FIGMA_TOKEN="figd_..."</code></div>
-        <div><strong>3.</strong> Start server: <code>noche connect</code></div>
-        <div><strong>4.</strong> In Figma: <code>Plugins &rarr; Dev &rarr; Import manifest &rarr; noche/plugin/manifest.json</code></div>
-        <div><strong>5.</strong> Pull system: <code>noche pull</code></div>
-        <div><strong>6.</strong> Refresh: <code>noche dashboard</code></div>
+        <div><strong>3.</strong> Start server: <code>memi connect</code></div>
+        <div><strong>4.</strong> In Figma: <code>Plugins &rarr; Dev &rarr; Import manifest &rarr; memoire/plugin/manifest.json</code></div>
+        <div><strong>5.</strong> Pull system: <code>memi pull</code></div>
+        <div><strong>6.</strong> Refresh: <code>memi dashboard</code></div>
       </div>
     </div>
   </div>

@@ -1,5 +1,5 @@
 /**
- * Agent Portal HTML Generator — Live dashboard for Noche.
+ * Agent Portal HTML Generator — Live dashboard for Mémoire.
  *
  * AgenticUI aesthetic: monospace, dark, terminal-paper feel.
  * Connects via SSE to receive real-time events from the bridge.
@@ -27,7 +27,7 @@ export function generatePortalHTML(config: PortalConfig): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Noche Agent Portal</title>
+<title>Mémoire Agent Portal</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -609,7 +609,7 @@ function connectSSE() {
 
   evtSource.onopen = () => {
     setBadge('live', 'CONNECTED');
-    addFeed('ok', 'Portal connected to Noche bridge');
+    addFeed('ok', 'Portal connected to Mémoire bridge');
   };
 
   evtSource.onmessage = (e) => {
@@ -1009,7 +1009,7 @@ function rgbHex(c) {
 
 // ── Init ─────────────────────────────────────
 connectSSE();
-addFeed('info', 'Noche Agent Portal starting...');
+addFeed('info', 'Mémoire Agent Portal starting...');
 </script>
 </body>
 </html>`;

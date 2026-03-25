@@ -9,17 +9,17 @@
  *   4. Report results with mutations and timing
  *
  * Usage:
- *   noche compose "create a login page with email and password fields"
- *   noche compose "update the color palette to use warmer tones" --dry-run
- *   noche compose "audit the design system for accessibility" --verbose
+ *   memi compose "create a login page with email and password fields"
+ *   memi compose "update the color palette to use warmer tones" --dry-run
+ *   memi compose "audit the design system for accessibility" --verbose
  */
 
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import { AgentOrchestrator, classifyIntent } from "../agents/index.js";
 import type { AgentPlan, SubTask } from "../agents/index.js";
 
-export function registerComposeCommand(program: Command, engine: NocheEngine) {
+export function registerComposeCommand(program: Command, engine: MemoireEngine) {
   program
     .command("compose <intent...>")
     .description("Execute a natural language design intent via the agent orchestrator")

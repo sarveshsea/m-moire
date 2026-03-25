@@ -1,15 +1,15 @@
 /**
  * IA Command — Information Architecture extraction, visualization, and validation.
  *
- * `noche ia extract <name>` — Extract IA from connected Figma file
- * `noche ia create <name>`  — Create an empty IA spec manually
- * `noche ia show [name]`    — Print IA tree to terminal
- * `noche ia validate [name]`— Validate IA cross-references
- * `noche ia list`           — List all IA specs
+ * `memi ia extract <name>` — Extract IA from connected Figma file
+ * `memi ia create <name>`  — Create an empty IA spec manually
+ * `memi ia show [name]`    — Print IA tree to terminal
+ * `memi ia validate [name]`— Validate IA cross-references
+ * `memi ia list`           — List all IA specs
  */
 
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import type { IASpec, IANode } from "../specs/types.js";
 import { validateSpec, validateCrossRefs } from "../specs/validator.js";
 
@@ -45,12 +45,12 @@ function countNodes(node: IANode): number {
   return 1 + node.children.reduce((sum, c) => sum + countNodes(c), 0);
 }
 
-export function registerIACommand(program: Command, engine: NocheEngine) {
+export function registerIACommand(program: Command, engine: MemoireEngine) {
   const ia = program
     .command("ia")
     .description("Information architecture — extract, create, and visualize site structure");
 
-  // ── noche ia extract <name> ──────────────────────────────
+  // ── memi ia extract <name> ──────────────────────────────
   ia
     .command("extract <name>")
     .description("Extract IA from connected Figma file's page structure")
@@ -60,7 +60,7 @@ export function registerIACommand(program: Command, engine: NocheEngine) {
       await engine.init();
 
       if (!engine.figma.isConnected) {
-        console.error("\n  Not connected to Figma. Run `noche connect` first.\n");
+        console.error("\n  Not connected to Figma. Run `memi connect` first.\n");
         process.exit(1);
       }
 
@@ -93,10 +93,10 @@ export function registerIACommand(program: Command, engine: NocheEngine) {
 
       console.log(`\n  Created: specs/ia/${name}.json`);
       console.log(`  ${iaSpec.root.children.length} pages, ${nodeCount} total nodes`);
-      console.log(`  Run \`noche ia show ${name}\` to visualize.\n`);
+      console.log(`  Run \`memi ia show ${name}\` to visualize.\n`);
     });
 
-  // ── noche ia create <name> ───────────────────────────────
+  // ── memi ia create <name> ───────────────────────────────
   ia
     .command("create <name>")
     .description("Create an empty IA spec manually")
@@ -129,7 +129,7 @@ export function registerIACommand(program: Command, engine: NocheEngine) {
       console.log("  Edit the spec to add pages, sections, and navigation flows.\n");
     });
 
-  // ── noche ia show [name] ─────────────────────────────────
+  // ── memi ia show [name] ─────────────────────────────────
   ia
     .command("show [name]")
     .description("Print IA tree to terminal")
@@ -140,7 +140,7 @@ export function registerIACommand(program: Command, engine: NocheEngine) {
       const iaSpecs = specs.filter((s) => s.type === "ia") as IASpec[];
 
       if (iaSpecs.length === 0) {
-        console.log("\n  No IA specs found. Run `noche ia extract <name>` or `noche ia create <name>`.\n");
+        console.log("\n  No IA specs found. Run `memi ia extract <name>` or `memi ia create <name>`.\n");
         return;
       }
 
@@ -182,7 +182,7 @@ export function registerIACommand(program: Command, engine: NocheEngine) {
       console.log();
     });
 
-  // ── noche ia validate [name] ─────────────────────────────
+  // ── memi ia validate [name] ─────────────────────────────
   ia
     .command("validate [name]")
     .description("Validate IA spec cross-references against page specs")
@@ -231,7 +231,7 @@ export function registerIACommand(program: Command, engine: NocheEngine) {
       console.log(`\n  ${targets.length} IA spec(s) checked, ${totalWarnings} warning(s).\n`);
     });
 
-  // ── noche ia list ────────────────────────────────────────
+  // ── memi ia list ────────────────────────────────────────
   ia
     .command("list")
     .description("List all IA specs")
@@ -242,7 +242,7 @@ export function registerIACommand(program: Command, engine: NocheEngine) {
       const iaSpecs = specs.filter((s) => s.type === "ia") as IASpec[];
 
       if (iaSpecs.length === 0) {
-        console.log("\n  No IA specs. Run `noche ia extract <name>` to create one from Figma.\n");
+        console.log("\n  No IA specs. Run `memi ia extract <name>` to create one from Figma.\n");
         return;
       }
 

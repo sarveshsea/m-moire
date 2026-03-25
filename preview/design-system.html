@@ -3,644 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M25.5 15.5A9.5 9.5 0 0 1 12 25 9.5 9.5 0 0 1 9.5 6.5 12 12 0 1 0 25.5 15.5z' fill='%23e2e8f0'/%3E%3C/svg%3E">
-<title>Noche Design System</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%23ffffff'/%3E%3C/svg%3E">
+<title>memoire / systems</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg: #0a0a0a;
-  --bg-card: #111111;
-  --bg-hover: #1a1a1a;
-  --fg: #e0e0e0;
-  --fg-muted: #666666;
-  --border: #1e1e1e;
-  --accent: #9D833E;
-  --accent-bright: #C4A35A;
-  --accent-dim: #3D3520;
-  --success: #22C55E;
-  --warn: #EAB308;
-  --error: #EF4444;
-  --info: #3B82F6;
-  --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
-  --radius: 2px;
+  --bg: #111113; --bg-card: #19191c; --bg-hover: #222226;
+  --fg: #ffffff; --fg-muted: #636369; --border: #2a2a2e;
+  --accent: #a0a0a6; --accent-bright: #ffffff;
+  --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --radius: 4px;
+  --green: #4ade80; --yellow: #facc15; --red: #f87171; --blue: #60a5fa;
 }
+body { font-family: var(--mono); font-size: 12px; background: var(--bg); color: var(--fg); line-height: 1.6; min-height: 100vh; }
+a { color: var(--accent-bright); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-body {
-  font-family: var(--mono);
-  font-size: 12px;
-  background: var(--bg);
-  color: var(--fg);
-  line-height: 1.6;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
+.hdr { display: flex; justify-content: center; align-items: center; padding: 14px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+.hdr-nav { display: flex; gap: 2px; align-items: center; }
+.hdr-nav a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius); color: var(--fg-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; transition: color 0.15s, background 0.15s; }
+.hdr-nav a:hover { color: var(--fg); background: var(--bg-hover); text-decoration: none; }
+.hdr-nav a.active { color: var(--fg); background: var(--bg-card); text-decoration: none; }
+.hdr-nav a svg { width: 14px; height: 14px; opacity: 0.5; }
+.hdr-nav a.active svg { opacity: 1; }
 
-::selection { background: var(--accent-dim); color: var(--accent-bright); }
+.main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+.section { display: none; }
+.section.active { display: block; }
 
-.hdr {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 24px; border-bottom: 1px solid var(--border);
-  background: var(--bg-card); position: sticky; top: 0; z-index: 10;
-}
-.hdr-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-.hdr-title span { color: var(--accent-bright); }
-.hdr-nav { display: flex; gap: 16px; font-size: 10px; align-items: center; }
-.nav-link {
-  color: #d4d4d4; text-decoration: none; border: 1px solid #444;
-  padding: 2px 10px; border-radius: 2px; font-size: 10px; letter-spacing: 1px; transition: all 0.15s;
-}
-.nav-link:hover { border-color: #d4d4d4; }
-.nav-link.active { color: var(--accent-bright); border-color: var(--accent-bright); font-weight: 700; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); margin-bottom: 12px; }
+.card-value { font-size: 24px; font-weight: 600; }
 
-.hero {
-  padding: 32px 24px; border-bottom: 1px solid var(--border);
-  background: var(--accent-dim);
-}
-.hero h1 { font-size: 18px; font-weight: 700; color: var(--accent-bright); letter-spacing: 2px; margin-bottom: 6px; }
-.hero p { font-size: 11px; color: var(--fg-muted); max-width: 600px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.tab { padding: 8px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); cursor: pointer; border-bottom: 2px solid transparent; background: none; border-top: none; border-left: none; border-right: none; font-family: var(--mono); }
+.tab:hover { color: var(--fg); }
+.tab.active { color: var(--fg); border-bottom-color: var(--fg); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
-.section { margin-bottom: 48px; }
-.section-title {
-  font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--accent-bright); margin-bottom: 20px; padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-}
-.section-title::before { content: '// '; color: var(--fg-muted); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-high { background: rgba(74, 222, 128, 0.15); color: var(--green); }
+.badge-medium { background: rgba(250, 204, 21, 0.15); color: var(--yellow); }
+.badge-low { background: rgba(160, 160, 166, 0.15); color: var(--fg-muted); }
+.badge-atom { background: rgba(96, 165, 250, 0.15); color: var(--blue); }
+.badge-molecule { background: rgba(74, 222, 128, 0.15); color: var(--green); }
+.badge-organism { background: rgba(250, 204, 21, 0.15); color: var(--yellow); }
+.badge-template { background: rgba(248, 113, 113, 0.15); color: var(--red); }
 
-/* ── Colors ──────────────────────────── */
-.color-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
-}
-.color-card {
-  border: 1px solid var(--border); border-radius: var(--radius);
-  overflow: hidden; background: var(--bg-card);
-  transition: transform 0.15s, border-color 0.15s;
-}
-.color-card:hover { transform: translateY(-2px); border-color: var(--accent-dim); }
-.color-swatch { height: 64px; width: 100%; }
-.color-info { padding: 8px 10px; }
-.color-name { font-size: 10px; font-weight: 700; color: var(--fg); margin-bottom: 2px; }
-.color-hex { font-size: 9px; color: var(--fg-muted); }
-.color-var { font-size: 8px; color: var(--accent); margin-top: 2px; }
+.tag { display: inline-block; padding: 2px 6px; background: var(--bg-hover); border-radius: var(--radius); font-size: 10px; color: var(--fg-muted); margin: 2px; }
 
-.subsection { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fg-muted); margin: 20px 0 12px; }
+.empty { text-align: center; padding: 48px 24px; color: var(--fg-muted); }
+.empty code { background: var(--bg-hover); padding: 2px 6px; border-radius: var(--radius); }
 
-/* ── Typography ──────────────────────── */
-.type-stack {
-  border: 1px solid var(--border); border-radius: var(--radius);
-  background: var(--bg-card); overflow: hidden;
-}
-.type-row {
-  display: flex; align-items: baseline; gap: 24px;
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
-}
-.type-row:last-child { border-bottom: none; }
-.type-label { min-width: 80px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--fg-muted); }
-.type-sample { flex: 1; color: var(--fg); }
-.type-meta { font-size: 9px; color: var(--accent); white-space: nowrap; }
+.token-swatch { width: 32px; height: 32px; border-radius: var(--radius); border: 1px solid var(--border); display: inline-block; vertical-align: middle; margin-right: 8px; }
 
-/* ── Spacing ─────────────────────────── */
-.spacing-grid { display: flex; flex-direction: column; gap: 8px; }
-.spacing-row { display: flex; align-items: center; gap: 16px; }
-.spacing-label { min-width: 60px; font-size: 10px; color: var(--fg-muted); font-weight: 700; }
-.spacing-bar { height: 8px; background: var(--accent-dim); border: 1px solid var(--accent); border-radius: 1px; }
-.spacing-val { font-size: 9px; color: var(--accent); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px; }
+th { color: var(--fg-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 400; }
 
-/* ── Buttons ─────────────────────────── */
-.btn-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
-.btn {
-  padding: 8px 18px; border-radius: var(--radius); font-family: var(--mono);
-  font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-  cursor: default; border: 1px solid var(--border); transition: all 0.15s;
-  display: inline-block;
-}
-.btn-primary { background: var(--accent); color: #0a0a0a; border-color: var(--accent); }
-.btn-secondary { background: none; color: var(--fg); border-color: #444; }
-.btn-ghost { background: none; color: var(--fg-muted); border: 1px solid transparent; }
-.btn-destructive { background: none; color: var(--error); border-color: var(--error); }
-.btn-success { background: none; color: var(--success); border-color: var(--success); }
+.sidebar-layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; min-height: calc(100vh - 60px); }
+.sidebar { border-right: 1px solid var(--border); padding: 20px; }
+.sidebar-section { margin-bottom: 24px; }
+.sidebar-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); margin-bottom: 8px; }
+.sidebar-item { display: block; padding: 6px 8px; border-radius: var(--radius); color: var(--fg-muted); cursor: pointer; font-size: 11px; }
+.sidebar-item:hover, .sidebar-item.active { color: var(--fg); background: var(--bg-hover); }
+.sidebar-count { float: right; color: var(--fg-muted); font-size: 10px; }
+.content-panel { padding: 24px; overflow-y: auto; }
 
-/* ── Badges ──────────────────────────── */
-.badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-.badge {
-  padding: 3px 10px; border-radius: var(--radius); font-size: 9px;
-  font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
-  display: inline-flex; align-items: center; gap: 4px;
-}
-.badge::before { content: '\25CF'; font-size: 6px; opacity: 0.7; }
-.badge-atom { border: 1px solid var(--accent); color: var(--accent); }
-.badge-molecule { border: 1px solid #5A8C7B; color: #5A8C7B; }
-.badge-organism { border: 1px solid #5A7B8C; color: #5A7B8C; }
-.badge-page { border: 1px solid var(--accent-bright); color: var(--accent-bright); }
-.badge-success { background: rgba(34,197,94,0.1); border: 1px solid var(--success); color: var(--success); }
-.badge-warn { background: rgba(234,179,8,0.1); border: 1px solid var(--warn); color: var(--warn); }
-.badge-error { background: rgba(239,68,68,0.1); border: 1px solid var(--error); color: var(--error); }
-.badge-info { background: rgba(59,130,246,0.1); border: 1px solid var(--info); color: var(--info); }
-.badge-muted { border: 1px solid var(--border); color: var(--fg-muted); }
+.footer { padding: 24px; text-align: center; color: var(--fg-muted); font-size: 10px; border-top: 1px solid var(--border); margin-top: 48px; }
 
-/* ── Inputs ──────────────────────────── */
-.input-grid { display: flex; flex-direction: column; gap: 16px; max-width: 400px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-label { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--fg-muted); }
-.form-input {
-  padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius);
-  background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 11px;
-  transition: border-color 0.15s;
-}
-.form-input:focus { outline: none; border-color: var(--accent); }
-.form-input::placeholder { color: #333; }
-.form-hint { font-size: 9px; color: var(--fg-muted); }
-.form-select {
-  padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius);
-  background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 11px;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23666' d='M2 3l3 3 3-3'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 10px center;
-}
 
-/* ── Cards ────────────────────────────── */
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-.card {
-  border: 1px solid var(--border); border-radius: var(--radius);
-  background: var(--bg-card); overflow: hidden; transition: all 0.15s;
-}
-.card:hover { border-color: var(--accent-dim); transform: translateY(-1px); }
-.card-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px; border-bottom: 1px solid var(--border);
-}
-.card-title { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
-.card-body { padding: 14px; }
-.card-metric { font-size: 22px; font-weight: 700; color: var(--accent-bright); line-height: 1; margin-bottom: 4px; }
-.card-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); }
-.card-trend { font-size: 9px; color: var(--success); margin-top: 4px; }
+.stat-row { display: flex; gap: 12px; margin-bottom: 32px; }
+.stat-box { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+.stat-box .val { font-size: 28px; font-weight: 600; margin-bottom: 4px; }
+.stat-box .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); }
 
-/* ── Tables ───────────────────────────── */
-.table-wrap {
-  border: 1px solid var(--border); border-radius: var(--radius);
-  overflow: hidden;
-}
-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-thead { background: var(--bg-card); }
-th {
-  padding: 10px 14px; text-align: left; font-weight: 700; font-size: 9px;
-  letter-spacing: 1px; text-transform: uppercase; color: var(--fg-muted);
-  border-bottom: 1px solid var(--border);
-}
-td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
-tbody tr:hover { background: rgba(255,255,255,0.02); }
-tbody tr:last-child td { border-bottom: none; }
+.conf-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 8px; background: var(--bg-hover); }
+.conf-bar .seg { height: 100%; }
+.conf-bar .seg-high { background: var(--fg); }
+.conf-bar .seg-med { background: var(--fg-muted); }
+.conf-bar .seg-low { background: var(--bg-hover); }
+.conf-legend { display: flex; gap: 16px; font-size: 11px; color: var(--fg-muted); margin-bottom: 32px; }
+.conf-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
 
-/* ── Tokens Table ─────────────────────── */
-.token-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;
-}
-.token-item {
-  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-  border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card);
-}
-.token-dot { width: 10px; height: 10px; border-radius: 1px; flex-shrink: 0; }
-.token-name { font-size: 10px; color: var(--fg); font-weight: 500; }
-.token-val { font-size: 9px; color: var(--fg-muted); margin-left: auto; }
+.freq-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 12px; }
+.freq-label { width: 200px; flex-shrink: 0; }
+.freq-bar-wrap { flex: 1; height: 6px; background: var(--bg-hover); border-radius: 3px; margin: 0 12px; }
+.freq-bar { height: 100%; background: var(--fg-muted); border-radius: 3px; }
+.freq-count { width: 30px; text-align: right; color: var(--fg-muted); font-size: 11px; }
 
-/* ── Live Preview Container ───────────── */
-.preview-box {
-  border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;
-  background: #F7F3EE; position: relative; margin-bottom: 16px;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  flex-wrap: wrap; min-height: 60px;
-}
-.preview-box::before {
-  content: 'LIVE PREVIEW'; position: absolute; top: 6px; right: 8px;
-  font-size: 7px; letter-spacing: 1.5px; color: #B5ADA5;
-}
-.preview-box.dark { background: var(--bg); }
-.preview-box.dark::before { color: var(--fg-muted); }
+.finding-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--fg); border-radius: var(--radius); padding: 20px; margin-bottom: 12px; }
+.finding-card .finding-text { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+.finding-card .finding-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--fg-muted); }
 
-/* Light-theme components for preview */
-.lp-btn {
-  padding: 7px 18px; border-radius: 2px; font-family: 'Inter', sans-serif;
-  font-size: 12px; font-weight: 500; cursor: default; border: none;
-}
-.lp-btn.primary { background: #9D833E; color: #fff; }
-.lp-btn.secondary { background: #fff; color: #4A4540; border: 1px solid #E2DCD5; }
-.lp-btn.ghost { background: none; color: #9D833E; border: 1px solid transparent; }
-.lp-input {
-  padding: 7px 12px; border: 1px solid #E2DCD5; border-radius: 2px;
-  background: #FAF8F5; font-family: 'Inter', sans-serif; font-size: 12px;
-  color: #212129; width: 160px; outline: none;
-}
-.lp-badge {
-  padding: 2px 8px; border-radius: 2px; font-family: 'Inter', sans-serif;
-  font-size: 10px; font-weight: 500;
-}
-.lp-badge.success { background: #EFF5EF; color: #5B8C5A; }
-.lp-badge.warning { background: #FDF6E9; color: #C4943A; }
-.lp-badge.error { background: #FCEFEF; color: #C45A5A; }
+.token-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.token-swatch-sm { width: 24px; height: 24px; border-radius: 3px; border: 1px solid var(--border); margin-right: 12px; flex-shrink: 0; }
+.token-name { font-size: 12px; color: var(--fg-muted); margin-right: auto; }
+.token-val { font-size: 12px; color: var(--fg-muted); }
+.group-header { font-size: 13px; font-weight: 500; margin: 24px 0 8px; }
+.group-sub { font-size: 11px; color: var(--fg-muted); margin: 16px 0 4px; padding-left: 8px; }
 
-footer {
-  padding: 20px 24px; border-top: 1px solid var(--border); text-align: center;
-  font-size: 9px; color: var(--fg-muted); letter-spacing: 1px;
-}
-footer a { color: var(--accent); text-decoration: none; }
+.sidebar-item-indent { padding-left: 24px; }
 </style>
 </head>
 <body>
-
-<div class="hdr">
-  <div class="hdr-title"><span>NOCHE</span> DESIGN SYSTEM</div>
-  <div class="hdr-nav">
-    <a href="index.html" class="nav-link">PREVIEW</a>
-    <a href="design-system.html" class="nav-link active">DESIGN SYSTEM</a>
-    <a href="changelog.html" class="nav-link">CHANGELOG</a>
-  </div>
-</div>
-
-<div class="hero">
-  <h1>Noche Design System</h1>
-  <p>Tokens, typography, spacing, components, and patterns used across all Noche-generated interfaces. AgenticUI monospace terminal-paper aesthetic. Atomic Design methodology.</p>
-</div>
-
-<div class="container">
-
-  <!-- ═══════════ COLORS ═══════════ -->
-  <div class="section">
-    <div class="section-title">Color Tokens</div>
-
-    <div class="subsection">Core Palette</div>
-    <div class="color-grid">
-      <div class="color-card">
-        <div class="color-swatch" style="background:#0a0a0a"></div>
-        <div class="color-info"><div class="color-name">Background</div><div class="color-hex">#0A0A0A</div><div class="color-var">--bg</div></div>
+  <header class="hdr">
+    <nav class="hdr-nav"><a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-8 9 8M5 11v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8"/></svg>Home</a><a href="research.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Research</a><a href="specs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Specs</a><a href="design-system.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Systems</a><a href="changelog.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a></nav>
+  </header>
+  
+  <div class="sidebar-layout">
+    <div class="sidebar"><div class="sidebar-section">
+      <div class="sidebar-label">Components <span class="sidebar-count">1</span></div><div class="sidebar-item" data-group="components-all" onclick="showGroup('components-all')">All <span class="sidebar-count">1</span></div><div class="sidebar-item sidebar-item-indent" data-group="components-all" onclick="showGroup('components-all')" style="font-size: 10px;">molecule <span class="sidebar-count">1</span></div></div><div class="sidebar-section">
+    <div class="sidebar-label">Architecture</div>
+    <div class="sidebar-item" data-group="layout-atomic" onclick="showGroup('layout-atomic')">Atomic Design</div>
+    <div class="sidebar-item" data-group="layout-breakpoints" onclick="showGroup('layout-breakpoints')">Breakpoints</div>
+  </div></div>
+    <div class="content-panel">
+      <div class="stat-row" style="margin-bottom: 24px;">
+        <div class="stat-box"><div class="val">0</div><div class="lbl">Tokens</div></div>
+        <div class="stat-box"><div class="val">0</div><div class="lbl">Colors</div></div>
+        <div class="stat-box"><div class="val">0</div><div class="lbl">Spacing</div></div>
+        <div class="stat-box"><div class="val">0</div><div class="lbl">Typography</div></div>
+        <div class="stat-box"><div class="val">1</div><div class="lbl">Components</div></div>
       </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#111111"></div>
-        <div class="color-info"><div class="color-name">Card</div><div class="color-hex">#111111</div><div class="color-var">--bg-card</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#1a1a1a"></div>
-        <div class="color-info"><div class="color-name">Hover</div><div class="color-hex">#1A1A1A</div><div class="color-var">--bg-hover</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#1e1e1e"></div>
-        <div class="color-info"><div class="color-name">Border</div><div class="color-hex">#1E1E1E</div><div class="color-var">--border</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#e0e0e0"></div>
-        <div class="color-info"><div class="color-name">Foreground</div><div class="color-hex">#E0E0E0</div><div class="color-var">--fg</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#666666"></div>
-        <div class="color-info"><div class="color-name">Muted</div><div class="color-hex">#666666</div><div class="color-var">--fg-muted</div></div>
-      </div>
-    </div>
-
-    <div class="subsection">Accent — Gold</div>
-    <div class="color-grid">
-      <div class="color-card">
-        <div class="color-swatch" style="background:#9D833E"></div>
-        <div class="color-info"><div class="color-name">Accent</div><div class="color-hex">#9D833E</div><div class="color-var">--accent</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#C4A35A"></div>
-        <div class="color-info"><div class="color-name">Accent Bright</div><div class="color-hex">#C4A35A</div><div class="color-var">--accent-bright</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#3D3520"></div>
-        <div class="color-info"><div class="color-name">Accent Dim</div><div class="color-hex">#3D3520</div><div class="color-var">--accent-dim</div></div>
-      </div>
-    </div>
-
-    <div class="subsection">Semantic</div>
-    <div class="color-grid">
-      <div class="color-card">
-        <div class="color-swatch" style="background:#22C55E"></div>
-        <div class="color-info"><div class="color-name">Success</div><div class="color-hex">#22C55E</div><div class="color-var">--success</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#EAB308"></div>
-        <div class="color-info"><div class="color-name">Warning</div><div class="color-hex">#EAB308</div><div class="color-var">--warn</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#EF4444"></div>
-        <div class="color-info"><div class="color-name">Error</div><div class="color-hex">#EF4444</div><div class="color-var">--error</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#3B82F6"></div>
-        <div class="color-info"><div class="color-name">Info</div><div class="color-hex">#3B82F6</div><div class="color-var">--info</div></div>
-      </div>
-    </div>
-
-    <div class="subsection">Light Theme (Publicis Production Aesthetic)</div>
-    <div class="color-grid">
-      <div class="color-card">
-        <div class="color-swatch" style="background:#F7F3EE"></div>
-        <div class="color-info"><div class="color-name">Paper</div><div class="color-hex">#F7F3EE</div><div class="color-var">--paper</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#EDE8E2"></div>
-        <div class="color-info"><div class="color-name">Paper Muted</div><div class="color-hex">#EDE8E2</div><div class="color-var">--paper-muted</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#E2DCD5"></div>
-        <div class="color-info"><div class="color-name">Paper Border</div><div class="color-hex">#E2DCD5</div><div class="color-var">--paper-border</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#212129"></div>
-        <div class="color-info"><div class="color-name">Ink</div><div class="color-hex">#212129</div><div class="color-var">--ink</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#4A4540"></div>
-        <div class="color-info"><div class="color-name">Ink Soft</div><div class="color-hex">#4A4540</div><div class="color-var">--ink-soft</div></div>
-      </div>
-      <div class="color-card">
-        <div class="color-swatch" style="background:#8C8279"></div>
-        <div class="color-info"><div class="color-name">Ink Muted</div><div class="color-hex">#8C8279</div><div class="color-var">--ink-muted</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════ TYPOGRAPHY ═══════════ -->
-  <div class="section">
-    <div class="section-title">Typography</div>
-    <div class="type-stack">
-      <div class="type-row">
-        <div class="type-label">H1</div>
-        <div class="type-sample" style="font-size:24px;font-weight:700;letter-spacing:2px">Dashboard Revenue</div>
-        <div class="type-meta">24px / 700 / 2px tracking</div>
-      </div>
-      <div class="type-row">
-        <div class="type-label">H2</div>
-        <div class="type-sample" style="font-size:18px;font-weight:700;letter-spacing:1.5px">Section Header</div>
-        <div class="type-meta">18px / 700 / 1.5px</div>
-      </div>
-      <div class="type-row">
-        <div class="type-label">H3</div>
-        <div class="type-sample" style="font-size:14px;font-weight:700;letter-spacing:1px">Subsection Title</div>
-        <div class="type-meta">14px / 700 / 1px</div>
-      </div>
-      <div class="type-row">
-        <div class="type-label">Body</div>
-        <div class="type-sample" style="font-size:12px;font-weight:400">Noche generates production-ready React components from Figma designs using atomic methodology.</div>
-        <div class="type-meta">12px / 400 / 0</div>
-      </div>
-      <div class="type-row">
-        <div class="type-label">Caption</div>
-        <div class="type-sample" style="font-size:10px;font-weight:400;color:var(--fg-muted)">Last synced 2 minutes ago</div>
-        <div class="type-meta">10px / 400 / 0</div>
-      </div>
-      <div class="type-row">
-        <div class="type-label">Label</div>
-        <div class="type-sample" style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--fg-muted)">COMPONENT TYPE</div>
-        <div class="type-meta">9px / 700 / 1.5px / UPPER</div>
-      </div>
-      <div class="type-row">
-        <div class="type-label">Mono</div>
-        <div class="type-sample" style="font-size:12px;color:var(--accent)">SF Mono &rarr; Fira Code &rarr; JetBrains Mono &rarr; Cascadia Code</div>
-        <div class="type-meta">System monospace stack</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════ SPACING ═══════════ -->
-  <div class="section">
-    <div class="section-title">Spacing Scale</div>
-    <div class="spacing-grid">
-      <div class="spacing-row"><div class="spacing-label">2px</div><div class="spacing-bar" style="width:8px"></div><div class="spacing-val">--space-0.5</div></div>
-      <div class="spacing-row"><div class="spacing-label">4px</div><div class="spacing-bar" style="width:16px"></div><div class="spacing-val">--space-1</div></div>
-      <div class="spacing-row"><div class="spacing-label">8px</div><div class="spacing-bar" style="width:32px"></div><div class="spacing-val">--space-2</div></div>
-      <div class="spacing-row"><div class="spacing-label">12px</div><div class="spacing-bar" style="width:48px"></div><div class="spacing-val">--space-3</div></div>
-      <div class="spacing-row"><div class="spacing-label">16px</div><div class="spacing-bar" style="width:64px"></div><div class="spacing-val">--space-4</div></div>
-      <div class="spacing-row"><div class="spacing-label">20px</div><div class="spacing-bar" style="width:80px"></div><div class="spacing-val">--space-5</div></div>
-      <div class="spacing-row"><div class="spacing-label">24px</div><div class="spacing-bar" style="width:96px"></div><div class="spacing-val">--space-6</div></div>
-      <div class="spacing-row"><div class="spacing-label">32px</div><div class="spacing-bar" style="width:128px"></div><div class="spacing-val">--space-8</div></div>
-      <div class="spacing-row"><div class="spacing-label">48px</div><div class="spacing-bar" style="width:192px"></div><div class="spacing-val">--space-12</div></div>
-    </div>
-  </div>
-
-  <!-- ═══════════ BUTTONS ═══════════ -->
-  <div class="section">
-    <div class="section-title">Buttons</div>
-
-    <div class="subsection">Dark Theme (Terminal)</div>
-    <div class="btn-grid">
-      <div class="btn btn-primary">PRIMARY</div>
-      <div class="btn btn-secondary">SECONDARY</div>
-      <div class="btn btn-ghost">GHOST</div>
-      <div class="btn btn-destructive">DESTRUCTIVE</div>
-      <div class="btn btn-success">SUCCESS</div>
-    </div>
-
-    <div class="subsection">Light Theme (Publicis Paper)</div>
-    <div class="preview-box">
-      <div class="lp-btn primary">Submit</div>
-      <div class="lp-btn secondary">Cancel</div>
-      <div class="lp-btn ghost">Learn More</div>
-    </div>
-  </div>
-
-  <!-- ═══════════ BADGES ═══════════ -->
-  <div class="section">
-    <div class="section-title">Badges &amp; Tags</div>
-
-    <div class="subsection">Atomic Levels</div>
-    <div class="badge-row">
-      <span class="badge badge-atom">ATOM</span>
-      <span class="badge badge-molecule">MOLECULE</span>
-      <span class="badge badge-organism">ORGANISM</span>
-      <span class="badge badge-page">PAGE</span>
-    </div>
-
-    <div class="subsection">Status</div>
-    <div class="badge-row">
-      <span class="badge badge-success">CONNECTED</span>
-      <span class="badge badge-warn">SYNCING</span>
-      <span class="badge badge-error">ERROR</span>
-      <span class="badge badge-info">GENERATING</span>
-      <span class="badge badge-muted">IDLE</span>
-    </div>
-
-    <div class="subsection">Light Theme</div>
-    <div class="preview-box">
-      <span class="lp-badge success">Active</span>
-      <span class="lp-badge warning">Pending</span>
-      <span class="lp-badge error">Over Budget</span>
-    </div>
-  </div>
-
-  <!-- ═══════════ INPUTS ═══════════ -->
-  <div class="section">
-    <div class="section-title">Input Fields</div>
-    <div class="input-grid">
-      <div class="form-group">
-        <label class="form-label">FIGMA TOKEN</label>
-        <input class="form-input" type="text" placeholder="figd_xxxxxxxxxxxx" />
-        <div class="form-hint">Paste your Figma Personal Access Token</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">COMPONENT NAME</label>
-        <input class="form-input" type="text" value="MetricCard" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">ATOMIC LEVEL</label>
-        <select class="form-select">
-          <option>atom</option>
-          <option selected>molecule</option>
-          <option>organism</option>
-          <option>template</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="subsection">Light Theme</div>
-    <div class="preview-box">
-      <input class="lp-input" type="text" placeholder="Search components..." />
-    </div>
-  </div>
-
-  <!-- ═══════════ CARDS ═══════════ -->
-  <div class="section">
-    <div class="section-title">Cards</div>
-    <div class="card-grid">
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title">Revenue</div>
-          <span class="badge badge-success" style="font-size:8px">LIVE</span>
+      <div class="group-panel" id="panel-components-all" style="display: none;">
+      <div class="group-header">Components</div>
+      <div style="color: var(--fg-muted); font-size: 11px; margin-bottom: 16px;">1 component specs across 1 atomic levels</div>
+      <div class="group-sub">molecule (1)</div><div class="card" style="margin-bottom: 8px; padding: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 12px;">MetricCard</strong>
+            <span class="badge badge-molecule">molecule</span>
+          </div>
+          <div style="margin-top: 4px; color: var(--fg-muted); font-size: 10px;">
+            shadcn: Card, Badge | 4 props
+          </div>
         </div>
-        <div class="card-body">
-          <div class="card-metric">$184,230</div>
-          <div class="card-label">MONTHLY TOTAL</div>
-          <div class="card-trend">+12.4% vs last month</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title">Components</div>
-          <span class="badge badge-atom" style="font-size:8px">ATOMS</span>
-        </div>
-        <div class="card-body">
-          <div class="card-metric">47</div>
-          <div class="card-label">GENERATED</div>
-          <div class="card-trend">9 atoms / 4 molecules / 3 organisms</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title">Figma Sync</div>
-          <span class="badge badge-info" style="font-size:8px">BRIDGE</span>
-        </div>
-        <div class="card-body">
-          <div class="card-metric" style="color:var(--success)">OK</div>
-          <div class="card-label">CONNECTION STATUS</div>
-          <div class="card-trend" style="color:var(--fg-muted)">Port 9223 &middot; Last sync 30s ago</div>
-        </div>
-      </div>
+    </div>
+  <div class="group-panel" id="panel-layout-atomic" style="display: none;">
+    <div class="group-header">Atomic Design Hierarchy</div>
+    <div style="margin-top: 16px; font-size: 11px; line-height: 2.4;">
+      <div><span class="badge badge-atom">atom</span> Primitives -- Button, Badge, Input, Label <span style="color: var(--fg-muted);">(components/ui/)</span></div>
+      <div><span class="badge badge-molecule">molecule</span> Composed atoms -- FormField, SearchBar <span style="color: var(--fg-muted);">(components/molecules/)</span></div>
+      <div><span class="badge badge-organism">organism</span> Stateful groups -- LoginForm, Sidebar <span style="color: var(--fg-muted);">(components/organisms/)</span></div>
+      <div><span class="badge badge-template">template</span> Page skeletons -- DashboardTemplate <span style="color: var(--fg-muted);">(components/templates/)</span></div>
     </div>
   </div>
-
-  <!-- ═══════════ TABLE ═══════════ -->
-  <div class="section">
-    <div class="section-title">Data Tables</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Component</th>
-            <th>Level</th>
-            <th>shadcn Base</th>
-            <th>Code Connect</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:700">Button</td>
-            <td><span class="badge badge-atom" style="font-size:8px;padding:1px 6px">ATOM</span></td>
-            <td style="color:var(--accent)">shadcn/button</td>
-            <td style="color:var(--success)">Mapped</td>
-            <td style="color:var(--success)">Generated</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">FormField</td>
-            <td><span class="badge badge-molecule" style="font-size:8px;padding:1px 6px">MOLECULE</span></td>
-            <td style="color:var(--accent)">shadcn/input + label</td>
-            <td style="color:var(--success)">Mapped</td>
-            <td style="color:var(--success)">Generated</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">LoginForm</td>
-            <td><span class="badge badge-organism" style="font-size:8px;padding:1px 6px">ORGANISM</span></td>
-            <td style="color:var(--accent)">shadcn/card + form</td>
-            <td style="color:var(--warn)">Partial</td>
-            <td style="color:var(--success)">Generated</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">MetricCard</td>
-            <td><span class="badge badge-molecule" style="font-size:8px;padding:1px 6px">MOLECULE</span></td>
-            <td style="color:var(--accent)">shadcn/card</td>
-            <td style="color:var(--fg-muted)">Unmapped</td>
-            <td style="color:var(--warn)">Spec Only</td>
-          </tr>
-          <tr>
-            <td style="font-weight:700">RevenueChart</td>
-            <td><span class="badge badge-muted" style="font-size:8px;padding:1px 6px">DATAVIZ</span></td>
-            <td style="color:var(--accent)">recharts</td>
-            <td style="color:var(--fg-muted)">N/A</td>
-            <td style="color:var(--success)">Generated</td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="group-panel" id="panel-layout-breakpoints" style="display: none;">
+    <div class="group-header">Responsive Breakpoints</div>
+    <div style="margin-top: 16px; font-size: 11px; color: var(--fg-muted);">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px 0; border-bottom: 1px solid var(--border);"><span>Mobile</span><span>&lt; 640px</span></div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px 0; border-bottom: 1px solid var(--border);"><span>Tablet</span><span>640-1024px</span></div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 0;"><span>Desktop</span><span>&gt; 1024px</span></div>
     </div>
   </div>
-
-  <!-- ═══════════ DESIGN TOKENS ═══════════ -->
-  <div class="section">
-    <div class="section-title">Design Tokens (Figma Variables)</div>
-    <div class="token-grid">
-      <div class="token-item"><div class="token-dot" style="background:#9D833E"></div><div class="token-name">colors/primary/500</div><div class="token-val">#9D833E</div></div>
-      <div class="token-item"><div class="token-dot" style="background:#C4A35A"></div><div class="token-name">colors/primary/400</div><div class="token-val">#C4A35A</div></div>
-      <div class="token-item"><div class="token-dot" style="background:#3D3520"></div><div class="token-name">colors/primary/900</div><div class="token-val">#3D3520</div></div>
-      <div class="token-item"><div class="token-dot" style="background:#22C55E"></div><div class="token-name">colors/success/500</div><div class="token-val">#22C55E</div></div>
-      <div class="token-item"><div class="token-dot" style="background:#EF4444"></div><div class="token-name">colors/error/500</div><div class="token-val">#EF4444</div></div>
-      <div class="token-item"><div class="token-dot" style="background:#3B82F6"></div><div class="token-name">colors/info/500</div><div class="token-val">#3B82F6</div></div>
-      <div class="token-item"><div class="token-dot" style="background:#0a0a0a;border:1px solid #333"></div><div class="token-name">colors/bg/default</div><div class="token-val">#0A0A0A</div></div>
-      <div class="token-item"><div class="token-dot" style="background:#111111;border:1px solid #333"></div><div class="token-name">colors/bg/card</div><div class="token-val">#111111</div></div>
-      <div class="token-item"><div class="token-dot" style="background:#e0e0e0"></div><div class="token-name">colors/fg/default</div><div class="token-val">#E0E0E0</div></div>
-      <div class="token-item"><div class="token-dot" style="background:#666666"></div><div class="token-name">colors/fg/muted</div><div class="token-val">#666666</div></div>
-      <div class="token-item"><div class="token-dot" style="background:transparent;border:1px solid var(--border)"></div><div class="token-name">spacing/4</div><div class="token-val">16px</div></div>
-      <div class="token-item"><div class="token-dot" style="background:transparent;border:1px solid var(--border)"></div><div class="token-name">radius/default</div><div class="token-val">2px</div></div>
     </div>
   </div>
-
-  <!-- ═══════════ ATOMIC DESIGN ═══════════ -->
-  <div class="section">
-    <div class="section-title">Atomic Design Hierarchy</div>
-    <div style="border:1px solid var(--border);border-radius:var(--radius);padding:24px;background:var(--bg-card);font-size:11px;line-height:2">
-      <div style="color:var(--accent);font-weight:700;margin-bottom:12px">ATOM &rarr; MOLECULE &rarr; ORGANISM &rarr; TEMPLATE &rarr; PAGE</div>
-      <div style="display:grid;grid-template-columns:120px 1fr;gap:8px 20px">
-        <span style="color:var(--accent);font-weight:700">Atoms</span>
-        <span style="color:var(--fg-muted)">Button, Badge, Input, Label, Icon, Tooltip &mdash; <span style="color:#555">components/ui/</span></span>
-        <span style="color:#5A8C7B;font-weight:700">Molecules</span>
-        <span style="color:var(--fg-muted)">FormField, SearchBar, MetricCard, NavItem &mdash; <span style="color:#555">components/molecules/</span></span>
-        <span style="color:#5A7B8C;font-weight:700">Organisms</span>
-        <span style="color:var(--fg-muted)">LoginForm, Sidebar, DataTable, Header &mdash; <span style="color:#555">components/organisms/</span></span>
-        <span style="color:var(--accent-bright);font-weight:700">Templates</span>
-        <span style="color:var(--fg-muted)">DashboardTemplate, AuthTemplate &mdash; <span style="color:#555">components/templates/</span></span>
-        <span style="color:var(--fg);font-weight:700">Pages</span>
-        <span style="color:var(--fg-muted)">Dashboard, Login, Settings &mdash; <span style="color:#555">pages/</span></span>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<footer>
-  <p>Noche Design System v0.1.0 &middot; <a href="https://github.com/sarveshsea/noche">github.com/sarveshsea/noche</a></p>
-</footer>
-
+  <script>
+  function showGroup(id) {
+    document.querySelectorAll('.group-panel').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    const panel = document.getElementById('panel-' + id);
+    if (panel) panel.style.display = 'block';
+    document.querySelectorAll('.sidebar-item[data-group="' + id + '"]').forEach(s => s.classList.add('active'));
+  }
+  
+  </script>
 </body>
 </html>

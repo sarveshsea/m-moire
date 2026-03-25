@@ -17,14 +17,14 @@ Port 9226 → Layout designer
 Port 9227 → Code generator
 Port 9228-9232 → Additional specialists
 ```
-The Noche plugin auto-discovers all instances via port scanning (9223-9232) every 5 seconds.
+The Mémoire plugin auto-discovers all instances via port scanning (9223-9232) every 5 seconds.
 
 ### Instance Identification
 Each agent MUST identify itself on connect:
 ```
-noche connect --role token-engineer --name "Token Agent"
-noche connect --role component-architect --name "Component Agent"
-noche connect --role layout-designer --name "Layout Agent"
+memi connect --role token-engineer --name "Token Agent"
+memi connect --role component-architect --name "Component Agent"
+memi connect --role layout-designer --name "Layout Agent"
 ```
 
 ## Box Widget Protocol

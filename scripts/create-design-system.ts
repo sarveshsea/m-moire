@@ -2,14 +2,14 @@
 /**
  * Create AgenticUI Design System in Figma
  *
- * This script uses the NocheEngine to execute Figma plugin code
+ * This script uses the MemoireEngine to execute Figma plugin code
  * and create design system components on the Design System page.
  */
 
 import { readFileSync } from "fs";
 
 // Load environment variables
-const envFile = "/Users/sarveshchidambaram/Desktop/noche/.env.local";
+const envFile = "/Users/sarveshchidambaram/Desktop/memoire/.env.local";
 try {
   const content = readFileSync(envFile, "utf-8");
   content.split("\n").forEach((line) => {
@@ -23,7 +23,7 @@ try {
   console.error("Failed to load .env.local");
 }
 
-const { NocheEngine } = await import("../src/engine/core.js");
+const { MemoireEngine } = await import("../src/engine/core.js");
 
 const COLORS = {
   bg: "#0A0A0A",
@@ -48,7 +48,7 @@ function hexToRGB(hex: string) {
 }
 
 async function main() {
-  const engine = new NocheEngine({
+  const engine = new MemoireEngine({
     projectRoot: process.cwd(),
     figmaToken: process.env.FIGMA_TOKEN || "",
     figmaFileKey: process.env.FIGMA_FILE_KEY || "",
@@ -56,7 +56,7 @@ async function main() {
 
   try {
     await engine.init();
-    console.log("Noche engine initialized");
+    console.log("Mémoire engine initialized");
     console.log("Connecting to existing bridge on port 9223...");
 
     // Connect to the existing bridge (don't start a new server)

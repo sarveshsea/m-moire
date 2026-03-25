@@ -1,7 +1,7 @@
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 
-export function registerSyncCommand(program: Command, engine: NocheEngine) {
+export function registerSyncCommand(program: Command, engine: MemoireEngine) {
   program
     .command("sync")
     .description("Full sync: Figma → design system → regenerate all specs → preview")

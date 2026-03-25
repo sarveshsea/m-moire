@@ -1,5 +1,5 @@
 /**
- * Spec Type Definitions — The foundation of Noche's spec-driven approach.
+ * Spec Type Definitions — The foundation of Mémoire's spec-driven approach.
  * Every component, page, and dataviz starts as a spec.
  */
 

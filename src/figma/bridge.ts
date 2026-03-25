@@ -1,7 +1,7 @@
 /**
  * Figma Bridge — Dual-mode transport to Figma.
  *
- * Mode 1 (Server): Starts a WebSocket server, waits for the Noche
+ * Mode 1 (Server): Starts a WebSocket server, waits for the Mémoire
  *   plugin to connect. Supports multiple simultaneous plugin connections
  *   and chat relay between Figma and terminal.
  *
@@ -13,8 +13,8 @@
 
 import { EventEmitter } from "events";
 import { createLogger } from "../engine/logger.js";
-import { NocheWsServer } from "./ws-server.js";
-import type { NocheEvent } from "../engine/core.js";
+import { MemoireWsServer } from "./ws-server.js";
+import type { MemoireEvent } from "../engine/core.js";
 import type { DesignSystem, DesignToken, DesignComponent, DesignStyle } from "../engine/registry.js";
 import type { IANode, IASpec } from "../specs/types.js";
 
@@ -23,7 +23,7 @@ export interface FigmaBridgeConfig {
   fileKey?: string;
   port?: number;
   instanceName?: string;
-  onEvent?: (event: NocheEvent) => void;
+  onEvent?: (event: MemoireEvent) => void;
   onChat?: (text: string, from: string) => void;
 }
 
@@ -94,13 +94,13 @@ interface RawSticky {
 export class FigmaBridge extends EventEmitter {
   private log = createLogger("figma-bridge");
   private config: FigmaBridgeConfig;
-  private server: NocheWsServer;
+  private server: MemoireWsServer;
   private _connected = false;
 
   constructor(config: FigmaBridgeConfig) {
     super();
     this.config = config;
-    this.server = new NocheWsServer({
+    this.server = new MemoireWsServer({
       port: config.port,
       instanceName: config.instanceName,
       onChat: config.onChat,
@@ -117,7 +117,11 @@ export class FigmaBridge extends EventEmitter {
     });
 
     this.server.on("client-disconnected", () => {
+      // Check actual client count after removal (event fires after clients.delete)
       this._connected = this.server.connectedClients.length > 0;
+      if (!this._connected) {
+        this.log.warn("All Figma plugins disconnected — waiting for reconnection on same port");
+      }
       this.emit("plugin-disconnected");
     });
 
@@ -133,7 +137,7 @@ export class FigmaBridge extends EventEmitter {
     return this._connected;
   }
 
-  get wsServer(): NocheWsServer {
+  get wsServer(): MemoireWsServer {
     return this.server;
   }
 
@@ -342,8 +346,8 @@ export class FigmaBridge extends EventEmitter {
     }));
   }
 
-  private emitEvent(type: NocheEvent["type"], message: string): void {
-    const event: NocheEvent = {
+  private emitEvent(type: MemoireEvent["type"], message: string): void {
+    const event: MemoireEvent = {
       type,
       source: "figma",
       message,

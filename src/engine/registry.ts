@@ -1,6 +1,6 @@
 /**
  * Registry — Manages specs, design system data, and generation state.
- * Persists to .noche/ directory for cross-session continuity.
+ * Persists to .memoire/ directory for cross-session continuity.
  */
 
 import { readFile, writeFile, readdir, mkdir, rename } from "fs/promises";
@@ -161,6 +161,38 @@ export class Registry {
     assertWithinDir(filePath, dir);
     await writeFile(tmpPath, JSON.stringify(spec, null, 2));
     await rename(tmpPath, filePath);
+  }
+
+  addToken(token: DesignToken): void {
+    // Replace if exists, otherwise append
+    const idx = this._designSystem.tokens.findIndex(t => t.name === token.name);
+    if (idx >= 0) {
+      this._designSystem.tokens[idx] = token;
+    } else {
+      this._designSystem.tokens.push(token);
+    }
+  }
+
+  updateToken(name: string, token: DesignToken): void {
+    const idx = this._designSystem.tokens.findIndex(t => t.name === name);
+    if (idx >= 0) {
+      this._designSystem.tokens[idx] = token;
+    } else {
+      this._designSystem.tokens.push(token);
+    }
+  }
+
+  removeToken(name: string): boolean {
+    const idx = this._designSystem.tokens.findIndex(t => t.name === name);
+    if (idx >= 0) {
+      this._designSystem.tokens.splice(idx, 1);
+      return true;
+    }
+    return false;
+  }
+
+  async save(): Promise<void> {
+    await this.updateDesignSystem(this._designSystem);
   }
 
   async updateDesignSystem(ds: DesignSystem): Promise<void> {

@@ -6,14 +6,14 @@
 import { writeFile, mkdir, readFile } from "fs/promises";
 import { join } from "path";
 import { createLogger } from "../engine/logger.js";
-import type { NocheEvent } from "../engine/core.js";
+import type { MemoireEvent } from "../engine/core.js";
 import { parseExcel } from "./excel-parser.js";
 import { clusterStickies, extractThemes, type ParsedResearch } from "../figma/stickies.js";
 import type { StickyNote } from "../figma/bridge.js";
 
 export interface ResearchConfig {
   outputDir: string;
-  onEvent?: (event: NocheEvent) => void;
+  onEvent?: (event: MemoireEvent) => void;
 }
 
 export interface ResearchInsight {
@@ -444,7 +444,7 @@ export class ResearchEngine {
     this.log.info({ notes: this.store.insights.length + this.store.themes.length + this.store.personas.length }, "Markdown notes written");
   }
 
-  private emitEvent(type: NocheEvent["type"], message: string): void {
+  private emitEvent(type: MemoireEvent["type"], message: string): void {
     this.config.onEvent?.({
       type,
       source: "research",

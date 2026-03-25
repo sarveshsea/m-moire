@@ -1,20 +1,20 @@
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import type { ComponentSpec, DataVizSpec, PageSpec } from "../specs/types.js";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
-export function registerInitCommand(program: Command, engine: NocheEngine) {
+export function registerInitCommand(program: Command, engine: MemoireEngine) {
   program
     .command("init")
-    .description("Interactive onboarding — set up Noche for your project")
+    .description("Interactive onboarding — set up Mémoire for your project")
     .action(async () => {
       const root = engine.config.projectRoot;
 
       console.log(`
   ╔══════════════════════════════════════════════════╗
   ║                                                  ║
-  ║            Welcome to Noche                        ║
+  ║            Welcome to Mémoire                        ║
   ║     AI-Native Design Intelligence Engine         ║
   ║                                                  ║
   ╚══════════════════════════════════════════════════╝
@@ -32,13 +32,13 @@ export function registerInitCommand(program: Command, engine: NocheEngine) {
 
       // Step 2: API Keys guide
       console.log(`\n  Step 2/5: API Keys & Connections\n`);
-      console.log(`    Noche connects to these services. Here's how to set them up:\n`);
+      console.log(`    Mémoire connects to these services. Here's how to set them up:\n`);
       console.log(`    FIGMA_TOKEN (required for Figma sync)`);
       console.log(`    ─────────────────────────────────────`);
       console.log(`    1. Open Figma → Settings → Account`);
       console.log(`    2. Scroll to "Personal Access Tokens"`);
       console.log(`    3. Click "Generate new token"`);
-      console.log(`    4. Name it "Noche", copy the token`);
+      console.log(`    4. Name it "Memoire", copy the token`);
       console.log(`    5. Add to your shell: export FIGMA_TOKEN="figd_xxxxx"`);
       console.log(``);
       console.log(`    FIGMA_FILE_KEY (optional, for default file)`);
@@ -60,7 +60,7 @@ export function registerInitCommand(program: Command, engine: NocheEngine) {
         "generated/pages",
         "generated/dataviz",
         "prototype",
-        ".noche",
+        ".memoire",
       ];
 
       for (const dir of dirs) {
@@ -162,14 +162,14 @@ export function registerInitCommand(program: Command, engine: NocheEngine) {
 
       // Write onboarding complete marker
       await writeFile(
-        join(root, ".noche", "onboarded.json"),
+        join(root, ".memoire", "onboarded.json"),
         JSON.stringify({ completedAt: new Date().toISOString(), version: "0.1.0" })
       );
 
       console.log(`
   ╔══════════════════════════════════════════════════╗
   ║                                                  ║
-  ║            Noche is ready!                         ║
+  ║            Mémoire is ready!                         ║
   ║                                                  ║
   ╚══════════════════════════════════════════════════╝
 
@@ -181,30 +181,30 @@ export function registerInitCommand(program: Command, engine: NocheEngine) {
   Next steps (one at a time):
 
     STEP 1 — Connect to Figma (guided):
- *   noche connect
+ *   memi connect
        (walks you through token setup, file key, and plugin install)
 
     STEP 2 — Pull your design system:
- *   noche pull
+ *   memi pull
 
     STEP 3 — Extract information architecture:
- *   noche ia extract MyApp
+ *   memi ia extract MyApp
 
     STEP 4 — Launch the dashboard:
- *   noche dashboard
+ *   memi dashboard
 
     STEP 5 — Create more specs:
- *   noche spec component MyComponent
- *   noche spec page MyPage
- *   noche spec dataviz MyChart
- *   noche spec design MyDesign
- *   noche ia create MySitemap
+ *   memi spec component MyComponent
+ *   memi spec page MyPage
+ *   memi spec dataviz MyChart
+ *   memi spec design MyDesign
+ *   memi ia create MySitemap
 
     STEP 6 — Generate code:
- *   noche generate
+ *   memi generate
 
-  Run \`noche status\` anytime to check progress.
-  Run \`noche --help\` to see all commands.
+  Run \`memi status\` anytime to check progress.
+  Run \`memi --help\` to see all commands.
 `);
     });
 }

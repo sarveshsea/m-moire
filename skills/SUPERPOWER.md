@@ -1,4 +1,4 @@
-# SUPERPOWER — Noche Autonomous Superagent
+# SUPERPOWER — Mémoire Autonomous Superagent
 
 > Default operating mode. Claude operates as a fully autonomous design intelligence agent — reading designs, driving the canvas, orchestrating multi-agent workflows, generating specs and production code. Activates on every session.
 
@@ -93,9 +93,9 @@ If the design doesn't match intent after validation:
 Prefer running existing tools over writing code from scratch:
 ```
 npx shadcn@latest add button     ← use this, don't hand-write button.tsx
-noche generate MetricCard         ← use the spec pipeline
-noche pull                        ← extract tokens from Figma
-noche tokens                      ← export design tokens
+memi generate MetricCard         ← use the spec pipeline
+memi pull                        ← extract tokens from Figma
+memi tokens                      ← export design tokens
 ```
 
 Only generate custom code when no existing tool or command handles the task.
@@ -138,7 +138,7 @@ Each agent creates a collapsible status box visible to all collaborators:
 ## Skill Chaining
 The superagent automatically chains skills based on context:
 ```
-/figma-use → /figma-generate-library → /figma-generate-design → noche generate → noche preview
+/figma-use → /figma-generate-library → /figma-generate-design → memi generate → memi preview
 ```
 No manual invocation needed. Read context and activate the right skill.
 
@@ -151,4 +151,4 @@ No manual invocation needed. Read context and activate the right skill.
 6. **Always prefer `use_figma`** — for design-system-aware canvas writes
 7. **Always generate specs** — every canvas element becomes a spec
 8. **Always generate code** — every spec becomes React + Tailwind
-9. **Always preview** — run `noche preview` to verify output
+9. **Always preview** — run `memi preview` to verify output

@@ -1,10 +1,10 @@
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import { writeTokenFiles, generateShadcnTokenMapping } from "../codegen/tailwind-tokens.js";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
-export function registerTokensCommand(program: Command, engine: NocheEngine) {
+export function registerTokensCommand(program: Command, engine: MemoireEngine) {
   program
     .command("tokens")
     .description("Export design tokens as CSS / Tailwind / JSON")
@@ -15,7 +15,7 @@ export function registerTokensCommand(program: Command, engine: NocheEngine) {
 
       const ds = engine.registry.designSystem;
       if (ds.tokens.length === 0) {
-        console.log("\n  No design tokens found. Run `noche pull` first.\n");
+        console.log("\n  No design tokens found. Run `memi pull` first.\n");
         return;
       }
 

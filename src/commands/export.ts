@@ -1,14 +1,14 @@
 /**
- * `noche export` — Copies generated components from Noche's `generated/`
+ * `memi export` — Copies generated components from Mémoire's `generated/`
  * folder into the user's actual project, respecting their framework paths.
  */
 
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import { readdir, readFile, writeFile, mkdir, access } from "fs/promises";
 import { join, relative } from "path";
 
-export function registerExportCommand(program: Command, engine: NocheEngine) {
+export function registerExportCommand(program: Command, engine: MemoireEngine) {
   program
     .command("export")
     .description("Export generated components into your project's source tree")
@@ -20,7 +20,7 @@ export function registerExportCommand(program: Command, engine: NocheEngine) {
 
       const project = engine.project;
       if (!project) {
-        console.log("\n  x Could not detect project context. Run `noche init` first.\n");
+        console.log("\n  x Could not detect project context. Run `memi init` first.\n");
         return;
       }
 
@@ -32,7 +32,7 @@ export function registerExportCommand(program: Command, engine: NocheEngine) {
       // Discover all generated files
       const files = await walkDir(generatedDir);
       if (files.length === 0) {
-        console.log("\n  · No generated files found. Run `noche generate` or `noche go` first.\n");
+        console.log("\n  · No generated files found. Run `memi generate` or `memi go` first.\n");
         return;
       }
 

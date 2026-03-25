@@ -1,4 +1,4 @@
-# Ark Security Review Summary
+# Mémoire Security Review Summary
 
 **Date:** March 23, 2026
 **Reviewer:** Security Analysis
@@ -8,7 +8,7 @@
 
 ## Quick Overview
 
-The Ark codebase is a TypeScript-based AI design intelligence engine with solid foundational security practices (Zod validation, environment variable isolation, no hardcoded secrets). However, two CRITICAL vulnerabilities related to code execution and code generation require immediate remediation.
+The Mémoire codebase is a TypeScript-based AI design intelligence engine with solid foundational security practices (Zod validation, environment variable isolation, no hardcoded secrets). However, two CRITICAL vulnerabilities related to code execution and code generation require immediate remediation.
 
 ### Key Files Reviewed
 
@@ -58,7 +58,7 @@ The Ark codebase is a TypeScript-based AI design intelligence engine with solid 
 
 ### Scenario 1: Plugin RCE (CRITICAL)
 
-**Attack:** Attacker compromises Ark engine to send malicious code to Figma plugin.
+**Attack:** Attacker compromises Mémoire engine to send malicious code to Figma plugin.
 
 ```javascript
 // Blocklist bypass: string obfuscation
@@ -169,37 +169,37 @@ for (let i = 0; i < 10000; i++) {
 ## File Locations & Quick Fixes
 
 ### 1. Plugin Code Execution
-- **File:** `/Users/sarveshchidambaram/Desktop/noche/plugin/code.js`
+- **File:** `/Users/sarveshchidambaram/Desktop/memoire/plugin/code.js`
 - **Lines:** 184-214
 - **Quick Fix:** See `SECURITY_FIXES.md` → Plugin Code Execution section
 
 ### 2. Prototype Code Injection
-- **File:** `/Users/sarveshchidambaram/Desktop/noche/src/codegen/prototype-exporter.ts`
+- **File:** `/Users/sarveshchidambaram/Desktop/memoire/src/codegen/prototype-exporter.ts`
 - **Lines:** 82, 101-117
 - **Quick Fix:** See `SECURITY_FIXES.md` → Prototype Exporter Code Injection section
 
 ### 3. WebSocket Rate Limiting
-- **File:** `/Users/sarveshchidambaram/Desktop/noche/src/figma/ws-server.ts`
+- **File:** `/Users/sarveshchidambaram/Desktop/memoire/src/figma/ws-server.ts`
 - **Lines:** 270-287
 - **Quick Fix:** See `SECURITY_FIXES.md` → WebSocket Rate Limiting section
 
 ### 4. Spec Name Validation
-- **File:** `/Users/sarveshchidambaram/Desktop/noche/src/engine/registry.ts`
+- **File:** `/Users/sarveshchidambaram/Desktop/memoire/src/engine/registry.ts`
 - **Lines:** 129-141
 - **Quick Fix:** See `SECURITY_FIXES.md` → Spec Name Validation section
 
 ### 5. Dashboard Escaping
-- **File:** `/Users/sarveshchidambaram/Desktop/noche/src/commands/dashboard.ts`
+- **File:** `/Users/sarveshchidambaram/Desktop/memoire/src/commands/dashboard.ts`
 - **Lines:** 10-18, 528-531, 545-550
 - **Quick Fix:** Review current escaping and add context-aware escaping utilities
 
 ### 6. WebSocket Origin Check
-- **File:** `/Users/sarveshchidambaram/Desktop/noche/src/figma/ws-server.ts`
+- **File:** `/Users/sarveshchidambaram/Desktop/memoire/src/figma/ws-server.ts`
 - **Lines:** 224-230
 - **Quick Fix:** See `SECURITY_FIXES.md` → WebSocket Origin Validation section
 
 ### 7. Env Var Sanitization
-- **File:** `/Users/sarveshchidambaram/Desktop/noche/src/index.ts` & logger
+- **File:** `/Users/sarveshchidambaram/Desktop/memoire/src/index.ts` & logger
 - **Quick Fix:** See `SECURITY_FIXES.md` → Environment Variable Sanitization section
 
 ---

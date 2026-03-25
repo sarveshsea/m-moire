@@ -162,8 +162,8 @@ CREATE → SCREENSHOT → ANALYZE → FIX → VERIFY (max 3 rounds)
 | Pages | PascalCase | `Dashboard`, `AuthLogin` |
 | Sections | Title Case | `Hero Section`, `Navigation` |
 
-## Integration with Noche
-- Canvas operations flow through Noche's WebSocket bridge (ports 9223-9232)
+## Integration with Mémoire
+- Canvas operations flow through Mémoire's WebSocket bridge (ports 9223-9232)
 - Agent metadata (role, task, status) is broadcast to all connected plugins
 - Design tokens extracted from Figma map to `src/figma/tokens.ts`
 - Generated components land in `generated/` following atomic folder structure

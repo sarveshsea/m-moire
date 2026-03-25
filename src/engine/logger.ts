@@ -1,5 +1,5 @@
 /**
- * Structured logger for Noche engine.
+ * Structured logger for Mémoire engine.
  */
 
 import pino from "pino";

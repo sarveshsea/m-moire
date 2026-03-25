@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import type { ComponentSpec, PageSpec, DataVizSpec, DesignSpec } from "../specs/types.js";
 import { validateSpec } from "../specs/validator.js";
 
@@ -15,7 +15,7 @@ function validateName(name: string): void {
   }
 }
 
-export function registerSpecCommand(program: Command, engine: NocheEngine) {
+export function registerSpecCommand(program: Command, engine: MemoireEngine) {
   const spec = program
     .command("spec")
     .description("Create or edit specs");
@@ -64,7 +64,7 @@ export function registerSpecCommand(program: Command, engine: NocheEngine) {
 
       await engine.registry.saveSpec(newSpec);
       console.log(`\n  Created: specs/components/${name}.json`);
-      console.log(`  Run \`noche generate ${name}\` to generate code.\n`);
+      console.log(`  Run \`memi generate ${name}\` to generate code.\n`);
     });
 
   spec
@@ -92,7 +92,7 @@ export function registerSpecCommand(program: Command, engine: NocheEngine) {
 
       await engine.registry.saveSpec(newSpec);
       console.log(`\n  Created: specs/pages/${name}.json`);
-      console.log("  Edit the spec to add sections, then run `noche generate`.\n");
+      console.log("  Edit the spec to add sections, then run `memi generate`.\n");
     });
 
   spec
@@ -124,7 +124,7 @@ export function registerSpecCommand(program: Command, engine: NocheEngine) {
 
       await engine.registry.saveSpec(newSpec);
       console.log(`\n  Created: specs/dataviz/${name}.json`);
-      console.log("  Edit the spec to define data shape, then run `noche generate`.\n");
+      console.log("  Edit the spec to define data shape, then run `memi generate`.\n");
     });
 
   spec
@@ -181,7 +181,7 @@ export function registerSpecCommand(program: Command, engine: NocheEngine) {
 
       const specs = await engine.registry.getAllSpecs();
       if (specs.length === 0) {
-        console.log("\n  No specs found. Create one with `noche spec component <name>`.\n");
+        console.log("\n  No specs found. Create one with `memi spec component <name>`.\n");
         return;
       }
 

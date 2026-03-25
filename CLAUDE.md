@@ -1,9 +1,9 @@
-# Noche — Project Guidelines for Claude
+# Mémoire — Project Guidelines for Claude
 
-## What is Noche?
-Noche is an AI-native design intelligence engine that bridges Figma, user research, and code generation into a spec-driven system. It generates shadcn/ui components from structured specs using **Atomic Design methodology** exclusively.
+## What is Mémoire?
+Mémoire is an AI-native design intelligence engine that bridges Figma, user research, and code generation into a spec-driven system. It generates shadcn/ui components from structured specs using **Atomic Design methodology** exclusively.
 
-Noche is the easiest hands-free way to connect to the Figma bridge — it auto-discovers and connects automatically. It has a localhost server showing all Figma pages as generated code, generates components for each design element, and supports multiple Claude instances natively via box widgets in Figma. It is built for Claude to operate autonomously and always uses the superagent skill.
+Mémoire is the easiest hands-free way to connect to the Figma bridge — it auto-discovers and connects automatically. It has a localhost server showing all Figma pages as generated code, generates components for each design element, and supports multiple Claude instances natively via box widgets in Figma. It is built for Claude to operate autonomously and always uses the superagent skill.
 
 ## Architecture
 - `src/engine/` — Core orchestrator, project detection, registry
@@ -16,7 +16,7 @@ Noche is the easiest hands-free way to connect to the Figma bridge — it auto-d
 - `src/tui/` — Terminal UI (Ink/React)
 - `src/commands/` — CLI commands (commander.js)
 - `skills/` — Skill definitions that guide agent behavior
-- `plugin/` — Figma plugin (auto-discovers Noche on ports 9223-9232)
+- `plugin/` — Figma plugin (auto-discovers Mémoire on ports 9223-9232)
 
 ## Skills (Read These First)
 Skills are markdown files in `skills/` that define how agents operate. **Always load relevant skills before acting.**
@@ -52,7 +52,7 @@ Rules:
 - Pages use `PageSpec`, not `ComponentSpec`
 
 ## Figma MCP Integration
-Noche works with both MCP servers:
+Mémoire works with both MCP servers:
 
 ### Official Figma MCP Server
 - `use_figma` — Write designs to canvas using design system
@@ -95,7 +95,7 @@ When Figma MCP returns Code Connect snippets, use the mapped component directly.
 - Each agent has a role: `token-engineer`, `component-architect`, `layout-designer`, etc.
 - Agents create box widgets in Figma (`orchestrator.createAgentBox(role, task, status)`)
 - Box widgets expand when busy, collapse when done — visible to all Figma collaborators
-- Use `noche connect --role <role> --name <name>` to identify each instance
+- Use `memi connect --role <role> --name <name>` to identify each instance
 
 ## Key Conventions
 - **Always use shadcn/ui** — no custom component libraries
@@ -106,23 +106,23 @@ When Figma MCP returns Code Connect snippets, use the mapped component directly.
 - **Zod schemas** — all data shapes validated with Zod
 - **Self-healing** — always screenshot and validate canvas operations
 - **Superagent by default** — operate autonomously, burn tokens for quality
-- **Update CHANGELOG.md** — after every Noche engine commit, add the hash and message to `CHANGELOG.md` and log any architectural decisions. This file tracks Noche the product — not whatever the user is building with it. User project state lives in `.noche/` locally. Also keep `preview/changelog.html` in sync.
+- **Update CHANGELOG.md** — after every Mémoire engine commit, add the hash and message to `CHANGELOG.md` and log any architectural decisions. This file tracks Mémoire the product — not whatever the user is building with it. User project state lives in `.memoire/` locally. Also keep `preview/changelog.html` in sync.
 
 ## Commands
-- `noche connect` — Connect to Figma (auto-discovers plugin)
-- `noche pull` — Extract design system
-- `noche spec component|page|dataviz <name>` — Create a spec
-- `noche generate [name]` — Generate code from specs (atomic folders)
-- `noche research from-file|from-stickies|synthesize|report` — Research pipeline
-- `noche tokens` — Export design tokens
-- `noche status` — Show project status
-- `noche sync` — Full sync pipeline
-- `noche preview` — Start preview server (localhost with moon favicon)
-- `noche compose "<intent>"` — Agent orchestrator: classify intent → build plan → execute sub-tasks → report
-- `noche dashboard` — Launch the Noche dashboard on localhost (specs, tokens, research, Figma status)
-- `noche ia extract|create|show|validate|list` — Information architecture tools
+- `memi connect` — Connect to Figma (auto-discovers plugin)
+- `memi pull` — Extract design system
+- `memi spec component|page|dataviz <name>` — Create a spec
+- `memi generate [name]` — Generate code from specs (atomic folders)
+- `memi research from-file|from-stickies|synthesize|report` — Research pipeline
+- `memi tokens` — Export design tokens
+- `memi status` — Show project status
+- `memi sync` — Full sync pipeline
+- `memi preview` — Start preview server (localhost with moon favicon)
+- `memi compose "<intent>"` — Agent orchestrator: classify intent → build plan → execute sub-tasks → report
+- `memi dashboard` — Launch the Mémoire dashboard on localhost (specs, tokens, research, Figma status)
+- `memi ia extract|create|show|validate|list` — Information architecture tools
 
-## Agent Orchestrator (`noche compose`)
+## Agent Orchestrator (`memi compose`)
 The compose command is the autonomous agent entry point. It takes natural language and routes through:
 1. **Intent Classifier** — Regex patterns map to 16 categories (token-update, component-create, page-layout, etc.)
 2. **Plan Builder** — Decomposes intent into SubTasks with dependency DAG

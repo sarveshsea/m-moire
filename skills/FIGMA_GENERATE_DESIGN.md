@@ -8,7 +8,7 @@ Full creative freedom within the design system. Must use existing components and
 
 ## Prerequisites
 - `/figma-use` foundational skill loaded
-- Design system pulled (`noche pull`) or variables exist in file
+- Design system pulled (`memi pull`) or variables exist in file
 - `figma_search_components` called this session (nodeIds are session-scoped)
 
 ## Workflow
@@ -79,9 +79,9 @@ Check:
 ### Step 6: Generate Spec & Code
 After the design is validated:
 ```
-noche spec component LoginForm → specs/components/LoginForm.json
-noche spec page AuthLogin → specs/pages/AuthLogin.json
-noche generate LoginForm → generated/components/LoginForm/
+memi spec component LoginForm → specs/components/LoginForm.json
+memi spec page AuthLogin → specs/pages/AuthLogin.json
+memi generate LoginForm → generated/components/LoginForm/
 add_code_connect_map → establish Figma ↔ code mapping
 ```
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%23ffffff'/%3E%3C/svg%3E">
-<title>memoire</title>
+<title>memoire / specs</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -115,78 +115,116 @@ th { color: var(--fg-muted); font-size: 10px; text-transform: uppercase; letter-
 </head>
 <body>
   <header class="hdr">
-    <nav class="hdr-nav"><a href="index.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-8 9 8M5 11v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8"/></svg>Home</a><a href="research.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Research</a><a href="specs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Specs</a><a href="design-system.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Systems</a><a href="changelog.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a></nav>
+    <nav class="hdr-nav"><a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-8 9 8M5 11v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8"/></svg>Home</a><a href="research.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Research</a><a href="specs.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Specs</a><a href="design-system.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Systems</a><a href="changelog.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a></nav>
   </header>
   
   <div class="main">
-    <div style="margin-bottom: 48px;">
-      <h1 style="font-size: 32px; font-weight: 300; letter-spacing: 2px; margin-bottom: 8px;">memoire</h1>
-      <p style="color: var(--fg-muted); font-size: 13px;">Spec-driven design intelligence. Figma bridge. Research synthesis. Atomic design. Code generation.</p>
+    <div class="grid-4" style="margin-bottom: 24px;">
+      <div class="card"><div class="card-title">Components</div><div class="card-value">1</div></div>
+      <div class="card"><div class="card-title">Pages</div><div class="card-value">1</div></div>
+      <div class="card"><div class="card-title">Data Viz</div><div class="card-value">2</div></div>
+      <div class="card"><div class="card-title">Other</div><div class="card-value">0</div></div>
     </div>
 
-    <div class="grid-4" style="margin-bottom: 32px;">
-      <div class="card">
-        <div class="card-title">Components</div>
-        <div class="card-value">1</div>
+    <div data-tab-group="specs">
+      <div class="tabs">
+        <button class="tab active" data-tab="components" onclick="switchTab('specs','components')">Components</button>
+        <button class="tab" data-tab="pages" onclick="switchTab('specs','pages')">Pages</button>
+        <button class="tab" data-tab="dataviz" onclick="switchTab('specs','dataviz')">Data Viz</button>
+        <button class="tab" data-tab="all" onclick="switchTab('specs','all')">All Specs</button>
       </div>
-      <div class="card">
-        <div class="card-title">Pages</div>
-        <div class="card-value">1</div>
+
+      <div class="tab-panel active" data-panel="components">
+        
+        <table>
+          <thead><tr><th>Name</th><th>Level</th><th>shadcn Base</th><th>Props</th><th>Purpose</th></tr></thead>
+          <tbody>
+    <tr>
+      <td><strong>MetricCard</strong></td>
+      <td><span class="badge badge-molecule">molecule</span></td>
+      <td style="color: var(--fg-muted);">Card, Badge</td>
+      <td style="color: var(--fg-muted);">4 props</td>
+      <td style="color: var(--fg-muted);">Display a single KPI metric with title, value, and optional trend indicator</td>
+    </tr></tbody>
+        </table>
       </div>
-      <div class="card">
-        <div class="card-title">Data Viz</div>
-        <div class="card-value">2</div>
+
+      <div class="tab-panel" data-panel="pages">
+        
+        <table>
+          <thead><tr><th>Name</th><th>Layout</th><th>Sections</th><th>Purpose</th></tr></thead>
+          <tbody>
+    <tr>
+      <td><strong>Dashboard</strong></td>
+      <td style="color: var(--fg-muted);">dashboard</td>
+      <td style="color: var(--fg-muted);">2 sections</td>
+      <td style="color: var(--fg-muted);">Main application dashboard showing KPIs and activity trends</td>
+    </tr></tbody>
+        </table>
       </div>
-      <div class="card">
-        <div class="card-title">Tokens</div>
-        <div class="card-value">0</div>
+
+      <div class="tab-panel" data-panel="dataviz">
+        
+        <table>
+          <thead><tr><th>Name</th><th>Chart Type</th><th>Purpose</th></tr></thead>
+          <tbody>
+    <tr>
+      <td><strong>ActivityChart</strong></td>
+      <td style="color: var(--fg-muted);">area</td>
+      <td style="color: var(--fg-muted);">Show daily activity trend over the last 30 days</td>
+    </tr>
+    <tr>
+      <td><strong>RevenueChart</strong></td>
+      <td style="color: var(--fg-muted);">line</td>
+      <td style="color: var(--fg-muted);">RevenueChart chart</td>
+    </tr></tbody>
+        </table>
+      </div>
+
+      <div class="tab-panel" data-panel="all">
+        <table>
+          <thead><tr><th>Name</th><th>Type</th><th>Purpose</th><th>Updated</th></tr></thead>
+          <tbody>
+            
+            <tr>
+              <td><strong>MetricCard</strong></td>
+              <td><span class="badge badge-low">component</span></td>
+              <td style="color: var(--fg-muted);">Display a single KPI metric with title, value, and optional trend indicator</td>
+              <td style="color: var(--fg-muted);">2026-03-23</td>
+            </tr>
+            <tr>
+              <td><strong>Dashboard</strong></td>
+              <td><span class="badge badge-low">page</span></td>
+              <td style="color: var(--fg-muted);">Main application dashboard showing KPIs and activity trends</td>
+              <td style="color: var(--fg-muted);">2026-03-23</td>
+            </tr>
+            <tr>
+              <td><strong>ActivityChart</strong></td>
+              <td><span class="badge badge-low">dataviz</span></td>
+              <td style="color: var(--fg-muted);">Show daily activity trend over the last 30 days</td>
+              <td style="color: var(--fg-muted);">2026-03-23</td>
+            </tr>
+            <tr>
+              <td><strong>RevenueChart</strong></td>
+              <td><span class="badge badge-low">dataviz</span></td>
+              <td style="color: var(--fg-muted);">RevenueChart chart</td>
+              <td style="color: var(--fg-muted);">2026-03-23</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="grid-3" style="margin-bottom: 32px;">
-      <div class="card">
-        <div class="card-title">Token Coverage</div>
-        <div style="margin-top: 8px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span style="color: var(--fg-muted);">Color</span><span>0</span></div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span style="color: var(--fg-muted);">Spacing</span><span>0</span></div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span style="color: var(--fg-muted);">Typography</span><span>0</span></div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span style="color: var(--fg-muted);">Radius</span><span>0</span></div>
-          <div style="display: flex; justify-content: space-between;"><span style="color: var(--fg-muted);">Shadow</span><span>0</span></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Research</div>
-        <div style="margin-top: 8px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span style="color: var(--fg-muted);">Insights</span><span>0</span></div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span style="color: var(--fg-muted);">Themes</span><span>0</span></div>
-          <div style="display: flex; justify-content: space-between;"><span style="color: var(--fg-muted);">Personas</span><span>0</span></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Quick Commands</div>
-        <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
-          <code style="color: var(--fg-muted); font-size: 11px;">memi connect</code>
-          <code style="color: var(--fg-muted); font-size: 11px;">memi pull</code>
-          <code style="color: var(--fg-muted); font-size: 11px;">memi generate</code>
-          <code style="color: var(--fg-muted); font-size: 11px;">memi doctor</code>
-          <code style="color: var(--fg-muted); font-size: 11px;">memi compose "&lt;intent&gt;"</code>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-bottom: 32px;">
-      <div class="card-title">Architecture</div>
-      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; font-size: 11px; color: var(--fg-muted);">
-        <span style="color: var(--fg);">engine</span> &rarr;
-        <span>figma bridge</span> &rarr;
-        <span>research</span> &rarr;
-        <span>specs</span> &rarr;
-        <span>codegen</span> &rarr;
-        <span>preview</span>
-      </div>
-    </div>
-
-    <div class="footer">memoire v0.1.0 -- built 2026-03-25</div>
+    <div class="footer">memoire specs -- 4 total</div>
   </div>
+  
+<script>
+function switchTab(group, tabName) {
+  document.querySelectorAll('[data-tab-group="' + group + '"] .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('[data-tab-group="' + group + '"] .tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-tab-group="' + group + '"] .tab[data-tab="' + tabName + '"]').classList.add('active');
+  document.querySelector('[data-tab-group="' + group + '"] .tab-panel[data-panel="' + tabName + '"]').classList.add('active');
+}
+</script>
 </body>
 </html>

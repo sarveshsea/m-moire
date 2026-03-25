@@ -1,5 +1,5 @@
 /**
- * Noche Core Engine — Central orchestrator that ties together
+ * Mémoire Core Engine — Central orchestrator that ties together
  * Figma bridge, research, specs, codegen, and preview.
  */
 
@@ -13,15 +13,16 @@ import { createLogger } from "./logger.js";
 import { EventEmitter } from "events";
 import { readFile, writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import { initWorkspace, readSoul } from "./workspace-init.js";
 
-export interface NocheConfig {
+export interface MemoireConfig {
   projectRoot: string;
   figmaToken?: string;
   figmaFileKey?: string;
   previewPort?: number;
 }
 
-export interface NocheEvent {
+export interface MemoireEvent {
   type: "info" | "warn" | "error" | "success";
   source: string;
   message: string;
@@ -29,9 +30,9 @@ export interface NocheEvent {
   data?: unknown;
 }
 
-export class NocheEngine extends EventEmitter {
-  readonly config: NocheConfig;
-  readonly log = createLogger("noche");
+export class MemoireEngine extends EventEmitter {
+  readonly config: MemoireConfig;
+  readonly log = createLogger("memoire");
   readonly registry: Registry;
   readonly figma: FigmaBridge;
   readonly research: ResearchEngine;
@@ -39,11 +40,12 @@ export class NocheEngine extends EventEmitter {
 
   private _project: ProjectContext | null = null;
   private _initialized = false;
+  private _soul = "";
 
-  constructor(config: NocheConfig) {
+  constructor(config: MemoireConfig) {
     super();
     this.config = config;
-    this.registry = new Registry(join(config.projectRoot, ".noche"));
+    this.registry = new Registry(join(config.projectRoot, ".memoire"));
     this.figma = new FigmaBridge({
       token: config.figmaToken,
       fileKey: config.figmaFileKey,
@@ -64,14 +66,20 @@ export class NocheEngine extends EventEmitter {
     return this._project;
   }
 
+  /** Design soul — loaded from .memoire/SOUL.md, guides agent output style */
+  get soul(): string {
+    return this._soul;
+  }
+
   async init(): Promise<void> {
     if (this._initialized) return;
 
-    this.log.info("Initializing Noche engine...");
+    this.log.info("Initializing Mémoire engine...");
 
-    // Ensure .noche directory exists
-    const arkDir = join(this.config.projectRoot, ".noche");
-    await mkdir(arkDir, { recursive: true });
+    // Ensure .memoire directory exists and initialize workspace
+    const memoireDir = join(this.config.projectRoot, ".memoire");
+    await mkdir(memoireDir, { recursive: true });
+    await initWorkspace(memoireDir);
 
     // Detect project context
     this._project = await detectProject(this.config.projectRoot);
@@ -80,14 +88,17 @@ export class NocheEngine extends EventEmitter {
     // Load existing registry
     await this.registry.load();
 
+    // Load design soul for agent context
+    this._soul = await readSoul(memoireDir);
+
     this._initialized = true;
     this.emit("event", {
       type: "success",
       source: "engine",
-      message: `Noche initialized — detected ${this._project.framework} project`,
+      message: `Mémoire initialized — detected ${this._project.framework} project`,
       timestamp: new Date(),
       data: this._project,
-    } satisfies NocheEvent);
+    } satisfies MemoireEvent);
   }
 
   async connectFigma(): Promise<number> {
@@ -95,15 +106,15 @@ export class NocheEngine extends EventEmitter {
     this.emit("event", {
       type: "success",
       source: "figma",
-      message: `Figma bridge listening on port ${port} — open the Noche plugin to connect`,
+      message: `Figma bridge listening on port ${port} — open the Mémoire plugin to connect`,
       timestamp: new Date(),
-    } satisfies NocheEvent);
+    } satisfies MemoireEvent);
     return port;
   }
 
   async pullDesignSystem(): Promise<void> {
     if (!this.figma.isConnected) {
-      throw new Error("Not connected to Figma. Run `noche connect` first.");
+      throw new Error("Not connected to Figma. Run `memi connect` first.");
     }
 
     const designSystem = await this.figma.extractDesignSystem();
@@ -115,7 +126,7 @@ export class NocheEngine extends EventEmitter {
       message: `Design system pulled — ${designSystem.tokens.length} tokens, ${designSystem.components.length} components extracted`,
       timestamp: new Date(),
       data: designSystem,
-    } satisfies NocheEvent);
+    } satisfies MemoireEvent);
 
     // Auto-generate specs from pulled components
     const autoResult = await this.autoSpec();
@@ -125,7 +136,7 @@ export class NocheEngine extends EventEmitter {
         source: "auto-spec",
         message: `Auto-created ${autoResult} component specs from Figma`,
         timestamp: new Date(),
-      } satisfies NocheEvent);
+      } satisfies MemoireEvent);
     }
   }
 
@@ -170,7 +181,7 @@ export class NocheEngine extends EventEmitter {
       message: `Code generated for ${specName} — ${result.files.length} files written`,
       timestamp: new Date(),
       data: result,
-    } satisfies NocheEvent);
+    } satisfies MemoireEvent);
 
     return result.entryFile;
   }
@@ -189,12 +200,12 @@ export class NocheEngine extends EventEmitter {
       source: "engine",
       message: `Sync complete — pulled design system and regenerated ${specs.length} specs`,
       timestamp: new Date(),
-    } satisfies NocheEvent);
+    } satisfies MemoireEvent);
   }
 
   private async saveProjectContext(): Promise<void> {
     if (!this._project) return;
-    const path = join(this.config.projectRoot, ".noche", "project.json");
+    const path = join(this.config.projectRoot, ".memoire", "project.json");
     await writeFile(path, JSON.stringify(this._project, null, 2));
   }
 }

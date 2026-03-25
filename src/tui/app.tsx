@@ -1,14 +1,14 @@
 /**
- * Noche TUI — Terminal User Interface for monitoring and control.
+ * Mémoire TUI — Terminal User Interface for monitoring and control.
  * Built with Ink (React for terminals).
  */
 
 import React, { useState, useEffect } from "react";
 import { render, Box, Text } from "ink";
-import type { NocheEngine, NocheEvent } from "../engine/core.js";
+import type { MemoireEngine, MemoireEvent } from "../engine/core.js";
 
 interface TuiProps {
-  engine: NocheEngine;
+  engine: MemoireEngine;
 }
 
 function StatusBar({ engine }: TuiProps) {
@@ -18,7 +18,7 @@ function StatusBar({ engine }: TuiProps) {
   return (
     <Box borderStyle="single" paddingX={1} flexDirection="row" justifyContent="space-between">
       <Text bold>
-        {" "}noche{" "}
+        {" "}memi{" "}
       </Text>
       <Text>
         {project?.framework ?? "unknown"}{" "}
@@ -32,7 +32,7 @@ function StatusBar({ engine }: TuiProps) {
   );
 }
 
-function ActivityFeed({ events }: { events: NocheEvent[] }) {
+function ActivityFeed({ events }: { events: MemoireEvent[] }) {
   const recent = events.slice(-10);
 
   return (
@@ -78,7 +78,7 @@ function SpecsSummary({ engine }: TuiProps) {
     <Box flexDirection="column" paddingX={1}>
       <Text bold underline>Specs</Text>
       {specs.length === 0 && (
-        <Text color="gray">No specs — run `noche spec component Name`</Text>
+        <Text color="gray">No specs — run `memi spec component Name`</Text>
       )}
       {specs.map((s, i) => (
         <Text key={i}>
@@ -117,11 +117,11 @@ function ResearchSummary({ engine }: TuiProps) {
   );
 }
 
-function NocheTui({ engine }: TuiProps) {
-  const [events, setEvents] = useState<NocheEvent[]>([]);
+function MemoireTui({ engine }: TuiProps) {
+  const [events, setEvents] = useState<MemoireEvent[]>([]);
 
   useEffect(() => {
-    const handler = (evt: NocheEvent) => {
+    const handler = (evt: MemoireEvent) => {
       setEvents((prev) => [...prev.slice(-50), evt]);
     };
     engine.on("event", handler);
@@ -146,6 +146,6 @@ function NocheTui({ engine }: TuiProps) {
   );
 }
 
-export function startTui(engine: NocheEngine) {
-  render(<NocheTui engine={engine} />);
+export function startTui(engine: MemoireEngine) {
+  render(<MemoireTui engine={engine} />);
 }

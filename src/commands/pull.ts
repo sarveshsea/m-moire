@@ -1,7 +1,7 @@
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 
-export function registerPullCommand(program: Command, engine: NocheEngine) {
+export function registerPullCommand(program: Command, engine: MemoireEngine) {
   program
     .command("pull")
     .description("Pull design system from connected Figma file")
@@ -18,9 +18,9 @@ export function registerPullCommand(program: Command, engine: NocheEngine) {
 
       const specs = await engine.registry.getAllSpecs();
       const autoSpecs = specs.filter((s) => s.type === "component" && s.tags?.includes("auto-generated"));
-      console.log(`\n  Done. Design system saved to .noche/design-system.json`);
+      console.log(`\n  Done. Design system saved to .memoire/design-system.json`);
       if (autoSpecs.length > 0) {
-        console.log(`  Auto-generated ${autoSpecs.length} component specs — run \`noche generate\` to create code`);
+        console.log(`  Auto-generated ${autoSpecs.length} component specs — run \`memi generate\` to create code`);
       }
       console.log("");
     });

@@ -6,7 +6,7 @@ This document provides ready-to-implement fixes for all findings in SECURITY_REV
 
 ## CRITICAL #1: Plugin Code Execution Blocklist
 
-**Original Code:** `/Users/sarveshchidambaram/Desktop/noche/plugin/code.js` (lines 184-214)
+**Original Code:** `/Users/sarveshchidambaram/Desktop/memoire/plugin/code.js` (lines 184-214)
 
 ### Recommended Approach: Allowlist + AST Validation
 
@@ -20,7 +20,7 @@ npm install --save acorn  # For plugin use if runtime validation needed
 
 ```javascript
 /**
- * Figma Ark — Plugin Code Execution (SECURE VERSION)
+ * Figma Mémoire — Plugin Code Execution (SECURE VERSION)
  *
  * Uses allowlist approach: only permit known-safe read operations
  */
@@ -194,7 +194,7 @@ for (const test of TEST_CASES) {
 
 ## CRITICAL #2: Prototype Exporter Code Injection
 
-**Original Code:** `/Users/sarveshchidambaram/Desktop/noche/src/codegen/prototype-exporter.ts`
+**Original Code:** `/Users/sarveshchidambaram/Desktop/memoire/src/codegen/prototype-exporter.ts`
 
 ### Fix: Add Escaping Utilities
 
@@ -335,7 +335,7 @@ export function generatePlaywrightPrototype(
 
   lines.push(`import { test, expect } from '@playwright/test';`);
   lines.push(``);
-  lines.push(`test.describe('Ark Cinematic Prototype', () => {`);
+  lines.push(`test.describe('Mémoire Cinematic Prototype', () => {`);
   lines.push(`  test.use({`);
   lines.push(`    viewport: { width: ${config.viewport.width}, height: ${config.viewport.height} },`);
 
@@ -448,7 +448,7 @@ export function generateHtmlPrototype(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ark Prototype</title>
+<title>Mémoire Prototype</title>
 <style>
   /* ... styles ... */
   .scene iframe {
@@ -477,11 +477,11 @@ ${scenes.map((scene, i) => {
 
 ## HIGH #1: WebSocket Rate Limiting
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/figma/ws-server.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/figma/ws-server.ts`
 
 ### Add Rate Limiting Class
 
-Insert before `NocheWsServer` class definition:
+Insert before `MemoireWsServer` class definition:
 
 ```typescript
 /**
@@ -537,18 +537,18 @@ class RateLimiter {
 }
 ```
 
-### Update `NocheWsServer` class:
+### Update `MemoireWsServer` class:
 
 ```typescript
-export class NocheWsServer extends EventEmitter {
+export class MemoireWsServer extends EventEmitter {
   // ... existing fields ...
   private rateLimiter: RateLimiter;
 
-  constructor(config: NocheWsServerConfig = {}) {
+  constructor(config: MemoireWsServerConfig = {}) {
     super();
     this.config = config;
     this.rateLimiter = new RateLimiter(1000, 100 * 1024 * 1024); // 1000 msgs/min, 100MB/min
-    this.server = new NocheWsServer({
+    this.server = new MemoireWsServer({
       // ... existing config ...
     });
   }
@@ -610,7 +610,7 @@ export class NocheWsServer extends EventEmitter {
 
 ## HIGH #2: Spec Name Validation
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/engine/registry.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/engine/registry.ts`
 
 ### Add validation function:
 
@@ -659,7 +659,7 @@ async saveSpec(spec: AnySpec): Promise<void> {
   this.specs.set(spec.name, spec);
 
   const typeDir = specTypeDir(spec.type);
-  const dir = join(this.nocheDir, "..", "specs", typeDir);
+  const dir = join(this.memoireDir, "..", "specs", typeDir);
   await mkdir(dir, { recursive: true });
 
   const filePath = join(dir, `${spec.name}.json`);
@@ -674,7 +674,7 @@ async saveSpec(spec: AnySpec): Promise<void> {
 
 ## HIGH #3: WebSocket Origin Validation
 
-**File:** `/Users/sarveshchidambaram/Desktop/noche/src/figma/ws-server.ts`
+**File:** `/Users/sarveshchidambaram/Desktop/memoire/src/figma/ws-server.ts`
 
 ### Update `startOnPort` method:
 
@@ -739,14 +739,14 @@ private startOnPort(port: number): Promise<void> {
  * Removes sensitive values
  */
 
-export interface NocheConfig {
+export interface MemoireConfig {
   projectRoot: string;
   figmaToken?: string;
   figmaFileKey?: string;
 }
 
 export function sanitizeConfigForLogging(
-  config: NocheConfig
+  config: MemoireConfig
 ): Record<string, unknown> {
   return {
     projectRoot: config.projectRoot,
@@ -810,7 +810,7 @@ export function createLogger(name: string) {
         };
       },
       config: (config: unknown) => {
-        return sanitizeConfigForLogging(config as NocheConfig);
+        return sanitizeConfigForLogging(config as MemoireConfig);
       }
     }
   });

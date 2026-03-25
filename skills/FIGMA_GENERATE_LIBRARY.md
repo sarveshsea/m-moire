@@ -9,7 +9,7 @@ Full creative freedom for visual representation, but component structure must mi
 ## Prerequisites
 - `/figma-use` foundational skill loaded
 - Codebase has shadcn/ui or similar component library
-- `noche connect` active
+- `memi connect` active
 - `figma_search_components` called this session
 
 ## Workflow
@@ -127,12 +127,12 @@ add_code_connect_map:
   LoginForm → generated/components/LoginForm/LoginForm.tsx
 ```
 
-### Step 7: Generate Noche Specs
+### Step 7: Generate Mémoire Specs
 For each component created:
 ```
-noche spec component Button
-noche spec component FormField
-noche spec component LoginForm
+memi spec component Button
+memi spec component FormField
+memi spec component LoginForm
 ```
 
 ## shadcn/ui → Figma Mapping

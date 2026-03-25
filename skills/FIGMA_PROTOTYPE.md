@@ -10,7 +10,7 @@ Full creative freedom for interactions and flows. Must use existing components a
 - Creating clickable prototypes for user testing
 - Demonstrating user flows (onboarding, checkout, auth)
 - Building interactive presentations for stakeholders
-- Generating standalone HTML prototypes via `noche prototype`
+- Generating standalone HTML prototypes via `memi prototype`
 
 ## Workflow
 
@@ -97,7 +97,7 @@ For the flow:
 
 ### Step 6: Generate Prototype HTML
 ```
-noche prototype → generates prototype/prototype.html
+memi prototype → generates prototype/prototype.html
 ```
 This creates a standalone HTML file with all screens and click-through navigation, viewable in any browser.
 
@@ -121,14 +121,14 @@ Connection lines: use FigJam connectors or annotation arrows
 ## Spec Integration
 Each screen in the prototype should have a PageSpec:
 ```
-noche spec page Welcome
-noche spec page FeatureHighlight
-noche spec page Dashboard
+memi spec page Welcome
+memi spec page FeatureHighlight
+memi spec page Dashboard
 ```
 
 The prototype flow itself is captured in an IA spec:
 ```
-noche ia create OnboardingFlow
+memi ia create OnboardingFlow
 ```
 
 ## Anti-Patterns

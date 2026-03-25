@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import type { NocheEngine } from "../engine/core.js";
+import type { MemoireEngine } from "../engine/core.js";
 import type { BridgeClient } from "../figma/ws-server.js";
 import { DashboardServer } from "../dashboard/server.js";
 import { readFile, writeFile } from "fs/promises";
@@ -54,7 +54,7 @@ async function setEnvVar(root: string, key: string, value: string): Promise<void
   await writeFile(envPath, content);
 }
 
-export function registerConnectCommand(program: Command, engine: NocheEngine) {
+export function registerConnectCommand(program: Command, engine: MemoireEngine) {
   program
     .command("connect")
     .description("Connect to Figma — guided setup if first time")
@@ -78,13 +78,13 @@ export function registerConnectCommand(program: Command, engine: NocheEngine) {
 `);
 
         console.log("  STEP 1 / 3 — Figma Personal Access Token\n");
-        console.log("  You need a Figma token so Noche can read your designs.\n");
+        console.log("  You need a Figma token so Mémoire can read your designs.\n");
         console.log("  How to get one:");
         console.log("    1. Open Figma Desktop (or figma.com)");
         console.log("    2. Click your avatar → Settings");
         console.log("    3. Scroll to 'Personal access tokens'");
         console.log("    4. Click 'Generate new token'");
-        console.log("    5. Name it 'Noche'");
+        console.log("    5. Name it 'Memoire'");
         console.log("    6. Copy the token (starts with figd_...)\n");
 
         const inputToken = await ask("Paste your Figma token here");
@@ -92,7 +92,7 @@ export function registerConnectCommand(program: Command, engine: NocheEngine) {
         if (!inputToken) {
           console.log("\n  No token provided. You can set it later:");
           console.log("    export FIGMA_TOKEN=\"figd_xxxxx\"");
-          console.log("  Or re-run: noche connect\n");
+          console.log("  Or re-run: memi connect\n");
           process.exit(0);
         }
 
@@ -115,7 +115,7 @@ export function registerConnectCommand(program: Command, engine: NocheEngine) {
         // ── Step 2: File key (optional) ───────────────────
         console.log("  STEP 2 / 3 — Default Figma File (optional)\n");
         console.log("  If you have one main design file, paste its URL or file key.");
-        console.log("  This lets `noche pull` work without specifying a file each time.\n");
+        console.log("  This lets `memi pull` work without specifying a file each time.\n");
         console.log("  Example URL: figma.com/design/abc123def/MyProject");
         console.log("  Example key: abc123def\n");
 
@@ -134,13 +134,13 @@ export function registerConnectCommand(program: Command, engine: NocheEngine) {
         }
 
         // ── Step 3: Install plugin ────────────────────────
-        console.log("  STEP 3 / 3 — Install the Noche Plugin\n");
-        console.log("  The plugin runs inside Figma and talks to Noche over WebSocket.\n");
+        console.log("  STEP 3 / 3 — Install the Mémoire Plugin\n");
+        console.log("  The plugin runs inside Figma and talks to Mémoire over WebSocket.\n");
         console.log("  To install it:");
         console.log("    1. Open Figma Desktop");
         console.log("    2. Go to Plugins → Development → Import plugin from manifest");
         console.log(`    3. Select: ${join(root, "plugin", "manifest.json")}`);
-        console.log("    4. The plugin will appear under Plugins → Development → Noche\n");
+        console.log("    4. The plugin will appear under Plugins → Development → Mémoire\n");
 
         const ready = await ask("Press Enter when ready to connect...");
         void ready;
@@ -155,28 +155,28 @@ export function registerConnectCommand(program: Command, engine: NocheEngine) {
       }
 
       // ── Start the bridge server ─────────────────────────
-      console.log("  Starting Noche bridge server...\n");
+      console.log("  Starting Mémoire bridge server...\n");
 
       try {
         const port = await engine.connectFigma();
 
         console.log(`  ┌──────────────────────────────────────────────┐`);
-        console.log(`  │  NOCHE BRIDGE — PORT ${String(port).padEnd(22)}    │`);
+        console.log(`  │  MEMOIRE BRIDGE — PORT ${String(port).padEnd(22)}    │`);
         console.log(`  │                                              │`);
         console.log(`  │  In Figma:                                   │`);
-        console.log(`  │    Plugins → Development → Noche → Run       │`);
+        console.log(`  │    Plugins → Development → Mémoire → Run       │`);
         console.log(`  │    The plugin auto-connects to port ${String(port).padEnd(8)} │`);
         console.log(`  │                                              │`);
         console.log(`  │  Once connected, you can:                    │`);
-        console.log(`  │    noche pull           Sync design tokens    │`);
-        console.log(`  │    noche ia extract app Extract page tree    │`);
-        console.log(`  │    noche sync           Full pipeline        │`);
+        console.log(`  │    memi pull           Sync design tokens    │`);
+        console.log(`  │    memi ia extract app Extract page tree    │`);
+        console.log(`  │    memi sync           Full pipeline        │`);
         console.log(`  └──────────────────────────────────────────────┘\n`);
 
         // Listen for plugin connections
         engine.figma.on("plugin-connected", (client: BridgeClient) => {
           console.log(`  + Connected: ${client.file} (${client.editor})`);
-          console.log(`    Ready — run \`noche pull\` or \`noche ia extract <name>\` in another terminal.\n`);
+          console.log(`    Ready — run \`memi pull\` or \`memi ia extract <name>\` in another terminal.\n`);
         });
 
         engine.figma.on("plugin-disconnected", () => {

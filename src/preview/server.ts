@@ -68,7 +68,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background p-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold">Noche Preview Gallery</h1>
+        <h1 className="text-3xl font-bold">Mémoire Preview Gallery</h1>
         <p className="text-muted-foreground mt-1">
           ${components.length} components · ${dataviz.length} dataviz · ${pages.length} pages
         </p>
@@ -81,7 +81,7 @@ export default function App() {
       {${galleryItems.length} === 0 && (
         <div className="text-center text-muted-foreground py-20">
           <p>No generated components yet.</p>
-          <p className="text-sm mt-2">Run <code>noche spec component MyComponent</code> then <code>noche generate</code></p>
+          <p className="text-sm mt-2">Run <code>memi spec component MyComponent</code> then <code>memi generate</code></p>
         </div>
       )}
     </div>

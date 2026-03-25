@@ -8,7 +8,7 @@ Audit skills read and analyze but do not modify the canvas. Output is a structur
 
 ## When to Use
 - Before a design handoff to development
-- After pulling a design system (`noche pull`)
+- After pulling a design system (`memi pull`)
 - Periodic design system health checks
 - When components look inconsistent or broken
 - Before establishing Code Connect mappings
@@ -139,12 +139,12 @@ Warnings (fix soon):
   2. 5 components have inconsistent padding
 
 Recommendations:
-  1. Run: noche tokens → re-export and bind
+  1. Run: memi tokens → re-export and bind
   2. Run: add_code_connect_map for 12 unmapped components
   3. Add missing variant states to 8 components
 ```
 
 ## Integration
-- Save audit results to `.noche/audit.json` for tracking over time
+- Save audit results to `.memoire/audit.json` for tracking over time
 - Compare against previous audits to show improvement
-- Block `noche sync` if critical issues exceed threshold
+- Block `memi sync` if critical issues exceed threshold
