@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%23ffffff'/%3E%3C/svg%3E">
 <title>memoire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -20,7 +23,8 @@ body { font-family: var(--mono); font-size: 12px; background: var(--bg); color: 
 a { color: var(--accent-bright); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-.hdr { display: flex; justify-content: center; align-items: center; padding: 14px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+.hdr { display: flex; align-items: center; justify-content: center; padding: 14px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; gap: 0; }
+.hdr-brand { font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif; font-size: 18px; font-weight: 300; font-style: italic; letter-spacing: 2px; color: var(--fg); margin-right: 32px; white-space: nowrap; }
 .hdr-nav { display: flex; gap: 2px; align-items: center; }
 .hdr-nav a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius); color: var(--fg-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; transition: color 0.15s, background 0.15s; }
 .hdr-nav a:hover { color: var(--fg); background: var(--bg-hover); text-decoration: none; }
@@ -115,12 +119,13 @@ th { color: var(--fg-muted); font-size: 10px; text-transform: uppercase; letter-
 </head>
 <body>
   <header class="hdr">
+    <div class="hdr-brand">m&eacute;moire</div>
     <nav class="hdr-nav"><a href="index.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-8 9 8M5 11v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8"/></svg>Home</a><a href="research.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Research</a><a href="specs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Specs</a><a href="design-system.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Systems</a><a href="portal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Portal</a><a href="changelog.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a></nav>
   </header>
   
   <div class="main">
     <div style="margin-bottom: 48px;">
-      <h1 style="font-size: 32px; font-weight: 300; letter-spacing: 2px; margin-bottom: 8px;">memoire</h1>
+      <h1 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 42px; font-weight: 300; font-style: italic; letter-spacing: 3px; margin-bottom: 8px;">m&eacute;moire</h1>
       <p style="color: var(--fg-muted); font-size: 13px;">Spec-driven design intelligence. Figma bridge. Research synthesis. Atomic design. Code generation.</p>
     </div>
 

@@ -132,7 +132,8 @@ body { font-family: var(--mono); font-size: 12px; background: var(--bg); color: 
 a { color: var(--accent-bright); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-.hdr { display: flex; justify-content: center; align-items: center; padding: 14px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+.hdr { display: flex; align-items: center; justify-content: center; padding: 14px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; gap: 0; }
+.hdr-brand { font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif; font-size: 18px; font-weight: 300; font-style: italic; letter-spacing: 2px; color: var(--fg); margin-right: 32px; white-space: nowrap; }
 .hdr-nav { display: flex; gap: 2px; align-items: center; }
 .hdr-nav a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius); color: var(--fg-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; transition: color 0.15s, background 0.15s; }
 .hdr-nav a:hover { color: var(--fg); background: var(--bg-hover); text-decoration: none; }
@@ -245,10 +246,14 @@ function pageShell(title: string, activeNav: string, body: string): string {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%23ffffff'/%3E%3C/svg%3E">
 <title>${esc(title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
 <style>${CSS}</style>
 </head>
 <body>
   <header class="hdr">
+    <div class="hdr-brand">m&eacute;moire</div>
     <nav class="hdr-nav">${nav}</nav>
   </header>
   ${body}
@@ -281,7 +286,7 @@ function generateHomePage(data: PreviewData): string {
   const body = `
   <div class="main">
     <div style="margin-bottom: 48px;">
-      <h1 style="font-size: 32px; font-weight: 300; letter-spacing: 2px; margin-bottom: 8px;">memoire</h1>
+      <h1 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 42px; font-weight: 300; font-style: italic; letter-spacing: 3px; margin-bottom: 8px;">m&eacute;moire</h1>
       <p style="color: var(--fg-muted); font-size: 13px;">Spec-driven design intelligence. Figma bridge. Research synthesis. Atomic design. Code generation.</p>
     </div>
 
