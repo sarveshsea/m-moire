@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dibs — Nike "Just Do It" 60s TV</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%239d833e'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Inter' font-weight='700' font-size='18' fill='white'%3Ed%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F7F3EE;
+  --bg-white: #ffffff;
+  --bg-subtle: #f5f4f1;
+  --bg-muted: #eeedea;
+  --accent: #9d833e;
+  --accent-bright: #c4a35a;
+  --accent-dim: rgba(157,131,62,0.08);
+  --accent-border: rgba(157,131,62,0.15);
+  --fg: #1a1a1a;
+  --fg-secondary: #4a4a4a;
+  --fg-muted: #999999;
+  --fg-hint: #bbbbbb;
+  --border: #e8e8e8;
+  --border-light: #f0f0f0;
+  --success: #2d8a4e;
+  --success-bg: #f0faf4;
+  --warn: #b8860b;
+  --warn-bg: #fef9ee;
+  --error: #c0392b;
+  --error-bg: #fef5f4;
+  --info: #4a7b8c;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-data: 'JetBrains Mono', 'SF Mono', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+body { font-family: var(--font-ui); font-size: 14px; background: var(--bg); color: var(--fg); line-height: 1.5; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── Global Nav ───────────────────────── */
+.global-nav { display: flex; align-items: center; height: 48px; padding: 0 24px; background: #2c2c2e; border-bottom: 1px solid #3a3a3c; position: sticky; top: 0; z-index: 200; }
+.global-nav-brand { display: flex; align-items: center; gap: 10px; margin-right: 32px; }
+.global-nav-name { font-weight: 600; font-size: 14px; color: #fff; letter-spacing: -0.3px; }
+.global-nav-tabs { display: flex; align-items: center; gap: 2px; flex: 1; }
+.global-nav-sep { width: 1px; height: 20px; background: #333; margin: 0 12px; }
+.global-nav-actions { display: flex; align-items: center; gap: 4px; }
+.global-nav-action { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 3px; color: #777; cursor: pointer; transition: all 0.15s; border: none; background: none; position: relative; }
+.global-nav-action:hover { color: #ccc; background: rgba(255,255,255,0.06); }
+.global-nav-action svg { width: 16px; height: 16px; }
+.global-nav-action .notif-dot { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; background: var(--error); border-radius: 50%; border: 1.5px solid #2c2c2e; }
+.global-nav-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: white; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-left: 8px; cursor: pointer; }
+
+/* ── Sidebar ──────────────────────────── */
+.sidebar {
+  width: 220px; background: var(--bg-white); border-right: 1px solid var(--border);
+  padding: 0; position: fixed; top: 48px; left: 0; bottom: 0;
+  display: flex; flex-direction: column; transition: width 0.2s ease;
+  overflow: hidden; z-index: 100;
+}
+.sidebar-header { display: flex; align-items: center; justify-content: flex-end; padding: 16px 16px 12px; flex-shrink: 0; }
+.sidebar-toggle { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: none; border: 1px solid transparent; border-radius: 6px; cursor: pointer; color: var(--fg-hint); transition: all 0.15s; flex-shrink: 0; }
+.sidebar-toggle:hover { color: var(--fg-secondary); background: var(--bg-subtle); border-color: var(--border-light); }
+.sidebar-toggle svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+.sidebar-nav { flex: 1; padding: 4px 8px; display: flex; flex-direction: column; gap: 1px; }
+.nav-divider { height: 1px; background: var(--border-light); margin: 8px 8px; }
+.nav-section-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--fg-hint, #bbbbbb);
+  font-weight: 600;
+  padding: 8px 12px 4px;
+}
+.nav-bid { gap: 8px; padding-left: 16px; }
+.bid-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent, #9d833e);
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; color: var(--fg-muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; text-decoration: none; border-radius: var(--radius-sm); white-space: nowrap; }
+.nav-item:hover { background: var(--bg-subtle); color: var(--fg-secondary); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-label { white-space: nowrap; overflow: hidden; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--border-light); flex-shrink: 0; }
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--accent); flex-shrink: 0; }
+.user-name { font-size: 13px; font-weight: 500; white-space: nowrap; }
+.user-role { font-size: 11px; color: var(--fg-muted); white-space: nowrap; }
+.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed .sidebar-header { padding: 16px 0 12px; justify-content: center; }
+.sidebar.collapsed .sidebar-toggle svg { transform: rotate(180deg); }
+.sidebar.collapsed .nav-item { padding: 10px 0; justify-content: center; border-radius: 0; gap: 0; }
+.sidebar.collapsed .nav-label { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .nav-divider { margin: 8px 12px; }
+.sidebar.collapsed .sidebar-footer { padding: 12px 0; }
+.sidebar.collapsed .user-info { justify-content: center; }
+.sidebar.collapsed .user-name, .sidebar.collapsed .user-role { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .sidebar-nav { padding: 4px 0; }
+.sidebar.collapsed .bid-dot { margin-left: 0; }
+.sidebar.collapsed .nav-section-label { display: none; }
+
+/* ── Main Area ────────────────────────── */
+.main-area { margin-left: 220px; transition: margin-left 0.2s ease; }
+body.sidebar-collapsed .main-area { margin-left: 56px; }
+
+/* ── Running Total (sticky) ──────────── */
+.total-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 32px; background: var(--bg-white);
+  border-bottom: 1px solid var(--border-light);
+  position: sticky; top: 48px; z-index: 50;
+}
+.total-label { font-family: var(--mono, 'JetBrains Mono', monospace); font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 2px; }
+.total-amount { font-size: 20px; font-weight: 400; letter-spacing: -0.3px; color: var(--fg); }
+.total-meta { display: flex; gap: 32px; }
+.total-meta-item { text-align: right; }
+.total-meta-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-hint); font-weight: 500; }
+.total-meta-item .value { font-family: var(--font-data); font-size: 14px; font-weight: 600; color: var(--fg-secondary); }
+
+/* ── Layout ───────────────────────────── */
+.layout { display: flex; min-height: calc(100vh - 48px); }
+
+.cat-nav {
+  width: 240px; min-width: 240px;
+  background: var(--bg-white); border-right: 1px solid var(--border);
+  padding: 8px 0; position: fixed; top: 126px; left: 220px;
+  height: calc(100vh - 126px); overflow-y: auto;
+  z-index: 40;
+}
+body.sidebar-collapsed .cat-nav { left: 56px; }
+.cat-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 24px; font-size: 13px; font-weight: 500;
+  color: var(--fg-muted); cursor: pointer; transition: all 0.15s;
+  border-left: 2px solid transparent;
+}
+.cat-nav-item:hover { background: var(--bg-subtle); color: var(--fg-secondary); }
+.cat-nav-item.active {
+  background: var(--accent-dim); color: var(--accent);
+  border-left-color: var(--accent); font-weight: 600;
+}
+.cat-nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.cat-nav-amount {
+  margin-left: auto; font-family: var(--font-data);
+  font-size: 12px; font-weight: 500; letter-spacing: -0.3px;
+}
+.cat-nav-item.active .cat-nav-amount { color: var(--accent); }
+
+/* ── Content ─────────────────────────── */
+.content { flex: 1; padding: 28px 32px 48px; min-width: 0; margin-left: 240px; }
+.cat-panel { display: none; }
+.cat-panel.active { display: block; animation: fadeIn 0.25s ease; }
+
+/* ── Section Header ──────────────────── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.section-title {
+  font-size: 18px; font-weight: 600; letter-spacing: -0.3px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-title .icon {
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  background: var(--accent-dim);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+}
+.section-title .icon svg { width: 16px; height: 16px; }
+.section-subtitle { font-size: 13px; color: var(--fg-muted); margin-bottom: 24px; }
+.section-stats { display: flex; gap: 8px; }
+.section-stat {
+  text-align: center; padding: 8px 16px;
+  background: var(--bg-subtle); border-radius: var(--radius-sm);
+}
+.section-stat .val { font-family: var(--font-data); font-size: 15px; font-weight: 700; color: var(--fg); }
+.section-stat .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-hint); margin-top: 1px; }
+
+/* ── Budget Section (matches dibs.html) ── */
+.budget-section {
+  margin-bottom: 16px; background: var(--bg-white);
+  border: 1px solid var(--border-light); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.budget-section-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; background: var(--bg-white);
+  cursor: pointer; user-select: none; transition: all 0.15s;
+  border-bottom: 1px solid var(--border-light);
+}
+.budget-section.collapsed .budget-section-hdr { border-bottom: none; }
+.budget-section-hdr:hover { background: var(--bg-subtle); }
+.budget-section-hdr-left { display: flex; align-items: center; gap: 12px; }
+.section-letter {
+  font-family: var(--font-data); font-size: 11px; font-weight: 700;
+  width: 26px; height: 26px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent); color: #fff;
+}
+.section-name { font-size: 14px; font-weight: 600; color: var(--fg); }
+.section-meta { font-size: 11px; color: var(--fg-muted); margin-left: 8px; }
+.budget-section-hdr-right { display: flex; align-items: center; gap: 12px; }
+.section-pct {
+  font-family: var(--font-data); font-size: 10px; color: var(--fg-muted);
+  background: var(--bg-muted); padding: 2px 8px; border-radius: 100px;
+}
+.section-total { font-family: var(--font-data); font-size: 16px; font-weight: 700; color: var(--fg); }
+.section-chevron { color: var(--fg-muted); transition: transform 0.25s ease; }
+.budget-section.collapsed .section-chevron { transform: rotate(-90deg); }
+.budget-section-body {
+  max-height: 8000px; overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.3s ease; opacity: 1;
+}
+.budget-section.collapsed .budget-section-body { max-height: 0; opacity: 0; }
+
+/* ── AI Bar ──────────────────────────── */
+.ai-bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 20px; background: var(--accent-dim);
+  border-bottom: 1px solid var(--accent-border);
+  font-size: 12px; color: var(--fg-secondary);
+}
+.ai-bar .ai-dot {
+  width: 20px; height: 20px; background: var(--accent); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 9px; font-weight: 700; flex-shrink: 0;
+}
+.ai-bar .actions { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; }
+.ai-bar .act-btn {
+  padding: 4px 12px; border: 1px solid var(--accent-border); border-radius: var(--radius-sm);
+  font-size: 11px; cursor: pointer; background: var(--bg-white); color: var(--accent);
+  font-family: var(--font-ui); font-weight: 500; transition: all 0.15s;
+}
+.ai-bar .act-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.ai-bar .act-btn.dismiss { border-color: var(--border); color: var(--fg-hint); }
+.ai-bar .act-btn.dismiss:hover { background: var(--bg-muted); color: var(--fg-muted); }
+
+/* ── Line Items ──────────────────────── */
+.line-items-header {
+  display: grid; grid-template-columns: 2.5fr 0.8fr 0.5fr 0.5fr 1fr 0.7fr;
+  gap: 8px; padding: 6px 20px;
+  font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--fg-hint);
+  border-bottom: 1px solid var(--border-light);
+}
+.line-item {
+  display: grid; grid-template-columns: 2.5fr 0.8fr 0.5fr 0.5fr 1fr 0.7fr;
+  gap: 8px; padding: 8px 20px; align-items: center; transition: background 0.1s;
+}
+.line-item:hover { background: var(--bg-subtle); }
+.line-item + .line-item { border-top: 1px solid var(--border-light); }
+.li-name { font-size: 13px; font-weight: 500; color: var(--fg); }
+.li-hint { font-size: 11px; color: var(--fg-hint); margin-top: 1px; }
+.li-input {
+  font-family: var(--font-data); font-size: 12px; font-weight: 500;
+  color: var(--fg); background: none; border: none; outline: none;
+  padding: 5px 8px; border-radius: var(--radius-sm); width: 100%;
+  text-align: right; transition: all 0.12s;
+}
+.li-input:hover { background: var(--bg-muted); }
+.li-input:focus { background: var(--bg-muted); box-shadow: 0 0 0 2px var(--accent-border); }
+.li-input::placeholder { color: var(--fg-hint); font-weight: 400; }
+.li-total { font-family: var(--font-data); font-size: 13px; font-weight: 600; color: var(--fg); text-align: right; }
+.li-ai-badge {
+  display: inline-flex; font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 100px; letter-spacing: 0.5px;
+  background: var(--accent-dim); color: var(--accent); text-transform: uppercase;
+}
+.li-confidence {
+  display: inline-flex; font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.li-confidence.high { background: var(--success-bg); color: var(--success); }
+.li-confidence.med { background: var(--warn-bg); color: var(--warn); }
+.li-confidence.low { background: var(--error-bg); color: var(--error); }
+.line-item.empty { opacity: 0.45; }
+.line-item.empty:hover { opacity: 0.7; }
+
+.add-line-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 20px; border: none; background: none;
+  font-family: var(--font-ui); font-size: 11px;
+  color: var(--fg-muted); cursor: pointer;
+  border-top: 1px solid var(--border-light); width: 100%; transition: all 0.1s;
+}
+.add-line-btn:hover { background: var(--accent-dim); color: var(--accent); }
+.add-line-btn svg { width: 14px; height: 14px; }
+
+/* ── AI Drawer ───────────────────────── */
+.ai-drawer-scrim {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.2);
+  z-index: 299; transition: opacity 0.3s ease; opacity: 0;
+}
+.ai-drawer-scrim.open { display: block; opacity: 1; }
+.ai-drawer {
+  position: fixed; top: 48px; right: 0; bottom: 0;
+  width: 0; overflow: hidden;
+  background: var(--bg-white); border-left: 1px solid var(--border);
+  transition: width 0.3s cubic-bezier(0.16,1,0.3,1);
+  display: flex; flex-direction: column;
+  z-index: 300; box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+}
+.ai-drawer.open { width: 360px; }
+.ai-drawer-hdr {
+  padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border-light);
+}
+.ai-drawer-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--fg); }
+.ai-drawer-close {
+  width: 28px; height: 28px; border: none; background: none;
+  border-radius: var(--radius-sm); cursor: pointer;
+  color: var(--fg-muted); display: flex; align-items: center; justify-content: center; transition: all 0.1s;
+}
+.ai-drawer-close:hover { background: var(--bg-muted); }
+.ai-drawer-tabs { display: flex; gap: 2px; padding: 8px 16px; border-bottom: 1px solid var(--border-light); }
+.ai-tab {
+  flex: 1; padding: 6px 0; border: none; background: none;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 500;
+  color: var(--fg-muted); cursor: pointer; border-radius: var(--radius-sm);
+  transition: all 0.12s; text-align: center;
+}
+.ai-tab:hover { background: var(--bg-muted); }
+.ai-tab.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+.ai-drawer-body { flex: 1; overflow-y: auto; padding: 16px; }
+.ai-chat-messages { display: flex; flex-direction: column; gap: 8px; }
+.ai-msg { max-width: 92%; padding: 10px 14px; border-radius: 12px; font-size: 12px; line-height: 1.55; animation: msgIn 0.2s ease; }
+.ai-msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.ai-msg.bot { align-self: flex-start; background: var(--bg-subtle); border: 1px solid var(--border-light); color: var(--fg-secondary); border-bottom-left-radius: 4px; }
+.ai-msg.bot strong { color: var(--fg); }
+.ai-msg-label { font-size: 9px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 3px; }
+.ai-msg.user .ai-msg-label { color: rgba(255,255,255,0.7); }
+.ai-msg.bot .ai-msg-label { color: var(--accent); }
+.ai-msg-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.ai-msg-action { padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; border: 1px solid var(--border); background: var(--bg-white); color: var(--fg-secondary); cursor: pointer; transition: all 0.12s; font-family: var(--font-ui); }
+.ai-msg-action:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.ai-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
+.ai-chip { padding: 5px 12px; border-radius: 100px; font-size: 10px; font-weight: 500; border: 1px solid var(--border); background: var(--bg-white); color: var(--fg-muted); cursor: pointer; transition: all 0.12s; font-family: var(--font-ui); }
+.ai-chip:hover { border-color: var(--accent); color: var(--accent); }
+.ai-chat-wrap { padding: 10px 16px; border-top: 1px solid var(--border-light); }
+.ai-chat-row { display: flex; gap: 8px; align-items: flex-end; }
+.ai-chat-input { flex: 1; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-white); font-family: var(--font-ui); font-size: 12px; color: var(--fg); outline: none; resize: none; min-height: 38px; transition: border-color 0.15s; }
+.ai-chat-input:focus { border-color: var(--accent); }
+.ai-chat-input::placeholder { color: var(--fg-hint); }
+.ai-chat-send { width: 36px; height: 36px; border: none; border-radius: var(--radius); background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.12s; flex-shrink: 0; }
+.ai-chat-send:hover { background: #8a722e; }
+.ai-chat-hint { font-size: 10px; color: var(--fg-hint); margin-top: 4px; text-align: center; }
+
+/* ── AI Nav Item (in cat-nav) ─────────── */
+.nav-item-ai {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; font-size: 13px; font-weight: 600;
+  color: var(--accent); cursor: pointer; transition: all 0.15s;
+  border-left: 2px solid transparent;
+}
+.nav-item-ai:hover { background: var(--accent-dim); border-left-color: var(--accent-border); }
+.nav-item-ai svg { width: 15px; height: 15px; flex-shrink: 0; }
+.nav-item-ai .ai-dot-sm {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--success);
+  margin-left: auto; flex-shrink: 0;
+}
+
+/* ── Footer ──────────────────────────── */
+.page-footer {
+  margin-left: 220px; padding: 20px 32px; border-top: 1px solid var(--border-light);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: margin-left 0.2s ease;
+}
+body.sidebar-collapsed .page-footer { margin-left: 56px; }
+.page-footer-text { font-size: 11px; color: var(--fg-hint); line-height: 1.6; }
+.page-footer-links { display: flex; gap: 16px; }
+.page-footer-links a { font-size: 11px; color: var(--fg-hint); text-decoration: none; transition: color 0.15s; }
+.page-footer-links a:hover { color: var(--accent); }
+
+.noche-return {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: #111113; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.noche-return:hover { background: #ffffff; border-color: rgba(255,255,255,0.5); color: #000000; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<nav class="global-nav">
+  <div class="global-nav-brand">
+    <div class="global-nav-name">dibs</div>
+  </div>
+  <div class="global-nav-tabs"></div>
+  <div class="global-nav-sep"></div>
+  <div class="global-nav-actions">
+    <button class="global-nav-action" title="Export"><i data-lucide="download"></i></button>
+    <a href="dibs-settings.html" class="global-nav-action" title="Settings"><i data-lucide="settings"></i></a>
+    <button class="global-nav-action" title="Notifications"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
+  </div>
+  <div class="global-nav-avatar">MC</div>
+</nav>
+
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+      <i data-lucide="panel-left-close"></i>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dibs-dashboard.html"><i data-lucide="layout-dashboard"></i><span class="nav-label">Dashboard</span></a>
+    <a class="nav-item" href="dibs.html"><i data-lucide="plus-circle"></i><span class="nav-label">New Bid</span></a>
+    <a class="nav-item" href="dibs-comparison.html"><i data-lucide="kanban"></i><span class="nav-label">Bid Board</span></a>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Active Bids</div>
+    <a class="nav-item nav-bid active" href="dibs-lineitem.html"><span class="bid-dot"></span><span class="nav-label">Nike &ldquo;Just Do It&rdquo;</span></a>
+    <div class="nav-divider"></div>
+    <a class="nav-item" href="dibs-settings.html"><i data-lucide="settings"></i><span class="nav-label">Settings</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">MC</div>
+      <div><div class="user-name">Maria Chen</div><div class="user-role">Senior Line Producer</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+
+<div class="total-banner">
+  <div>
+    <div class="total-label">Running Total</div>
+    <div class="total-amount">$487,250</div>
+  </div>
+  <div class="total-meta">
+    <div class="total-meta-item"><div class="label">Items Filled</div><div class="value">142 / 186</div></div>
+    <div class="total-meta-item"><div class="label">AI Confidence</div><div class="value">76%</div></div>
+    <div class="total-meta-item"><div class="label">AICP Sections</div><div class="value">A &mdash; W</div></div>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="cat-nav" id="catNav"></nav>
+
+  <div class="content" id="contentArea"></div>
+</div>
+
+</div>
+</div>
+
+<!-- AI Drawer -->
+<div class="ai-drawer-scrim" id="aiScrim" onclick="toggleAI()"></div>
+<div class="ai-drawer" id="aiDrawer">
+  <div class="ai-drawer-hdr">
+    <div class="ai-drawer-title">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--success)"></span>
+      AI Assistant
+    </div>
+    <button class="ai-drawer-close" onclick="toggleAI()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="ai-drawer-tabs">
+    <button class="ai-tab" onclick="setAITab(this,'overview')">Overview</button>
+    <button class="ai-tab" onclick="setAITab(this,'insights')">Insights</button>
+    <button class="ai-tab active" onclick="setAITab(this,'chat')">Chat</button>
+  </div>
+  <div class="ai-drawer-body" id="aiBody"></div>
+  <div class="ai-chat-wrap" id="aiChatWrap">
+    <div class="ai-chat-row">
+      <textarea class="ai-chat-input" placeholder="Ask about your budget..." rows="1" id="aiInput"></textarea>
+      <button class="ai-chat-send" onclick="sendChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+      </button>
+    </div>
+    <div class="ai-chat-hint">Enter to send</div>
+  </div>
+</div>
+
+<footer class="page-footer">
+  <div class="page-footer-text">Dibs v1.0 — AICP Budget Intelligence Platform<br>Rates and estimates are advisory only. Always verify against union rate cards and vendor quotes.</div>
+  <div class="page-footer-links"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">AICP Guidelines</a><a href="#">Support</a></div>
+</footer>
+
+<a href="index.html" class="noche-return" title="Back to Mémoire">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a>
+
+<script>
+// ── Category Data ──────────────────────
+const categories = [
+  { id: 'crew', icon: 'users', name: 'Crew & Labor', total: 142800, pct: 29.3, filled: '38/52',
+    sections: [
+      { letter: 'A', name: 'Pre-Production & Wrap', total: 38200, pct: 8, count: 4,
+        ai: 'Pre-production rates are 4% above Q3 2025. Consider booking crew for 10+ days to unlock volume discounts.',
+        cols: ['Description','Rate','Days','OT','Total','Source'],
+        items: [
+          { name: 'Director', hint: 'Avg. $15K–$35K for performance spots', rate: '$25,000', qty: '1', ot: '—', total: '$25,000', src: 'high', srcLabel: 'Market' },
+          { name: 'Executive Producer', rate: '$3,500', qty: '2', ot: '—', total: '$7,000', src: 'ai' },
+          { name: 'Line Producer', rate: '$2,800', qty: '10', ot: '—', total: '$28,000', src: 'high', srcLabel: 'Manual' },
+          { name: 'Production Coordinator', hint: 'Not yet estimated', empty: true },
+        ]},
+      { letter: 'B', name: 'Shooting Crew', total: 104600, pct: 21, count: 17,
+        cols: ['Description','Rate/Day','Days','OT Est.','Total','Source'],
+        items: [
+          { name: 'Director of Photography', hint: '3 shoot days @ $4,500/day', rate: '$4,500', qty: '3', ot: '$0', total: '$13,500', src: 'high', srcLabel: 'Market' },
+          { name: '1st Assistant Director', rate: '$2,200', qty: '3', ot: '$600', total: '$7,200', src: 'ai' },
+          { name: '2nd Assistant Director', rate: '$1,400', qty: '3', ot: '$400', total: '$4,600', src: 'ai' },
+          { name: 'Gaffer', hint: 'NYC rate trending +4%', rate: '$1,800', qty: '3', ot: '$500', total: '$5,900', src: 'high', srcLabel: 'Market' },
+          { name: 'Best Boy Electric', rate: '$1,200', qty: '3', ot: '$350', total: '$3,950', src: 'ai' },
+          { name: 'Key Grip', rate: '$1,600', qty: '3', ot: '$450', total: '$5,250', src: 'ai' },
+          { name: 'Best Boy Grip', rate: '$1,100', qty: '3', ot: '$300', total: '$3,600', src: 'ai' },
+          { name: '1st AC (Focus Puller)', rate: '$1,400', qty: '3', ot: '$400', total: '$4,600', src: 'ai' },
+          { name: '2nd AC / Loader', rate: '$1,000', qty: '3', ot: '$300', total: '$3,300', src: 'ai' },
+          { name: 'Steadicam Operator', hint: 'Day 1 & 3 only', rate: '$2,500', qty: '2', ot: '$0', total: '$5,000', src: 'med', srcLabel: 'Manual' },
+          { name: 'Drone Operator + Pilot', hint: 'FAA Part 107 required', rate: '$3,500', qty: '2', ot: '$0', total: '$7,000', src: 'high', srcLabel: 'Market' },
+          { name: 'Sound Mixer', rate: '$1,500', qty: '3', ot: '$400', total: '$4,900', src: 'ai' },
+          { name: 'Boom Operator', rate: '$900', qty: '3', ot: '$250', total: '$2,950', src: 'ai' },
+          { name: 'Production Designer', rate: '$2,800', qty: '5', ot: '$0', total: '$14,000', src: 'high', srcLabel: 'Market' },
+          { name: 'Wardrobe Stylist', rate: '$1,800', qty: '4', ot: '$0', total: '$7,200', src: 'med', srcLabel: 'Estimate' },
+          { name: 'Script Supervisor', hint: 'Not yet estimated', empty: true },
+          { name: 'Craft Services', hint: 'Not yet estimated', empty: true },
+        ]}
+    ]},
+  { id: 'equipment', icon: 'camera', name: 'Equipment', total: 67500, pct: 13.9, filled: '22/28',
+    sections: [
+      { letter: 'C', name: 'Camera Package', total: 42000, pct: 9, count: 6,
+        cols: ['Description','Rate/Day','Days','—','Total','Source'],
+        items: [
+          { name: 'ARRI ALEXA 35 Body', hint: 'Primary camera', rate: '$3,500', qty: '3', ot: '—', total: '$10,500', src: 'high', srcLabel: 'Market' },
+          { name: 'Master Prime Lens Set', rate: '$2,800', qty: '3', ot: '—', total: '$8,400', src: 'ai' },
+          { name: 'Wireless Follow Focus', rate: '$450', qty: '3', ot: '—', total: '$1,350', src: 'ai' },
+          { name: 'Monitors & Video Village', rate: '$1,200', qty: '3', ot: '—', total: '$3,600', src: 'ai' },
+          { name: 'Drone (Inspire 3)', hint: 'Day 1 & 3 only', rate: '$4,500', qty: '2', ot: '—', total: '$9,000', src: 'high', srcLabel: 'Market' },
+          { name: 'Steadicam Rig', rate: '$3,050', qty: '3', ot: '—', total: '$9,150', src: 'med', srcLabel: 'Estimate' },
+        ]},
+      { letter: 'D', name: 'Grip & Electric', total: 25500, pct: 5, count: 5,
+        cols: ['Description','Rate/Day','Days','—','Total','Source'],
+        items: [
+          { name: 'HMI 18K Package', rate: '$1,800', qty: '3', ot: '—', total: '$5,400', src: 'ai' },
+          { name: 'LED Panel Kit (12x)', rate: '$2,200', qty: '3', ot: '—', total: '$6,600', src: 'ai' },
+          { name: 'Grip Truck (5-ton)', rate: '$1,500', qty: '3', ot: '—', total: '$4,500', src: 'high', srcLabel: 'Market' },
+          { name: 'Generator', rate: '$900', qty: '3', ot: '—', total: '$2,700', src: 'ai' },
+          { name: 'Expendables & Gels', rate: '$2,100', qty: '3', ot: '—', total: '$6,300', src: 'med', srcLabel: 'Estimate' },
+        ]}
+    ]},
+  { id: 'locations', icon: 'map-pin', name: 'Locations', total: 89200, pct: 18.3, filled: '18/22',
+    sections: [
+      { letter: 'E', name: 'Location Fees', total: 62000, pct: 13, count: 4,
+        cols: ['Description','Rate/Day','Days','—','Total','Source'],
+        items: [
+          { name: 'Urban Street (Downtown LA)', hint: 'Full block lockup', rate: '$8,000', qty: '2', ot: '—', total: '$16,000', src: 'high', srcLabel: 'Market' },
+          { name: 'Rooftop (DTLA)', rate: '$6,000', qty: '1', ot: '—', total: '$6,000', src: 'high', srcLabel: 'Manual' },
+          { name: 'Gymnasium / Court', rate: '$12,000', qty: '2', ot: '—', total: '$24,000', src: 'ai' },
+          { name: 'Studio (Stage B, Culver)', hint: 'Cyc wall, 5000 sq ft', rate: '$8,000', qty: '2', ot: '—', total: '$16,000', src: 'high', srcLabel: 'Market' },
+        ]},
+      { letter: 'F', name: 'Location Support', total: 27200, pct: 6, count: 5,
+        cols: ['Description','Rate','Qty','—','Total','Source'],
+        items: [
+          { name: 'Permits & Police', rate: '$3,500', qty: '3', ot: '—', total: '$10,500', src: 'high', srcLabel: 'Market' },
+          { name: 'Location Scout / Manager', rate: '$2,200', qty: '5', ot: '—', total: '$11,000', src: 'ai' },
+          { name: 'Parking / Basecamp', rate: '$1,200', qty: '3', ot: '—', total: '$3,600', src: 'ai' },
+          { name: 'Site Cleanup', hint: 'Not yet estimated', empty: true },
+          { name: 'Security', hint: 'Not yet estimated', empty: true },
+        ]}
+    ]},
+  { id: 'talent', icon: 'user-check', name: 'Talent', total: 52000, pct: 10.7, filled: '12/16',
+    sections: [
+      { letter: 'G', name: 'Principal Talent', total: 38000, pct: 8, count: 3,
+        cols: ['Description','Rate','Days','Usage','Total','Source'],
+        items: [
+          { name: 'Lead Athlete (SAG)', hint: 'Performance + likeness', rate: '$10,000', qty: '3', ot: '$8,000', total: '$38,000', src: 'high', srcLabel: 'Market' },
+        ]},
+      { letter: 'H', name: 'Background & Extras', total: 14000, pct: 3, count: 4,
+        cols: ['Description','Rate/Day','Days','Headcount','Total','Source'],
+        items: [
+          { name: 'SAG Background', rate: '$400', qty: '3', ot: '8', total: '$9,600', src: 'ai' },
+          { name: 'Non-Union Extras', rate: '$200', qty: '2', ot: '5', total: '$2,000', src: 'ai' },
+          { name: 'Fitting Fees', rate: '$1,200', qty: '2', ot: '—', total: '$2,400', src: 'med', srcLabel: 'Estimate' },
+        ]}
+    ]},
+  { id: 'art', icon: 'palette', name: 'Art & Props', total: 18750, pct: 3.8, filled: '10/14',
+    sections: [
+      { letter: 'I', name: 'Art Department', total: 18750, pct: 4, count: 5,
+        cols: ['Description','Rate','Qty','—','Total','Source'],
+        items: [
+          { name: 'Set Construction', rate: '$4,500', qty: '1', ot: '—', total: '$4,500', src: 'ai' },
+          { name: 'Props Purchase/Rental', rate: '$3,200', qty: '1', ot: '—', total: '$3,200', src: 'ai' },
+          { name: 'Nike Product (Hero Shoes)', hint: 'Client provides, styling fee', rate: '$2,000', qty: '1', ot: '—', total: '$2,000', src: 'high', srcLabel: 'Manual' },
+          { name: 'Wardrobe Purchase', rate: '$5,050', qty: '1', ot: '—', total: '$5,050', src: 'med', srcLabel: 'Estimate' },
+          { name: 'Vehicles / Picture Cars', rate: '$4,000', qty: '1', ot: '—', total: '$4,000', src: 'ai' },
+        ]}
+    ]},
+  { id: 'post', icon: 'scissors', name: 'Post-Production', total: 45000, pct: 9.2, filled: '14/18',
+    sections: [
+      { letter: 'J', name: 'Editorial', total: 28000, pct: 6, count: 4,
+        cols: ['Description','Rate','Weeks','—','Total','Source'],
+        items: [
+          { name: 'Editor', rate: '$5,000', qty: '3', ot: '—', total: '$15,000', src: 'high', srcLabel: 'Market' },
+          { name: 'Assistant Editor', rate: '$2,500', qty: '3', ot: '—', total: '$7,500', src: 'ai' },
+          { name: 'Edit Suite Rental', rate: '$1,500', qty: '3', ot: '—', total: '$4,500', src: 'ai' },
+          { name: 'Transcoding / Dailies', hint: 'Not yet estimated', empty: true },
+        ]},
+      { letter: 'K', name: 'Finishing', total: 17000, pct: 3, count: 4,
+        cols: ['Description','Rate','Qty','—','Total','Source'],
+        items: [
+          { name: 'Color Grade (DaVinci)', rate: '$5,000', qty: '1', ot: '—', total: '$5,000', src: 'high', srcLabel: 'Market' },
+          { name: 'VFX (10 shots)', rate: '$800', qty: '10', ot: '—', total: '$8,000', src: 'ai' },
+          { name: 'Online / Conform', rate: '$2,000', qty: '1', ot: '—', total: '$2,000', src: 'ai' },
+          { name: 'Deliverables & QC', rate: '$2,000', qty: '1', ot: '—', total: '$2,000', src: 'med', srcLabel: 'Estimate' },
+        ]}
+    ]},
+  { id: 'music', icon: 'music', name: 'Music', total: 28000, pct: 5.7, filled: '8/10',
+    sections: [
+      { letter: 'L', name: 'Music & Sound', total: 28000, pct: 6, count: 4,
+        cols: ['Description','Rate','Qty','—','Total','Source'],
+        items: [
+          { name: 'Original Score (Composer)', rate: '$12,000', qty: '1', ot: '—', total: '$12,000', src: 'high', srcLabel: 'Market' },
+          { name: 'Sound Design & Mix', rate: '$8,000', qty: '1', ot: '—', total: '$8,000', src: 'ai' },
+          { name: 'VO Record (Studio)', rate: '$3,000', qty: '1', ot: '—', total: '$3,000', src: 'ai' },
+          { name: 'Music License (Sync)', hint: 'Pending Nike approval', rate: '$5,000', qty: '1', ot: '—', total: '$5,000', src: 'med', srcLabel: 'Estimate' },
+        ]}
+    ]},
+  { id: 'insurance', icon: 'shield', name: 'Insurance', total: 12000, pct: 2.5, filled: '6/6',
+    sections: [
+      { letter: 'M', name: 'Insurance & Legal', total: 12000, pct: 2, count: 3,
+        cols: ['Description','Rate','Qty','—','Total','Source'],
+        items: [
+          { name: 'Production Insurance (E&O)', rate: '$5,000', qty: '1', ot: '—', total: '$5,000', src: 'high', srcLabel: 'Market' },
+          { name: 'Workers Comp', rate: '$4,000', qty: '1', ot: '—', total: '$4,000', src: 'ai' },
+          { name: 'Completion Bond', rate: '$3,000', qty: '1', ot: '—', total: '$3,000', src: 'ai' },
+        ]}
+    ]},
+  { id: 'contingency', icon: 'percent', name: 'Contingency', total: 32000, pct: 6.6, filled: '2/2',
+    sections: [
+      { letter: 'N', name: 'Contingency & Markup', total: 32000, pct: 7, count: 2,
+        cols: ['Description','Rate','Qty','—','Total','Source'],
+        items: [
+          { name: 'Production Contingency (5%)', hint: 'Standard AICP buffer', rate: '$22,000', qty: '1', ot: '—', total: '$22,000', src: 'high', srcLabel: 'Calculated' },
+          { name: 'Agency Markup', rate: '$10,000', qty: '1', ot: '—', total: '$10,000', src: 'high', srcLabel: 'Manual' },
+        ]}
+    ]},
+];
+
+const fmt = n => '$' + n.toLocaleString();
+
+// ── Render cat nav ─────────────────────
+function renderCatNav() {
+  const nav = document.getElementById('catNav');
+  nav.innerHTML = categories.map((c, i) =>
+    `<div class="cat-nav-item${i===0?' active':''}" data-cat="${i}" onclick="showCategory(${i})">
+      <i data-lucide="${c.icon}"></i> ${c.name}
+      <span class="cat-nav-amount">${fmt(c.total)}</span>
+    </div>`
+  ).join('') + `<div style="height:1px;background:var(--border-light);margin:8px 16px"></div>
+    <div class="nav-item-ai" onclick="toggleAI()">
+      <i data-lucide="sparkles"></i> AI Assistant
+      <span class="ai-dot-sm"></span>
+    </div>`;
+}
+
+// ── Render category content ────────────
+function renderCategory(cat) {
+  let html = `<div class="section-header">
+    <div class="section-title">
+      <div class="icon"><i data-lucide="${cat.icon}"></i></div>
+      ${cat.name}
+    </div>
+    <div class="section-stats">
+      <div class="section-stat"><div class="val">${fmt(cat.total)}</div><div class="lbl">Subtotal</div></div>
+      <div class="section-stat"><div class="val">${cat.filled}</div><div class="lbl">Items Filled</div></div>
+      <div class="section-stat"><div class="val">${cat.pct}%</div><div class="lbl">of Budget</div></div>
+    </div>
+  </div>
+  <div class="section-subtitle">AICP Section${cat.sections.length > 1 ? 's' : ''} ${cat.sections.map(s=>s.letter).join(' & ')} — ${cat.filled.split('/')[0]} of ${cat.filled.split('/')[1]} line items filled.</div>`;
+
+  cat.sections.forEach(s => {
+    html += `<div class="budget-section">
+      <div class="budget-section-hdr" onclick="toggleSection(this)">
+        <div class="budget-section-hdr-left">
+          <div class="section-letter">${s.letter}</div>
+          <div class="section-name">${s.name}</div>
+          <span class="section-meta">${s.count} items</span>
+        </div>
+        <div class="budget-section-hdr-right">
+          <span class="section-pct">${s.pct}%</span>
+          <span class="section-total">${fmt(s.total)}</span>
+          <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="budget-section-body">`;
+
+    if (s.ai) {
+      html += `<div class="ai-bar">
+        <div class="ai-dot">AI</div><span>${s.ai}</span>
+        <div class="actions"><button class="act-btn">Apply</button><button class="act-btn dismiss">Dismiss</button></div>
+      </div>`;
+    }
+
+    html += `<div class="line-items-header">
+      ${s.cols.map((c,i) => `<span${i>0?' style="text-align:right"':''}>${c}</span>`).join('')}
+    </div>`;
+
+    s.items.forEach(item => {
+      if (item.empty) {
+        html += `<div class="line-item empty">
+          <div><div class="li-name">${item.name}</div>${item.hint?`<div class="li-hint">${item.hint}</div>`:''}</div>
+          <div><input class="li-input" placeholder="Rate"></div>
+          <div><input class="li-input" placeholder="Qty"></div>
+          <div><input class="li-input" placeholder="—"></div>
+          <div class="li-total">—</div>
+          <div><span class="li-confidence low">Empty</span></div>
+        </div>`;
+      } else {
+        const srcHtml = item.src === 'ai'
+          ? '<span class="li-ai-badge">AI</span>'
+          : `<span class="li-confidence ${item.src}">${item.srcLabel}</span>`;
+        html += `<div class="line-item">
+          <div><div class="li-name">${item.name}</div>${item.hint?`<div class="li-hint">${item.hint}</div>`:''}</div>
+          <div><input class="li-input" value="${item.rate}"></div>
+          <div><input class="li-input" value="${item.qty}"></div>
+          <div><input class="li-input" value="${item.ot}"></div>
+          <div class="li-total">${item.total}</div>
+          <div>${srcHtml}</div>
+        </div>`;
+      }
+    });
+
+    html += `<button class="add-line-btn"><i data-lucide="plus-circle"></i> Add line item to Section ${s.letter}</button>
+      </div></div>`;
+  });
+
+  return html;
+}
+
+let currentCat = 0;
+function showCategory(idx) {
+  currentCat = idx;
+  document.querySelectorAll('.cat-nav-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+  const area = document.getElementById('contentArea');
+  area.innerHTML = renderCategory(categories[idx]);
+  lucide.createIcons({ nodes: area.querySelectorAll('[data-lucide]') });
+  window.scrollTo(0, 0);
+}
+
+function toggleSection(hdr) {
+  hdr.closest('.budget-section').classList.toggle('collapsed');
+}
+
+// ── AI Drawer ──────────────────────────
+let aiOpen = false;
+let aiTab = 'chat';
+const chatHistory = [
+  { role: 'bot', text: 'I\'m analyzing the <strong>Nike "Just Do It" 60s TV</strong> bid. Total is <strong>$487,250</strong> across 9 categories. What would you like to know?' },
+];
+
+function toggleAI() {
+  aiOpen = !aiOpen;
+  document.getElementById('aiDrawer').classList.toggle('open', aiOpen);
+  document.getElementById('aiScrim').classList.toggle('open', aiOpen);
+  if (aiOpen) renderAIBody();
+}
+
+function setAITab(btn, tab) {
+  aiTab = tab;
+  document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('aiChatWrap').style.display = tab === 'chat' ? '' : 'none';
+  renderAIBody();
+}
+
+function renderAIBody() {
+  const body = document.getElementById('aiBody');
+  if (aiTab === 'overview') {
+    body.innerHTML = `
+      <div style="padding:14px 16px;margin-bottom:10px;border-radius:var(--radius);background:var(--bg-subtle);border:1px solid var(--border-light)">
+        <div style="font-family:var(--font-data);font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fg-muted);margin-bottom:4px">BID TOTAL</div>
+        <div style="font-family:var(--font-data);font-size:20px;font-weight:700;color:var(--fg)">$487,250</div>
+        <div style="font-size:11px;color:var(--fg-muted);margin-top:3px">142 of 186 items filled (76%)</div>
+      </div>
+      <div style="padding:14px 16px;margin-bottom:10px;border-radius:var(--radius);background:var(--bg-subtle);border:1px solid var(--border-light)">
+        <div style="font-family:var(--font-data);font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fg-muted);margin-bottom:4px">TOP CATEGORY</div>
+        <div style="font-family:var(--font-data);font-size:20px;font-weight:700;color:var(--fg)">Crew & Labor</div>
+        <div style="font-size:11px;color:var(--fg-muted);margin-top:3px">$142,800 — 29.3% of total</div>
+      </div>
+      <div style="padding:14px 16px;margin-bottom:10px;border-radius:var(--radius);background:var(--bg-subtle);border:1px solid var(--border-light)">
+        <div style="font-family:var(--font-data);font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fg-muted);margin-bottom:4px">AI COVERAGE</div>
+        <div style="font-family:var(--font-data);font-size:20px;font-weight:700;color:var(--fg)">76%</div>
+        <div style="font-size:11px;color:var(--fg-muted);margin-top:3px">108 items auto-estimated, 34 manual</div>
+      </div>
+      <div style="padding:14px 16px;border-radius:var(--radius);background:var(--bg-subtle);border:1px solid var(--border-light)">
+        <div style="font-family:var(--font-data);font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fg-muted);margin-bottom:4px">DUE DATE</div>
+        <div style="font-family:var(--font-data);font-size:20px;font-weight:700;color:var(--fg)">Mar 28</div>
+        <div style="font-size:11px;color:var(--fg-muted);margin-top:3px">4 days remaining</div>
+      </div>`;
+  } else if (aiTab === 'insights') {
+    body.innerHTML = `
+      <div style="padding:14px 16px;margin-bottom:8px;border-radius:var(--radius);background:var(--bg-subtle);border:1px solid var(--border-light);cursor:pointer">
+        <div style="font-family:var(--font-data);font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--success);margin-bottom:4px">SAVINGS</div>
+        <div style="font-size:12px;color:var(--fg-secondary);line-height:1.5">Grip & Electric package can be bundled with Camera rental for 12% discount at Panavision.</div>
+        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;color:var(--success);margin-top:6px">Save $3,060</div>
+      </div>
+      <div style="padding:14px 16px;margin-bottom:8px;border-radius:var(--radius);background:var(--bg-subtle);border:1px solid var(--border-light);cursor:pointer">
+        <div style="font-family:var(--font-data);font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--warn);margin-bottom:4px">WARNING</div>
+        <div style="font-size:12px;color:var(--fg-secondary);line-height:1.5">Location fees are 18% of budget — above AICP benchmark of 15% for performance spots. Consider reducing to 2 locations.</div>
+      </div>
+      <div style="padding:14px 16px;margin-bottom:8px;border-radius:var(--radius);background:var(--bg-subtle);border:1px solid var(--border-light);cursor:pointer">
+        <div style="font-family:var(--font-data);font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--info);margin-bottom:4px">INSIGHT</div>
+        <div style="font-size:12px;color:var(--fg-secondary);line-height:1.5">Crew rates are trending +4% in NYC for Q1 2026. Your DP rate ($4,500/day) is competitive.</div>
+      </div>
+      <div style="padding:14px 16px;margin-bottom:8px;border-radius:var(--radius);background:var(--bg-subtle);border:1px solid var(--border-light);cursor:pointer">
+        <div style="font-family:var(--font-data);font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--error);margin-bottom:4px">VALIDATION</div>
+        <div style="font-size:12px;color:var(--fg-secondary);line-height:1.5">44 line items still empty. Focus on Sections F, H, and K to hit the Mar 28 deadline.</div>
+      </div>`;
+  } else {
+    let msgs = chatHistory.map(m =>
+      `<div class="ai-msg ${m.role}"><div class="ai-msg-label">${m.role === 'bot' ? 'DIBS AI' : 'YOU'}</div>${m.text}</div>`
+    ).join('');
+    msgs += `<div class="ai-chips">
+      <button class="ai-chip" onclick="quickChat('What\\'s the total?')">Total</button>
+      <button class="ai-chip" onclick="quickChat('Biggest section?')">Biggest section</button>
+      <button class="ai-chip" onclick="quickChat('Find savings')">Find savings</button>
+      <button class="ai-chip" onclick="quickChat('Validate bid')">Validate</button>
+    </div>`;
+    body.innerHTML = `<div class="ai-chat-messages">${msgs}</div>`;
+    body.scrollTop = body.scrollHeight;
+  }
+}
+
+function sendChat() {
+  const input = document.getElementById('aiInput');
+  const text = input.value.trim();
+  if (!text) return;
+  chatHistory.push({ role: 'user', text });
+  input.value = '';
+  // Simulate bot response
+  const cat = categories[currentCat];
+  const responses = {
+    'total': `The current bid total is <strong>$487,250</strong> across 9 categories and 186 line items.`,
+    'biggest': `<strong>${cat.name}</strong> is the current category at <strong>${fmt(cat.total)}</strong> (${cat.pct}% of budget).`,
+    'savings': `I found 3 potential savings:<br>1. Bundle camera + grip rental: <strong>save $3,060</strong><br>2. Book crew 10+ days: <strong>save ~$2,400</strong><br>3. Reduce location days by 1: <strong>save $8,000</strong>`,
+    'validate': `<strong>44 items</strong> still need estimates. Priority sections: F (Location Support), H (Background), K (Finishing). Due date is <strong>Mar 28</strong> — 4 days remaining.`,
+  };
+  const lower = text.toLowerCase();
+  let reply = `The ${cat.name} category totals <strong>${fmt(cat.total)}</strong> with ${cat.filled} items filled. ${cat.sections.map(s => `Section ${s.letter} (${s.name}): ${fmt(s.total)}`).join('. ')}.`;
+  if (lower.includes('total')) reply = responses.total;
+  else if (lower.includes('biggest') || lower.includes('largest')) reply = responses.biggest;
+  else if (lower.includes('saving') || lower.includes('save')) reply = responses.savings;
+  else if (lower.includes('validat') || lower.includes('check')) reply = responses.validate;
+  chatHistory.push({ role: 'bot', text: reply });
+  renderAIBody();
+}
+
+function quickChat(text) {
+  document.getElementById('aiInput').value = text;
+  sendChat();
+}
+
+document.getElementById('aiInput')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+});
+
+// ── Sidebar toggle ─────────────────────
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const isCollapsed = sidebar.classList.toggle('collapsed');
+  document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+  localStorage.setItem('dibs-sidebar-collapsed', isCollapsed);
+}
+
+// ── Init ────────────────────────────────
+renderCatNav();
+showCategory(0);
+lucide.createIcons();
+
+(function() {
+  if (localStorage.getItem('dibs-sidebar-collapsed') === 'true') {
+    document.getElementById('sidebar').classList.add('collapsed');
+    document.body.classList.add('sidebar-collapsed');
+  }
+})();
+</script>
+</body>
+</html>

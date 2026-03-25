@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dibs — AICP Production Estimator</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%239d833e'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Inter' font-weight='700' font-size='18' fill='white'%3Ed%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --surface: #fff8f1;
+  --surface-low: #f9f3eb;
+  --surface-lowest: #ffffff;
+  --surface-bright: #fffcf8;
+  --surface-dim: #f0e9df;
+  --primary: #705918;
+  --primary-container: #8a722e;
+  --accent: #9d833e;
+  --accent-bright: #c4a35a;
+  --gradient-cta: linear-gradient(135deg, #8a722e 0%, #c4a35a 100%);
+  --on-surface: #1d1b17;
+  --on-surface-variant: #4a4540;
+  --on-surface-muted: #8c8279;
+  --outline-variant: #cfc5b4;
+  --success: #5b8c5a;
+  --success-container: #eff5ef;
+  --warning: #c4943a;
+  --warning-container: #fdf6e9;
+  --error: #c45a5a;
+  --error-container: #fcefef;
+  --info: #5a7b8c;
+  --info-container: #eef4f7;
+  --shadow-card: 0px 4px 16px rgba(29,27,23,0.04);
+  --shadow-ambient: 0px 12px 32px rgba(29,27,23,0.06);
+  --shadow-elevated: 0px 20px 48px rgba(29,27,23,0.1);
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-data: 'JetBrains Mono', 'SF Mono', monospace;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--on-surface);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+}
+
+::selection { background: rgba(157,131,62,0.2); color: var(--primary); }
+
+/* ═══════════════════════════════════════════
+   TOP BAR
+   ═══════════════════════════════════════════ */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 52px;
+  background: var(--surface-lowest);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: var(--shadow-card);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-logo {
+  width: 28px; height: 28px; background: var(--gradient-cta);
+  border-radius: var(--radius-sm); display: flex;
+  align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px; color: #fff;
+}
+.topbar-title {
+  font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--on-surface);
+}
+.topbar-title span { color: var(--accent); }
+.topbar-project {
+  font-size: 12px; color: var(--on-surface-muted);
+  margin-left: 4px; font-weight: 400;
+}
+.topbar-center {
+  display: flex; align-items: center; gap: 4px;
+}
+.topbar-tab {
+  padding: 6px 16px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  color: var(--on-surface-muted); transition: all 0.15s;
+  border: none; background: none;
+}
+.topbar-tab:hover { background: var(--surface-low); color: var(--on-surface-variant); }
+.topbar-tab.active {
+  background: rgba(157,131,62,0.1); color: var(--primary); font-weight: 600;
+}
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.topbar-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: var(--radius-sm);
+  font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.15s;
+}
+.topbar-btn.ghost { background: none; color: var(--on-surface-muted); }
+.topbar-btn.ghost:hover { background: var(--surface-low); color: var(--on-surface-variant); }
+.topbar-btn.primary {
+  background: var(--gradient-cta); color: #fff; font-weight: 600;
+  box-shadow: 0 2px 8px rgba(138,114,46,0.2);
+}
+.topbar-btn.primary:hover { box-shadow: 0 4px 16px rgba(138,114,46,0.3); transform: translateY(-1px); }
+.topbar-version {
+  font-family: var(--font-data); font-size: 10px;
+  color: var(--on-surface-muted); padding: 3px 10px;
+  background: var(--surface-dim); border-radius: 100px;
+}
+
+/* ═══════════════════════════════════════════
+   MAIN LAYOUT
+   ═══════════════════════════════════════════ */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  flex: 1; min-height: 0;
+  margin-left: 220px;
+  transition: margin-left 0.2s ease;
+}
+body.sidebar-collapsed .main-layout {
+  margin-left: 56px;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════ */
+.sidebar {
+  width: 220px;
+  background: #ffffff;
+  border-right: 1px solid #f0f0f0;
+  position: fixed;
+  top: 52px;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
+  overflow: hidden;
+  z-index: 100;
+}
+.sidebar-header {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 16px 16px 12px; flex-shrink: 0;
+}
+.sidebar-toggle {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid transparent;
+  border-radius: 6px; cursor: pointer;
+  color: #bbbbbb; transition: all 0.15s; flex-shrink: 0;
+}
+.sidebar-toggle:hover { color: #4a4a4a; background: #fafaf8; border-color: #f0f0f0; }
+.sidebar-toggle svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+.sidebar-nav {
+  flex: 1; padding: 4px 8px;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; color: #999999;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.15s; text-decoration: none;
+  border-radius: 6px; white-space: nowrap;
+}
+.nav-item:hover { background: #fafaf8; color: #4a4a4a; }
+.nav-item.active { background: rgba(157,131,62,0.08); color: #9d833e; font-weight: 600; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-label { white-space: nowrap; overflow: hidden; }
+.nav-divider { height: 1px; background: #f0f0f0; margin: 8px 8px; }
+.nav-section-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--fg-hint, #bbbbbb);
+  font-weight: 600;
+  padding: 8px 12px 4px;
+}
+.nav-bid { gap: 8px; padding-left: 16px; }
+.bid-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent, #9d833e);
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+.sidebar.collapsed .nav-section-label { display: none; }
+.sidebar.collapsed .bid-dot { margin-left: 0; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(157,131,62,0.08); color: #9d833e; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.user-name { font-size: 13px; font-weight: 500; white-space: nowrap; }
+.user-role { font-size: 11px; color: #999999; white-space: nowrap; }
+.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed .sidebar-header { padding: 16px 0 12px; justify-content: center; }
+.sidebar.collapsed .sidebar-toggle svg { transform: rotate(180deg); }
+.sidebar.collapsed .nav-item { padding: 10px 0; justify-content: center; border-radius: 0; gap: 0; }
+.sidebar.collapsed .nav-label { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .nav-divider { margin: 8px 12px; }
+.sidebar.collapsed .sidebar-footer { padding: 12px 0; }
+.sidebar.collapsed .user-info { justify-content: center; }
+.sidebar.collapsed .user-name, .sidebar.collapsed .user-role { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .sidebar-nav { padding: 4px 0; }
+
+/* ═══════════════════════════════════════════
+   MAIN CONTENT — Budget Tree
+   ═══════════════════════════════════════════ */
+.content {
+  padding: 24px 28px;
+  overflow-y: auto;
+  height: calc(100vh - 52px - 56px);
+}
+
+/* Section Header */
+.budget-section {
+  margin-bottom: 32px;
+}
+.budget-section-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-radius: var(--radius-md);
+  background: var(--surface-lowest);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 12px; cursor: pointer;
+  transition: box-shadow 0.15s;
+  user-select: none;
+}
+.budget-section-hdr:hover { box-shadow: var(--shadow-ambient); }
+.budget-section-hdr-left {
+  display: flex; align-items: center; gap: 12px;
+}
+.section-letter {
+  font-family: var(--font-data); font-size: 12px; font-weight: 700;
+  width: 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--gradient-cta); color: #fff;
+}
+.section-title-group {}
+.section-name {
+  font-size: 15px; font-weight: 700; color: var(--on-surface);
+}
+.section-meta {
+  font-size: 11px; color: var(--on-surface-muted);
+}
+.budget-section-hdr-right {
+  display: flex; align-items: center; gap: 16px;
+}
+.section-total {
+  font-family: var(--font-data); font-size: 18px; font-weight: 700;
+  color: var(--primary);
+}
+.section-pct {
+  font-family: var(--font-data); font-size: 11px;
+  color: var(--on-surface-muted);
+  background: var(--surface-dim); padding: 3px 10px;
+  border-radius: 100px;
+}
+.section-chevron {
+  color: var(--on-surface-muted);
+  transition: transform 0.2s;
+}
+.budget-section.collapsed .section-chevron { transform: rotate(-90deg); }
+.budget-section.collapsed .budget-section-body { display: none; }
+
+/* Category */
+.category {
+  margin-bottom: 16px; margin-left: 8px;
+}
+.category-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-radius: var(--radius-sm);
+  background: var(--surface-dim);
+  cursor: pointer; user-select: none;
+  transition: background 0.1s;
+}
+.category-hdr:hover { background: #ebe4d9; }
+.category-hdr-left { display: flex; align-items: center; gap: 10px; }
+.cat-chevron {
+  color: var(--on-surface-muted); transition: transform 0.2s;
+  width: 14px; height: 14px;
+}
+.category.collapsed .cat-chevron { transform: rotate(-90deg); }
+.category.collapsed .category-body { display: none; }
+.cat-name {
+  font-size: 13px; font-weight: 600; color: var(--on-surface-variant);
+}
+.cat-count {
+  font-family: var(--font-data); font-size: 10px;
+  color: var(--on-surface-muted);
+}
+.category-hdr-right { display: flex; align-items: center; gap: 12px; }
+.cat-total {
+  font-family: var(--font-data); font-size: 13px; font-weight: 600;
+  color: var(--primary);
+}
+.cat-badge {
+  font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 100px; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.cat-badge.done { background: var(--success-container); color: var(--success); }
+.cat-badge.attention { background: var(--warning-container); color: var(--warning); }
+.cat-badge.over { background: var(--error-container); color: var(--error); }
+
+/* Line Items Table */
+.line-items {
+  margin: 8px 0 0 0;
+}
+.line-items-header {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 0.7fr 0.7fr 0.8fr 1fr 36px;
+  gap: 8px; padding: 6px 16px;
+  font-family: var(--font-data); font-size: 9px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--on-surface-muted);
+}
+.line-item {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 0.7fr 0.7fr 0.8fr 1fr 36px;
+  gap: 8px; padding: 8px 16px; align-items: center;
+  border-radius: var(--radius-sm);
+  transition: background 0.1s;
+  position: relative;
+}
+.line-item:hover { background: var(--surface-bright); }
+.line-item-name {
+  font-size: 13px; color: var(--on-surface);
+  display: flex; align-items: center; gap: 6px;
+}
+.line-item-input {
+  font-family: var(--font-data); font-size: 12px; font-weight: 500;
+  color: var(--on-surface); background: none;
+  border: none; outline: none; padding: 4px 8px;
+  border-radius: 4px; width: 100%;
+  transition: all 0.15s;
+}
+.line-item-input:hover { background: var(--surface-lowest); }
+.line-item-input:focus {
+  background: var(--surface-lowest);
+  box-shadow: 0 0 0 2px rgba(157,131,62,0.15);
+}
+.line-item-input.currency { text-align: right; }
+.line-item-subtotal {
+  font-family: var(--font-data); font-size: 13px; font-weight: 700;
+  color: var(--primary); text-align: right;
+}
+.line-item-actions {
+  display: flex; justify-content: center;
+  opacity: 0; transition: opacity 0.1s;
+}
+.line-item:hover .line-item-actions { opacity: 1; }
+.line-item-action-btn {
+  width: 24px; height: 24px; border: none; background: none;
+  border-radius: 4px; cursor: pointer; color: var(--on-surface-muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.1s;
+}
+.line-item-action-btn:hover { background: var(--error-container); color: var(--error); }
+
+/* Add Line Item */
+.add-line-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; margin: 8px 0 0 16px;
+  border: none; background: none;
+  font-family: var(--font-ui); font-size: 12px;
+  color: var(--accent); cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.1s;
+}
+.add-line-btn:hover { background: rgba(157,131,62,0.08); }
+
+/* Dependency warning */
+.dep-warning {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; margin: 8px 0;
+  border-radius: var(--radius-sm);
+  background: var(--warning-container);
+  font-size: 12px; color: var(--warning);
+  animation: slideDown 0.2s ease;
+}
+.dep-warning svg { flex-shrink: 0; }
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   AI PANEL — Right Sidebar
+   ═══════════════════════════════════════════ */
+.ai-panel {
+  background: var(--surface-lowest);
+  border-left: none;
+  box-shadow: -4px 0 16px rgba(29,27,23,0.03);
+  display: flex; flex-direction: column;
+  height: calc(100vh - 52px - 56px);
+  position: sticky; top: 52px;
+}
+.ai-panel-hdr {
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ai-panel-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.5px; color: var(--on-surface);
+}
+.ai-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 6px rgba(91,140,90,0.4);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.ai-panel-tabs {
+  display: flex; gap: 2px; padding: 0 16px; margin-bottom: 12px;
+}
+.ai-tab {
+  flex: 1; padding: 6px 0; border: none; background: none;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 500;
+  color: var(--on-surface-muted); cursor: pointer;
+  border-radius: var(--radius-sm); transition: all 0.12s;
+  text-align: center;
+}
+.ai-tab:hover { background: var(--surface-low); }
+.ai-tab.active { background: rgba(157,131,62,0.1); color: var(--primary); font-weight: 600; }
+
+.ai-panel-body {
+  flex: 1; overflow-y: auto; padding: 0 16px;
+}
+
+/* AI Suggestions */
+.ai-suggestion {
+  padding: 14px 16px; margin-bottom: 10px;
+  border-radius: var(--radius-md);
+  background: var(--surface-low);
+  cursor: pointer; transition: all 0.15s;
+}
+.ai-suggestion:hover { background: var(--surface-dim); transform: translateY(-1px); }
+.ai-suggestion-type {
+  font-family: var(--font-data); font-size: 9px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.ai-suggestion-type.savings { color: var(--success); }
+.ai-suggestion-type.warning { color: var(--warning); }
+.ai-suggestion-type.insight { color: var(--info); }
+.ai-suggestion-type.template { color: var(--accent); }
+.ai-suggestion-text {
+  font-size: 12px; color: var(--on-surface-variant);
+  line-height: 1.5;
+}
+.ai-suggestion-impact {
+  font-family: var(--font-data); font-size: 11px; font-weight: 600;
+  margin-top: 8px;
+}
+.ai-suggestion-impact.positive { color: var(--success); }
+.ai-suggestion-impact.negative { color: var(--error); }
+.ai-suggestion-actions {
+  display: flex; gap: 8px; margin-top: 10px;
+}
+.ai-apply-btn {
+  padding: 4px 12px; border: none; border-radius: 100px;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all 0.12s;
+}
+.ai-apply-btn.accept { background: var(--gradient-cta); color: #fff; }
+.ai-apply-btn.accept:hover { box-shadow: 0 2px 8px rgba(138,114,46,0.25); }
+.ai-apply-btn.dismiss { background: var(--surface-dim); color: var(--on-surface-muted); }
+
+/* AI Chat */
+.ai-chat-input-wrap {
+  padding: 12px 16px;
+  background: var(--surface-lowest);
+}
+.ai-chat-input {
+  width: 100%; padding: 10px 14px;
+  border: none; border-radius: var(--radius-md);
+  background: var(--surface-low);
+  font-family: var(--font-ui); font-size: 12px;
+  color: var(--on-surface); outline: none;
+  resize: none; min-height: 40px;
+  transition: box-shadow 0.15s;
+}
+.ai-chat-input:focus { box-shadow: 0 0 0 2px rgba(157,131,62,0.15); }
+.ai-chat-input::placeholder { color: var(--on-surface-muted); }
+.ai-chat-hint {
+  font-family: var(--font-data); font-size: 9px;
+  color: var(--on-surface-muted); margin-top: 6px;
+  text-align: center;
+}
+
+/* Budget Summary Cards in AI Panel */
+.budget-summary-card {
+  padding: 14px 16px; margin-bottom: 10px;
+  border-radius: var(--radius-md);
+  background: var(--surface-low);
+}
+.budget-summary-label {
+  font-family: var(--font-data); font-size: 9px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--on-surface-muted); margin-bottom: 4px;
+}
+.budget-summary-value {
+  font-family: var(--font-data); font-size: 20px; font-weight: 700;
+  color: var(--primary);
+}
+.budget-summary-sub {
+  font-size: 11px; color: var(--on-surface-muted); margin-top: 2px;
+}
+.budget-donut {
+  width: 100%; height: 180px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 8px 0;
+}
+.donut-legend {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 0 16px; margin-bottom: 16px;
+}
+.donut-legend-item {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px;
+}
+.donut-legend-left {
+  display: flex; align-items: center; gap: 8px;
+}
+.donut-legend-dot {
+  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+}
+.donut-legend-name { color: var(--on-surface-variant); }
+.donut-legend-val {
+  font-family: var(--font-data); font-size: 10px;
+  color: var(--on-surface-muted); font-weight: 500;
+}
+
+/* Version History */
+.version-item {
+  padding: 12px 16px; margin-bottom: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  cursor: pointer; transition: all 0.12s;
+}
+.version-item:hover { background: var(--surface-dim); }
+.version-item.current {
+  background: rgba(157,131,62,0.08);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.version-label {
+  font-size: 12px; font-weight: 600; color: var(--on-surface);
+  margin-bottom: 2px;
+}
+.version-meta {
+  font-size: 10px; color: var(--on-surface-muted);
+}
+.version-diff {
+  font-family: var(--font-data); font-size: 10px;
+  margin-top: 6px;
+}
+.version-diff .plus { color: var(--error); }
+.version-diff .minus { color: var(--success); }
+
+/* ═══════════════════════════════════════════
+   PERSISTENT TOTALS BAR
+   ═══════════════════════════════════════════ */
+.totals-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 56px;
+  background: var(--surface-lowest);
+  box-shadow: 0 -4px 16px rgba(29,27,23,0.04);
+  position: sticky; bottom: 0; z-index: 100;
+}
+.totals-left { display: flex; align-items: center; gap: 24px; }
+.total-item { display: flex; align-items: center; gap: 8px; }
+.total-label {
+  font-family: var(--font-data); font-size: 9px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--on-surface-muted);
+}
+.total-value {
+  font-family: var(--font-data); font-size: 16px; font-weight: 700;
+  color: var(--primary);
+}
+.total-value.grand { font-size: 20px; }
+.totals-divider {
+  width: 1px; height: 28px; background: var(--surface-dim);
+}
+.total-change {
+  font-family: var(--font-data); font-size: 10px;
+  padding: 2px 8px; border-radius: 100px;
+}
+.total-change.up { background: var(--error-container); color: var(--error); }
+.total-change.down { background: var(--success-container); color: var(--success); }
+.totals-right { display: flex; align-items: center; gap: 8px; }
+.totals-progress {
+  width: 120px; height: 4px; background: var(--surface-dim);
+  border-radius: 2px; overflow: hidden;
+}
+.totals-progress-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--gradient-cta);
+  transition: width 0.5s ease;
+}
+.totals-pct {
+  font-family: var(--font-data); font-size: 11px;
+  font-weight: 600; color: var(--accent);
+}
+
+/* ═══════════════════════════════════════════
+   SEARCH OVERLAY
+   ═══════════════════════════════════════════ */
+.search-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(29,27,23,0.3);
+  backdrop-filter: blur(4px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding-top: 120px;
+}
+.search-overlay.open { display: flex; }
+.search-modal {
+  width: 560px; max-height: 420px;
+  background: var(--surface-lowest);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevated);
+  overflow: hidden;
+}
+.search-input-wrap {
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.search-input {
+  flex: 1; border: none; outline: none;
+  font-family: var(--font-ui); font-size: 15px;
+  color: var(--on-surface); background: none;
+}
+.search-input::placeholder { color: var(--on-surface-muted); }
+.search-results {
+  max-height: 320px; overflow-y: auto;
+  padding: 8px;
+}
+.search-result {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: background 0.1s;
+}
+.search-result:hover, .search-result.selected { background: var(--surface-low); }
+.search-result-left { display: flex; align-items: center; gap: 10px; }
+.search-result-section {
+  font-family: var(--font-data); font-size: 9px;
+  font-weight: 700; letter-spacing: 0.5px;
+  color: var(--on-surface-muted);
+  background: var(--surface-dim);
+  padding: 2px 8px; border-radius: 3px;
+}
+.search-result-name { font-size: 13px; color: var(--on-surface); }
+.search-result-amount {
+  font-family: var(--font-data); font-size: 12px;
+  color: var(--accent); font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════
+   REVIEW MODE
+   ═══════════════════════════════════════════ */
+body.review-mode .sidebar { display: none; }
+body.review-mode .ai-panel { display: none; }
+body.review-mode .main-layout { grid-template-columns: 1fr; margin-left: 0; }
+body.review-mode .content {
+  max-width: 900px; margin: 0 auto; height: auto;
+}
+body.review-mode .line-item-actions { display: none !important; }
+body.review-mode .add-line-btn { display: none; }
+body.review-mode .line-item-input {
+  background: none !important; box-shadow: none !important;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   DEPENDENCY IMPACT MODAL
+   ═══════════════════════════════════════════ */
+.impact-toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  z-index: 200;
+  background: var(--surface-lowest);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevated);
+  padding: 16px 24px;
+  display: none; align-items: center; gap: 16px;
+  animation: toastUp 0.3s ease;
+  max-width: 600px;
+}
+.impact-toast.show { display: flex; }
+@keyframes toastUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.impact-toast-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--warning-container); color: var(--warning);
+  flex-shrink: 0;
+}
+.impact-toast-text { flex: 1; }
+.impact-toast-title {
+  font-size: 13px; font-weight: 600; color: var(--on-surface);
+  margin-bottom: 2px;
+}
+.impact-toast-desc {
+  font-size: 11px; color: var(--on-surface-muted); line-height: 1.5;
+}
+.impact-toast-desc strong {
+  font-family: var(--font-data); color: var(--error); font-weight: 600;
+}
+.impact-toast-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--on-surface-muted); padding: 4px;
+  border-radius: 4px; transition: all 0.1s;
+}
+.impact-toast-close:hover { background: var(--surface-low); }
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════ */
+.fade-in { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.highlight-flash {
+  animation: flash 0.8s ease;
+}
+@keyframes flash {
+  0% { background: rgba(157,131,62,0.15); }
+  100% { background: transparent; }
+}
+.noche-return {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: #111113; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.noche-return:hover { background: #ffffff; border-color: rgba(255,255,255,0.5); color: #000000; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ TOP BAR ═══════════ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">d</div>
+    <div class="topbar-title"><span>DIBS</span><span class="topbar-project"> / Dove Q3 TV Spot</span></div>
+  </div>
+  <div class="topbar-center">
+    <button class="topbar-tab active" onclick="setView('budget')">Budget</button>
+    <button class="topbar-tab" onclick="setView('timeline')">Timeline</button>
+    <button class="topbar-tab" onclick="setView('review')" id="reviewToggle">Review</button>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-version">v3 — Mar 21</span>
+    <button class="topbar-btn ghost" onclick="toggleSearch()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      Search
+    </button>
+    <button class="topbar-btn ghost" onclick="showVersions()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      Versions
+    </button>
+    <button class="topbar-btn primary" id="exportBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+  </div>
+</div>
+
+<!-- ── Archive Banner + Navigation ──── -->
+<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 24px;background:#fdf6e9;border-bottom:1px solid var(--outline-variant);font-family:var(--font-ui);font-size:11px;">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:3px;background:rgba(157,131,62,0.12);color:#705918;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/></svg>
+      Archived — Iteration 1</span>
+    <a href="dibs.html" style="color:var(--accent);text-decoration:none;font-weight:500;">View Current Version</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:2px;">
+    <a href="dibs-dashboard.html" style="padding:3px 8px;border-radius:3px;color:var(--on-surface-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='rgba(157,131,62,0.06)'" onmouseout="this.style.background='none'">Dashboard</a>
+    <a href="dibs.html" style="padding:3px 8px;border-radius:3px;color:var(--on-surface-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='rgba(157,131,62,0.06)'" onmouseout="this.style.background='none'">Budget Editor</a>
+    <a href="dibs-comparison.html" style="padding:3px 8px;border-radius:3px;color:var(--on-surface-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='rgba(157,131,62,0.06)'" onmouseout="this.style.background='none'">Compare</a>
+    <a href="dibs-collab.html" style="padding:3px 8px;border-radius:3px;color:var(--on-surface-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='rgba(157,131,62,0.06)'" onmouseout="this.style.background='none'">Collaborate</a>
+    <a href="index.html" style="padding:3px 8px;border-radius:3px;color:var(--on-surface-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='rgba(157,131,62,0.06)'" onmouseout="this.style.background='none'">Noche Hub</a>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN LAYOUT ═══════════ -->
+<div class="main-layout">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+        <i data-lucide="panel-left-close"></i>
+      </button>
+    </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dibs-dashboard.html" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i><span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" href="dibs.html" title="New Bid">
+      <i data-lucide="plus-circle"></i><span class="nav-label">New Bid</span>
+    </a>
+    <a class="nav-item" href="dibs-comparison.html" title="Bid Board">
+      <i data-lucide="kanban"></i><span class="nav-label">Bid Board</span>
+    </a>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Active Bids</div>
+    <a class="nav-item nav-bid active" href="dibs-lineitem.html" title="Nike &quot;Just Do It&quot; 60s TV">
+      <span class="bid-dot"></span><span class="nav-label">Nike &ldquo;Just Do It&rdquo;</span>
+    </a>
+    <div class="nav-divider"></div>
+    <a class="nav-item" href="dibs-settings.html" title="Settings">
+      <i data-lucide="settings"></i><span class="nav-label">Settings</span>
+    </a>
+  </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">MC</div>
+        <div>
+          <div class="user-name">Maria Chen</div>
+          <div class="user-role">Senior Line Producer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <div class="content" id="budgetContent">
+    <!-- Budget sections rendered by JS -->
+  </div>
+
+  <!-- ─── AI PANEL ─── -->
+  <div class="ai-panel">
+    <div class="ai-panel-hdr">
+      <div class="ai-panel-title">
+        <div class="ai-dot"></div>
+        AI Assistant
+      </div>
+      <button class="topbar-btn ghost" style="padding:4px 8px;font-size:10px" onclick="refreshAI()">Refresh</button>
+    </div>
+
+    <div class="ai-panel-tabs">
+      <button class="ai-tab active" onclick="setAITab(this, 'overview')">Overview</button>
+      <button class="ai-tab" onclick="setAITab(this, 'suggestions')">Insights</button>
+      <button class="ai-tab" onclick="setAITab(this, 'versions')">Versions</button>
+    </div>
+
+    <div class="ai-panel-body" id="aiPanelBody">
+      <!-- Rendered by JS -->
+    </div>
+
+    <div class="ai-chat-input-wrap">
+      <textarea class="ai-chat-input" placeholder="Ask about your budget..." rows="1" id="aiChatInput"></textarea>
+      <div class="ai-chat-hint">Enter to send, Shift+Enter for new line</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ TOTALS BAR ═══════════ -->
+<div class="totals-bar">
+  <div class="totals-left">
+    <div class="total-item">
+      <span class="total-label">Subtotal</span>
+      <span class="total-value" id="barSubtotal">$0</span>
+    </div>
+    <div class="totals-divider"></div>
+    <div class="total-item">
+      <span class="total-label">Markup 15%</span>
+      <span class="total-value" id="barMarkup">$0</span>
+    </div>
+    <div class="totals-divider"></div>
+    <div class="total-item">
+      <span class="total-label">Contingency 5%</span>
+      <span class="total-value" id="barContingency">$0</span>
+    </div>
+    <div class="totals-divider"></div>
+    <div class="total-item">
+      <span class="total-label">Grand Total</span>
+      <span class="total-value grand" id="barGrandTotal">$0</span>
+    </div>
+    <span class="total-change up" id="barChange" style="display:none">+$0</span>
+  </div>
+  <div class="totals-right">
+    <div class="totals-progress">
+      <div class="totals-progress-fill" id="barProgress" style="width:73%"></div>
+    </div>
+    <span class="totals-pct" id="barPct">73% complete</span>
+  </div>
+</div>
+
+<!-- ═══════════ SEARCH OVERLAY ═══════════ -->
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)toggleSearch()">
+  <div class="search-modal">
+    <div class="search-input-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--on-surface-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input class="search-input" type="text" placeholder="Search line items, categories, sections..." id="globalSearch" oninput="handleSearch(this.value)" />
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- ═══════════ IMPACT TOAST ═══════════ -->
+<div class="impact-toast" id="impactToast">
+  <div class="impact-toast-icon">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+  </div>
+  <div class="impact-toast-text">
+    <div class="impact-toast-title" id="impactTitle">Dependency Impact</div>
+    <div class="impact-toast-desc" id="impactDesc"></div>
+  </div>
+  <button class="impact-toast-close" onclick="hideImpact()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+  </button>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+// ═══════════════════════════════════════════
+// SIDEBAR TOGGLE
+// ═══════════════════════════════════════════
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const isCollapsed = sidebar.classList.toggle('collapsed');
+  document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+  localStorage.setItem('dibs-sidebar-collapsed', isCollapsed);
+}
+(function() {
+  if (localStorage.getItem('dibs-sidebar-collapsed') === 'true') {
+    document.getElementById('sidebar').classList.add('collapsed');
+    document.body.classList.add('sidebar-collapsed');
+  }
+})();
+
+// ═══════════════════════════════════════════
+// DATA MODEL — Full AICP Budget Tree
+// ═══════════════════════════════════════════
+const budgetData = {
+  sections: [
+    {
+      id: 'A', name: 'Pre-Production', collapsed: false,
+      categories: [
+        { name: 'Creative Development', status: 'done', items: [
+          { name: 'Storyboard Artist', units: 3, rate: 1500, ot: 0 },
+          { name: 'Script Revisions', units: 2, rate: 2000, ot: 0 },
+          { name: 'Location Scout', units: 4, rate: 800, ot: 200 },
+          { name: 'Casting Director', units: 5, rate: 1200, ot: 0 },
+        ]},
+        { name: 'Pre-Pro Meetings', status: 'done', items: [
+          { name: 'Director Prep', units: 3, rate: 2500, ot: 0 },
+          { name: 'PPM Facility', units: 1, rate: 3000, ot: 0 },
+          { name: 'Agency Travel', units: 4, rate: 600, ot: 0 },
+        ]},
+      ]
+    },
+    {
+      id: 'B', name: 'Production', collapsed: false, isDayDependent: true,
+      categories: [
+        { name: 'Crew', status: 'attention', items: [
+          { name: 'Director', units: 3, rate: 8000, ot: 0 },
+          { name: 'Director of Photography', units: 3, rate: 4500, ot: 750 },
+          { name: 'Camera Operator', units: 3, rate: 2200, ot: 500 },
+          { name: 'Gaffer', units: 3, rate: 1800, ot: 400 },
+          { name: 'Key Grip', units: 3, rate: 1600, ot: 350 },
+          { name: 'Sound Mixer', units: 3, rate: 1400, ot: 300 },
+          { name: 'Script Supervisor', units: 3, rate: 1200, ot: 0 },
+          { name: 'Production Designer', units: 4, rate: 2000, ot: 0 },
+        ]},
+        { name: 'Talent', status: 'attention', items: [
+          { name: 'Principal (SAG)', units: 3, rate: 5000, ot: 1000 },
+          { name: 'Supporting (SAG)', units: 2, rate: 3000, ot: 500 },
+          { name: 'Background x8', units: 3, rate: 400, ot: 0 },
+          { name: 'Talent Wardrobe', units: 1, rate: 4500, ot: 0 },
+          { name: 'Hair & Makeup', units: 3, rate: 1600, ot: 200 },
+        ]},
+        { name: 'Equipment', status: 'done', items: [
+          { name: 'Camera Package', units: 3, rate: 3500, ot: 0 },
+          { name: 'Lighting Package', units: 3, rate: 2200, ot: 0 },
+          { name: 'Grip Package', units: 3, rate: 1500, ot: 0 },
+          { name: 'Sound Package', units: 3, rate: 800, ot: 0 },
+          { name: 'Specialty (Drone)', units: 1, rate: 4500, ot: 0 },
+        ]},
+        { name: 'Locations', status: 'done', items: [
+          { name: 'Studio Rental', units: 2, rate: 6000, ot: 0 },
+          { name: 'Location Fee', units: 1, rate: 8000, ot: 0 },
+          { name: 'Permits & Police', units: 1, rate: 3500, ot: 0 },
+          { name: 'Parking & Basecamp', units: 3, rate: 1200, ot: 0 },
+        ]},
+        { name: 'Travel & Living', status: 'done', items: [
+          { name: 'Flights (Crew)', units: 6, rate: 450, ot: 0 },
+          { name: 'Hotels (Crew)', units: 18, rate: 220, ot: 0 },
+          { name: 'Per Diem (Crew)', units: 18, rate: 75, ot: 0 },
+          { name: 'Ground Transport', units: 3, rate: 900, ot: 0 },
+        ]},
+        { name: 'Catering & Craft', status: 'done', items: [
+          { name: 'Catering (50 ppl)', units: 3, rate: 2800, ot: 0 },
+          { name: 'Craft Services', units: 3, rate: 1200, ot: 0 },
+          { name: '2nd Meal Penalty', units: 1, rate: 1500, ot: 0 },
+        ]},
+      ]
+    },
+    {
+      id: 'C', name: 'Post-Production', collapsed: false,
+      categories: [
+        { name: 'Editorial', status: 'done', items: [
+          { name: 'Editor', units: 15, rate: 800, ot: 0 },
+          { name: 'Assistant Editor', units: 15, rate: 450, ot: 0 },
+          { name: 'Avid Suite Rental', units: 15, rate: 200, ot: 0 },
+        ]},
+        { name: 'Color & Finish', status: 'attention', items: [
+          { name: 'Colorist (DaVinci)', units: 2, rate: 5000, ot: 0 },
+          { name: 'Online Finish', units: 1, rate: 8000, ot: 0 },
+          { name: 'VFX Compositing', units: 1, rate: 12000, ot: 0 },
+        ]},
+        { name: 'Sound & Music', status: 'done', items: [
+          { name: 'Sound Design', units: 1, rate: 6000, ot: 0 },
+          { name: 'Mix (5.1)', units: 1, rate: 4500, ot: 0 },
+          { name: 'Music License', units: 1, rate: 15000, ot: 0 },
+          { name: 'Deliverables', units: 1, rate: 2500, ot: 0 },
+        ]},
+      ]
+    },
+    {
+      id: 'D', name: 'Insurance & Legal', collapsed: true,
+      categories: [
+        { name: 'Insurance', status: 'done', items: [
+          { name: 'Production Insurance', units: 1, rate: 8500, ot: 0 },
+          { name: 'E&O Insurance', units: 1, rate: 3500, ot: 0 },
+          { name: 'Workers Comp', units: 1, rate: 4200, ot: 0 },
+        ]},
+        { name: 'Legal & Admin', status: 'done', items: [
+          { name: 'Legal Counsel', units: 1, rate: 5000, ot: 0 },
+          { name: 'Talent Contracts', units: 1, rate: 2000, ot: 0 },
+          { name: 'Payroll Service', units: 1, rate: 3500, ot: 0 },
+        ]},
+      ]
+    },
+    {
+      id: 'E', name: 'Agency & Markup', collapsed: true,
+      categories: [
+        { name: 'Agency Fees', status: 'done', items: [
+          { name: 'Agency Commission (10%)', units: 1, rate: 0, ot: 0, isCalculated: true, calcType: 'pct', calcValue: 0.10 },
+          { name: 'Handling Fee (3%)', units: 1, rate: 0, ot: 0, isCalculated: true, calcType: 'pct', calcValue: 0.03 },
+        ]},
+      ]
+    },
+  ],
+  shootDays: 3,
+  markupPct: 0.15,
+  contingencyPct: 0.05,
+};
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let currentAITab = 'overview';
+let previousTotal = null;
+let isReviewMode = false;
+
+// ═══════════════════════════════════════════
+// CALCULATION ENGINE
+// ═══════════════════════════════════════════
+function calcItemTotal(item) {
+  return (item.units * item.rate) + (item.units * item.ot);
+}
+
+function calcCategoryTotal(cat) {
+  return cat.items.reduce((sum, item) => {
+    if (item.isCalculated) return sum;
+    return sum + calcItemTotal(item);
+  }, 0);
+}
+
+function calcSectionTotal(section) {
+  return section.categories.reduce((sum, cat) => sum + calcCategoryTotal(cat), 0);
+}
+
+function calcSubtotal() {
+  return budgetData.sections.reduce((sum, s) => {
+    if (s.id === 'E') return sum;
+    return sum + calcSectionTotal(s);
+  }, 0);
+}
+
+function calcGrandTotal() {
+  const subtotal = calcSubtotal();
+  // Calculate E section (percentages of subtotal)
+  const eSection = budgetData.sections.find(s => s.id === 'E');
+  let agencyFees = 0;
+  if (eSection) {
+    eSection.categories.forEach(cat => {
+      cat.items.forEach(item => {
+        if (item.isCalculated && item.calcType === 'pct') {
+          item.rate = Math.round(subtotal * item.calcValue);
+          agencyFees += item.rate;
+        }
+      });
+    });
+  }
+  const markup = Math.round(subtotal * budgetData.markupPct);
+  const contingency = Math.round(subtotal * budgetData.contingencyPct);
+  return { subtotal, agencyFees, markup, contingency, grand: subtotal + agencyFees + markup + contingency };
+}
+
+function fmt(n) {
+  return '$' + n.toLocaleString('en-US');
+}
+
+// ═══════════════════════════════════════════
+// DEPENDENCY ENGINE
+// ═══════════════════════════════════════════
+function getShootDayDependencies() {
+  const deps = [];
+  budgetData.sections.forEach(s => {
+    if (!s.isDayDependent) return;
+    s.categories.forEach(cat => {
+      cat.items.forEach(item => {
+        if (item.units === budgetData.shootDays) {
+          deps.push({ section: s.name, category: cat.name, item: item.name, current: calcItemTotal(item) });
+        }
+      });
+    });
+  });
+  return deps;
+}
+
+function showImpact(field, oldVal, newVal) {
+  if (field === 'shootDays') {
+    const deps = getShootDayDependencies();
+    if (deps.length === 0) return;
+    const diff = newVal - oldVal;
+    const totalImpact = deps.reduce((sum, d) => {
+      const item = findItem(d.item);
+      return sum + (item ? (item.rate + item.ot) * diff : 0);
+    }, 0);
+    document.getElementById('impactTitle').textContent = `Shoot Days: ${oldVal} → ${newVal}`;
+    document.getElementById('impactDesc').innerHTML =
+      `Affects <strong>${deps.length} line items</strong> across ${new Set(deps.map(d=>d.category)).size} categories. ` +
+      `Estimated impact: <strong>${totalImpact >= 0 ? '+' : ''}${fmt(totalImpact)}</strong>`;
+    document.getElementById('impactToast').classList.add('show');
+    setTimeout(() => hideImpact(), 6000);
+  }
+}
+
+function hideImpact() {
+  document.getElementById('impactToast').classList.remove('show');
+}
+
+function findItem(name) {
+  for (const s of budgetData.sections) {
+    for (const c of s.categories) {
+      const found = c.items.find(i => i.name === name);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════
+// RENDER — Budget Tree
+// ═══════════════════════════════════════════
+function renderBudget() {
+  const totals = calcGrandTotal();
+  const container = document.getElementById('budgetContent');
+  let html = '';
+
+  budgetData.sections.forEach((section, si) => {
+    const sTotal = calcSectionTotal(section);
+    const pct = totals.subtotal > 0 ? Math.round((sTotal / totals.subtotal) * 100) : 0;
+
+    html += `<div class="budget-section${section.collapsed ? ' collapsed' : ''}" data-section="${si}">`;
+    html += `<div class="budget-section-hdr" onclick="toggleSection(${si})">
+      <div class="budget-section-hdr-left">
+        <div class="section-letter">${section.id}</div>
+        <div class="section-title-group">
+          <div class="section-name">${section.name}</div>
+          <div class="section-meta">${section.categories.length} categories, ${section.categories.reduce((n,c) => n + c.items.length, 0)} line items</div>
+        </div>
+      </div>
+      <div class="budget-section-hdr-right">
+        <span class="section-pct">${pct}%</span>
+        <span class="section-total">${fmt(sTotal)}</span>
+        <svg class="section-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </div>`;
+
+    html += `<div class="budget-section-body">`;
+    section.categories.forEach((cat, ci) => {
+      const catTotal = calcCategoryTotal(cat);
+      html += `<div class="category" data-cat="${si}-${ci}">`;
+      html += `<div class="category-hdr" onclick="toggleCategory(${si}, ${ci})">
+        <div class="category-hdr-left">
+          <svg class="cat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          <span class="cat-name">${cat.name}</span>
+          <span class="cat-count">${cat.items.length} items</span>
+        </div>
+        <div class="category-hdr-right">
+          <span class="cat-badge ${cat.status}">${cat.status === 'done' ? 'Complete' : cat.status === 'attention' ? 'Needs Review' : 'Over Budget'}</span>
+          <span class="cat-total">${fmt(catTotal)}</span>
+        </div>
+      </div>`;
+
+      html += `<div class="category-body">`;
+      html += `<div class="line-items">`;
+      html += `<div class="line-items-header">
+        <span>Description</span><span>Units</span><span>Rate</span><span>OT</span><span>Subtotal</span><span></span><span></span>
+      </div>`;
+
+      cat.items.forEach((item, ii) => {
+        const sub = item.isCalculated ? item.rate : calcItemTotal(item);
+        html += `<div class="line-item" data-item="${si}-${ci}-${ii}">
+          <div class="line-item-name">${item.name}</div>
+          <input class="line-item-input" type="text" value="${item.isCalculated ? '—' : item.units}" ${item.isCalculated ? 'disabled' : ''} onchange="updateItem(${si},${ci},${ii},'units',this.value)" />
+          <input class="line-item-input currency" type="text" value="${item.isCalculated ? fmt(item.rate) : fmt(item.rate)}" ${item.isCalculated ? 'disabled' : ''} onchange="updateItem(${si},${ci},${ii},'rate',this.value)" />
+          <input class="line-item-input currency" type="text" value="${item.isCalculated ? '—' : (item.ot > 0 ? fmt(item.ot) : '—')}" ${item.isCalculated ? 'disabled' : ''} onchange="updateItem(${si},${ci},${ii},'ot',this.value)" />
+          <div class="line-item-subtotal">${fmt(sub)}</div>
+          <div></div>
+          <div class="line-item-actions">
+            <button class="line-item-action-btn" title="Remove" onclick="removeItem(${si},${ci},${ii})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+        </div>`;
+      });
+
+      html += `</div>`;
+      html += `<button class="add-line-btn" onclick="addItem(${si},${ci})">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        Add line item
+      </button>`;
+      html += `</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+  updateTotalsBar(totals);
+  renderNav();
+  if (currentAITab === 'overview') renderAIOverview(totals);
+}
+
+// ═══════════════════════════════════════════
+// RENDER — Navigation
+// ═══════════════════════════════════════════
+function renderNav() {
+  const nav = document.getElementById('navSections');
+  let html = '';
+  budgetData.sections.forEach((section, si) => {
+    const sTotal = calcSectionTotal(section);
+    html += `<div class="nav-section">
+      <button class="nav-section-btn${si === 0 ? ' active' : ''}" onclick="scrollToSection(${si})">
+        <span class="nav-section-letter">${section.id}</span>
+        <span class="nav-section-name">${section.name}</span>
+        <span class="nav-section-amount">${fmt(sTotal)}</span>
+      </button>`;
+    if (!section.collapsed) {
+      html += `<div class="nav-categories">`;
+      section.categories.forEach((cat, ci) => {
+        html += `<div class="nav-cat-link" onclick="scrollToCategory(${si},${ci})">
+          <span>${cat.name}</span>
+          <span class="nav-cat-amount">${fmt(calcCategoryTotal(cat))}</span>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+  nav.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// RENDER — Totals Bar
+// ═══════════════════════════════════════════
+function updateTotalsBar(totals) {
+  document.getElementById('barSubtotal').textContent = fmt(totals.subtotal);
+  document.getElementById('barMarkup').textContent = fmt(totals.markup);
+  document.getElementById('barContingency').textContent = fmt(totals.contingency);
+  document.getElementById('barGrandTotal').textContent = fmt(totals.grand);
+
+  if (previousTotal !== null && previousTotal !== totals.grand) {
+    const diff = totals.grand - previousTotal;
+    const el = document.getElementById('barChange');
+    el.textContent = (diff > 0 ? '+' : '') + fmt(diff);
+    el.className = 'total-change ' + (diff > 0 ? 'up' : 'down');
+    el.style.display = 'inline';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+  }
+  previousTotal = totals.grand;
+
+  // Calculate completion
+  let totalCats = 0, doneCats = 0;
+  budgetData.sections.forEach(s => {
+    s.categories.forEach(c => {
+      totalCats++;
+      if (c.status === 'done') doneCats++;
+    });
+  });
+  const pct = Math.round((doneCats / totalCats) * 100);
+  document.getElementById('barProgress').style.width = pct + '%';
+  document.getElementById('barPct').textContent = pct + '% complete';
+}
+
+// ═══════════════════════════════════════════
+// RENDER — AI Panel
+// ═══════════════════════════════════════════
+function renderAIOverview(totals) {
+  if (!totals) totals = calcGrandTotal();
+  const sections = budgetData.sections.filter(s => s.id !== 'E');
+  const colors = ['#8a722e', '#c4a35a', '#5b8c5a', '#5a7b8c', '#c4943a'];
+
+  // Donut SVG
+  let donutSegments = '';
+  let offset = 0;
+  const donutData = sections.map((s, i) => {
+    const t = calcSectionTotal(s);
+    const pct = totals.subtotal > 0 ? (t / totals.subtotal) * 100 : 0;
+    return { name: s.name, total: t, pct, color: colors[i % colors.length] };
+  });
+
+  donutData.forEach(d => {
+    const dashArray = `${d.pct * 2.51327} ${251.327 - d.pct * 2.51327}`;
+    donutSegments += `<circle cx="50" cy="50" r="40" fill="none" stroke="${d.color}" stroke-width="16" stroke-dasharray="${dashArray}" stroke-dashoffset="${-offset * 2.51327}" transform="rotate(-90 50 50)"/>`;
+    offset += d.pct;
+  });
+
+  let html = `
+    <div class="budget-summary-card">
+      <div class="budget-summary-label">Grand Total</div>
+      <div class="budget-summary-value">${fmt(totals.grand)}</div>
+      <div class="budget-summary-sub">Subtotal ${fmt(totals.subtotal)} + ${fmt(totals.markup)} markup + ${fmt(totals.contingency)} contingency</div>
+    </div>
+    <div class="budget-donut">
+      <svg viewBox="0 0 100 100" width="160" height="160">
+        ${donutSegments}
+        <text x="50" y="47" text-anchor="middle" font-family="var(--font-data)" font-size="8" font-weight="700" fill="var(--primary)">${fmt(totals.subtotal)}</text>
+        <text x="50" y="57" text-anchor="middle" font-family="var(--font-data)" font-size="4" fill="var(--on-surface-muted)">SUBTOTAL</text>
+      </svg>
+    </div>
+    <div class="donut-legend">`;
+  donutData.forEach(d => {
+    html += `<div class="donut-legend-item">
+      <div class="donut-legend-left">
+        <div class="donut-legend-dot" style="background:${d.color}"></div>
+        <span class="donut-legend-name">${d.name}</span>
+      </div>
+      <span class="donut-legend-val">${fmt(d.total)} (${Math.round(d.pct)}%)</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Quick stats
+  html += `
+    <div class="budget-summary-card">
+      <div class="budget-summary-label">Shoot Days</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="budget-summary-value" style="font-size:28px">${budgetData.shootDays}</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <button class="ai-apply-btn accept" style="padding:2px 10px;font-size:10px" onclick="changeShootDays(1)">+1 Day</button>
+          <button class="ai-apply-btn dismiss" style="padding:2px 10px;font-size:10px" onclick="changeShootDays(-1)">-1 Day</button>
+        </div>
+      </div>
+      <div class="budget-summary-sub">${getShootDayDependencies().length} line items linked to shoot days</div>
+    </div>`;
+
+  document.getElementById('aiPanelBody').innerHTML = html;
+}
+
+function renderAISuggestions() {
+  const totals = calcGrandTotal();
+  const html = `
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type savings">Cost Optimization</div>
+      <div class="ai-suggestion-text">Camera Operator rate ($2,200/day) is 18% above market for this market. Comparable bids average $1,850/day.</div>
+      <div class="ai-suggestion-impact positive">Potential savings: -$1,050</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept" onclick="applyAISuggestion('cam-op-rate')">Apply Rate</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type warning">Dependency Alert</div>
+      <div class="ai-suggestion-text">2nd Meal Penalty ($1,500) is low for 3 shoot days with 50-person crew. Industry standard: ~$2,200 per occurrence.</div>
+      <div class="ai-suggestion-impact negative">Risk: +$2,100 if underbudgeted</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept" onclick="applyAISuggestion('meal-penalty')">Adjust</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type insight">Market Intelligence</div>
+      <div class="ai-suggestion-text">Music License at $15,000 is competitive for a national TV spot. Consider negotiating a 12-month digital extension for +$3,500 vs. re-licensing later at $8,000+.</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept" onclick="applyAISuggestion('music-ext')">Add Extension</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type template">Template Match</div>
+      <div class="ai-suggestion-text">This bid matches 87% of the "National TV :30 — Tabletop + Lifestyle" template. Missing: Teleprompter operator, Steadicam operator.</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept" onclick="applyAISuggestion('template-fill')">Add Missing</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type savings">Consolidation</div>
+      <div class="ai-suggestion-text">Flights + Hotels + Per Diem total $8,760. Bundled crew travel package from preferred vendor: $7,200 (saves 18%).</div>
+      <div class="ai-suggestion-impact positive">Potential savings: -$1,560</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept">Apply Bundle</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('aiPanelBody').innerHTML = html;
+}
+
+function renderAIVersions() {
+  const html = `
+    <div class="version-item current">
+      <div class="version-label">v3 — Current</div>
+      <div class="version-meta">Mar 21, 2026 at 3:42 PM &middot; You</div>
+      <div class="version-diff"><span class="plus">+$12,400</span> from v2 &middot; Added VFX compositing, adjusted crew OT</div>
+    </div>
+    <div class="version-item">
+      <div class="version-label">v2 — Agency Review</div>
+      <div class="version-meta">Mar 18, 2026 at 11:15 AM &middot; Sarah K.</div>
+      <div class="version-diff"><span class="minus">-$8,200</span> from v1 &middot; Reduced talent day rate, removed drone day 2</div>
+    </div>
+    <div class="version-item">
+      <div class="version-label">v1 — Initial Bid</div>
+      <div class="version-meta">Mar 14, 2026 at 9:30 AM &middot; You</div>
+      <div class="version-diff">Baseline &middot; Built from National TV :30 template</div>
+    </div>
+    <div style="margin-top:16px">
+      <button class="ai-apply-btn accept" style="width:100%;padding:8px;font-size:12px" onclick="alert('Compare view coming soon')">
+        <span style="display:flex;align-items:center;justify-content:center;gap:6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
+          Compare Versions
+        </span>
+      </button>
+    </div>
+  `;
+  document.getElementById('aiPanelBody').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// INTERACTIONS
+// ═══════════════════════════════════════════
+function toggleSection(si) {
+  budgetData.sections[si].collapsed = !budgetData.sections[si].collapsed;
+  renderBudget();
+}
+
+function toggleCategory(si, ci) {
+  const el = document.querySelector(`[data-cat="${si}-${ci}"]`);
+  el.classList.toggle('collapsed');
+}
+
+function updateItem(si, ci, ii, field, rawValue) {
+  const val = parseFloat(rawValue.replace(/[$,]/g, ''));
+  if (isNaN(val)) return;
+  const item = budgetData.sections[si].categories[ci].items[ii];
+  const oldVal = item[field];
+  item[field] = val;
+
+  // Check for shoot-day dependency impact
+  if (field === 'units' && budgetData.sections[si].isDayDependent && oldVal === budgetData.shootDays) {
+    // Item was linked to shoot days but now differs
+  }
+
+  renderBudget();
+  if (currentAITab === 'suggestions') renderAISuggestions();
+
+  // Flash the changed row
+  const row = document.querySelector(`[data-item="${si}-${ci}-${ii}"]`);
+  if (row) { row.classList.add('highlight-flash'); setTimeout(() => row.classList.remove('highlight-flash'), 800); }
+}
+
+function addItem(si, ci) {
+  budgetData.sections[si].categories[ci].items.push({
+    name: 'New Line Item', units: 1, rate: 0, ot: 0
+  });
+  renderBudget();
+  // Focus the new item's name
+  setTimeout(() => {
+    const items = document.querySelectorAll(`[data-cat="${si}-${ci}"] .line-item`);
+    const last = items[items.length - 1];
+    if (last) {
+      last.classList.add('highlight-flash');
+      last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 50);
+}
+
+function removeItem(si, ci, ii) {
+  budgetData.sections[si].categories[ci].items.splice(ii, 1);
+  renderBudget();
+}
+
+function changeShootDays(delta) {
+  const oldDays = budgetData.shootDays;
+  const newDays = Math.max(1, oldDays + delta);
+  if (newDays === oldDays) return;
+
+  // Update all day-linked items
+  const deps = getShootDayDependencies();
+  deps.forEach(dep => {
+    const item = findItem(dep.item);
+    if (item) item.units = newDays;
+  });
+  budgetData.shootDays = newDays;
+  showImpact('shootDays', oldDays, newDays);
+  renderBudget();
+}
+
+function scrollToSection(si) {
+  const el = document.querySelector(`[data-section="${si}"]`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Update nav active
+  document.querySelectorAll('.nav-section-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === si);
+  });
+}
+
+function scrollToCategory(si, ci) {
+  const el = document.querySelector(`[data-cat="${si}-${ci}"]`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── View switching ──
+function setView(view) {
+  document.querySelectorAll('.topbar-tab').forEach(t => t.classList.remove('active'));
+  if (view === 'review') {
+    isReviewMode = !isReviewMode;
+    document.body.classList.toggle('review-mode', isReviewMode);
+    if (isReviewMode) document.getElementById('reviewToggle').classList.add('active');
+  } else if (view === 'budget') {
+    isReviewMode = false;
+    document.body.classList.remove('review-mode');
+    event.target.classList.add('active');
+  } else {
+    event.target.classList.add('active');
+  }
+}
+
+// ── AI Tabs ──
+function setAITab(btn, tab) {
+  currentAITab = tab;
+  document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (tab === 'overview') renderAIOverview();
+  else if (tab === 'suggestions') renderAISuggestions();
+  else if (tab === 'versions') renderAIVersions();
+}
+
+// ── Search ──
+function toggleSearch() {
+  const overlay = document.getElementById('searchOverlay');
+  overlay.classList.toggle('open');
+  if (overlay.classList.contains('open')) {
+    setTimeout(() => document.getElementById('globalSearch').focus(), 100);
+  }
+}
+
+function handleSearch(query) {
+  const results = document.getElementById('searchResults');
+  if (!query || query.length < 2) { results.innerHTML = ''; return; }
+
+  const matches = [];
+  budgetData.sections.forEach(s => {
+    s.categories.forEach(c => {
+      c.items.forEach(item => {
+        if (item.name.toLowerCase().includes(query.toLowerCase())) {
+          matches.push({ section: s.id, sectionName: s.name, category: c.name, name: item.name, amount: calcItemTotal(item) });
+        }
+      });
+      if (c.name.toLowerCase().includes(query.toLowerCase())) {
+        matches.push({ section: s.id, sectionName: s.name, category: '', name: c.name, amount: calcCategoryTotal(c) });
+      }
+    });
+  });
+
+  results.innerHTML = matches.slice(0, 10).map(m => `
+    <div class="search-result" onclick="toggleSearch()">
+      <div class="search-result-left">
+        <span class="search-result-section">${m.section}</span>
+        <span class="search-result-name">${m.name}${m.category ? ` <span style="color:var(--on-surface-muted);font-size:11px">in ${m.category}</span>` : ''}</span>
+      </div>
+      <span class="search-result-amount">${fmt(m.amount)}</span>
+    </div>
+  `).join('');
+}
+
+// ── AI Suggestions ──
+function applyAISuggestion(type) {
+  if (type === 'cam-op-rate') {
+    const item = findItem('Camera Operator');
+    if (item) { item.rate = 1850; renderBudget(); }
+  } else if (type === 'meal-penalty') {
+    const item = findItem('2nd Meal Penalty');
+    if (item) { item.rate = 2200; renderBudget(); }
+  } else if (type === 'music-ext') {
+    // Add digital extension line item
+    const postSection = budgetData.sections.find(s => s.id === 'C');
+    const soundCat = postSection?.categories.find(c => c.name === 'Sound & Music');
+    if (soundCat) {
+      soundCat.items.push({ name: 'Digital Extension License', units: 1, rate: 3500, ot: 0 });
+      renderBudget();
+    }
+  } else if (type === 'template-fill') {
+    const crewCat = budgetData.sections.find(s => s.id === 'B')?.categories.find(c => c.name === 'Crew');
+    if (crewCat) {
+      crewCat.items.push({ name: 'Steadicam Operator', units: budgetData.shootDays, rate: 2400, ot: 400 });
+      crewCat.items.push({ name: 'Teleprompter Operator', units: 1, rate: 1200, ot: 0 });
+      renderBudget();
+    }
+  }
+  if (currentAITab === 'suggestions') renderAISuggestions();
+}
+
+function showVersions() {
+  setAITab(document.querySelectorAll('.ai-tab')[2], 'versions');
+}
+
+function refreshAI() {
+  if (currentAITab === 'suggestions') renderAISuggestions();
+  else renderAIOverview();
+}
+
+function aiTemplateApply() {
+  alert('Template library — National TV :30, Social :15, Industrial, Digital Pre-Roll');
+}
+function duplicateSection() {
+  alert('Duplicate from previous bid — select a past project to import sections');
+}
+function recalcAll() {
+  renderBudget();
+}
+
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    toggleSearch();
+  }
+  if (e.key === 'Escape') {
+    const overlay = document.getElementById('searchOverlay');
+    if (overlay.classList.contains('open')) toggleSearch();
+    hideImpact();
+  }
+});
+
+// AI Chat
+document.getElementById('aiChatInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    const q = this.value.trim();
+    if (!q) return;
+    this.value = '';
+    handleAIChat(q);
+  }
+});
+
+function handleAIChat(query) {
+  const body = document.getElementById('aiPanelBody');
+  const totals = calcGrandTotal();
+  let response = '';
+
+  if (query.toLowerCase().includes('total') || query.toLowerCase().includes('budget')) {
+    response = `Your current grand total is <strong>${fmt(totals.grand)}</strong>. That's ${fmt(totals.subtotal)} subtotal + ${fmt(totals.markup)} markup (15%) + ${fmt(totals.contingency)} contingency (5%) + ${fmt(totals.agencyFees)} agency fees.`;
+  } else if (query.toLowerCase().includes('expensive') || query.toLowerCase().includes('biggest') || query.toLowerCase().includes('highest')) {
+    const sorted = budgetData.sections.filter(s => s.id !== 'E').sort((a,b) => calcSectionTotal(b) - calcSectionTotal(a));
+    response = `Biggest section: <strong>${sorted[0].name}</strong> at ${fmt(calcSectionTotal(sorted[0]))} (${Math.round((calcSectionTotal(sorted[0])/totals.subtotal)*100)}% of subtotal).`;
+  } else if (query.toLowerCase().includes('shoot day') || query.toLowerCase().includes('days')) {
+    const deps = getShootDayDependencies();
+    response = `Currently at <strong>${budgetData.shootDays} shoot days</strong>. ${deps.length} line items are linked. Adding 1 day would cost approximately <strong>+${fmt(deps.reduce((s,d) => s + (findItem(d.item)?.rate || 0) + (findItem(d.item)?.ot || 0), 0))}</strong>.`;
+  } else if (query.toLowerCase().includes('save') || query.toLowerCase().includes('cut') || query.toLowerCase().includes('reduce')) {
+    response = `Top savings opportunities: <strong>1)</strong> Crew travel bundle saves $1,560. <strong>2)</strong> Camera Op rate adjustment saves $1,050. <strong>3)</strong> Reducing shoot to 2 days saves ~$47K but impacts scope. Switch to the Insights tab for actionable suggestions.`;
+  } else {
+    response = `I can help with budget analysis. Try asking: "What's the total?", "What's the most expensive section?", "How would adding a shoot day impact cost?", or "Where can I save?"`;
+  }
+
+  body.innerHTML = `
+    <div class="ai-suggestion" style="background:var(--info-container);margin-bottom:16px">
+      <div class="ai-suggestion-type insight">Your Question</div>
+      <div class="ai-suggestion-text" style="color:var(--on-surface)">${query}</div>
+    </div>
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type insight">AI Response</div>
+      <div class="ai-suggestion-text">${response}</div>
+    </div>
+  ` + body.innerHTML;
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+renderBudget();
+renderAIOverview();
+lucide.createIcons();
+</script>
+
+<a href="index.html" class="noche-return" title="Back to Mémoire">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a>
+</body>
+</html>

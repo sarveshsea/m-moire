@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dibs — settings</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F7F3EE;
+  --bg-warm: #EDE6DD;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FDFBF9;
+  --bg-input: #FAF8F5;
+  --fg: #212129;
+  --fg-secondary: #4A4540;
+  --fg-muted: #8C8279;
+  --fg-hint: #B5ADA5;
+  --border: #E2DCD5;
+  --border-light: #EDE8E2;
+  --accent: #9D833E;
+  --accent-hover: #876F2E;
+  --accent-light: #EDE3CF;
+  --accent-subtle: #F5F0E4;
+  --success: #5B8C5A;
+  --success-bg: #EFF5EF;
+  --warn: #C4943A;
+  --warn-bg: #FDF6E9;
+  --error: #C45A5A;
+  --error-bg: #FCEFEF;
+  --shadow-sm: 0 1px 2px rgba(26,26,26,0.04);
+  --shadow-md: 0 2px 8px rgba(26,26,26,0.06);
+  --radius: 3px;
+  --radius-lg: 4px;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+body { font-family: var(--sans); font-size: 14px; background: var(--bg); color: var(--fg); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── Global Top Nav ──────────────────── */
+.global-nav { display: flex; align-items: center; height: 48px; padding: 0 24px; background: #2c2c2e; border-bottom: 1px solid #3a3a3c; position: sticky; top: 0; z-index: 200; gap: 0; }
+.global-nav-brand { display: flex; align-items: center; gap: 10px; margin-right: 32px; }
+.global-nav-logo { width: 24px; height: 24px; background: var(--accent); border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; }
+.global-nav-name { font-weight: 600; font-size: 14px; color: #fff; letter-spacing: -0.3px; }
+.global-nav-tabs { display: flex; align-items: center; gap: 2px; flex: 1; }
+.global-nav-tab { display: flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 12px; font-weight: 500; color: #888; text-decoration: none; border-radius: 3px; transition: all 0.15s; cursor: pointer; font-family: var(--sans); }
+.global-nav-tab:hover { color: #ccc; background: rgba(255,255,255,0.06); }
+.global-nav-tab.active { color: #fff; background: rgba(255,255,255,0.1); font-weight: 600; }
+.global-nav-sep { width: 1px; height: 20px; background: #333; margin: 0 12px; }
+.global-nav-actions { display: flex; align-items: center; gap: 4px; }
+.global-nav-action { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 3px; color: #777; cursor: pointer; transition: all 0.15s; border: none; background: none; position: relative; }
+.global-nav-action:hover { color: #ccc; background: rgba(255,255,255,0.06); }
+.global-nav-action svg { width: 16px; height: 16px; }
+.global-nav-action .notif-dot { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; background: var(--error); border-radius: 50%; border: 1.5px solid #2c2c2e; }
+.global-nav-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: white; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-left: 8px; cursor: pointer; font-family: var(--sans); }
+
+/* ── Layout ──────────────────────────── */
+.layout { display: flex; min-height: calc(100vh - 48px); }
+
+.sidebar {
+  width: 220px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 48px;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
+  overflow: hidden;
+  z-index: 100;
+}
+.sidebar-header {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 16px 16px 12px; flex-shrink: 0;
+}
+.sidebar-toggle {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid transparent;
+  border-radius: 6px; cursor: pointer;
+  color: var(--fg-hint); transition: all 0.15s; flex-shrink: 0;
+}
+.sidebar-toggle:hover { color: var(--fg-secondary); background: var(--bg); border-color: var(--border-light); }
+.sidebar-toggle svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+
+.sidebar-nav { flex: 1; padding: 4px 8px; display: flex; flex-direction: column; gap: 1px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  font-size: 13px; color: var(--fg-muted); font-weight: 500; text-decoration: none;
+  border-radius: 6px; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.nav-item:hover { background: var(--bg); color: var(--fg-secondary); }
+.nav-item.active { background: rgba(157,131,62,0.08); color: var(--accent); font-weight: 600; }
+.nav-item svg, .nav-item i { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-label { white-space: nowrap; overflow: hidden; }
+.nav-divider { height: 1px; background: var(--border-light); margin: 8px 8px; }
+.nav-section-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--fg-hint, #bbbbbb);
+  font-weight: 600;
+  padding: 8px 12px 4px;
+}
+.nav-bid { gap: 8px; padding-left: 16px; }
+.bid-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent, #9d833e);
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+.sidebar.collapsed .nav-section-label { display: none; }
+.sidebar.collapsed .bid-dot { margin-left: 0; }
+
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--border-light); flex-shrink: 0; }
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(157,131,62,0.08); color: var(--accent); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.user-name { font-size: 13px; font-weight: 500; white-space: nowrap; }
+.user-role { font-size: 11px; color: var(--fg-muted); white-space: nowrap; }
+
+/* Collapsed sidebar */
+.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed .sidebar-header { padding: 16px 0 12px; justify-content: center; }
+.sidebar.collapsed .sidebar-toggle svg { transform: rotate(180deg); }
+.sidebar.collapsed .nav-item { padding: 10px 0; justify-content: center; border-radius: 0; gap: 0; }
+.sidebar.collapsed .nav-label { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .nav-divider { margin: 8px 12px; }
+.sidebar.collapsed .sidebar-footer { padding: 12px 0; }
+.sidebar.collapsed .user-info { justify-content: center; }
+.sidebar.collapsed .user-name, .sidebar.collapsed .user-role { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .sidebar-nav { padding: 4px 0; }
+
+/* ── Content ─────────────────────────── */
+.content {
+  flex: 1;
+  margin-left: 220px;
+  padding: 0;
+  transition: margin-left 0.2s ease;
+  overflow-y: auto;
+  height: calc(100vh - 48px);
+}
+body.sidebar-collapsed .content { margin-left: 56px; }
+
+.page-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; border-bottom: 1px solid var(--border-light); background: var(--bg-card, #ffffff); flex-shrink: 0; position: sticky; top: 0; z-index: 8; }
+.page-label { font-family: var(--mono, 'JetBrains Mono', monospace); font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 2px; }
+.page-title { font-size: 20px; font-weight: 400; letter-spacing: -0.3px; color: var(--fg); }
+
+/* ── Settings Nav ────────────────────── */
+.settings-nav {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 0;
+}
+
+.settings-nav-item {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--sans);
+}
+
+.settings-nav-item:hover { color: var(--fg-secondary); }
+.settings-nav-item.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* ── Section ─────────────────────────── */
+.section { margin-bottom: 36px; }
+.section-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.section-desc { font-size: 12px; color: var(--fg-muted); margin-bottom: 16px; }
+
+/* ── Toggle Row ──────────────────────── */
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.toggle-row:last-child { border-bottom: none; }
+
+.toggle-info { flex: 1; padding-right: 24px; }
+.toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toggle-desc { font-size: 12px; color: var(--fg-muted); margin-top: 2px; line-height: 1.5; }
+
+.toggle-right { display: flex; align-items: center; gap: 12px; padding-top: 2px; }
+
+/* ── Toggle Switch ───────────────────── */
+.toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+.toggle-track {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--border);
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.toggle-track::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  bottom: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.toggle input:checked + .toggle-track {
+  background: var(--accent);
+}
+
+.toggle input:checked + .toggle-track::before {
+  transform: translateX(16px);
+}
+
+/* ── Tooltip ─────────────────────────── */
+.tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  color: var(--fg-hint);
+  font-size: 9px;
+  font-weight: 700;
+  cursor: help;
+  position: relative;
+  flex-shrink: 0;
+  font-family: var(--sans);
+}
+
+.tooltip-trigger:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0) translateY(0);
+}
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--fg);
+  color: white;
+  font-size: 11px;
+  font-weight: 400;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  white-space: nowrap;
+  max-width: 280px;
+  white-space: normal;
+  line-height: 1.5;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.15s;
+  z-index: 50;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--fg);
+}
+
+/* ── Card ────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--fg-hint);
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title svg { width: 14px; height: 14px; color: var(--fg-muted); }
+
+/* ── Inline Fields ───────────────────── */
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.field-row:last-child { border-bottom: none; }
+
+.field-label { font-size: 13px; color: var(--fg-secondary); min-width: 140px; }
+
+.field-value {
+  flex: 1;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-input);
+  font-family: var(--sans);
+  color: var(--fg);
+}
+
+.field-value:focus { outline: none; border-color: var(--accent); }
+
+select.field-value { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C8279' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+/* ── Tag / Badge ─────────────────────── */
+.role-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.role-badge.owner { background: var(--accent-subtle); color: var(--accent); }
+.role-badge.editor { background: var(--success-bg); color: var(--success); }
+.role-badge.viewer { background: #f0f0ee; color: var(--fg-muted); }
+
+/* ── Members List ────────────────────── */
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.member-row:last-child { border-bottom: none; }
+
+.member-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; flex-shrink: 0;
+}
+.member-avatar.mc { background: var(--accent-light); color: var(--accent); }
+.member-avatar.jp { background: #D4E8D4; color: var(--success); }
+.member-avatar.so { background: #D4DEE8; color: #5A7B8C; }
+.member-avatar.dr { background: #E8D4E8; color: #7B5A8C; }
+
+.member-info { flex: 1; }
+.member-name { font-size: 13px; font-weight: 500; }
+.member-email { font-size: 11px; color: var(--fg-hint); }
+
+.member-actions { display: flex; align-items: center; gap: 8px; }
+
+/* ── Btn ─────────────────────────────── */
+.btn { padding: 7px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--fg-secondary); font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 3px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.btn.primary:hover { background: var(--accent-hover); }
+.btn.sm { padding: 4px 10px; font-size: 12px; }
+.btn.danger { color: var(--error); border-color: var(--error-bg); }
+.btn.danger:hover { background: var(--error-bg); border-color: var(--error); }
+.btn svg { width: 14px; height: 14px; }
+
+/* ── Hidden Sections ─────────────────── */
+.settings-panel { display: none; }
+.settings-panel.active { display: block; }
+
+/* ── Danger Zone ─────────────────────── */
+.danger-zone {
+  border: 1px solid var(--error-bg);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+}
+.danger-zone .section-title { color: var(--error); }
+.noche-return {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: #111113; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.noche-return:hover { background: #ffffff; border-color: rgba(255,255,255,0.5); color: #000000; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+
+/* ── Custom Dropdown ─────────────────── */
+.ds-dropdown { position: relative; display: inline-flex; }
+.ds-dropdown-trigger {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 28px 5px 10px; border: 1px solid var(--border); border-radius: 3px;
+  font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--fg-secondary);
+  background: var(--bg-input); cursor: pointer; white-space: nowrap; user-select: none;
+  transition: border-color 0.15s, background 0.15s; position: relative;
+}
+.ds-dropdown-trigger::after {
+  content: ''; position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 4px solid var(--fg-hint); transition: transform 0.15s;
+}
+.ds-dropdown.open .ds-dropdown-trigger::after { transform: translateY(-50%) rotate(180deg); }
+.ds-dropdown-trigger:hover { border-color: var(--accent); background: var(--bg-card); }
+.ds-dropdown.open .ds-dropdown-trigger { border-color: var(--accent); background: var(--bg-card); }
+.ds-dropdown-menu {
+  position: absolute; top: calc(100% + 4px); left: 0; min-width: 100%;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(26,26,26,0.1), 0 1px 4px rgba(26,26,26,0.06);
+  z-index: 300; display: none; padding: 4px; max-height: 220px; overflow-y: auto;
+}
+.ds-dropdown.open .ds-dropdown-menu { display: block; }
+.ds-dropdown-menu.right { left: auto; right: 0; }
+.ds-dropdown-option {
+  display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+  font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--fg-secondary);
+  cursor: pointer; border-radius: 3px; transition: background 0.1s; white-space: nowrap;
+}
+.ds-dropdown-option:hover { background: var(--bg); color: var(--fg); }
+.ds-dropdown-option.selected { background: var(--accent-subtle); color: var(--accent); font-weight: 600; }
+.ds-dropdown-option .check-icon { width: 14px; height: 14px; opacity: 0; color: var(--accent); flex-shrink: 0; }
+.ds-dropdown-option.selected .check-icon { opacity: 1; }
+.ds-dropdown.sm .ds-dropdown-trigger { padding: 3px 22px 3px 8px; font-size: 12px; }
+.ds-dropdown.sm .ds-dropdown-trigger::after { right: 6px; border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; }
+.ds-dropdown.sm .ds-dropdown-option { padding: 5px 8px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ── Global Top Nav ═══════════════════ -->
+<nav class="global-nav">
+  <div class="global-nav-brand">
+    <div class="global-nav-name">dibs</div>
+  </div>
+  <div class="global-nav-tabs"></div>
+  <div class="global-nav-sep"></div>
+  <div class="global-nav-actions">
+    <button class="global-nav-action active" title="Settings" style="color:#fff;background:rgba(255,255,255,0.1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <button class="global-nav-action" title="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="notif-dot"></span>
+    </button>
+  </div>
+  <div class="global-nav-avatar">MC</div>
+</nav>
+
+<div class="layout">
+
+<!-- ── Sidebar ═══════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+      <i data-lucide="panel-left-close"></i>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dibs-dashboard.html" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i><span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" href="dibs.html" title="New Bid">
+      <i data-lucide="plus-circle"></i><span class="nav-label">New Bid</span>
+    </a>
+    <a class="nav-item" href="dibs-comparison.html" title="Bid Board">
+      <i data-lucide="kanban"></i><span class="nav-label">Bid Board</span>
+    </a>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Active Bids</div>
+    <a class="nav-item nav-bid" href="dibs-lineitem.html" title="Nike &quot;Just Do It&quot; 60s TV">
+      <span class="bid-dot"></span><span class="nav-label">Nike &ldquo;Just Do It&rdquo;</span>
+    </a>
+    <div class="nav-divider"></div>
+    <a class="nav-item active" href="dibs-settings.html" title="Settings">
+      <i data-lucide="settings"></i><span class="nav-label">Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">MC</div>
+      <div>
+        <div class="user-name">Maria Chen</div>
+        <div class="user-role">Senior Line Producer</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── Main Content ═════════════════════ -->
+<main class="content">
+
+  <div class="page-header">
+    <div>
+      <div class="page-label">Settings</div>
+      <div class="page-title">Workspace</div>
+    </div>
+  </div>
+
+  <div class="content-body-inner" style="padding: 32px; max-width: 860px;">
+  <!-- Settings Tab Nav -->
+  <div class="settings-nav">
+    <button class="settings-nav-item active" onclick="showPanel('general')">General</button>
+    <button class="settings-nav-item" onclick="showPanel('collaboration')">Collaboration</button>
+    <button class="settings-nav-item" onclick="showPanel('defaults')">Budget Defaults</button>
+    <button class="settings-nav-item" onclick="showPanel('team')">Team</button>
+  </div>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- GENERAL PANEL                        -->
+  <!-- ════════════════════════════════════ -->
+  <div class="settings-panel active" id="panel-general">
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Workspace
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Company Name</div>
+        <input class="field-value" type="text" value="Prettybird">
+      </div>
+      <div class="field-row">
+        <div class="field-label">Default Currency</div>
+        <div class="ds-dropdown" data-value="usd">
+          <button class="ds-dropdown-trigger" type="button">USD ($)</button>
+          <div class="ds-dropdown-menu">
+            <div class="ds-dropdown-option selected" data-value="usd"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>USD ($)</div>
+            <div class="ds-dropdown-option" data-value="gbp"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>GBP (&pound;)</div>
+            <div class="ds-dropdown-option" data-value="eur"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>EUR (&euro;)</div>
+            <div class="ds-dropdown-option" data-value="cad"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>CAD (C$)</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label">Fiscal Year Start</div>
+        <div class="ds-dropdown" data-value="january">
+          <button class="ds-dropdown-trigger" type="button">January</button>
+          <div class="ds-dropdown-menu">
+            <div class="ds-dropdown-option selected" data-value="january"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>January</div>
+            <div class="ds-dropdown-option" data-value="april"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>April</div>
+            <div class="ds-dropdown-option" data-value="july"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>July</div>
+            <div class="ds-dropdown-option" data-value="october"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>October</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label">Timezone</div>
+        <div class="ds-dropdown" data-value="pt">
+          <button class="ds-dropdown-trigger" type="button">America/Los_Angeles (PT)</button>
+          <div class="ds-dropdown-menu">
+            <div class="ds-dropdown-option selected" data-value="pt"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>America/Los_Angeles (PT)</div>
+            <div class="ds-dropdown-option" data-value="et"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>America/New_York (ET)</div>
+            <div class="ds-dropdown-option" data-value="ct"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>America/Chicago (CT)</div>
+            <div class="ds-dropdown-option" data-value="gmt"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Europe/London (GMT)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+        Notifications
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Email Notifications
+            <span class="tooltip-trigger">?<span class="tooltip">Receive email alerts when bids are approved, rejected, or require your review.</span></span>
+          </div>
+          <div class="toggle-desc">Get notified about bid status changes and approvals</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Budget Threshold Alerts
+            <span class="tooltip-trigger">?<span class="tooltip">Triggers when any section exceeds its allocated budget by the configured percentage.</span></span>
+          </div>
+          <div class="toggle-desc">Alert when a section goes over budget by more than 10%</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Weekly Digest
+            <span class="tooltip-trigger">?<span class="tooltip">A summary email sent every Monday with active bids, pending approvals, and budget utilization.</span></span>
+          </div>
+          <div class="toggle-desc">Receive a weekly summary of all active bids and changes</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- COLLABORATION PANEL                  -->
+  <!-- ════════════════════════════════════ -->
+  <div class="settings-panel" id="panel-collaboration">
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Sharing Rules
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Require Approval Before Sharing
+            <span class="tooltip-trigger">?<span class="tooltip">When enabled, any bid shared externally must be approved by a workspace admin or the bid owner first.</span></span>
+          </div>
+          <div class="toggle-desc">Bids must be approved by an admin before they can be shared with clients or external parties</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Lock Bid After Client Send
+            <span class="tooltip-trigger">?<span class="tooltip">Prevents edits after a bid has been sent to a client. Create a new version to make changes.</span></span>
+          </div>
+          <div class="toggle-desc">Automatically lock bids from editing once shared externally</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Hide Internal Notes in Exports
+            <span class="tooltip-trigger">?<span class="tooltip">Internal comments, margin notes, and team annotations are stripped from PDF and Excel exports sent to clients.</span></span>
+          </div>
+          <div class="toggle-desc">Strip internal team comments and margin notes from client-facing exports</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Permissions
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Editors Can Delete Line Items
+            <span class="tooltip-trigger">?<span class="tooltip">Allow team members with Editor access to permanently remove line items. When off, only Admins can delete.</span></span>
+          </div>
+          <div class="toggle-desc">Allow editors to remove line items from budgets they have access to</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Viewers Can Export
+            <span class="tooltip-trigger">?<span class="tooltip">Allows view-only users to download PDF and Excel exports. Disable to restrict exports to Editors and above.</span></span>
+          </div>
+          <div class="toggle-desc">Allow view-only users to download PDF and Excel exports</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Restrict Rate Overrides
+            <span class="tooltip-trigger">?<span class="tooltip">When enabled, only Admins can override union and standard rates. Editors will see rates as read-only.</span></span>
+          </div>
+          <div class="toggle-desc">Only admins can override union rates and standard rate cards</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        Editing Rules
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Track All Changes
+            <span class="tooltip-trigger">?<span class="tooltip">Every field edit is logged with the user, timestamp, and previous value. Visible in the bid's version history.</span></span>
+          </div>
+          <div class="toggle-desc">Log every edit with user, timestamp, and previous value</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Require Comment on Major Changes
+            <span class="tooltip-trigger">?<span class="tooltip">If a single edit changes the total by more than $5,000 or 5%, the editor must add a comment explaining the change.</span></span>
+          </div>
+          <div class="toggle-desc">Force a comment when edits change total by more than $5,000 or 5%</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Auto-Version on Share
+            <span class="tooltip-trigger">?<span class="tooltip">Creates a snapshot version automatically each time a bid is shared or exported. Ensures you always have the exact version the client received.</span></span>
+          </div>
+          <div class="toggle-desc">Automatically create a version snapshot each time a bid is shared or exported</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- BUDGET DEFAULTS PANEL                -->
+  <!-- ════════════════════════════════════ -->
+  <div class="settings-panel" id="panel-defaults">
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg>
+        Standard Markups
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Production Fee</div>
+        <input class="field-value" type="text" value="25%" style="max-width:100px">
+      </div>
+      <div class="field-row">
+        <div class="field-label">Insurance</div>
+        <input class="field-value" type="text" value="3%" style="max-width:100px">
+      </div>
+      <div class="field-row">
+        <div class="field-label">Contingency</div>
+        <input class="field-value" type="text" value="10%" style="max-width:100px">
+      </div>
+      <div class="field-row">
+        <div class="field-label">Travel Handling</div>
+        <input class="field-value" type="text" value="15%" style="max-width:100px">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Labor Defaults
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Standard Day Rate</div>
+        <div class="ds-dropdown" data-value="10h" style="max-width:200px">
+          <button class="ds-dropdown-trigger" type="button">10-hour day</button>
+          <div class="ds-dropdown-menu">
+            <div class="ds-dropdown-option selected" data-value="10h"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>10-hour day</div>
+            <div class="ds-dropdown-option" data-value="8h"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>8-hour day</div>
+            <div class="ds-dropdown-option" data-value="12h"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>12-hour day</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label">OT Multiplier</div>
+        <input class="field-value" type="text" value="1.5x" style="max-width:100px">
+      </div>
+      <div class="field-row">
+        <div class="field-label">Double-time After</div>
+        <input class="field-value" type="text" value="12 hrs" style="max-width:100px">
+      </div>
+      <div class="field-row">
+        <div class="field-label">Default Union</div>
+        <div class="ds-dropdown" data-value="600" style="max-width:200px">
+          <button class="ds-dropdown-trigger" type="button">IATSE Local 600</button>
+          <div class="ds-dropdown-menu">
+            <div class="ds-dropdown-option selected" data-value="600"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>IATSE Local 600</div>
+            <div class="ds-dropdown-option" data-value="700"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>IATSE Local 700</div>
+            <div class="ds-dropdown-option" data-value="798"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>IATSE Local 798</div>
+            <div class="ds-dropdown-option" data-value="non-union"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Non-Union</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Export Defaults
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Include AICP Header
+            <span class="tooltip-trigger">?<span class="tooltip">Adds the standard AICP bid form header with production company info, job name, and bid date to all PDF exports.</span></span>
+          </div>
+          <div class="toggle-desc">Add standard AICP header block to PDF exports</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">
+            Show Section Subtotals
+            <span class="tooltip-trigger">?<span class="tooltip">Displays subtotal rows for each AICP section (A through W) in exports. Turn off for a simpler topsheet view.</span></span>
+          </div>
+          <div class="toggle-desc">Display subtotal rows per AICP section in exports</div>
+        </div>
+        <div class="toggle-right">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Default Format</div>
+        <div class="ds-dropdown" data-value="pdf" style="max-width:200px">
+          <button class="ds-dropdown-trigger" type="button">PDF</button>
+          <div class="ds-dropdown-menu">
+            <div class="ds-dropdown-option selected" data-value="pdf"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>PDF</div>
+            <div class="ds-dropdown-option" data-value="excel"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Excel (.xlsx)</div>
+            <div class="ds-dropdown-option" data-value="both"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Both</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- TEAM PANEL                           -->
+  <!-- ════════════════════════════════════ -->
+  <div class="settings-panel" id="panel-team">
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Team Members
+      </div>
+
+      <div class="member-row">
+        <div class="member-avatar mc">MC</div>
+        <div class="member-info">
+          <div class="member-name">Maria Chen</div>
+          <div class="member-email">maria@prettybird.com</div>
+        </div>
+        <div class="member-actions">
+          <span class="role-badge owner">Owner</span>
+        </div>
+      </div>
+
+      <div class="member-row">
+        <div class="member-avatar jp">JP</div>
+        <div class="member-info">
+          <div class="member-name">Jake Patterson</div>
+          <div class="member-email">jake@prettybird.com</div>
+        </div>
+        <div class="member-actions">
+          <div class="ds-dropdown sm" data-value="editor" style="max-width:100px">
+            <button class="ds-dropdown-trigger" type="button">Editor</button>
+            <div class="ds-dropdown-menu">
+              <div class="ds-dropdown-option selected" data-value="editor"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Editor</div>
+              <div class="ds-dropdown-option" data-value="viewer"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Viewer</div>
+              <div class="ds-dropdown-option" data-value="admin"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Admin</div>
+            </div>
+          </div>
+          <button class="btn sm danger" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="member-row">
+        <div class="member-avatar so">SO</div>
+        <div class="member-info">
+          <div class="member-name">Sarah Okafor</div>
+          <div class="member-email">sarah@prettybird.com</div>
+        </div>
+        <div class="member-actions">
+          <div class="ds-dropdown sm" data-value="viewer" style="max-width:100px">
+            <button class="ds-dropdown-trigger" type="button">Viewer</button>
+            <div class="ds-dropdown-menu">
+              <div class="ds-dropdown-option" data-value="editor"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Editor</div>
+              <div class="ds-dropdown-option selected" data-value="viewer"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Viewer</div>
+              <div class="ds-dropdown-option" data-value="admin"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Admin</div>
+            </div>
+          </div>
+          <button class="btn sm danger" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="member-row">
+        <div class="member-avatar dr">DR</div>
+        <div class="member-info">
+          <div class="member-name">David Reyes</div>
+          <div class="member-email">david@prettybird.com</div>
+        </div>
+        <div class="member-actions">
+          <div class="ds-dropdown sm" data-value="editor" style="max-width:100px">
+            <button class="ds-dropdown-trigger" type="button">Editor</button>
+            <div class="ds-dropdown-menu">
+              <div class="ds-dropdown-option selected" data-value="editor"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Editor</div>
+              <div class="ds-dropdown-option" data-value="viewer"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Viewer</div>
+              <div class="ds-dropdown-option" data-value="admin"><svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Admin</div>
+            </div>
+          </div>
+          <button class="btn sm danger" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light)">
+        <button class="btn" onclick="return false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+          Invite Member
+        </button>
+      </div>
+    </div>
+
+    <div class="danger-zone" style="margin-top:24px">
+      <div class="section-title">Danger Zone</div>
+      <div class="section-desc" style="margin-bottom:12px">Irreversible actions that affect the entire workspace</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--error-bg)">
+        <div>
+          <div style="font-size:13px;font-weight:500">Delete Workspace</div>
+          <div style="font-size:12px;color:var(--fg-muted)">Permanently remove this workspace and all bids</div>
+        </div>
+        <button class="btn danger">Delete Workspace</button>
+      </div>
+    </div>
+
+  </div>
+
+  </div><!-- /content-body-inner -->
+</main>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const isCollapsed = sidebar.classList.toggle('collapsed');
+    document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+    localStorage.setItem('dibs-sidebar-collapsed', isCollapsed);
+  }
+  // Restore sidebar state
+  if (localStorage.getItem('dibs-sidebar-collapsed') === 'true') {
+    document.getElementById('sidebar').classList.add('collapsed');
+    document.body.classList.add('sidebar-collapsed');
+  }
+
+  function showPanel(name) {
+    document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.settings-nav-item').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // ── Custom Dropdown System ──────────
+  (function() {
+    document.addEventListener('click', function(e) {
+      const trigger = e.target.closest('.ds-dropdown-trigger');
+      const option = e.target.closest('.ds-dropdown-option');
+      if (!trigger && !option) {
+        document.querySelectorAll('.ds-dropdown.open').forEach(d => d.classList.remove('open'));
+        return;
+      }
+      if (trigger) {
+        const dd = trigger.closest('.ds-dropdown');
+        const wasOpen = dd.classList.contains('open');
+        document.querySelectorAll('.ds-dropdown.open').forEach(d => d.classList.remove('open'));
+        if (!wasOpen) dd.classList.add('open');
+        return;
+      }
+      if (option) {
+        const dd = option.closest('.ds-dropdown');
+        dd.querySelectorAll('.ds-dropdown-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        dd.querySelector('.ds-dropdown-trigger').textContent = option.textContent.trim();
+        dd.dataset.value = option.dataset.value;
+        dd.classList.remove('open');
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') document.querySelectorAll('.ds-dropdown.open').forEach(d => d.classList.remove('open'));
+    });
+  })();
+</script>
+<footer style="margin-top:48px;padding:24px 32px;border-top:1px solid #EDE8E2;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1">
+  <div style="font-size:11px;color:#B5ADA5;line-height:1.6">Dibs v1.0 -- AICP Budget Intelligence Platform<br>Rates and estimates are advisory only. Always verify against union rate cards and vendor quotes before submission.</div>
+  <div style="display:flex;gap:16px"><a href="#" style="font-size:11px;color:#B5ADA5;text-decoration:none">Terms</a><a href="#" style="font-size:11px;color:#B5ADA5;text-decoration:none">Privacy</a><a href="#" style="font-size:11px;color:#B5ADA5;text-decoration:none">AICP Guidelines</a><a href="#" style="font-size:11px;color:#B5ADA5;text-decoration:none">Support</a></div>
+</footer>
+<a href="index.html" class="noche-return" title="Back to Mémoire">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a>
+</body>
+</html>

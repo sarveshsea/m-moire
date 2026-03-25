@@ -5,15 +5,12 @@ dist/
 *.tsbuildinfo
 preview/dist/
 
-# User-generated preview pages (noche preview regenerates index.html;
-# research/dashboard/project pages are local to each user's project)
+# User-generated preview pages (local to each user's project)
 preview/research.html
 preview/research-css.txt
 preview/competitor-audit.html
 preview/user-research.html
 preview/auth.html
-preview/dashboard.html
-preview/dibs*.html
 preview/bidcraft*.html
 
 .env*

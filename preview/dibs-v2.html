@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dibs — AICP Budget Intelligence</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%239d833e'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Inter' font-weight='700' font-size='18' fill='white'%3Ed%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #ffffff;
+  --bg-subtle: #fafafa;
+  --bg-muted: #f5f5f4;
+  --bg-elevated: #ffffff;
+  --accent: #9d833e;
+  --accent-bright: #c4a35a;
+  --accent-dim: rgba(157,131,62,0.08);
+  --accent-border: rgba(157,131,62,0.15);
+  --fg: #1a1a1a;
+  --fg-secondary: #4a4a4a;
+  --fg-muted: #999999;
+  --fg-hint: #bbbbbb;
+  --border: #e8e8e8;
+  --border-light: #f0f0f0;
+  --success: #2d8a4e;
+  --success-bg: #f0faf4;
+  --warn: #b8860b;
+  --warn-bg: #fef9ee;
+  --error: #c0392b;
+  --error-bg: #fef5f4;
+  --info: #4a7b8c;
+  --info-bg: #f0f7fa;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-data: 'JetBrains Mono', 'SF Mono', monospace;
+  --radius: 8px;
+  --radius-sm: 5px;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: rgba(157,131,62,0.15); }
+
+/* ── Topbar ────────────────────────────── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 52px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-logo {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #8a722e, #c4a35a);
+  border-radius: 6px; display: flex;
+  align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px; color: #fff;
+}
+.topbar-title { font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.topbar-title span { color: var(--accent); }
+.topbar-project { font-size: 12px; color: var(--fg-muted); font-weight: 400; margin-left: 4px; }
+.topbar-center { display: flex; align-items: center; gap: 2px; }
+.topbar-tab {
+  padding: 6px 14px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  color: var(--fg-muted); background: none; border: none;
+  font-family: var(--font-ui); transition: all 0.15s;
+}
+.topbar-tab:hover { background: var(--bg-muted); color: var(--fg-secondary); }
+.topbar-tab.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 6px; }
+.topbar-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: var(--radius-sm);
+  font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.15s;
+}
+.topbar-btn.ghost { background: none; color: var(--fg-muted); }
+.topbar-btn.ghost:hover { background: var(--bg-muted); color: var(--fg-secondary); }
+.topbar-btn.primary {
+  background: linear-gradient(135deg, #8a722e, #c4a35a);
+  color: #fff; font-weight: 600;
+}
+.topbar-btn.primary:hover { box-shadow: 0 2px 8px rgba(138,114,46,0.25); }
+.topbar-meta {
+  font-family: var(--font-data); font-size: 10px;
+  color: var(--fg-muted); padding: 3px 8px;
+  background: var(--bg-muted); border-radius: 100px;
+}
+.topbar-ai-toggle {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: var(--radius-sm);
+  font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--accent-border);
+  background: var(--accent-dim); color: var(--accent);
+  transition: all 0.15s;
+}
+.topbar-ai-toggle:hover { border-color: var(--accent); }
+.topbar-ai-toggle .ai-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--success); flex-shrink: 0;
+}
+
+/* ── Section Jump Nav ──────────────────── */
+.section-nav {
+  display: flex; align-items: center; gap: 4px;
+  padding: 10px 32px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg);
+  position: sticky; top: 52px; z-index: 90;
+  margin-left: 220px; transition: margin-left 0.2s ease;
+}
+.section-nav-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 100px;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--border);
+  background: var(--bg); color: var(--fg-secondary); transition: all 0.15s;
+}
+.section-nav-btn:hover { border-color: var(--accent-border); background: var(--accent-dim); }
+.section-nav-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+.section-nav-letter {
+  font-family: var(--font-data); font-size: 10px; font-weight: 700;
+  width: 18px; height: 18px; border-radius: 4px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bg-muted); color: var(--fg-muted); flex-shrink: 0;
+}
+.section-nav-btn.active .section-nav-letter {
+  background: var(--accent); color: #fff;
+}
+.section-nav-amount {
+  font-family: var(--font-data); font-size: 10px; color: var(--fg-muted);
+}
+.nav-spacer { flex: 1; }
+.nav-search-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 100px;
+  font-family: var(--font-data); font-size: 10px;
+  cursor: pointer; border: 1px solid var(--border);
+  background: var(--bg); color: var(--fg-muted); transition: all 0.15s;
+}
+.nav-search-btn:hover { border-color: var(--fg-hint); }
+
+/* ── Content ───────────────────────────── */
+.content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 32px 100px;
+  margin-left: 220px; transition: margin-left 0.2s ease;
+}
+
+/* ── Budget Section ────────────────────── */
+.budget-section { margin-bottom: 16px; }
+.budget-section-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  cursor: pointer; user-select: none;
+  transition: all 0.15s;
+}
+.budget-section-hdr:hover { background: var(--bg-muted); border-color: var(--border); }
+.budget-section-hdr-left { display: flex; align-items: center; gap: 12px; }
+.section-letter {
+  font-family: var(--font-data); font-size: 11px; font-weight: 700;
+  width: 26px; height: 26px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent); color: #fff;
+}
+.section-name { font-size: 14px; font-weight: 600; color: var(--fg); }
+.section-meta {
+  font-size: 11px; color: var(--fg-muted); margin-left: 8px;
+}
+.budget-section-hdr-right { display: flex; align-items: center; gap: 12px; }
+.section-pct {
+  font-family: var(--font-data); font-size: 10px; color: var(--fg-muted);
+  background: var(--bg-muted); padding: 2px 8px; border-radius: 100px;
+}
+.section-total {
+  font-family: var(--font-data); font-size: 16px; font-weight: 700; color: var(--fg);
+}
+.section-chevron {
+  color: var(--fg-muted); transition: transform 0.25s ease;
+}
+.budget-section.collapsed .section-chevron { transform: rotate(-90deg); }
+
+/* Section body with smooth collapse */
+.budget-section-body {
+  max-height: 8000px;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+  opacity: 1;
+}
+.budget-section.collapsed .budget-section-body {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* ── Category ──────────────────────────── */
+.category { margin: 8px 0 8px 12px; }
+.category-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer; user-select: none;
+  transition: background 0.1s;
+}
+.category-hdr:hover { background: var(--bg-muted); }
+.category-hdr-left { display: flex; align-items: center; gap: 8px; }
+.cat-chevron {
+  color: var(--fg-hint); transition: transform 0.2s ease;
+  width: 14px; height: 14px; flex-shrink: 0;
+}
+.category.collapsed .cat-chevron { transform: rotate(-90deg); }
+.cat-name { font-size: 13px; font-weight: 600; color: var(--fg-secondary); }
+.cat-count { font-size: 10px; color: var(--fg-muted); }
+.category-hdr-right { display: flex; align-items: center; gap: 10px; }
+.cat-total { font-family: var(--font-data); font-size: 13px; font-weight: 600; color: var(--fg); }
+.cat-badge {
+  font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 100px; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.cat-badge.done { background: var(--success-bg); color: var(--success); }
+.cat-badge.attention { background: var(--warn-bg); color: var(--warn); }
+.cat-badge.over { background: var(--error-bg); color: var(--error); }
+
+/* Category body with smooth collapse */
+.category-body {
+  max-height: 4000px;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+  opacity: 1;
+}
+.category.collapsed .category-body {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* ── Line Items — Simplified ───────────── */
+.line-items { margin: 4px 0 0; }
+.line-items-header {
+  display: grid;
+  grid-template-columns: 2.5fr 0.7fr 0.8fr 1fr 28px;
+  gap: 8px; padding: 4px 16px;
+  font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--fg-hint);
+}
+.line-item {
+  display: grid;
+  grid-template-columns: 2.5fr 0.7fr 0.8fr 1fr 28px;
+  gap: 8px; padding: 5px 16px; align-items: center;
+  border-radius: var(--radius-sm);
+  transition: background 0.1s;
+}
+.line-item:hover { background: var(--bg-subtle); }
+.line-item-name {
+  font-size: 13px; color: var(--fg);
+  display: flex; align-items: center; gap: 6px;
+  min-width: 0;
+}
+.line-item-name-text {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.line-item-input {
+  font-family: var(--font-data); font-size: 12px; font-weight: 500;
+  color: var(--fg); background: none;
+  border: none; outline: none; padding: 4px 6px;
+  border-radius: 4px; width: 100%; transition: all 0.12s;
+}
+.line-item-input:hover { background: var(--bg-muted); }
+.line-item-input:focus { background: var(--bg-muted); box-shadow: 0 0 0 2px var(--accent-border); }
+.line-item-input.currency { text-align: right; }
+.line-item-subtotal {
+  font-family: var(--font-data); font-size: 13px; font-weight: 600;
+  color: var(--fg); text-align: right;
+}
+.line-item-actions {
+  display: flex; justify-content: center;
+  opacity: 0; transition: opacity 0.1s;
+}
+.line-item:hover .line-item-actions { opacity: 1; }
+.line-item-action-btn {
+  width: 22px; height: 22px; border: none; background: none;
+  border-radius: 4px; cursor: pointer; color: var(--fg-hint);
+  display: flex; align-items: center; justify-content: center; transition: all 0.1s;
+}
+.line-item-action-btn:hover { background: var(--error-bg); color: var(--error); }
+
+/* Expand toggle */
+.expand-toggle {
+  width: 16px; height: 16px; border: none; background: none;
+  cursor: pointer; color: var(--fg-hint);
+  border-radius: 3px; display: flex; align-items: center; justify-content: center;
+  transition: all 0.1s; flex-shrink: 0;
+}
+.expand-toggle:hover { background: var(--bg-muted); color: var(--accent); }
+
+/* ── Expanded Row — Conditional Fields ── */
+.line-item-expanded {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.2s ease;
+  opacity: 0;
+  margin: 0 16px;
+}
+.line-item-expanded.open {
+  max-height: 200px;
+  opacity: 1;
+  padding: 8px 0 12px;
+}
+.expanded-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+.expanded-field label {
+  display: block; font-size: 10px; font-weight: 500;
+  color: var(--fg-muted); margin-bottom: 3px;
+}
+.expanded-field input, .expanded-field select {
+  width: 100%; padding: 5px 8px;
+  border: 1px solid var(--border-light); border-radius: 4px;
+  background: var(--bg);
+  font-family: var(--font-data); font-size: 11px;
+  color: var(--fg); outline: none; transition: border-color 0.15s;
+}
+.expanded-field input:focus, .expanded-field select:focus {
+  border-color: var(--accent);
+}
+
+/* ── Add Line Item ─────────────────────── */
+.add-line-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; margin: 4px 0 0 16px;
+  border: none; background: none;
+  font-family: var(--font-ui); font-size: 11px;
+  color: var(--fg-muted); cursor: pointer;
+  border-radius: var(--radius-sm); transition: all 0.1s;
+}
+.add-line-btn:hover { background: var(--accent-dim); color: var(--accent); }
+
+/* ── Totals Bar ────────────────────────── */
+.totals-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 52px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  position: fixed; bottom: 0; left: 220px; right: 0; z-index: 100;
+  transition: left 0.2s ease;
+}
+.totals-left { display: flex; align-items: center; gap: 20px; }
+.total-item { display: flex; align-items: center; gap: 6px; }
+.total-label {
+  font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.5px; text-transform: uppercase; color: var(--fg-muted);
+}
+.total-value { font-family: var(--font-data); font-size: 14px; font-weight: 700; color: var(--fg); }
+.total-value.grand { font-size: 18px; color: var(--accent); }
+.totals-divider { width: 1px; height: 24px; background: var(--border); }
+.total-change { font-family: var(--font-data); font-size: 10px; padding: 2px 8px; border-radius: 100px; }
+.total-change.up { background: var(--error-bg); color: var(--error); }
+.total-change.down { background: var(--success-bg); color: var(--success); }
+.totals-right { display: flex; align-items: center; gap: 8px; }
+.totals-progress { width: 100px; height: 3px; background: var(--bg-muted); border-radius: 2px; overflow: hidden; }
+.totals-progress-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.5s ease; }
+.totals-pct { font-family: var(--font-data); font-size: 10px; color: var(--fg-muted); }
+
+/* ── AI Drawer ─────────────────────────── */
+.ai-drawer-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.08);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.ai-drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+.ai-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 380px; z-index: 201;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.06);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex; flex-direction: column;
+}
+.ai-drawer.open { transform: translateX(0); }
+
+.ai-drawer-hdr {
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border-light);
+}
+.ai-drawer-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; color: var(--fg);
+}
+.ai-drawer-close {
+  width: 28px; height: 28px; border: none; background: none;
+  border-radius: var(--radius-sm); cursor: pointer;
+  color: var(--fg-muted); display: flex; align-items: center; justify-content: center;
+  transition: all 0.1s;
+}
+.ai-drawer-close:hover { background: var(--bg-muted); }
+
+.ai-drawer-tabs {
+  display: flex; gap: 2px; padding: 8px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+.ai-tab {
+  flex: 1; padding: 6px 0; border: none; background: none;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 500;
+  color: var(--fg-muted); cursor: pointer;
+  border-radius: var(--radius-sm); transition: all 0.12s; text-align: center;
+}
+.ai-tab:hover { background: var(--bg-muted); }
+.ai-tab.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+
+.ai-drawer-body { flex: 1; overflow-y: auto; padding: 16px; }
+
+.ai-card {
+  padding: 14px 16px; margin-bottom: 10px;
+  border-radius: var(--radius); background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+}
+.ai-card-label {
+  font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--fg-muted); margin-bottom: 4px;
+}
+.ai-card-value {
+  font-family: var(--font-data); font-size: 20px; font-weight: 700; color: var(--fg);
+}
+.ai-card-sub { font-size: 11px; color: var(--fg-muted); margin-top: 3px; }
+
+.ai-suggestion {
+  padding: 14px 16px; margin-bottom: 8px;
+  border-radius: var(--radius); background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  cursor: pointer; transition: all 0.12s;
+}
+.ai-suggestion:hover { border-color: var(--border); }
+.ai-suggestion-type {
+  font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px;
+}
+.ai-suggestion-type.savings { color: var(--success); }
+.ai-suggestion-type.warning { color: var(--warn); }
+.ai-suggestion-type.insight { color: var(--info); }
+.ai-suggestion-type.template { color: var(--accent); }
+.ai-suggestion-type.validation { color: var(--error); }
+.ai-suggestion-text { font-size: 12px; color: var(--fg-secondary); line-height: 1.5; }
+.ai-suggestion-impact { font-family: var(--font-data); font-size: 11px; font-weight: 600; margin-top: 6px; }
+.ai-suggestion-impact.positive { color: var(--success); }
+.ai-suggestion-impact.negative { color: var(--error); }
+.ai-suggestion-actions { display: flex; gap: 6px; margin-top: 8px; }
+.ai-apply-btn {
+  padding: 4px 12px; border: none; border-radius: 100px;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all 0.12s;
+}
+.ai-apply-btn.accept { background: var(--accent); color: #fff; }
+.ai-apply-btn.accept:hover { background: #8a722e; }
+.ai-apply-btn.dismiss { background: var(--bg-muted); color: var(--fg-muted); }
+.ai-apply-btn.dismiss:hover { background: var(--border); }
+
+/* Donut */
+.budget-donut { width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; margin: 8px 0; }
+.donut-legend { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.donut-legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+.donut-legend-left { display: flex; align-items: center; gap: 8px; }
+.donut-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.donut-legend-name { color: var(--fg-secondary); }
+.donut-legend-val { font-family: var(--font-data); font-size: 10px; color: var(--fg-muted); }
+
+/* Version History */
+.version-item {
+  padding: 12px 14px; margin-bottom: 6px; border-radius: var(--radius-sm);
+  background: var(--bg-subtle); border: 1px solid var(--border-light);
+  cursor: pointer; transition: all 0.12s;
+}
+.version-item:hover { border-color: var(--border); }
+.version-item.current { border-left: 3px solid var(--accent); }
+.version-label { font-size: 12px; font-weight: 600; color: var(--fg); margin-bottom: 2px; }
+.version-meta { font-size: 10px; color: var(--fg-muted); }
+.version-diff { font-size: 11px; color: var(--fg-secondary); margin-top: 4px; }
+
+/* AI Chat */
+.ai-chat-wrap { padding: 12px 16px; border-top: 1px solid var(--border-light); }
+.ai-chat-input {
+  width: 100%; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg);
+  font-family: var(--font-ui); font-size: 12px;
+  color: var(--fg); outline: none;
+  resize: none; min-height: 38px; transition: border-color 0.15s;
+}
+.ai-chat-input:focus { border-color: var(--accent); }
+.ai-chat-input::placeholder { color: var(--fg-hint); }
+.ai-chat-hint { font-size: 10px; color: var(--fg-hint); margin-top: 4px; text-align: center; }
+
+/* ── Global Inputs Panel ───────────────── */
+.global-panel {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+  margin-bottom: 0;
+}
+.global-panel.open {
+  max-height: 600px; opacity: 1;
+  margin-bottom: 24px;
+}
+.global-panel-inner {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.global-panel-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-bottom: 1px solid var(--border-light);
+}
+.global-panel-title { font-size: 13px; font-weight: 600; color: var(--fg); display: flex; align-items: center; gap: 8px; }
+.global-panel-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--fg-muted); padding: 4px; border-radius: 4px;
+}
+.global-panel-close:hover { background: var(--bg-muted); }
+.global-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px; padding: 16px 20px;
+}
+.global-section { padding: 12px; background: var(--bg); border-radius: var(--radius-sm); border: 1px solid var(--border-light); }
+.global-section-title {
+  font-family: var(--font-data); font-size: 9px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--fg-muted); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.global-field { margin-bottom: 8px; }
+.global-field:last-child { margin-bottom: 0; }
+.global-field label { display: block; font-size: 11px; font-weight: 500; color: var(--fg-secondary); margin-bottom: 3px; }
+.global-field input, .global-field select {
+  width: 100%; padding: 6px 10px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-family: var(--font-ui); font-size: 12px;
+  color: var(--fg); outline: none; transition: border-color 0.15s;
+}
+.global-field input:focus, .global-field select:focus { border-color: var(--accent); }
+.global-field select { cursor: pointer; }
+.global-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.global-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 100px;
+  font-family: var(--font-data); font-size: 10px;
+  background: var(--accent-dim); color: var(--accent); margin-top: 6px;
+}
+
+/* ── Search Overlay ────────────────────── */
+.search-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.15); backdrop-filter: blur(2px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding-top: 100px;
+}
+.search-overlay.open { display: flex; }
+.search-modal {
+  width: 520px; max-height: 400px;
+  background: var(--bg); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); overflow: hidden;
+  border: 1px solid var(--border);
+}
+.search-input-wrap { padding: 14px 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-light); }
+.search-input {
+  flex: 1; border: none; outline: none;
+  font-family: var(--font-ui); font-size: 14px;
+  color: var(--fg); background: none;
+}
+.search-input::placeholder { color: var(--fg-hint); }
+.search-results { max-height: 300px; overflow-y: auto; padding: 6px; }
+.search-result {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: background 0.1s;
+}
+.search-result:hover { background: var(--bg-muted); }
+.search-result-left { display: flex; align-items: center; gap: 8px; }
+.search-result-section {
+  font-family: var(--font-data); font-size: 9px; font-weight: 700;
+  color: var(--fg-hint); background: var(--bg-muted);
+  padding: 2px 6px; border-radius: 3px;
+}
+.search-result-name { font-size: 13px; color: var(--fg); }
+.search-result-amount { font-family: var(--font-data); font-size: 12px; color: var(--accent); font-weight: 600; }
+
+/* ── Toast ─────────────────────────────── */
+.impact-toast {
+  position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%);
+  z-index: 250; background: var(--bg);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  padding: 14px 20px; display: none; align-items: center; gap: 14px;
+  max-width: 560px;
+  animation: toastUp 0.25s ease;
+}
+.impact-toast.show { display: flex; }
+@keyframes toastUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.impact-toast-icon {
+  width: 32px; height: 32px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--warn-bg); color: var(--warn); flex-shrink: 0;
+}
+.impact-toast-text { flex: 1; }
+.impact-toast-title { font-size: 13px; font-weight: 600; color: var(--fg); margin-bottom: 1px; }
+.impact-toast-desc { font-size: 11px; color: var(--fg-muted); line-height: 1.5; }
+.impact-toast-desc strong { font-family: var(--font-data); color: var(--error); font-weight: 600; }
+.impact-toast-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--fg-hint); padding: 4px; border-radius: 4px;
+}
+.impact-toast-close:hover { background: var(--bg-muted); }
+
+/* ── Review Mode ───────────────────────── */
+body.review-mode .line-item-actions { display: none !important; }
+body.review-mode .add-line-btn { display: none; }
+body.review-mode .line-item-input, body.review-mode .line-item-select {
+  background: none !important; box-shadow: none !important; pointer-events: none;
+}
+
+/* ── Animations ────────────────────────── */
+.highlight-flash { animation: flash 0.6s ease; }
+@keyframes flash { 0% { background: rgba(157,131,62,0.1); } 100% { background: transparent; } }
+.noche-return {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: #111113; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.noche-return:hover { background: #ffffff; border-color: rgba(255,255,255,0.5); color: #000000; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+
+/* ── Sidebar ─────────────────────────── */
+.sidebar {
+  width: 220px;
+  background: #ffffff;
+  border-right: 1px solid #f0f0f0;
+  position: fixed;
+  top: 52px;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
+  overflow: hidden;
+  z-index: 100;
+}
+.sidebar-header {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 16px 16px 12px; flex-shrink: 0;
+}
+.sidebar-toggle {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid transparent;
+  border-radius: 6px; cursor: pointer;
+  color: #bbbbbb; transition: all 0.15s; flex-shrink: 0;
+}
+.sidebar-toggle:hover { color: #4a4a4a; background: #fafaf8; border-color: #f0f0f0; }
+.sidebar-toggle svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+.sidebar-nav {
+  flex: 1; padding: 4px 8px;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; color: #999999;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.15s; text-decoration: none;
+  border-radius: 6px; white-space: nowrap;
+}
+.nav-item:hover { background: #fafaf8; color: #4a4a4a; }
+.nav-item.active { background: rgba(157,131,62,0.08); color: #9d833e; font-weight: 600; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-label { white-space: nowrap; overflow: hidden; }
+.nav-divider { height: 1px; background: #f0f0f0; margin: 8px 8px; }
+.nav-section-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--fg-hint, #bbbbbb);
+  font-weight: 600;
+  padding: 8px 12px 4px;
+}
+.nav-bid { gap: 8px; padding-left: 16px; }
+.bid-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent, #9d833e);
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+.sidebar.collapsed .nav-section-label { display: none; }
+.sidebar.collapsed .bid-dot { margin-left: 0; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(157,131,62,0.08); color: #9d833e; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.user-name { font-size: 13px; font-weight: 500; white-space: nowrap; }
+.user-role { font-size: 11px; color: #999999; white-space: nowrap; }
+.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed .sidebar-header { padding: 16px 0 12px; justify-content: center; }
+.sidebar.collapsed .sidebar-toggle svg { transform: rotate(180deg); }
+.sidebar.collapsed .nav-item { padding: 10px 0; justify-content: center; border-radius: 0; gap: 0; }
+.sidebar.collapsed .nav-label { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .nav-divider { margin: 8px 12px; }
+.sidebar.collapsed .sidebar-footer { padding: 12px 0; }
+.sidebar.collapsed .user-info { justify-content: center; }
+.sidebar.collapsed .user-name, .sidebar.collapsed .user-role { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .sidebar-nav { padding: 4px 0; }
+
+body.sidebar-collapsed .section-nav { margin-left: 56px; }
+body.sidebar-collapsed .content { margin-left: 56px; }
+body.sidebar-collapsed .totals-bar { left: 56px; }
+body.sidebar-collapsed .archive-banner { margin-left: 56px; }
+</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+
+<!-- ── Top Bar ──────────────────────────── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">d</div>
+    <div class="topbar-title"><span>DIBS</span><span class="topbar-project"> / Dove Q3 TV Spot</span></div>
+  </div>
+  <div class="topbar-center">
+    <button class="topbar-tab active" onclick="setView('budget')">Budget</button>
+    <button class="topbar-tab" onclick="setView('globals')">Settings</button>
+    <button class="topbar-tab" onclick="setView('review')" id="reviewToggle">Review</button>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-meta">v3 -- Mar 24</span>
+    <button class="topbar-ai-toggle" onclick="toggleAIDrawer()">
+      <span class="ai-dot"></span>
+      AI Assistant
+    </button>
+    <button class="topbar-btn ghost" onclick="toggleSearch()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    </button>
+    <button class="topbar-btn primary" id="exportBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+  </div>
+</div>
+
+<!-- ── Sidebar ────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+      <i data-lucide="panel-left-close"></i>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dibs-dashboard.html" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i><span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" href="dibs.html" title="New Bid">
+      <i data-lucide="plus-circle"></i><span class="nav-label">New Bid</span>
+    </a>
+    <a class="nav-item" href="dibs-comparison.html" title="Bid Board">
+      <i data-lucide="kanban"></i><span class="nav-label">Bid Board</span>
+    </a>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Active Bids</div>
+    <a class="nav-item nav-bid active" href="dibs-lineitem.html" title="Nike &quot;Just Do It&quot; 60s TV">
+      <span class="bid-dot"></span><span class="nav-label">Nike &ldquo;Just Do It&rdquo;</span>
+    </a>
+    <div class="nav-divider"></div>
+    <a class="nav-item" href="dibs-settings.html" title="Settings">
+      <i data-lucide="settings"></i><span class="nav-label">Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">MC</div>
+      <div>
+        <div class="user-name">Maria Chen</div>
+        <div class="user-role">Senior Line Producer</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── Archive Banner + Navigation ──── -->
+<div class="archive-banner" style="display:flex;align-items:center;justify-content:space-between;padding:6px 24px;background:var(--warn-bg);border-bottom:1px solid var(--border);font-family:var(--font-ui);font-size:11px;margin-left:220px;transition:margin-left 0.2s ease;">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:3px;background:rgba(157,131,62,0.12);color:#705918;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/></svg>
+      Archived — Iteration 2</span>
+    <a href="dibs.html" style="color:var(--accent);text-decoration:none;font-weight:500;">View Current Version</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:2px;">
+    <a href="dibs-dashboard.html" style="padding:3px 8px;border-radius:3px;color:var(--fg-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='none'">Dashboard</a>
+    <a href="dibs.html" style="padding:3px 8px;border-radius:3px;color:var(--fg-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='none'">Budget Editor</a>
+    <a href="dibs-comparison.html" style="padding:3px 8px;border-radius:3px;color:var(--fg-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='none'">Compare</a>
+    <a href="dibs-collab.html" style="padding:3px 8px;border-radius:3px;color:var(--fg-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='none'">Collaborate</a>
+    <a href="index.html" style="padding:3px 8px;border-radius:3px;color:var(--fg-muted);text-decoration:none;font-weight:500;transition:all 0.15s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='none'">Noche Hub</a>
+  </div>
+</div>
+
+<!-- ── Section Jump Nav ────────────────── -->
+<div class="section-nav" id="sectionNav"></div>
+
+<!-- ── Main Content ────────────────────── -->
+<div class="content" id="budgetContent"></div>
+
+<!-- ── Totals Bar ──────────────────────── -->
+<div class="totals-bar">
+  <div class="totals-left">
+    <div class="total-item">
+      <span class="total-label">Subtotal</span>
+      <span class="total-value" id="barSubtotal">$0</span>
+    </div>
+    <div class="totals-divider"></div>
+    <div class="total-item">
+      <span class="total-label" id="barMarkupLabel">Markup 15%</span>
+      <span class="total-value" id="barMarkup">$0</span>
+    </div>
+    <div class="totals-divider"></div>
+    <div class="total-item">
+      <span class="total-label" id="barContLabel">Contingency 5%</span>
+      <span class="total-value" id="barContingency">$0</span>
+    </div>
+    <div class="totals-divider"></div>
+    <div class="total-item">
+      <span class="total-label">Grand Total</span>
+      <span class="total-value grand" id="barGrandTotal">$0</span>
+    </div>
+    <span class="total-change up" id="barChange" style="display:none">+$0</span>
+  </div>
+  <div class="totals-right">
+    <div class="totals-progress">
+      <div class="totals-progress-fill" id="barProgress" style="width:0%"></div>
+    </div>
+    <span class="totals-pct" id="barPct">0%</span>
+  </div>
+</div>
+
+<!-- ── AI Drawer ───────────────────────── -->
+<div class="ai-drawer-overlay" id="aiOverlay" onclick="toggleAIDrawer()"></div>
+<div class="ai-drawer" id="aiDrawer">
+  <div class="ai-drawer-hdr">
+    <div class="ai-drawer-title">
+      <span class="ai-dot"></span>
+      AI Assistant
+    </div>
+    <button class="ai-drawer-close" onclick="toggleAIDrawer()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="ai-drawer-tabs">
+    <button class="ai-tab active" onclick="setAITab(this,'overview')">Overview</button>
+    <button class="ai-tab" onclick="setAITab(this,'suggestions')">Insights</button>
+    <button class="ai-tab" onclick="setAITab(this,'versions')">Versions</button>
+  </div>
+  <div class="ai-drawer-body" id="aiPanelBody"></div>
+  <div class="ai-chat-wrap">
+    <textarea class="ai-chat-input" placeholder="Ask about your budget..." rows="1" id="aiChatInput"></textarea>
+    <div class="ai-chat-hint">Enter to send, Shift+Enter for new line</div>
+  </div>
+</div>
+
+<!-- ── Search Overlay ──────────────────── -->
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)toggleSearch()">
+  <div class="search-modal">
+    <div class="search-input-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--fg-hint)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input class="search-input" type="text" placeholder="Search line items..." id="globalSearch" oninput="handleSearch(this.value)" />
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- ── Toast ────────────────────────────── -->
+<div class="impact-toast" id="impactToast">
+  <div class="impact-toast-icon">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+  </div>
+  <div class="impact-toast-text">
+    <div class="impact-toast-title" id="impactTitle">Dependency Impact</div>
+    <div class="impact-toast-desc" id="impactDesc"></div>
+  </div>
+  <button class="impact-toast-close" onclick="hideImpact()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+  </button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// GLOBAL INPUTS
+// ═══════════════════════════════════════════
+const globalInputs = {
+  projectName: 'Dove Q3 TV Spot',
+  client: 'Dove / Unilever',
+  agency: 'Ogilvy New York',
+  producer: 'Sarah Kim',
+  bidDate: '2026-03-14',
+  jobNumber: 'DOV-2026-Q3-001',
+  shootDays: 3,
+  preProDays: 5,
+  strikeDays: 1,
+  shootFormat: 'Live Action',
+  locations: 2,
+  crewSize: 50,
+  mediaType: 'National TV',
+  usagePeriod: '12 months',
+  territories: 'US + Canada',
+  digitalExtension: true,
+  exclusivity: 'Category Exclusive',
+  unionType: 'SAG-AFTRA',
+  payrollFringes: 23.5,
+  overtimeMultiplier: 1.5,
+  mealPenaltyRate: 50,
+  workerCompRate: 3.2,
+  currency: 'USD',
+  taxRate: 0,
+  markupPct: 15,
+  contingencyPct: 5,
+  agencyCommPct: 10,
+  handlingFeePct: 3,
+};
+
+// ═══════════════════════════════════════════
+// DATA MODEL
+// ═══════════════════════════════════════════
+const UNIT_TYPES = ['Days', 'Hours', 'Weeks', 'Flat', 'Qty'];
+
+const budgetData = {
+  sections: [
+    {
+      id: 'A', name: 'Pre-Production', collapsed: false,
+      categories: [
+        { name: 'Creative Development', status: 'done', collapsed: false, items: [
+          { name: 'Storyboard Artist', unitType: 'Days', qty: 3, rate: 1500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Script Revisions', unitType: 'Flat', qty: 2, rate: 2000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Location Scout', unitType: 'Days', qty: 4, rate: 800, ot: 200, otMult: 1.5, fringes: 0, allowance: 75, notes: 'Per diem included' },
+          { name: 'Casting Director', unitType: 'Days', qty: 5, rate: 1200, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+        ]},
+        { name: 'Pre-Pro Meetings', status: 'done', collapsed: false, items: [
+          { name: 'Director Prep', unitType: 'Days', qty: 3, rate: 2500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'PPM Facility', unitType: 'Flat', qty: 1, rate: 3000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Agency Travel', unitType: 'Qty', qty: 4, rate: 600, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '4 agency staff' },
+        ]},
+      ]
+    },
+    {
+      id: 'B', name: 'Production', collapsed: false, isDayDependent: true,
+      categories: [
+        { name: 'Crew', status: 'attention', collapsed: false, items: [
+          { name: 'Director', unitType: 'Days', qty: 3, rate: 8000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: 'Creative fee flat' },
+          { name: 'Director of Photography', unitType: 'Days', qty: 3, rate: 4500, ot: 750, otMult: 1.5, fringes: 23.5, allowance: 0, notes: '' },
+          { name: 'Camera Operator', unitType: 'Days', qty: 3, rate: 2200, ot: 500, otMult: 1.5, fringes: 23.5, allowance: 0, notes: '' },
+          { name: 'Gaffer', unitType: 'Days', qty: 3, rate: 1800, ot: 400, otMult: 1.5, fringes: 23.5, allowance: 0, notes: '' },
+          { name: 'Key Grip', unitType: 'Days', qty: 3, rate: 1600, ot: 350, otMult: 1.5, fringes: 23.5, allowance: 0, notes: '' },
+          { name: 'Sound Mixer', unitType: 'Days', qty: 3, rate: 1400, ot: 300, otMult: 1.5, fringes: 23.5, allowance: 0, notes: '' },
+          { name: 'Script Supervisor', unitType: 'Days', qty: 3, rate: 1200, ot: 0, otMult: 1.5, fringes: 23.5, allowance: 0, notes: '' },
+          { name: 'Production Designer', unitType: 'Days', qty: 4, rate: 2000, ot: 0, otMult: 1.5, fringes: 23.5, allowance: 0, notes: 'Includes 1 pre-pro day' },
+        ]},
+        { name: 'Talent', status: 'attention', collapsed: false, items: [
+          { name: 'Principal (SAG)', unitType: 'Days', qty: 3, rate: 5000, ot: 1000, otMult: 1.5, fringes: 23.5, allowance: 200, notes: 'SAG scale + 20%' },
+          { name: 'Supporting (SAG)', unitType: 'Days', qty: 2, rate: 3000, ot: 500, otMult: 1.5, fringes: 23.5, allowance: 150, notes: '' },
+          { name: 'Background x8', unitType: 'Days', qty: 3, rate: 400, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '8 BG @ $50/each' },
+          { name: 'Talent Wardrobe', unitType: 'Flat', qty: 1, rate: 4500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Hair & Makeup', unitType: 'Days', qty: 3, rate: 1600, ot: 200, otMult: 1.5, fringes: 23.5, allowance: 0, notes: '2-person dept' },
+        ]},
+        { name: 'Equipment', status: 'done', collapsed: false, items: [
+          { name: 'Camera Package', unitType: 'Days', qty: 3, rate: 3500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: 'ARRI Alexa Mini LF' },
+          { name: 'Lighting Package', unitType: 'Days', qty: 3, rate: 2200, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Grip Package', unitType: 'Days', qty: 3, rate: 1500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Sound Package', unitType: 'Days', qty: 3, rate: 800, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Specialty (Drone)', unitType: 'Days', qty: 1, rate: 4500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: 'FAA Part 107 licensed' },
+        ]},
+        { name: 'Locations', status: 'done', collapsed: false, items: [
+          { name: 'Studio Rental', unitType: 'Days', qty: 2, rate: 6000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Location Fee', unitType: 'Flat', qty: 1, rate: 8000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Permits & Police', unitType: 'Flat', qty: 1, rate: 3500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Parking & Basecamp', unitType: 'Days', qty: 3, rate: 1200, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+        ]},
+        { name: 'Travel & Living', status: 'done', collapsed: false, items: [
+          { name: 'Flights (Crew)', unitType: 'Qty', qty: 6, rate: 450, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Hotels (Crew)', unitType: 'Qty', qty: 18, rate: 220, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '6 crew x 3 nights' },
+          { name: 'Per Diem (Crew)', unitType: 'Qty', qty: 18, rate: 75, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Ground Transport', unitType: 'Days', qty: 3, rate: 900, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+        ]},
+        { name: 'Catering & Craft', status: 'done', collapsed: false, items: [
+          { name: 'Catering (50 ppl)', unitType: 'Days', qty: 3, rate: 2800, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Craft Services', unitType: 'Days', qty: 3, rate: 1200, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: '2nd Meal Penalty', unitType: 'Flat', qty: 1, rate: 1500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+        ]},
+      ]
+    },
+    {
+      id: 'C', name: 'Post-Production', collapsed: false,
+      categories: [
+        { name: 'Editorial', status: 'done', collapsed: false, items: [
+          { name: 'Editor', unitType: 'Days', qty: 15, rate: 800, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Assistant Editor', unitType: 'Days', qty: 15, rate: 450, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Avid Suite Rental', unitType: 'Days', qty: 15, rate: 200, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+        ]},
+        { name: 'Color & Finish', status: 'attention', collapsed: false, items: [
+          { name: 'Colorist (DaVinci)', unitType: 'Days', qty: 2, rate: 5000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Online Finish', unitType: 'Flat', qty: 1, rate: 8000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'VFX Compositing', unitType: 'Flat', qty: 1, rate: 12000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '3 shots estimated' },
+        ]},
+        { name: 'Sound & Music', status: 'done', collapsed: false, items: [
+          { name: 'Sound Design', unitType: 'Flat', qty: 1, rate: 6000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Mix (5.1)', unitType: 'Flat', qty: 1, rate: 4500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Music License', unitType: 'Flat', qty: 1, rate: 15000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: 'National TV 12mo' },
+          { name: 'Deliverables', unitType: 'Flat', qty: 1, rate: 2500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+        ]},
+      ]
+    },
+    {
+      id: 'D', name: 'Insurance & Legal', collapsed: true,
+      categories: [
+        { name: 'Insurance', status: 'done', collapsed: false, items: [
+          { name: 'Production Insurance', unitType: 'Flat', qty: 1, rate: 8500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'E&O Insurance', unitType: 'Flat', qty: 1, rate: 3500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Workers Comp', unitType: 'Flat', qty: 1, rate: 4200, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+        ]},
+        { name: 'Legal & Admin', status: 'done', collapsed: false, items: [
+          { name: 'Legal Counsel', unitType: 'Flat', qty: 1, rate: 5000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Talent Contracts', unitType: 'Flat', qty: 1, rate: 2000, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+          { name: 'Payroll Service', unitType: 'Flat', qty: 1, rate: 3500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' },
+        ]},
+      ]
+    },
+    {
+      id: 'E', name: 'Agency & Markup', collapsed: true,
+      categories: [
+        { name: 'Agency Fees', status: 'done', collapsed: false, items: [
+          { name: 'Agency Commission', unitType: 'Flat', qty: 1, rate: 0, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '', isCalculated: true, calcType: 'pct', calcKey: 'agencyCommPct' },
+          { name: 'Handling Fee', unitType: 'Flat', qty: 1, rate: 0, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '', isCalculated: true, calcType: 'pct', calcKey: 'handlingFeePct' },
+        ]},
+      ]
+    },
+  ],
+};
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let currentAITab = 'overview';
+let previousTotal = null;
+let isReviewMode = false;
+let globalPanelOpen = false;
+let aiDrawerOpen = false;
+let expandedRows = new Set();
+let validationErrors = [];
+
+// ═══════════════════════════════════════════
+// CALCULATION ENGINE
+// ═══════════════════════════════════════════
+function calcItemTotal(item) {
+  if (item.isCalculated) return item.rate;
+  const base = item.qty * item.rate;
+  const otTotal = item.qty * item.ot * (item.otMult || 1);
+  const fringeAmt = item.fringes > 0 ? (base + otTotal) * (item.fringes / 100) : 0;
+  const allowanceAmt = item.qty * (item.allowance || 0);
+  return base + otTotal + fringeAmt + allowanceAmt;
+}
+
+function calcCategoryTotal(cat) {
+  return cat.items.reduce((sum, item) => {
+    if (item.isCalculated) return sum;
+    return sum + calcItemTotal(item);
+  }, 0);
+}
+
+function calcSectionTotal(section) {
+  return section.categories.reduce((sum, cat) => sum + calcCategoryTotal(cat), 0);
+}
+
+function calcSubtotal() {
+  return budgetData.sections.reduce((sum, s) => {
+    if (s.id === 'E') return sum;
+    return sum + calcSectionTotal(s);
+  }, 0);
+}
+
+function calcGrandTotal() {
+  const subtotal = calcSubtotal();
+  const eSection = budgetData.sections.find(s => s.id === 'E');
+  let agencyFees = 0;
+  if (eSection) {
+    eSection.categories.forEach(cat => {
+      cat.items.forEach(item => {
+        if (item.isCalculated && item.calcType === 'pct') {
+          const pctVal = globalInputs[item.calcKey] || 0;
+          item.rate = Math.round(subtotal * (pctVal / 100));
+          agencyFees += item.rate;
+        }
+      });
+    });
+  }
+  const markup = Math.round(subtotal * (globalInputs.markupPct / 100));
+  const contingency = Math.round(subtotal * (globalInputs.contingencyPct / 100));
+  return { subtotal, agencyFees, markup, contingency, grand: subtotal + agencyFees + markup + contingency };
+}
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+// ═══════════════════════════════════════════
+// VALIDATION
+// ═══════════════════════════════════════════
+function validateItem(item, si, ci, ii) {
+  const errors = [];
+  if (!item.isCalculated) {
+    if (item.qty <= 0) errors.push({ si, ci, ii, field: 'qty', msg: 'Quantity must be > 0' });
+    if (item.rate < 0) errors.push({ si, ci, ii, field: 'rate', msg: 'Rate cannot be negative' });
+    if (item.ot < 0) errors.push({ si, ci, ii, field: 'ot', msg: 'OT cannot be negative' });
+    if (item.fringes < 0 || item.fringes > 50) errors.push({ si, ci, ii, field: 'fringes', msg: 'Fringes must be 0-50%' });
+    if (item.allowance < 0) errors.push({ si, ci, ii, field: 'allowance', msg: 'Allowance cannot be negative' });
+  }
+  return errors;
+}
+
+function validateAll() {
+  validationErrors = [];
+  budgetData.sections.forEach((s, si) => {
+    s.categories.forEach((c, ci) => {
+      c.items.forEach((item, ii) => {
+        validationErrors.push(...validateItem(item, si, ci, ii));
+      });
+    });
+  });
+  if (validationErrors.length === 0) {
+    showToast('Validation Passed', 'All line items pass validation.', 'success');
+  } else {
+    showToast('Validation Issues', `Found ${validationErrors.length} issue${validationErrors.length > 1 ? 's' : ''}.`, 'error');
+    aiDrawerOpen = true;
+    document.getElementById('aiDrawer').classList.add('open');
+    document.getElementById('aiOverlay').classList.add('open');
+    currentAITab = 'suggestions';
+    document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.ai-tab')[1].classList.add('active');
+    renderAIValidation();
+  }
+  renderBudget();
+}
+
+function showToast(title, desc, type) {
+  document.getElementById('impactTitle').textContent = title;
+  document.getElementById('impactDesc').innerHTML = desc;
+  const icon = document.querySelector('.impact-toast-icon');
+  if (type === 'success') { icon.style.background = 'var(--success-bg)'; icon.style.color = 'var(--success)'; }
+  else if (type === 'error') { icon.style.background = 'var(--error-bg)'; icon.style.color = 'var(--error)'; }
+  else { icon.style.background = 'var(--warn-bg)'; icon.style.color = 'var(--warn)'; }
+  document.getElementById('impactToast').classList.add('show');
+  setTimeout(() => hideImpact(), 5000);
+}
+
+// ═══════════════════════════════════════════
+// DEPENDENCY ENGINE
+// ═══════════════════════════════════════════
+function getShootDayDependencies() {
+  const deps = [];
+  budgetData.sections.forEach(s => {
+    if (!s.isDayDependent) return;
+    s.categories.forEach(cat => {
+      cat.items.forEach(item => {
+        if (item.qty === globalInputs.shootDays && item.unitType === 'Days') {
+          deps.push({ section: s.name, category: cat.name, item: item.name, current: calcItemTotal(item) });
+        }
+      });
+    });
+  });
+  return deps;
+}
+
+function showImpact(field, oldVal, newVal) {
+  if (field === 'shootDays') {
+    const deps = getShootDayDependencies();
+    if (deps.length === 0) return;
+    const diff = newVal - oldVal;
+    const totalImpact = deps.reduce((sum, d) => {
+      const item = findItem(d.item);
+      return sum + (item ? (item.rate + item.ot * (item.otMult || 1)) * diff : 0);
+    }, 0);
+    showToast(
+      `Shoot Days: ${oldVal} \u2192 ${newVal}`,
+      `Affects <strong>${deps.length} line items</strong>. Impact: <strong>${totalImpact >= 0 ? '+' : ''}${fmt(totalImpact)}</strong>`,
+      'warning'
+    );
+  }
+}
+
+function hideImpact() { document.getElementById('impactToast').classList.remove('show'); }
+
+function findItem(name) {
+  for (const s of budgetData.sections) {
+    for (const c of s.categories) {
+      const found = c.items.find(i => i.name === name);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════
+// RENDER — Global Inputs
+// ═══════════════════════════════════════════
+function renderGlobalPanel() {
+  return `
+  <div class="global-panel${globalPanelOpen ? ' open' : ''}" id="globalPanel">
+    <div class="global-panel-inner">
+    <div class="global-panel-hdr">
+      <div class="global-panel-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        Project Settings
+      </div>
+      <button class="global-panel-close" onclick="toggleGlobalPanel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="global-grid">
+      <div class="global-section">
+        <div class="global-section-title">Project</div>
+        <div class="global-field"><label>Project Name</label><input type="text" value="${globalInputs.projectName}" onchange="updateGlobal('projectName',this.value)" /></div>
+        <div class="global-field"><label>Client</label><input type="text" value="${globalInputs.client}" onchange="updateGlobal('client',this.value)" /></div>
+        <div class="global-field"><label>Agency</label><input type="text" value="${globalInputs.agency}" onchange="updateGlobal('agency',this.value)" /></div>
+        <div class="global-field-row">
+          <div class="global-field"><label>Job #</label><input type="text" value="${globalInputs.jobNumber}" onchange="updateGlobal('jobNumber',this.value)" /></div>
+          <div class="global-field"><label>Bid Date</label><input type="date" value="${globalInputs.bidDate}" onchange="updateGlobal('bidDate',this.value)" /></div>
+        </div>
+      </div>
+      <div class="global-section">
+        <div class="global-section-title">Shoot</div>
+        <div class="global-field-row">
+          <div class="global-field"><label>Shoot Days</label><input type="number" min="1" value="${globalInputs.shootDays}" onchange="updateShootDays(parseInt(this.value))" /></div>
+          <div class="global-field"><label>Pre-Pro Days</label><input type="number" min="0" value="${globalInputs.preProDays}" onchange="updateGlobal('preProDays',parseInt(this.value))" /></div>
+        </div>
+        <div class="global-field-row">
+          <div class="global-field"><label>Locations</label><input type="number" min="1" value="${globalInputs.locations}" onchange="updateGlobal('locations',parseInt(this.value))" /></div>
+          <div class="global-field"><label>Crew Size</label><input type="number" min="1" value="${globalInputs.crewSize}" onchange="updateGlobal('crewSize',parseInt(this.value))" /></div>
+        </div>
+        <div class="global-field"><label>Format</label>
+          <select onchange="updateGlobal('shootFormat',this.value)">
+            <option ${globalInputs.shootFormat==='Live Action'?'selected':''}>Live Action</option>
+            <option ${globalInputs.shootFormat==='Animation'?'selected':''}>Animation</option>
+            <option ${globalInputs.shootFormat==='Mixed'?'selected':''}>Mixed</option>
+          </select>
+        </div>
+        <div class="global-tag">${getShootDayDependencies().length} items linked to shoot days</div>
+      </div>
+      <div class="global-section">
+        <div class="global-section-title">Usage & Labor</div>
+        <div class="global-field"><label>Media</label>
+          <select onchange="updateGlobal('mediaType',this.value)">
+            <option ${globalInputs.mediaType==='National TV'?'selected':''}>National TV</option>
+            <option ${globalInputs.mediaType==='Regional TV'?'selected':''}>Regional TV</option>
+            <option ${globalInputs.mediaType==='Digital Only'?'selected':''}>Digital Only</option>
+            <option ${globalInputs.mediaType==='All Media'?'selected':''}>All Media</option>
+          </select>
+        </div>
+        <div class="global-field-row">
+          <div class="global-field"><label>Period</label>
+            <select onchange="updateGlobal('usagePeriod',this.value)">
+              <option ${globalInputs.usagePeriod==='6 months'?'selected':''}>6 months</option>
+              <option ${globalInputs.usagePeriod==='12 months'?'selected':''}>12 months</option>
+              <option ${globalInputs.usagePeriod==='24 months'?'selected':''}>24 months</option>
+              <option ${globalInputs.usagePeriod==='In Perpetuity'?'selected':''}>In Perpetuity</option>
+            </select>
+          </div>
+          <div class="global-field"><label>Territory</label>
+            <select onchange="updateGlobal('territories',this.value)">
+              <option ${globalInputs.territories==='US Only'?'selected':''}>US Only</option>
+              <option ${globalInputs.territories==='US + Canada'?'selected':''}>US + Canada</option>
+              <option ${globalInputs.territories==='Global'?'selected':''}>Global</option>
+            </select>
+          </div>
+        </div>
+        <div class="global-field"><label>Union</label>
+          <select onchange="updateGlobal('unionType',this.value)">
+            <option ${globalInputs.unionType==='SAG-AFTRA'?'selected':''}>SAG-AFTRA</option>
+            <option ${globalInputs.unionType==='Non-Union'?'selected':''}>Non-Union</option>
+            <option ${globalInputs.unionType==='IATSE'?'selected':''}>IATSE</option>
+          </select>
+        </div>
+        <div class="global-field-row">
+          <div class="global-field"><label>Markup %</label><input type="number" step="1" min="0" max="30" value="${globalInputs.markupPct}" onchange="updateGlobalFinancial('markupPct',parseFloat(this.value))" /></div>
+          <div class="global-field"><label>Contingency %</label><input type="number" step="1" min="0" max="20" value="${globalInputs.contingencyPct}" onchange="updateGlobalFinancial('contingencyPct',parseFloat(this.value))" /></div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// RENDER — Section Nav
+// ═══════════════════════════════════════════
+function renderSectionNav() {
+  const nav = document.getElementById('sectionNav');
+  let html = '';
+  budgetData.sections.forEach((section, si) => {
+    const sTotal = calcSectionTotal(section);
+    html += `<button class="section-nav-btn${si === 0 ? ' active' : ''}" onclick="scrollToSection(${si})" data-nav="${si}">
+      <span class="section-nav-letter">${section.id}</span>
+      ${section.name}
+      <span class="section-nav-amount">${fmt(sTotal)}</span>
+    </button>`;
+  });
+  html += `<span class="nav-spacer"></span>`;
+  html += `<button class="nav-search-btn" onclick="toggleSearch()">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    /
+  </button>`;
+  nav.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// RENDER — Budget
+// ═══════════════════════════════════════════
+function renderBudget() {
+  const totals = calcGrandTotal();
+  const container = document.getElementById('budgetContent');
+  let html = renderGlobalPanel();
+
+  budgetData.sections.forEach((section, si) => {
+    const sTotal = calcSectionTotal(section);
+    const pct = totals.subtotal > 0 ? Math.round((sTotal / totals.subtotal) * 100) : 0;
+
+    html += `<div class="budget-section${section.collapsed ? ' collapsed' : ''}" data-section="${si}">`;
+    html += `<div class="budget-section-hdr" onclick="toggleSection(${si})">
+      <div class="budget-section-hdr-left">
+        <div class="section-letter">${section.id}</div>
+        <div class="section-name">${section.name}</div>
+        <span class="section-meta">${section.categories.reduce((n,c) => n + c.items.length, 0)} items</span>
+      </div>
+      <div class="budget-section-hdr-right">
+        <span class="section-pct">${pct}%</span>
+        <span class="section-total">${fmt(sTotal)}</span>
+        <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </div>`;
+
+    html += `<div class="budget-section-body">`;
+    section.categories.forEach((cat, ci) => {
+      const catTotal = calcCategoryTotal(cat);
+      html += `<div class="category${cat.collapsed ? ' collapsed' : ''}" data-cat="${si}-${ci}">`;
+      html += `<div class="category-hdr" onclick="toggleCategory(${si},${ci})">
+        <div class="category-hdr-left">
+          <svg class="cat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          <span class="cat-name">${cat.name}</span>
+          <span class="cat-count">${cat.items.length}</span>
+        </div>
+        <div class="category-hdr-right">
+          <span class="cat-badge ${cat.status}">${cat.status === 'done' ? 'Complete' : cat.status === 'attention' ? 'Needs Review' : 'Over Budget'}</span>
+          <span class="cat-total">${fmt(catTotal)}</span>
+        </div>
+      </div>`;
+
+      html += `<div class="category-body"><div class="line-items">`;
+      html += `<div class="line-items-header">
+        <span>Description</span><span>Qty</span><span>Rate</span><span style="text-align:right">Subtotal</span><span></span>
+      </div>`;
+
+      cat.items.forEach((item, ii) => {
+        const sub = calcItemTotal(item);
+        const hasError = validationErrors.some(e => e.si === si && e.ci === ci && e.ii === ii);
+        const isExpanded = expandedRows.has(`${si}-${ci}-${ii}`);
+        const hasDetails = item.ot > 0 || item.fringes > 0 || item.allowance > 0 || item.notes;
+
+        html += `<div class="line-item${hasError ? ' highlight-flash' : ''}" data-item="${si}-${ci}-${ii}">
+          <div class="line-item-name">
+            <button class="expand-toggle" onclick="toggleExpand(${si},${ci},${ii})" title="Details" style="${hasDetails ? 'color:var(--accent)' : ''}">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="${isExpanded ? 'm6 9 6 6 6-6' : 'm9 18 6-6-6-6'}"/></svg>
+            </button>
+            <span class="line-item-name-text">${item.name}</span>
+            ${item.unitType !== 'Days' ? `<span style="font-family:var(--font-data);font-size:9px;color:var(--fg-hint)">${item.unitType}</span>` : ''}
+          </div>
+          <input class="line-item-input" type="text" value="${item.isCalculated ? '\u2014' : item.qty}" ${item.isCalculated ? 'disabled' : ''} onchange="updateItem(${si},${ci},${ii},'qty',this.value)" />
+          <input class="line-item-input currency" type="text" value="${fmt(item.rate)}" ${item.isCalculated ? 'disabled' : ''} onchange="updateItem(${si},${ci},${ii},'rate',this.value)" />
+          <div class="line-item-subtotal">${fmt(sub)}</div>
+          <div class="line-item-actions">
+            <button class="line-item-action-btn" title="Remove" onclick="removeItem(${si},${ci},${ii})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+        </div>`;
+
+        // Expanded row
+        html += `<div class="line-item-expanded${isExpanded ? ' open' : ''}">
+          <div class="expanded-grid">
+            <div class="expanded-field">
+              <label>Unit Type</label>
+              <select onchange="updateItem(${si},${ci},${ii},'unitType',this.value)" ${item.isCalculated ? 'disabled' : ''}>
+                ${UNIT_TYPES.map(u => `<option${item.unitType===u?' selected':''}>${u}</option>`).join('')}
+              </select>
+            </div>
+            <div class="expanded-field">
+              <label>OT / Unit</label>
+              <input type="text" value="${item.ot > 0 ? fmt(item.ot) : ''}" placeholder="$0" onchange="updateItem(${si},${ci},${ii},'ot',this.value)" ${item.isCalculated ? 'disabled' : ''} />
+            </div>
+            <div class="expanded-field">
+              <label>OT Multiplier</label>
+              <input type="number" step="0.1" min="1" max="3" value="${item.otMult || 1.5}" onchange="updateItem(${si},${ci},${ii},'otMult',this.value)" />
+            </div>
+            <div class="expanded-field">
+              <label>Fringes %</label>
+              <input type="text" value="${item.fringes > 0 ? item.fringes + '%' : ''}" placeholder="0%" onchange="updateItem(${si},${ci},${ii},'fringes',this.value)" ${item.isCalculated ? 'disabled' : ''} />
+            </div>
+            <div class="expanded-field">
+              <label>Allowance</label>
+              <input type="text" value="${item.allowance > 0 ? fmt(item.allowance) : ''}" placeholder="$0" onchange="updateItem(${si},${ci},${ii},'allowance',this.value)" />
+            </div>
+            <div class="expanded-field">
+              <label>Notes</label>
+              <input type="text" value="${item.notes || ''}" placeholder="Add notes..." onchange="updateItem(${si},${ci},${ii},'notes',this.value)" style="font-family:var(--font-ui)" />
+            </div>
+          </div>
+        </div>`;
+      });
+
+      html += `</div>`;
+      html += `<button class="add-line-btn" onclick="addItem(${si},${ci})">+ Add line item</button>`;
+      html += `</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+  updateTotalsBar(totals);
+  renderSectionNav();
+  if (currentAITab === 'overview' && aiDrawerOpen) renderAIOverview(totals);
+}
+
+// ═══════════════════════════════════════════
+// RENDER — Totals Bar
+// ═══════════════════════════════════════════
+function updateTotalsBar(totals) {
+  document.getElementById('barSubtotal').textContent = fmt(totals.subtotal);
+  document.getElementById('barMarkup').textContent = fmt(totals.markup);
+  document.getElementById('barContingency').textContent = fmt(totals.contingency);
+  document.getElementById('barGrandTotal').textContent = fmt(totals.grand);
+  document.getElementById('barMarkupLabel').textContent = `Markup ${globalInputs.markupPct}%`;
+  document.getElementById('barContLabel').textContent = `Contingency ${globalInputs.contingencyPct}%`;
+
+  if (previousTotal !== null && previousTotal !== totals.grand) {
+    const diff = totals.grand - previousTotal;
+    const el = document.getElementById('barChange');
+    el.textContent = (diff > 0 ? '+' : '') + fmt(diff);
+    el.className = 'total-change ' + (diff > 0 ? 'up' : 'down');
+    el.style.display = 'inline';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+  }
+  previousTotal = totals.grand;
+
+  let totalCats = 0, doneCats = 0;
+  budgetData.sections.forEach(s => { s.categories.forEach(c => { totalCats++; if (c.status === 'done') doneCats++; }); });
+  const pct = Math.round((doneCats / totalCats) * 100);
+  document.getElementById('barProgress').style.width = pct + '%';
+  document.getElementById('barPct').textContent = pct + '%';
+}
+
+// ═══════════════════════════════════════════
+// RENDER — AI Panel
+// ═══════════════════════════════════════════
+function renderAIOverview(totals) {
+  if (!totals) totals = calcGrandTotal();
+  const sections = budgetData.sections.filter(s => s.id !== 'E');
+  const colors = ['#8a722e', '#c4a35a', '#2d8a4e', '#4a7b8c', '#b8860b'];
+
+  let donutSegments = '';
+  let offset = 0;
+  const donutData = sections.map((s, i) => {
+    const t = calcSectionTotal(s);
+    const pct = totals.subtotal > 0 ? (t / totals.subtotal) * 100 : 0;
+    return { name: s.name, total: t, pct, color: colors[i % colors.length] };
+  });
+  donutData.forEach(d => {
+    const dashArray = `${d.pct * 2.51327} ${251.327 - d.pct * 2.51327}`;
+    donutSegments += `<circle cx="50" cy="50" r="40" fill="none" stroke="${d.color}" stroke-width="14" stroke-dasharray="${dashArray}" stroke-dashoffset="${-offset * 2.51327}" transform="rotate(-90 50 50)"/>`;
+    offset += d.pct;
+  });
+
+  let html = `
+    <div class="ai-card">
+      <div class="ai-card-label">Grand Total</div>
+      <div class="ai-card-value">${fmt(totals.grand)}</div>
+      <div class="ai-card-sub">Subtotal ${fmt(totals.subtotal)} + ${fmt(totals.markup)} markup + ${fmt(totals.contingency)} contingency</div>
+    </div>
+    <div class="budget-donut">
+      <svg viewBox="0 0 100 100" width="120" height="120">
+        ${donutSegments}
+        <text x="50" y="47" text-anchor="middle" font-family="var(--font-data)" font-size="8" font-weight="700" fill="var(--fg)">${fmt(totals.subtotal)}</text>
+        <text x="50" y="56" text-anchor="middle" font-family="var(--font-data)" font-size="4" fill="var(--fg-muted)">SUBTOTAL</text>
+      </svg>
+    </div>
+    <div class="donut-legend">`;
+  donutData.forEach(d => {
+    html += `<div class="donut-legend-item">
+      <div class="donut-legend-left"><div class="donut-legend-dot" style="background:${d.color}"></div><span class="donut-legend-name">${d.name}</span></div>
+      <span class="donut-legend-val">${fmt(d.total)} (${Math.round(d.pct)}%)</span>
+    </div>`;
+  });
+  html += `</div>
+    <div class="ai-card">
+      <div class="ai-card-label">Shoot</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="ai-card-value" style="font-size:24px">${globalInputs.shootDays}</div>
+        <div style="font-size:11px;color:var(--fg-muted)">shoot days</div>
+        <div style="display:flex;gap:4px;margin-left:auto">
+          <button class="ai-apply-btn accept" style="padding:2px 10px;font-size:10px" onclick="changeShootDays(1)">+1</button>
+          <button class="ai-apply-btn dismiss" style="padding:2px 10px;font-size:10px" onclick="changeShootDays(-1)">-1</button>
+        </div>
+      </div>
+      <div class="ai-card-sub">${getShootDayDependencies().length} linked | ${globalInputs.unionType} | ${globalInputs.mediaType}</div>
+    </div>`;
+  document.getElementById('aiPanelBody').innerHTML = html;
+}
+
+function renderAISuggestions() {
+  const html = `
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type savings">Cost Optimization</div>
+      <div class="ai-suggestion-text">Camera Operator rate ($2,200/day) is 18% above market. Comparable bids average $1,850/day.</div>
+      <div class="ai-suggestion-impact positive">Potential savings: -$1,050</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept" onclick="applyAISuggestion('cam-op-rate')">Apply</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type warning">Fringes Alert</div>
+      <div class="ai-suggestion-text">${globalInputs.payrollFringes}% fringes on ${budgetData.sections[1].categories[0].items.filter(i=>i.fringes>0).length} of ${budgetData.sections[1].categories[0].items.length} crew items. Apply to all for ${globalInputs.unionType} compliance.</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept" onclick="applyAISuggestion('apply-all-fringes')">Apply to All</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type warning">Dependency Alert</div>
+      <div class="ai-suggestion-text">2nd Meal Penalty ($1,500) is low for ${globalInputs.shootDays} days with ${globalInputs.crewSize} crew. Standard: ~$2,200.</div>
+      <div class="ai-suggestion-impact negative">Risk: +$2,100</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept" onclick="applyAISuggestion('meal-penalty')">Adjust</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type insight">Usage</div>
+      <div class="ai-suggestion-text">Music License at $15,000 is competitive. Add digital extension for +$3,500 vs re-licensing later at $8,000+.</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept" onclick="applyAISuggestion('music-ext')">Add Extension</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>
+    <div class="ai-suggestion">
+      <div class="ai-suggestion-type template">Template</div>
+      <div class="ai-suggestion-text">87% match to "National TV :30" template. Missing: Teleprompter, Steadicam operators.</div>
+      <div class="ai-suggestion-actions">
+        <button class="ai-apply-btn accept" onclick="applyAISuggestion('template-fill')">Add Missing</button>
+        <button class="ai-apply-btn dismiss">Dismiss</button>
+      </div>
+    </div>`;
+  document.getElementById('aiPanelBody').innerHTML = html;
+}
+
+function renderAIValidation() {
+  let html = `<div class="ai-card" style="background:var(--error-bg);border-color:rgba(192,57,43,0.15)">
+    <div class="ai-card-label" style="color:var(--error)">Validation</div>
+    <div class="ai-card-value" style="color:var(--error);font-size:16px">${validationErrors.length} Issue${validationErrors.length !== 1 ? 's' : ''}</div>
+  </div>`;
+  validationErrors.forEach(err => {
+    const item = budgetData.sections[err.si].categories[err.ci].items[err.ii];
+    html += `<div class="ai-suggestion">
+      <div class="ai-suggestion-type validation">Error</div>
+      <div class="ai-suggestion-text"><strong>${item.name}</strong> — ${err.msg}</div>
+    </div>`;
+  });
+  document.getElementById('aiPanelBody').innerHTML = html;
+}
+
+function renderAIVersions() {
+  document.getElementById('aiPanelBody').innerHTML = `
+    <div class="version-item current">
+      <div class="version-label">v3 — Current</div>
+      <div class="version-meta">Mar 24, 2026 4:15 PM</div>
+      <div class="version-diff">Full AICP model with fringes, OT, validation</div>
+    </div>
+    <div class="version-item">
+      <div class="version-label">v2 — Iteration 1</div>
+      <div class="version-meta">Mar 24, 2026 2:00 PM</div>
+      <div class="version-diff">Initial AICP tree, basic calculations</div>
+    </div>
+    <div class="version-item">
+      <div class="version-label">v1 — Baseline</div>
+      <div class="version-meta">Mar 14, 2026 9:30 AM</div>
+      <div class="version-diff">Built from National TV :30 template</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════
+// INTERACTIONS
+// ═══════════════════════════════════════════
+function toggleSection(si) {
+  budgetData.sections[si].collapsed = !budgetData.sections[si].collapsed;
+  const el = document.querySelector(`[data-section="${si}"]`);
+  el.classList.toggle('collapsed');
+  renderSectionNav();
+}
+
+function toggleCategory(si, ci) {
+  const cat = budgetData.sections[si].categories[ci];
+  cat.collapsed = !cat.collapsed;
+  const el = document.querySelector(`[data-cat="${si}-${ci}"]`);
+  el.classList.toggle('collapsed');
+}
+
+function toggleExpand(si, ci, ii) {
+  const key = `${si}-${ci}-${ii}`;
+  if (expandedRows.has(key)) expandedRows.delete(key);
+  else expandedRows.add(key);
+  // Toggle directly without full re-render
+  const item = document.querySelector(`[data-item="${si}-${ci}-${ii}"]`);
+  if (item) {
+    const expanded = item.nextElementSibling;
+    if (expanded) expanded.classList.toggle('open');
+    const toggle = item.querySelector('.expand-toggle svg path');
+    if (toggle) {
+      const isOpen = expandedRows.has(key);
+      toggle.setAttribute('d', isOpen ? 'm6 9 6 6 6-6' : 'm9 18 6-6-6-6');
+    }
+  }
+}
+
+function toggleGlobalPanel() {
+  globalPanelOpen = !globalPanelOpen;
+  const panel = document.getElementById('globalPanel');
+  if (panel) panel.classList.toggle('open');
+  else renderBudget();
+}
+
+function toggleAIDrawer() {
+  aiDrawerOpen = !aiDrawerOpen;
+  document.getElementById('aiDrawer').classList.toggle('open');
+  document.getElementById('aiOverlay').classList.toggle('open');
+  if (aiDrawerOpen) {
+    if (currentAITab === 'overview') renderAIOverview();
+    else if (currentAITab === 'suggestions') renderAISuggestions();
+    else if (currentAITab === 'versions') renderAIVersions();
+  }
+}
+
+function updateItem(si, ci, ii, field, rawValue) {
+  const item = budgetData.sections[si].categories[ci].items[ii];
+  if (field === 'unitType') { item.unitType = rawValue; }
+  else if (field === 'notes') { item.notes = rawValue; }
+  else if (field === 'fringes') {
+    const val = parseFloat(rawValue.replace('%', ''));
+    item.fringes = isNaN(val) ? 0 : Math.max(0, Math.min(50, val));
+  } else {
+    const val = parseFloat(rawValue.replace(/[$,%]/g, ''));
+    if (isNaN(val)) return;
+    item[field] = val;
+  }
+  renderBudget();
+  const row = document.querySelector(`[data-item="${si}-${ci}-${ii}"]`);
+  if (row) { row.classList.add('highlight-flash'); setTimeout(() => row.classList.remove('highlight-flash'), 600); }
+}
+
+function addItem(si, ci) {
+  budgetData.sections[si].categories[ci].items.push({
+    name: 'New Line Item', unitType: 'Days', qty: 1, rate: 0, ot: 0,
+    otMult: globalInputs.overtimeMultiplier, fringes: 0, allowance: 0, notes: ''
+  });
+  renderBudget();
+  setTimeout(() => {
+    const items = document.querySelectorAll(`[data-cat="${si}-${ci}"] .line-item`);
+    const last = items[items.length - 1];
+    if (last) { last.classList.add('highlight-flash'); last.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  }, 50);
+}
+
+function removeItem(si, ci, ii) {
+  expandedRows.delete(`${si}-${ci}-${ii}`);
+  budgetData.sections[si].categories[ci].items.splice(ii, 1);
+  renderBudget();
+}
+
+function changeShootDays(delta) {
+  const oldDays = globalInputs.shootDays;
+  const newDays = Math.max(1, oldDays + delta);
+  if (newDays === oldDays) return;
+  const deps = getShootDayDependencies();
+  deps.forEach(dep => { const item = findItem(dep.item); if (item) item.qty = newDays; });
+  globalInputs.shootDays = newDays;
+  showImpact('shootDays', oldDays, newDays);
+  renderBudget();
+}
+
+function updateGlobal(key, val) {
+  globalInputs[key] = val;
+  if (key === 'projectName') document.querySelector('.topbar-project').textContent = ' / ' + val;
+}
+
+function updateShootDays(val) {
+  if (isNaN(val) || val < 1) return;
+  const oldDays = globalInputs.shootDays;
+  if (val === oldDays) return;
+  const deps = getShootDayDependencies();
+  deps.forEach(dep => { const item = findItem(dep.item); if (item) item.qty = val; });
+  globalInputs.shootDays = val;
+  showImpact('shootDays', oldDays, val);
+  renderBudget();
+}
+
+function updateFringesGlobal(val) {
+  globalInputs.payrollFringes = val;
+  budgetData.sections.forEach(s => { s.categories.forEach(c => { c.items.forEach(item => { if (item.fringes > 0) item.fringes = val; }); }); });
+  renderBudget();
+}
+
+function updateGlobalFinancial(key, val) {
+  globalInputs[key] = val;
+  renderBudget();
+}
+
+function scrollToSection(si) {
+  const el = document.querySelector(`[data-section="${si}"]`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.section-nav-btn').forEach((btn, i) => btn.classList.toggle('active', i === si));
+}
+
+function setView(view) {
+  document.querySelectorAll('.topbar-tab').forEach(t => t.classList.remove('active'));
+  if (view === 'review') {
+    isReviewMode = !isReviewMode;
+    document.body.classList.toggle('review-mode', isReviewMode);
+    if (isReviewMode) document.getElementById('reviewToggle').classList.add('active');
+  } else if (view === 'budget') {
+    isReviewMode = false;
+    document.body.classList.remove('review-mode');
+    event.target.classList.add('active');
+  } else if (view === 'globals') {
+    event.target.classList.add('active');
+    globalPanelOpen = true;
+    renderBudget();
+    setTimeout(() => document.getElementById('globalPanel').scrollIntoView({ behavior: 'smooth' }), 50);
+  }
+}
+
+function setAITab(btn, tab) {
+  currentAITab = tab;
+  document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (tab === 'overview') renderAIOverview();
+  else if (tab === 'suggestions') renderAISuggestions();
+  else if (tab === 'versions') renderAIVersions();
+}
+
+function toggleSearch() {
+  const overlay = document.getElementById('searchOverlay');
+  overlay.classList.toggle('open');
+  if (overlay.classList.contains('open')) setTimeout(() => document.getElementById('globalSearch').focus(), 100);
+}
+
+function handleSearch(query) {
+  const results = document.getElementById('searchResults');
+  if (!query || query.length < 2) { results.innerHTML = ''; return; }
+  const matches = [];
+  budgetData.sections.forEach(s => {
+    s.categories.forEach(c => {
+      c.items.forEach(item => {
+        if (item.name.toLowerCase().includes(query.toLowerCase()))
+          matches.push({ section: s.id, name: item.name, amount: calcItemTotal(item), cat: c.name });
+      });
+    });
+  });
+  results.innerHTML = matches.slice(0, 10).map(m => `
+    <div class="search-result" onclick="toggleSearch()">
+      <div class="search-result-left">
+        <span class="search-result-section">${m.section}</span>
+        <span class="search-result-name">${m.name} <span style="color:var(--fg-hint);font-size:11px">${m.cat}</span></span>
+      </div>
+      <span class="search-result-amount">${fmt(m.amount)}</span>
+    </div>`).join('');
+}
+
+function applyAISuggestion(type) {
+  if (type === 'cam-op-rate') { const item = findItem('Camera Operator'); if (item) { item.rate = 1850; renderBudget(); } }
+  else if (type === 'meal-penalty') { const item = findItem('2nd Meal Penalty'); if (item) { item.rate = 2200; renderBudget(); } }
+  else if (type === 'music-ext') {
+    const cat = budgetData.sections.find(s => s.id === 'C')?.categories.find(c => c.name === 'Sound & Music');
+    if (cat) { cat.items.push({ name: 'Digital Extension License', unitType: 'Flat', qty: 1, rate: 3500, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '12mo digital extension' }); renderBudget(); }
+  } else if (type === 'template-fill') {
+    const cat = budgetData.sections.find(s => s.id === 'B')?.categories.find(c => c.name === 'Crew');
+    if (cat) {
+      cat.items.push({ name: 'Steadicam Operator', unitType: 'Days', qty: globalInputs.shootDays, rate: 2400, ot: 400, otMult: globalInputs.overtimeMultiplier, fringes: globalInputs.payrollFringes, allowance: 0, notes: '' });
+      cat.items.push({ name: 'Teleprompter Operator', unitType: 'Days', qty: 1, rate: 1200, ot: 0, otMult: 1.5, fringes: 0, allowance: 0, notes: '' });
+      renderBudget();
+    }
+  } else if (type === 'apply-all-fringes') {
+    const cat = budgetData.sections.find(s => s.id === 'B')?.categories.find(c => c.name === 'Crew');
+    if (cat) { cat.items.forEach(item => { if (!item.isCalculated) item.fringes = globalInputs.payrollFringes; }); renderBudget(); }
+  }
+  if (currentAITab === 'suggestions') renderAISuggestions();
+}
+
+// AI Chat
+document.getElementById('aiChatInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    const q = this.value.trim();
+    if (!q) return;
+    this.value = '';
+    handleAIChat(q);
+  }
+});
+
+function handleAIChat(query) {
+  const body = document.getElementById('aiPanelBody');
+  const totals = calcGrandTotal();
+  let response = '';
+  const ql = query.toLowerCase();
+  if (ql.includes('total') || ql.includes('budget'))
+    response = `Grand total: <strong>${fmt(totals.grand)}</strong>. Subtotal ${fmt(totals.subtotal)} + ${fmt(totals.markup)} markup + ${fmt(totals.contingency)} contingency.`;
+  else if (ql.includes('expensive') || ql.includes('biggest')) {
+    const sorted = budgetData.sections.filter(s => s.id !== 'E').sort((a,b) => calcSectionTotal(b) - calcSectionTotal(a));
+    response = `Biggest: <strong>${sorted[0].name}</strong> at ${fmt(calcSectionTotal(sorted[0]))} (${Math.round((calcSectionTotal(sorted[0])/totals.subtotal)*100)}%).`;
+  } else if (ql.includes('shoot day') || ql.includes('days')) {
+    const deps = getShootDayDependencies();
+    const dayImpact = deps.reduce((s,d) => s + (findItem(d.item)?.rate || 0), 0);
+    response = `<strong>${globalInputs.shootDays} shoot days</strong>. ${deps.length} linked items. +1 day \u2248 <strong>+${fmt(dayImpact)}</strong>.`;
+  } else
+    response = `Try: "total", "biggest section", "shoot day impact"`;
+  body.innerHTML = `<div class="ai-suggestion" style="background:var(--info-bg)"><div class="ai-suggestion-type insight">You</div><div class="ai-suggestion-text">${query}</div></div><div class="ai-suggestion"><div class="ai-suggestion-type insight">AI</div><div class="ai-suggestion-text">${response}</div></div>` + body.innerHTML;
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && !e.ctrlKey && !e.metaKey && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) { e.preventDefault(); toggleSearch(); }
+  if (e.key === 'Escape') { if (document.getElementById('searchOverlay').classList.contains('open')) toggleSearch(); if (aiDrawerOpen) toggleAIDrawer(); hideImpact(); }
+});
+
+// ═══════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const isCollapsed = sidebar.classList.toggle('collapsed');
+  document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+  localStorage.setItem('dibs-sidebar-collapsed', isCollapsed);
+}
+(function() {
+  if (localStorage.getItem('dibs-sidebar-collapsed') === 'true') {
+    document.getElementById('sidebar').classList.add('collapsed');
+    document.body.classList.add('sidebar-collapsed');
+  }
+})();
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+renderBudget();
+if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+</script>
+<a href="index.html" class="noche-return" title="Back to Mémoire">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a>
+</body>
+</html>

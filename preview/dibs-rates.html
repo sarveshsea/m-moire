@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dibs — rate intelligence</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F7F3EE; --bg-warm: #EDE6DD; --bg-card: #FFFFFF; --bg-card-hover: #FDFBF9;
+  --bg-input: #FAF8F5; --fg: #212129; --fg-secondary: #4A4540; --fg-muted: #8C8279;
+  --fg-hint: #B5ADA5; --border: #E2DCD5; --border-light: #EDE8E2;
+  --accent: #9D833E; --accent-hover: #876F2E; --accent-light: #EDE3CF; --accent-subtle: #F5F0E4;
+  --success: #5B8C5A; --success-bg: #EFF5EF; --warn: #C4943A; --warn-bg: #FDF6E9;
+  --error: #C45A5A; --error-bg: #FCEFEF;
+  --shadow-sm: 0 1px 2px rgba(26,26,26,0.04); --shadow-md: 0 2px 8px rgba(26,26,26,0.06);
+  --radius: 3px; --radius-lg: 4px;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+body { font-family: var(--sans); font-size: 14px; background: var(--bg); color: var(--fg); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── Global Top Nav ──────────────────── */
+.global-nav { display: flex; align-items: center; height: 48px; padding: 0 24px; background: #2c2c2e; border-bottom: 1px solid #3a3a3c; position: sticky; top: 0; z-index: 200; gap: 0; }
+.global-nav-brand { display: flex; align-items: center; gap: 10px; margin-right: 32px; }
+.global-nav-logo { width: 24px; height: 24px; background: var(--accent); border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; }
+.global-nav-name { font-weight: 600; font-size: 14px; color: #fff; letter-spacing: -0.3px; }
+.global-nav-tabs { display: flex; align-items: center; gap: 2px; flex: 1; }
+.global-nav-tab { display: flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 12px; font-weight: 500; color: #888; text-decoration: none; border-radius: 3px; transition: all 0.15s; cursor: pointer; font-family: var(--sans); }
+.global-nav-tab:hover { color: #ccc; background: rgba(255,255,255,0.06); }
+.global-nav-tab.active { color: #fff; background: rgba(255,255,255,0.1); font-weight: 600; }
+.global-nav-tab svg { width: 14px; height: 14px; }
+.global-nav-sep { width: 1px; height: 20px; background: #333; margin: 0 12px; }
+.global-nav-actions { display: flex; align-items: center; gap: 4px; }
+.global-nav-action { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 3px; color: #777; cursor: pointer; transition: all 0.15s; border: none; background: none; position: relative; }
+.global-nav-action:hover { color: #ccc; background: rgba(255,255,255,0.06); }
+.global-nav-action svg { width: 16px; height: 16px; }
+.global-nav-action .notif-dot { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; background: var(--error); border-radius: 50%; border: 1.5px solid #1a1a1a; }
+.global-nav-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: white; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-left: 8px; cursor: pointer; font-family: var(--sans); }
+.btn { padding: 7px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--fg-secondary); font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 3px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn svg { width: 14px; height: 14px; }
+
+.main { max-width: 1200px; padding: 32px; margin-left: 220px; margin-right: auto; transition: margin-left 0.2s ease; }
+
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+.page-title { font-size: 20px; font-weight: 400; letter-spacing: -0.3px; color: var(--fg); }
+.page-subtitle { color: var(--fg-muted); font-size: 13px; margin-top: 2px; }
+
+/* ── Filters ──────────────────────────── */
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--fg-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+.filter-chip.active { background: var(--accent-subtle); border-color: var(--accent); color: var(--accent); font-weight: 500; }
+.filter-chip svg { width: 12px; height: 12px; }
+
+/* ── Market Overview ──────────────────── */
+.market-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.market-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.market-stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--fg-muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.market-stat-value {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--fg);
+  letter-spacing: -0.5px;
+}
+
+.market-stat-change {
+  font-size: 11px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.market-stat-change.up { color: var(--success); }
+.market-stat-change.down { color: var(--error); }
+.market-stat-change.neutral { color: var(--fg-hint); }
+.market-stat-change svg { width: 12px; height: 12px; }
+
+/* ── Rate Cards ───────────────────────── */
+.section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--fg-muted);
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title svg { width: 14px; height: 14px; }
+
+.rate-table {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.rate-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 1fr 1fr 1fr 80px;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.1s;
+}
+
+.rate-row:hover { background: var(--bg-card-hover); }
+.rate-row:last-child { border-bottom: none; }
+
+.rate-row.header {
+  background: var(--bg);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--fg-hint);
+  font-weight: 600;
+  padding: 12px 20px;
+}
+
+.rate-row.header:hover { background: var(--bg); }
+
+.rate-role {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--fg);
+}
+
+.rate-role-dept {
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+
+.rate-value {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.rate-range {
+  font-size: 11px;
+  color: var(--fg-hint);
+}
+
+.rate-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.rate-trend.up { background: var(--error-bg); color: var(--error); }
+.rate-trend.down { background: var(--success-bg); color: var(--success); }
+.rate-trend.flat { background: var(--border-light); color: var(--fg-muted); }
+.rate-trend svg { width: 10px; height: 10px; }
+
+/* ── Sparkline (CSS-only) ─────────────── */
+.sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 32px;
+}
+
+.spark-bar {
+  flex: 1;
+  background: var(--accent-light);
+  border-radius: 1px 1px 0 0;
+  min-width: 4px;
+  transition: background 0.15s;
+}
+
+.spark-bar:last-child { background: var(--accent); }
+.spark-bar:hover { background: var(--accent); }
+
+/* ── Insights Grid ────────────────────── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.insight-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.insight-card h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--fg-muted);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.region-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.region-row:last-child { border-bottom: none; }
+
+.region-name {
+  width: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.region-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--border-light);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.region-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+.region-value {
+  width: 80px;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── Cost Index ────────────────────────── */
+.cost-index {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.cost-index-item {
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+}
+
+.cost-index-item .year {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--fg-hint);
+  margin-bottom: 4px;
+}
+
+.cost-index-item .index {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.cost-index-item .change {
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.cost-index-item .change.up { color: var(--error); }
+
+.cost-index-item.current {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+}
+
+/* ── AI Predictions ───────────────────── */
+.prediction-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.prediction-card h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--fg-muted);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.prediction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.prediction-item:last-child { border-bottom: none; }
+
+.prediction-icon {
+  width: 32px; height: 32px;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.prediction-icon.up { background: var(--error-bg); color: var(--error); }
+.prediction-icon.down { background: var(--success-bg); color: var(--success); }
+.prediction-icon.info { background: var(--accent-subtle); color: var(--accent); }
+.prediction-icon svg { width: 16px; height: 16px; }
+
+.prediction-text { font-size: 13px; color: var(--fg-secondary); line-height: 1.5; }
+.prediction-text strong { color: var(--fg); font-weight: 500; }
+
+.prediction-confidence {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.prediction-confidence.high { color: var(--success); }
+.prediction-confidence.med { color: var(--warn); }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.main { animation: fadeIn 0.3s ease; }
+.noche-return {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: #111113; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.noche-return:hover { background: #ffffff; border-color: rgba(255,255,255,0.5); color: #000000; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+
+/* ── Sidebar ─────────────────────────── */
+.sidebar {
+  width: 220px;
+  background: #ffffff;
+  border-right: 1px solid #f0f0f0;
+  position: fixed;
+  top: 48px;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
+  overflow: hidden;
+  z-index: 100;
+}
+.sidebar-header {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 16px 16px 12px; flex-shrink: 0;
+}
+.sidebar-toggle {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid transparent;
+  border-radius: 6px; cursor: pointer;
+  color: #bbbbbb; transition: all 0.15s; flex-shrink: 0;
+}
+.sidebar-toggle:hover { color: #4a4a4a; background: #fafaf8; border-color: #f0f0f0; }
+.sidebar-toggle svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+.sidebar-nav {
+  flex: 1; padding: 4px 8px;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; color: #999999;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.15s; text-decoration: none;
+  border-radius: 6px; white-space: nowrap;
+}
+.nav-item:hover { background: #fafaf8; color: #4a4a4a; }
+.nav-item.active { background: rgba(157,131,62,0.08); color: #9d833e; font-weight: 600; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-label { white-space: nowrap; overflow: hidden; }
+.nav-divider { height: 1px; background: #f0f0f0; margin: 8px 8px; }
+.nav-section-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--fg-hint, #bbbbbb);
+  font-weight: 600;
+  padding: 8px 12px 4px;
+}
+.nav-bid { gap: 8px; padding-left: 16px; }
+.bid-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent, #9d833e);
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+.sidebar.collapsed .nav-section-label { display: none; }
+.sidebar.collapsed .bid-dot { margin-left: 0; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(157,131,62,0.08); color: #9d833e; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.user-name { font-size: 13px; font-weight: 500; white-space: nowrap; }
+.user-role { font-size: 11px; color: #999999; white-space: nowrap; }
+.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed .sidebar-header { padding: 16px 0 12px; justify-content: center; }
+.sidebar.collapsed .sidebar-toggle svg { transform: rotate(180deg); }
+.sidebar.collapsed .nav-item { padding: 10px 0; justify-content: center; border-radius: 0; gap: 0; }
+.sidebar.collapsed .nav-label { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .nav-divider { margin: 8px 12px; }
+.sidebar.collapsed .sidebar-footer { padding: 12px 0; }
+.sidebar.collapsed .user-info { justify-content: center; }
+.sidebar.collapsed .user-name, .sidebar.collapsed .user-role { width: 0; opacity: 0; overflow: hidden; }
+.sidebar.collapsed .sidebar-nav { padding: 4px 0; }
+
+body.sidebar-collapsed .main { margin-left: 56px; }
+body.sidebar-collapsed footer { margin-left: 56px; }
+footer { margin-left: 220px; transition: margin-left 0.2s ease; }
+</style>
+</head>
+<body>
+
+<!-- ── Global Top Nav ═══════════════════ -->
+<nav class="global-nav">
+  <div class="global-nav-brand">
+    <div class="global-nav-name">dibs</div>
+  </div>
+  <div class="global-nav-tabs"></div>
+  <div class="global-nav-sep"></div>
+  <div class="global-nav-actions">
+    <a href="dibs-settings.html" class="global-nav-action" title="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </a>
+    <button class="global-nav-action" title="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="notif-dot"></span>
+    </button>
+  </div>
+  <div class="global-nav-avatar">MC</div>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+      <i data-lucide="panel-left-close"></i>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dibs-dashboard.html" title="Dashboard">
+      <i data-lucide="layout-dashboard"></i><span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" href="dibs.html" title="New Bid">
+      <i data-lucide="plus-circle"></i><span class="nav-label">New Bid</span>
+    </a>
+    <a class="nav-item" href="dibs-comparison.html" title="Bid Board">
+      <i data-lucide="kanban"></i><span class="nav-label">Bid Board</span>
+    </a>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Active Bids</div>
+    <a class="nav-item nav-bid" href="dibs-lineitem.html" title="Nike &quot;Just Do It&quot; 60s TV">
+      <span class="bid-dot"></span><span class="nav-label">Nike &ldquo;Just Do It&rdquo;</span>
+    </a>
+    <div class="nav-divider"></div>
+    <a class="nav-item" href="dibs-settings.html" title="Settings">
+      <i data-lucide="settings"></i><span class="nav-label">Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">MC</div>
+      <div>
+        <div class="user-name">Maria Chen</div>
+        <div class="user-role">Senior Line Producer</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Rate Intelligence</div>
+      <div class="page-subtitle">Real-time market data from 2,400+ bids across the industry. Updated daily.</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-chip active"><i data-lucide="map-pin"></i> New York</div>
+    <div class="filter-chip">Los Angeles</div>
+    <div class="filter-chip">Atlanta</div>
+    <div class="filter-chip">Chicago</div>
+    <div class="filter-chip">London</div>
+    <div class="filter-chip">Vancouver</div>
+    <div style="width:1px; background:var(--border); margin:0 4px"></div>
+    <div class="filter-chip active"><i data-lucide="tv"></i> TV Commercial</div>
+    <div class="filter-chip">Digital / Social</div>
+    <div class="filter-chip">All Types</div>
+  </div>
+
+  <!-- Market Stats -->
+  <div class="market-stats">
+    <div class="market-stat">
+      <div class="market-stat-label">Avg. Day Rate (Crew)</div>
+      <div class="market-stat-value">$2,450</div>
+      <div class="market-stat-change up"><i data-lucide="trending-up"></i> +4.2% vs Q3 2025</div>
+    </div>
+    <div class="market-stat">
+      <div class="market-stat-label">Avg. Bid Total (30s)</div>
+      <div class="market-stat-value">$385K</div>
+      <div class="market-stat-change up"><i data-lucide="trending-up"></i> +7% YoY</div>
+    </div>
+    <div class="market-stat">
+      <div class="market-stat-label">Equipment Index</div>
+      <div class="market-stat-value">1.12x</div>
+      <div class="market-stat-change neutral"><i data-lucide="minus"></i> Stable</div>
+    </div>
+    <div class="market-stat">
+      <div class="market-stat-label">Bids Analyzed</div>
+      <div class="market-stat-value">2,412</div>
+      <div class="market-stat-change up"><i data-lucide="trending-up"></i> +340 this quarter</div>
+    </div>
+  </div>
+
+  <!-- Rate Table -->
+  <div class="section-title"><i data-lucide="users"></i> Crew Day Rates — New York</div>
+  <div class="rate-table">
+    <div class="rate-row header">
+      <div>Role</div>
+      <div>Day Rate (Avg)</div>
+      <div>Range (10th-90th)</div>
+      <div>12-Month Trend</div>
+      <div>Sparkline</div>
+      <div>YoY</div>
+    </div>
+
+    <div class="rate-row">
+      <div><div class="rate-role">Director</div><div class="rate-role-dept">Above the Line</div></div>
+      <div class="rate-value">$15,000</div>
+      <div><div class="rate-value">$8,000 — $35,000</div><div class="rate-range">High variance by tier</div></div>
+      <div class="sparkline">
+        <div class="spark-bar" style="height:55%"></div><div class="spark-bar" style="height:60%"></div>
+        <div class="spark-bar" style="height:58%"></div><div class="spark-bar" style="height:65%"></div>
+        <div class="spark-bar" style="height:62%"></div><div class="spark-bar" style="height:70%"></div>
+        <div class="spark-bar" style="height:68%"></div><div class="spark-bar" style="height:72%"></div>
+        <div class="spark-bar" style="height:70%"></div><div class="spark-bar" style="height:75%"></div>
+        <div class="spark-bar" style="height:78%"></div><div class="spark-bar" style="height:80%"></div>
+      </div>
+      <div><span class="rate-trend up"><i data-lucide="trending-up"></i> +6%</span></div>
+    </div>
+
+    <div class="rate-row">
+      <div><div class="rate-role">DP / Cinematographer</div><div class="rate-role-dept">Camera</div></div>
+      <div class="rate-value">$4,500</div>
+      <div><div class="rate-value">$3,200 — $7,500</div></div>
+      <div class="sparkline">
+        <div class="spark-bar" style="height:60%"></div><div class="spark-bar" style="height:62%"></div>
+        <div class="spark-bar" style="height:58%"></div><div class="spark-bar" style="height:64%"></div>
+        <div class="spark-bar" style="height:66%"></div><div class="spark-bar" style="height:65%"></div>
+        <div class="spark-bar" style="height:68%"></div><div class="spark-bar" style="height:70%"></div>
+        <div class="spark-bar" style="height:72%"></div><div class="spark-bar" style="height:71%"></div>
+        <div class="spark-bar" style="height:74%"></div><div class="spark-bar" style="height:76%"></div>
+      </div>
+      <div><span class="rate-trend up"><i data-lucide="trending-up"></i> +4%</span></div>
+    </div>
+
+    <div class="rate-row">
+      <div><div class="rate-role">Gaffer</div><div class="rate-role-dept">Lighting</div></div>
+      <div class="rate-value">$1,800</div>
+      <div><div class="rate-value">$1,400 — $2,500</div></div>
+      <div class="sparkline">
+        <div class="spark-bar" style="height:65%"></div><div class="spark-bar" style="height:66%"></div>
+        <div class="spark-bar" style="height:64%"></div><div class="spark-bar" style="height:68%"></div>
+        <div class="spark-bar" style="height:70%"></div><div class="spark-bar" style="height:69%"></div>
+        <div class="spark-bar" style="height:72%"></div><div class="spark-bar" style="height:74%"></div>
+        <div class="spark-bar" style="height:73%"></div><div class="spark-bar" style="height:75%"></div>
+        <div class="spark-bar" style="height:76%"></div><div class="spark-bar" style="height:78%"></div>
+      </div>
+      <div><span class="rate-trend up"><i data-lucide="trending-up"></i> +4%</span></div>
+    </div>
+
+    <div class="rate-row">
+      <div><div class="rate-role">1st AD</div><div class="rate-role-dept">Production</div></div>
+      <div class="rate-value">$2,200</div>
+      <div><div class="rate-value">$1,800 — $3,200</div></div>
+      <div class="sparkline">
+        <div class="spark-bar" style="height:70%"></div><div class="spark-bar" style="height:72%"></div>
+        <div class="spark-bar" style="height:71%"></div><div class="spark-bar" style="height:73%"></div>
+        <div class="spark-bar" style="height:72%"></div><div class="spark-bar" style="height:74%"></div>
+        <div class="spark-bar" style="height:73%"></div><div class="spark-bar" style="height:75%"></div>
+        <div class="spark-bar" style="height:74%"></div><div class="spark-bar" style="height:74%"></div>
+        <div class="spark-bar" style="height:76%"></div><div class="spark-bar" style="height:77%"></div>
+      </div>
+      <div><span class="rate-trend up"><i data-lucide="trending-up"></i> +3%</span></div>
+    </div>
+
+    <div class="rate-row">
+      <div><div class="rate-role">Key Grip</div><div class="rate-role-dept">Grip</div></div>
+      <div class="rate-value">$1,600</div>
+      <div><div class="rate-value">$1,200 — $2,100</div></div>
+      <div class="sparkline">
+        <div class="spark-bar" style="height:72%"></div><div class="spark-bar" style="height:73%"></div>
+        <div class="spark-bar" style="height:72%"></div><div class="spark-bar" style="height:74%"></div>
+        <div class="spark-bar" style="height:73%"></div><div class="spark-bar" style="height:74%"></div>
+        <div class="spark-bar" style="height:74%"></div><div class="spark-bar" style="height:75%"></div>
+        <div class="spark-bar" style="height:74%"></div><div class="spark-bar" style="height:75%"></div>
+        <div class="spark-bar" style="height:76%"></div><div class="spark-bar" style="height:76%"></div>
+      </div>
+      <div><span class="rate-trend flat"><i data-lucide="minus"></i> +1%</span></div>
+    </div>
+
+    <div class="rate-row">
+      <div><div class="rate-role">Production Designer</div><div class="rate-role-dept">Art</div></div>
+      <div class="rate-value">$2,800</div>
+      <div><div class="rate-value">$2,000 — $4,200</div></div>
+      <div class="sparkline">
+        <div class="spark-bar" style="height:58%"></div><div class="spark-bar" style="height:60%"></div>
+        <div class="spark-bar" style="height:62%"></div><div class="spark-bar" style="height:65%"></div>
+        <div class="spark-bar" style="height:68%"></div><div class="spark-bar" style="height:70%"></div>
+        <div class="spark-bar" style="height:72%"></div><div class="spark-bar" style="height:75%"></div>
+        <div class="spark-bar" style="height:78%"></div><div class="spark-bar" style="height:80%"></div>
+        <div class="spark-bar" style="height:82%"></div><div class="spark-bar" style="height:85%"></div>
+      </div>
+      <div><span class="rate-trend up"><i data-lucide="trending-up"></i> +8%</span></div>
+    </div>
+
+    <div class="rate-row">
+      <div><div class="rate-role">Editor</div><div class="rate-role-dept">Post-Production</div></div>
+      <div class="rate-value">$3,200</div>
+      <div><div class="rate-value">$2,400 — $5,000</div></div>
+      <div class="sparkline">
+        <div class="spark-bar" style="height:68%"></div><div class="spark-bar" style="height:70%"></div>
+        <div class="spark-bar" style="height:69%"></div><div class="spark-bar" style="height:72%"></div>
+        <div class="spark-bar" style="height:74%"></div><div class="spark-bar" style="height:73%"></div>
+        <div class="spark-bar" style="height:75%"></div><div class="spark-bar" style="height:76%"></div>
+        <div class="spark-bar" style="height:78%"></div><div class="spark-bar" style="height:80%"></div>
+        <div class="spark-bar" style="height:82%"></div><div class="spark-bar" style="height:83%"></div>
+      </div>
+      <div><span class="rate-trend up"><i data-lucide="trending-up"></i> +5%</span></div>
+    </div>
+
+    <div class="rate-row">
+      <div><div class="rate-role">Colorist</div><div class="rate-role-dept">Post-Production</div></div>
+      <div class="rate-value">$4,800</div>
+      <div><div class="rate-value">$3,500 — $8,000</div></div>
+      <div class="sparkline">
+        <div class="spark-bar" style="height:62%"></div><div class="spark-bar" style="height:64%"></div>
+        <div class="spark-bar" style="height:66%"></div><div class="spark-bar" style="height:68%"></div>
+        <div class="spark-bar" style="height:72%"></div><div class="spark-bar" style="height:74%"></div>
+        <div class="spark-bar" style="height:76%"></div><div class="spark-bar" style="height:78%"></div>
+        <div class="spark-bar" style="height:80%"></div><div class="spark-bar" style="height:82%"></div>
+        <div class="spark-bar" style="height:85%"></div><div class="spark-bar" style="height:88%"></div>
+      </div>
+      <div><span class="rate-trend up"><i data-lucide="trending-up"></i> +9%</span></div>
+    </div>
+  </div>
+
+  <!-- Insights Grid -->
+  <div class="insights-grid">
+    <div class="insight-card">
+      <h3>Day Rate by Market</h3>
+      <div class="region-row">
+        <div class="region-name">New York</div>
+        <div class="region-bar-track"><div class="region-bar-fill" style="width:100%"></div></div>
+        <div class="region-value">$2,450</div>
+      </div>
+      <div class="region-row">
+        <div class="region-name">Los Angeles</div>
+        <div class="region-bar-track"><div class="region-bar-fill" style="width:94%"></div></div>
+        <div class="region-value">$2,300</div>
+      </div>
+      <div class="region-row">
+        <div class="region-name">London</div>
+        <div class="region-bar-track"><div class="region-bar-fill" style="width:86%"></div></div>
+        <div class="region-value">$2,100</div>
+      </div>
+      <div class="region-row">
+        <div class="region-name">Atlanta</div>
+        <div class="region-bar-track"><div class="region-bar-fill" style="width:73%"></div></div>
+        <div class="region-value">$1,800</div>
+      </div>
+      <div class="region-row">
+        <div class="region-name">Chicago</div>
+        <div class="region-bar-track"><div class="region-bar-fill" style="width:71%"></div></div>
+        <div class="region-value">$1,750</div>
+      </div>
+      <div class="region-row">
+        <div class="region-name">Vancouver</div>
+        <div class="region-bar-track"><div class="region-bar-fill" style="width:65%"></div></div>
+        <div class="region-value">$1,600</div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <h3>Production Cost Index (Base: 2020 = 1.00)</h3>
+      <div class="cost-index">
+        <div class="cost-index-item">
+          <div class="year">2020</div>
+          <div class="index">1.00</div>
+          <div class="change">Base</div>
+        </div>
+        <div class="cost-index-item">
+          <div class="year">2021</div>
+          <div class="index">1.08</div>
+          <div class="change up">+8%</div>
+        </div>
+        <div class="cost-index-item">
+          <div class="year">2022</div>
+          <div class="index">1.15</div>
+          <div class="change up">+7%</div>
+        </div>
+        <div class="cost-index-item">
+          <div class="year">2023</div>
+          <div class="index">1.22</div>
+          <div class="change up">+6%</div>
+        </div>
+        <div class="cost-index-item">
+          <div class="year">2024</div>
+          <div class="index">1.28</div>
+          <div class="change up">+5%</div>
+        </div>
+        <div class="cost-index-item current">
+          <div class="year">2025</div>
+          <div class="index">1.34</div>
+          <div class="change up">+5%</div>
+        </div>
+      </div>
+      <div style="margin-top:16px; padding:12px; background:var(--bg); border-radius:var(--radius); font-size:12px; color:var(--fg-muted)">
+        Production costs have increased <strong style="color:var(--fg)">34%</strong> since 2020. Primary drivers: crew labor (+18%), insurance (+22%), location permits (+15%).
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Predictions -->
+  <div class="prediction-card">
+    <h3>AI Rate Predictions — Next Quarter (Q2 2026)</h3>
+    <div class="prediction-item">
+      <div class="prediction-icon up"><i data-lucide="trending-up"></i></div>
+      <div>
+        <div class="prediction-text"><strong>Colorists and VFX artists</strong> will see 8-12% rate increases due to AI-enhanced workflows demanding higher-tier talent for supervision roles. Junior roles declining.</div>
+        <div class="prediction-confidence high">High confidence (88%)</div>
+      </div>
+    </div>
+    <div class="prediction-item">
+      <div class="prediction-icon up"><i data-lucide="trending-up"></i></div>
+      <div>
+        <div class="prediction-text"><strong>NYC location permits</strong> expected to increase 6-8% after new city filming office fee schedule takes effect April 1. Brooklyn especially affected.</div>
+        <div class="prediction-confidence high">High confidence (92%)</div>
+      </div>
+    </div>
+    <div class="prediction-item">
+      <div class="prediction-icon down"><i data-lucide="trending-down"></i></div>
+      <div>
+        <div class="prediction-text"><strong>Camera equipment rental</strong> may decrease 3-5% as ARRI Alexa 35 inventory expands and RED V-Raptor [X] reaches wider distribution.</div>
+        <div class="prediction-confidence med">Medium confidence (71%)</div>
+      </div>
+    </div>
+    <div class="prediction-item">
+      <div class="prediction-icon info"><i data-lucide="alert-circle"></i></div>
+      <div>
+        <div class="prediction-text"><strong>SAG-AFTRA commercial rates</strong> contract renegotiation in June 2026. Expect 4-6% increase in talent costs across all tiers. Budget accordingly for H2 projects.</div>
+        <div class="prediction-confidence med">Medium confidence (65%)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+lucide.createIcons();
+
+// Filter chip toggle
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => chip.classList.toggle('active'));
+});
+
+// Sidebar toggle
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const isCollapsed = sidebar.classList.toggle('collapsed');
+  document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+  localStorage.setItem('dibs-sidebar-collapsed', isCollapsed);
+}
+(function() {
+  if (localStorage.getItem('dibs-sidebar-collapsed') === 'true') {
+    document.getElementById('sidebar').classList.add('collapsed');
+    document.body.classList.add('sidebar-collapsed');
+  }
+})();
+</script>
+<footer style="margin-top:48px;padding:24px 32px;border-top:1px solid #EDE8E2;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1">
+  <div style="font-size:11px;color:#B5ADA5;line-height:1.6">Dibs v1.0 -- AICP Budget Intelligence Platform<br>Rates and estimates are advisory only. Always verify against union rate cards and vendor quotes before submission.</div>
+  <div style="display:flex;gap:16px"><a href="#" style="font-size:11px;color:#B5ADA5;text-decoration:none">Terms</a><a href="#" style="font-size:11px;color:#B5ADA5;text-decoration:none">Privacy</a><a href="#" style="font-size:11px;color:#B5ADA5;text-decoration:none">AICP Guidelines</a><a href="#" style="font-size:11px;color:#B5ADA5;text-decoration:none">Support</a></div>
+</footer>
+<a href="index.html" class="noche-return" title="Back to Mémoire">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</a>
+</body>
+</html>
