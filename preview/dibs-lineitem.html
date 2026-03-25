@@ -893,6 +893,12 @@ lucide.createIcons();
     document.getElementById('sidebar').classList.add('collapsed');
     document.body.classList.add('sidebar-collapsed');
   }
+  if (window.location.hash === '#ai-open') {
+    aiOpen = true;
+    document.getElementById('aiDrawer').classList.add('open');
+    document.getElementById('aiScrim').classList.add('open');
+    renderAIBody();
+  }
 })();
 </script>
 </body>
