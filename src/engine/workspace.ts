@@ -5,7 +5,7 @@
  */
 
 import { createHash } from "crypto";
-import { readFile, writeFile, readdir, mkdir, rm } from "fs/promises";
+import { readFile, writeFile, readdir, mkdir, rm, rename } from "fs/promises";
 import { join, resolve } from "path";
 import { homedir } from "os";
 import { createLogger } from "./logger.js";
@@ -123,12 +123,7 @@ export class WorkspaceManager {
     const tmpPath = join(this.workspaceRoot, ".registry.json.tmp");
     await mkdir(this.workspaceRoot, { recursive: true });
     await writeFile(tmpPath, JSON.stringify(registry, null, 2));
-    await writeFile(registryPath, JSON.stringify(registry, null, 2));
-    try {
-      await rm(tmpPath);
-    } catch {
-      // ignore cleanup errors
-    }
+    await rename(tmpPath, registryPath);
   }
 
   /**
@@ -168,15 +163,10 @@ export class WorkspaceManager {
       };
     }
 
-    // Save updated metadata
+    // Save updated metadata (atomic write)
     const tmpMetaPath = join(workspaceDir, ".meta.json.tmp");
     await writeFile(tmpMetaPath, JSON.stringify(meta, null, 2));
-    await writeFile(metaPath, JSON.stringify(meta, null, 2));
-    try {
-      await rm(tmpMetaPath);
-    } catch {
-      // ignore cleanup errors
-    }
+    await rename(tmpMetaPath, metaPath);
 
     // Update registry
     const registry = await this.loadRegistry();
@@ -265,12 +255,7 @@ export class WorkspaceManager {
 
     const validated = DesignSystemDataSchema.parse(data);
     await writeFile(tmpPath, JSON.stringify(validated, null, 2));
-    await writeFile(filePath, JSON.stringify(validated, null, 2));
-    try {
-      await rm(tmpPath);
-    } catch {
-      // ignore cleanup errors
-    }
+    await rename(tmpPath, filePath);
 
     log.info({ projectPath }, "Design system saved");
   }
@@ -283,9 +268,9 @@ export class WorkspaceManager {
     const knowledge: KnowledgeBase = {};
 
     try {
-      const researcPath = join(workspaceDir, "knowledge", "research.json");
+      const researchPath = join(workspaceDir, "knowledge", "research.json");
       try {
-        const raw = await readFile(researcPath, "utf-8");
+        const raw = await readFile(researchPath, "utf-8");
         knowledge.research = JSON.parse(raw);
       } catch (err) {
         if (err instanceof Error && "code" in err && (err as NodeJS.ErrnoException).code !== "ENOENT") {
@@ -331,12 +316,7 @@ export class WorkspaceManager {
     const tmpPath = join(workspaceDir, "knowledge", `.${key}.json.tmp`);
 
     await writeFile(tmpPath, JSON.stringify(data, null, 2));
-    await writeFile(filePath, JSON.stringify(data, null, 2));
-    try {
-      await rm(tmpPath);
-    } catch {
-      // ignore cleanup errors
-    }
+    await rename(tmpPath, filePath);
 
     log.info({ projectPath, key }, "Knowledge saved");
   }
@@ -372,12 +352,7 @@ export class WorkspaceManager {
 
     const validated = ServerStateSchema.parse(state);
     await writeFile(tmpPath, JSON.stringify(validated, null, 2));
-    await writeFile(filePath, JSON.stringify(validated, null, 2));
-    try {
-      await rm(tmpPath);
-    } catch {
-      // ignore cleanup errors
-    }
+    await rename(tmpPath, filePath);
 
     log.info({ projectPath, port: state.port, status: state.status }, "Server state saved");
   }
@@ -409,12 +384,7 @@ export class WorkspaceManager {
     entries.push(validated);
 
     await writeFile(tmpPath, JSON.stringify(entries, null, 2));
-    await writeFile(filePath, JSON.stringify(entries, null, 2));
-    try {
-      await rm(tmpPath);
-    } catch {
-      // ignore cleanup errors
-    }
+    await rename(tmpPath, filePath);
 
     log.info(
       { projectPath, specName: validated.specName, status: validated.status },

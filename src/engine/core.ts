@@ -96,7 +96,7 @@ export class MemoireEngine extends EventEmitter {
     this.emit("event", {
       type: "success",
       source: "engine",
-      message: `Mémoire initialized — detected ${this._project.framework} project`,
+      message: `Mémoire initialized — detected ${this._project?.framework ?? "unknown"} project`,
       timestamp: new Date(),
       data: this._project,
     } satisfies MemoireEvent);
@@ -171,8 +171,12 @@ export class MemoireEngine extends EventEmitter {
       throw new Error(`Spec "${specName}" not found`);
     }
 
+    if (!this._project) {
+      throw new Error("Engine not initialized. Call init() before generating code.");
+    }
+
     const result = await this.codegen.generate(spec, {
-      project: this._project!,
+      project: this._project,
       designSystem: this.registry.designSystem,
     });
 

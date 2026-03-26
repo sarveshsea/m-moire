@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%230a0a0a'/%3E%3C/svg%3E">
 <title>memoire</title>
+<meta name="description" content="Mémoire — AI-native design intelligence engine">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -126,7 +127,7 @@ a:hover { text-decoration: underline; }
           <div class="mini-nav-item">Settings</div>
         </div>
         <div class="mini-content">
-          <div class="mini-title">Lorem ipsum dolor sit</div>
+          <div class="mini-title">Component Preview</div>
           <div class="mini-search"></div>
           <div class="mini-stats">
             <div class="mini-stat">
@@ -159,9 +160,9 @@ a:hover { text-decoration: underline; }
             <div class="mini-bar" style="height: 65%;"></div>
           </div>
           <div class="mini-list">
-            <div class="mini-list-row"><div class="mini-list-dot"></div>Lorem ipsum dolor sit amet consectetur</div>
-            <div class="mini-list-row"><div class="mini-list-dot"></div>Adipiscing elit sed do eiusmod tempor</div>
-            <div class="mini-list-row"><div class="mini-list-dot"></div>Incididunt ut labore et dolore magna</div>
+            <div class="mini-list-row"><div class="mini-list-dot"></div>Button atom -- 6 variants, final</div>
+            <div class="mini-list-row"><div class="mini-list-dot"></div>SearchInput molecule -- 2 variants, final</div>
+            <div class="mini-list-row"><div class="mini-list-dot"></div>Modal organism -- 3 variants, draft</div>
           </div>
         </div>
       </div>
@@ -172,51 +173,51 @@ a:hover { text-decoration: underline; }
       <div class="hero-name">m&eacute;moire</div>
       <div class="hero-badge">v0.1.0</div>
     </div>
-    <div class="hero-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</div>
+    <div class="hero-desc">Connects to Figma. Pulls your design system. Generates production React code. Runs autonomously with Claude.</div>
 
     <!-- Figma link card -->
     <div class="figma-card">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5.5A3.5 3.5 0 018.5 2H12v7H8.5A3.5 3.5 0 015 5.5z"/><path d="M12 2h3.5a3.5 3.5 0 010 7H12V2z"/><path d="M12 12.5a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z"/><path d="M5 19.5A3.5 3.5 0 018.5 16H12v3.5a3.5 3.5 0 01-7 0z"/><path d="M5 12.5A3.5 3.5 0 018.5 9H12v7H8.5A3.5 3.5 0 015 12.5z"/></svg>
-      <div class="figma-card-text">Lorem ipsum dolor sit amet -- <a href="#">figma.com/design/lorem-ipsum</a> -- consectetur adipiscing elit sed do eiusmod tempor.</div>
+      <div class="figma-card-text">Connect your Figma file to pull tokens, components, and styles automatically. Auto-discovers the plugin on ports 9223-9232.</div>
     </div>
 
     <!-- About -->
     <div class="about">
-      <div class="about-heading">De rerum natura</div>
-      <div class="about-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</div>
+      <div class="about-heading">About</div>
+      <div class="about-text">Memoire is an AI-native design intelligence engine. It bridges Figma, user research, and code generation into a spec-driven system. Auto-discovers and connects to the Figma plugin, generates shadcn/ui components from structured specs, and supports multiple Claude instances natively via box widgets. Every component follows Atomic Design: atom, molecule, organism, template, page.</div>
     </div>
 
     <!-- Feature grid -->
     <div class="feature-grid">
       <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-        <div class="feature-title">Lorem Ipsum Dolor</div>
-        <div class="feature-desc">Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h4"/></svg></div>
+        <div class="feature-title">Specs</div>
+        <div class="feature-desc">Structured component, page, and data visualization specs validated with Zod schemas. Every component starts as a spec before code generation.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-        <div class="feature-title">Sed Ut Perspiciatis</div>
-        <div class="feature-desc">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur.</div>
+        <div class="feature-title">Codegen</div>
+        <div class="feature-desc">Generates production React components using shadcn/ui and Tailwind exclusively. Outputs to atomic folders: atoms, molecules, organisms, templates.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
-        <div class="feature-title">Quis Autem Vel</div>
-        <div class="feature-desc">Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.</div>
+        <div class="feature-title">Research</div>
+        <div class="feature-desc">Synthesizes user research from Excel files, web sources, and Figma stickies into actionable insights, themes, and personas.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>
-        <div class="feature-title">Nisi Ut Aliquid</div>
-        <div class="feature-desc">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.</div>
+        <div class="feature-title">Tokens</div>
+        <div class="feature-desc">Extracts design tokens from Figma -- colors, typography, spacing, and effects -- and maps them to your codebase's token system.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
-        <div class="feature-title">Temporibus Autem</div>
-        <div class="feature-desc">Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod.</div>
+        <div class="feature-title">Preview</div>
+        <div class="feature-desc">Live component gallery served on localhost. Browse specs, research data, design system tokens, and generated components in one place.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
-        <div class="feature-title">Itaque Earum Rerum</div>
-        <div class="feature-desc">Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.</div>
+        <div class="feature-title">Agents</div>
+        <div class="feature-desc">Autonomous design agents powered by Claude. Classify intent, plan execution, generate artifacts, and self-heal after every canvas operation.</div>
       </div>
     </div>
 

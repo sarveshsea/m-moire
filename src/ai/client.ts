@@ -106,7 +106,7 @@ export class AnthropicClient {
   async completeJSON<T = unknown>(
     opts: AICompletionOptions & { schema?: import("zod").ZodSchema<T> }
   ): Promise<T> {
-    const systemWithJSON = opts.system + "\n\nIMPORTANT: Return your response as valid JSON. No markdown fencing, no explanation — just the JSON object.";
+    const systemWithJSON = (opts.system || "") + "\n\nIMPORTANT: Return your response as valid JSON. No markdown fencing, no explanation — just the JSON object.";
 
     const response = await this.complete({
       ...opts,
@@ -143,11 +143,11 @@ function parseJSONFromResponse(content: string): unknown {
     return JSON.parse(trimmed);
   } catch {
     const fenceMatch = trimmed.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
-    if (fenceMatch) {
+    if (fenceMatch?.[1]) {
       return JSON.parse(fenceMatch[1].trim());
     }
     const objMatch = trimmed.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
-    if (objMatch) {
+    if (objMatch?.[1]) {
       return JSON.parse(objMatch[1]);
     }
     throw new Error(`Could not extract JSON from response: ${trimmed.slice(0, 200)}...`);

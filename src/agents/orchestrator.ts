@@ -712,7 +712,7 @@ export class AgentOrchestrator {
         const aiResult = await this.aiExecuteSubTask(ai, task, ctx);
         if (aiResult) return aiResult;
       } catch (err) {
-        log.warn({ taskId: task.id, err }, "AI execution failed, falling back to heuristic");
+        log.warn({ taskId: task.id, err: err instanceof Error ? err.message : String(err) }, "AI execution failed, falling back to heuristic");
       }
     }
 
@@ -992,9 +992,33 @@ export class AgentOrchestrator {
   }
 
   private async applyAIResult(mutation: { type: string; target: string; detail: string }, ctx: AgentContext): Promise<void> {
+    if (!mutation.type || !mutation.target) {
+      log.warn({ mutation }, "Skipping AI mutation — missing type or target");
+      return;
+    }
     log.info({ type: mutation.type, target: mutation.target }, "Applying AI mutation");
-    // AI mutations are recorded for reporting; actual application depends on the mutation type
-    // Token mutations would update the registry, spec mutations would save specs, etc.
+
+    switch (mutation.type) {
+      case "token-created":
+      case "token-updated": {
+        const existing = this.engine.registry.designSystem.tokens.find(t => t.name === mutation.target);
+        if (existing) {
+          log.info({ token: mutation.target }, "Token mutation recorded — update via registry");
+        }
+        break;
+      }
+      case "token-deleted": {
+        this.engine.registry.removeToken(mutation.target);
+        break;
+      }
+      case "spec-created":
+      case "spec-updated":
+      case "code-generated":
+      case "figma-pushed":
+        break;
+      default:
+        log.warn({ type: mutation.type }, "Unknown AI mutation type — recording only");
+    }
   }
 
   // ── Figma Push Helpers ─────────────────────────────────

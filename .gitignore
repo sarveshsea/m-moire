@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .memoire/
+.noche/
 *.tsbuildinfo
 preview/dist/
 
@@ -12,6 +13,8 @@ preview/user-research.html
 preview/auth.html
 preview/bidcraft*.html
 
+.env
+.env.local
 .env*
 # Claude Code local settings (ignore) but track rules
 .claude/*

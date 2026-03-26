@@ -167,6 +167,13 @@ export class MemoireWsServer extends EventEmitter {
 
       this.pendingCommands.set(id, { resolve, reject, timeout: timer });
 
+      if (client.ws.readyState !== WebSocket.OPEN) {
+        clearTimeout(timer);
+        this.pendingCommands.delete(id);
+        reject(new Error("Plugin connection not open"));
+        return;
+      }
+
       client.ws.send(JSON.stringify({
         type: "command",
         id,

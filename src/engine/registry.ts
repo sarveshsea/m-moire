@@ -225,6 +225,10 @@ export class Registry {
         try {
           const raw = await readFile(join(dir, file), "utf-8");
           const spec: AnySpec = JSON.parse(raw);
+          if (!spec.name || typeof spec.name !== "string") {
+            log.warn({ subdir, file }, "Spec missing valid name, using filename");
+            spec.name = file.replace(/\.json$/, "");
+          }
           this.specs.set(spec.name, spec);
         } catch (err) {
           if (err instanceof Error) {

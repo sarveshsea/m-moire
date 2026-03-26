@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "AI-Native Design Intelligence Engine — Figma + Research + Spec-Driven Code Generation",
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "bin": {
     "memoire": "./dist/index.js"
   },
@@ -12,7 +20,8 @@
     "start": "tsx src/index.ts",
     "preview": "vite --config preview/vite.config.ts",
     "test": "vitest",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -37,7 +46,9 @@
     "dist",
     "skills",
     "plugin",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "bugs": {
     "url": "https://github.com/sarveshsea/m-moire/issues"
