@@ -54,10 +54,8 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
     .command("list")
     .description("Show all installed notes with status")
     .action(async () => {
-      const loader = new NoteLoader(engine.config.projectRoot);
-      await loader.loadAll();
-
-      const allNotes = loader.notes;
+      if (!engine.notes.loaded) await engine.notes.loadAll();
+      const allNotes = engine.notes.notes;
 
       if (allNotes.length === 0) {
         console.log("\n  No notes installed.\n");

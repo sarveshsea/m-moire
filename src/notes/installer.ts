@@ -7,7 +7,7 @@
  *   - (Future)     memi notes install note-name  (from registry)
  */
 
-import { readFile, writeFile, mkdir, rm, readdir, stat, copyFile } from "fs/promises";
+import { readFile, writeFile, mkdir, rm, readdir, stat, copyFile, cp } from "fs/promises";
 import { join, basename, resolve } from "path";
 import { execSync } from "child_process";
 import { createLogger } from "../engine/logger.js";
@@ -57,16 +57,17 @@ async function installFromLocal(sourcePath: string, destRoot: string): Promise<N
   const targetDir = join(destRoot, manifest.name);
   await mkdir(targetDir, { recursive: true });
 
-  // Copy all files from source to target
+  // Copy all files and directories from source to target
   const entries = await readdir(sourcePath);
   for (const entry of entries) {
     const srcFile = join(sourcePath, entry);
     const dstFile = join(targetDir, entry);
     const fileStat = await stat(srcFile);
 
-    if (fileStat.isFile()) {
-      const content = await readFile(srcFile);
-      await writeFile(dstFile, content);
+    if (fileStat.isDirectory()) {
+      await cp(srcFile, dstFile, { recursive: true });
+    } else {
+      await copyFile(srcFile, dstFile);
     }
   }
 
@@ -101,7 +102,7 @@ async function installFromGithub(repo: string, destRoot: string): Promise<NoteMa
     const targetDir = join(destRoot, manifest.name);
     await rm(targetDir, { recursive: true, force: true });
 
-    // Copy files (skip .git)
+    // Copy files and directories (skip .git)
     await mkdir(targetDir, { recursive: true });
     const entries = await readdir(tmpDir);
     for (const entry of entries) {
@@ -109,7 +110,9 @@ async function installFromGithub(repo: string, destRoot: string): Promise<NoteMa
       const srcFile = join(tmpDir, entry);
       const dstFile = join(targetDir, entry);
       const fileStat = await stat(srcFile);
-      if (fileStat.isFile()) {
+      if (fileStat.isDirectory()) {
+        await cp(srcFile, dstFile, { recursive: true });
+      } else {
         await copyFile(srcFile, dstFile);
       }
     }

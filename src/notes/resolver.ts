@@ -39,9 +39,7 @@ export async function resolveForIntent(
       // Match if the skill's activateOn is in the set of valid contexts
       if (activationContexts.includes(skill.activateOn) || skill.activateOn === "always") {
         try {
-          const filePath = note.builtIn
-            ? join(note.path, skill.file)                 // built-in: path is package root
-            : join(note.path, skill.file);                // installed: path is note dir
+          const filePath = join(note.path, skill.file);
 
           const content = await readFile(filePath, "utf-8");
 
