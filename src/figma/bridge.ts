@@ -181,6 +181,22 @@ export class FigmaBridge extends EventEmitter {
     return this.server.getStatus();
   }
 
+  /**
+   * Capture a screenshot of a Figma node (or current page if no nodeId).
+   */
+  async captureScreenshot(
+    nodeId?: string,
+    format: "PNG" | "SVG" = "PNG",
+    scale = 2,
+  ): Promise<{ base64: string; format: string; scale: number; byteLength: number }> {
+    const result = await this.server.sendCommand(
+      "captureScreenshot",
+      { nodeId, format, scale },
+      30000,
+    ) as { image: { base64: string; format: string; scale: number; byteLength: number } };
+    return result.image;
+  }
+
   async extractDesignSystem(): Promise<DesignSystem> {
     this.emitEvent("info", "Pulling design tokens, components, and styles from Figma...");
 

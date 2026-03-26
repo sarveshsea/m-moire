@@ -415,10 +415,38 @@ export class AgentOrchestrator {
   // ── Component Create Decomposition ─────────────────────
 
   private decomposeComponentCreate(intent: string, ctx: AgentContext): SubTask[] {
+    // Pre-check: verify component doesn't already exist via Code Connect
+    const existingMappings = ctx.specs
+      .filter((s) => s.type === "component")
+      .map((s) => {
+        const cs = s as { name: string; codeConnect?: { mapped: boolean; codebasePath?: string } };
+        const path = cs.codeConnect?.codebasePath ? ` (path: ${cs.codeConnect.codebasePath})` : "";
+        return `- ${cs.name}: mapped=${cs.codeConnect?.mapped ?? false}${path}`;
+      })
+      .join("\n") || "(none)";
+
+    const t0 = this.makeTask(
+      "Check Code Connect for existing mappings",
+      "component-architect",
+      `Before creating a new component, check if it already exists in the codebase via Code Connect.
+
+## Request: "${intent}"
+
+## Existing Component Specs
+${existingMappings}
+
+## Instructions
+1. Check get_code_connect_map for existing Figma-to-code mappings
+2. If the requested component already exists and is mapped, STOP and use the existing component
+3. If not mapped, proceed with creation
+4. Return: { exists: boolean, existingPath?: string, proceed: boolean }`,
+    );
+
     const t1 = this.makeTask(
       "Analyze component requirements",
       "component-architect",
       AGENT_PROMPTS.componentAnalysis(intent, ctx.designSystem, ctx.specs),
+      [t0.id],
     );
     const t2 = this.makeTask(
       "Design component spec",
@@ -432,7 +460,7 @@ export class AgentOrchestrator {
       AGENT_PROMPTS.componentCodegen(intent),
       [t2.id],
     );
-    const tasks = [t1, t2, t3];
+    const tasks = [t0, t1, t2, t3];
 
     if (ctx.figmaConnected) {
       tasks.push(this.makeTask("Create component in Figma", "figma-executor", AGENT_PROMPTS.figmaComponentCreate(intent), [t3.id]));

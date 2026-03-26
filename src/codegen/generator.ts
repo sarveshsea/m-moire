@@ -103,6 +103,14 @@ export class CodeGenerator {
     spec: ComponentSpec,
     ctx: CodegenContext
   ): Promise<CodegenResult> {
+    // Code Connect check — warn if already mapped to codebase
+    if (spec.codeConnect?.mapped && spec.codeConnect?.codebasePath) {
+      this.emitEvent("warn",
+        `Component "${spec.name}" is already mapped to ${spec.codeConnect.codebasePath} via Code Connect. ` +
+        `Consider using the existing implementation instead of regenerating.`
+      );
+    }
+
     const code = generateComponent(spec, ctx);
     const dir = this.getAtomicDir(spec);
 

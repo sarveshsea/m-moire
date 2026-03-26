@@ -309,6 +309,17 @@ async function handleMémoireCommand(method, params) {
       return figma.root.children.map((p) => ({ id: p.id, name: p.name }));
     case "getPageTree":
       return getPageTree(params.depth || 2);
+    case "captureScreenshot": {
+      const csNode = params.nodeId ? await figma.getNodeByIdAsync(params.nodeId) : figma.currentPage;
+      if (!csNode) throw new Error("Node not found: " + params.nodeId);
+      const fmt = params.format || "PNG";
+      const sc = params.scale || 2;
+      const csBytes = await csNode.exportAsync({ format: fmt, constraint: { type: "SCALE", value: sc } });
+      const csBase64 = figma.base64Encode(csBytes);
+      return { image: { base64: csBase64, format: fmt, scale: sc, byteLength: csBytes.length,
+        node: { id: csNode.id, name: csNode.name, type: csNode.type },
+        bounds: "absoluteBoundingBox" in csNode ? csNode.absoluteBoundingBox : null } };
+    }
     default:
       throw new Error(`Unknown command: ${method}`);
   }

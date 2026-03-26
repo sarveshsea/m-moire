@@ -40,6 +40,7 @@ import { registerComposeCommand } from "./commands/compose.js";
 import { registerGoCommand } from "./commands/go.js";
 import { registerExportCommand } from "./commands/export.js";
 import { registerNotesCommand } from "./commands/notes.js";
+import { registerWatchCommand } from "./commands/watch.js";
 
 const program = new Command();
 
@@ -81,6 +82,7 @@ registerComposeCommand(program, engine);
 registerGoCommand(program, engine);
 registerExportCommand(program, engine);
 registerNotesCommand(program, engine);
+registerWatchCommand(program, engine);
 
 // Parse and execute
 program.parse();

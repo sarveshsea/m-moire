@@ -15,6 +15,7 @@ import { readFile, writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { initWorkspace, readSoul } from "./workspace-init.js";
 import { NoteLoader } from "../notes/loader.js";
+import { CanvasHealer } from "../figma/canvas-healer.js";
 
 export interface MemoireConfig {
   projectRoot: string;
@@ -40,6 +41,7 @@ export class MemoireEngine extends EventEmitter {
   readonly research: ResearchEngine;
   readonly codegen: CodeGenerator;
   readonly notes: NoteLoader;
+  readonly healer: CanvasHealer;
 
   private _project: ProjectContext | null = null;
   private _initialized = false;
@@ -64,6 +66,10 @@ export class MemoireEngine extends EventEmitter {
       registry: this.registry,
       onEvent: (evt) => this.emit("event", evt),
     });
+    this.healer = new CanvasHealer(
+      this.figma,
+      (evt) => this.emit("event", evt),
+    );
   }
 
   get project(): ProjectContext | null {

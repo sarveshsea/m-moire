@@ -72,6 +72,7 @@ Storage: `.memoire/notes/{note-name}/note.json`
 | `memi preview` | Start localhost preview server |
 | `memi dashboard` | Launch Mémoire dashboard |
 | `memi ia extract\|create\|show\|validate\|list` | Information architecture tools |
+| `memi watch` | Watch specs for changes, auto-regenerate code |
 | `memi status` / `memi sync` | Project status / full sync pipeline |
 | `memi notes install <source>` | Install a Note (local path or `github:user/repo`) |
 | `memi notes list` | Show all installed Notes with status |

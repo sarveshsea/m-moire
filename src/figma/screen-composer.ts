@@ -14,6 +14,7 @@ import { z } from "zod";
 type Section = z.infer<typeof SectionSchema>;
 import type { FigmaBridge } from "./bridge.js";
 import type { DevAnnotation } from "./dev-annotations.js";
+import type { CanvasHealer, HealingReport } from "./canvas-healer.js";
 
 const log = createLogger("screen-composer");
 
@@ -191,8 +192,13 @@ export class ScreenComposer {
 
   /**
    * Compose a PageSpec and push all frames to Figma via the bridge.
+   * If a healer is provided, runs the self-healing loop after creation.
    */
-  async composeAndPush(pageSpec: PageSpec, bridge: FigmaBridge): Promise<void> {
+  async composeAndPush(
+    pageSpec: PageSpec,
+    bridge: FigmaBridge,
+    healer?: CanvasHealer,
+  ): Promise<{ healingReports: HealingReport[] }> {
     const screen = await this.compose(pageSpec);
 
     // Generate Figma plugin commands to create the frames
@@ -204,6 +210,25 @@ export class ScreenComposer {
     }
 
     this.log.info(`Successfully pushed page: ${pageSpec.name}`);
+
+    // Self-healing loop: SCREENSHOT → ANALYZE → FIX → VERIFY
+    const healingReports: HealingReport[] = [];
+    if (healer) {
+      this.log.info(`Running self-healing loop on page: ${pageSpec.name}`);
+      for (const viewport of ["desktop", "tablet", "mobile"] as const) {
+        const frame = screen.frames[viewport];
+        if (frame.name) {
+          try {
+            const report = await healer.heal(frame.name, { maxRounds: 3 });
+            healingReports.push(report);
+          } catch (err) {
+            this.log.warn({ viewport, err }, "Self-healing failed for viewport");
+          }
+        }
+      }
+    }
+
+    return { healingReports };
   }
 
   // ── Private Methods ────────────────────────────────────

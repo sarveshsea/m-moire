@@ -260,12 +260,18 @@ Validate all values match their declared type (color → hex/hsl, spacing → px
 function componentAnalysis(intent: string, ds: DesignSystem, specs: AnySpec[]): string {
   return `You are a Component Architect analyzing requirements for a new shadcn/ui component.
 
+## IMPORTANT: Check Code Connect First
+Before designing a new component, verify it doesn't already exist in the codebase via Code Connect.
+Call get_code_connect_map to check for existing Figma→code mappings.
+If a mapped component already exists, use it instead of creating a duplicate.
+
 ## Request: "${intent}"
 
 ## Existing Components
 ${specs.filter((s) => s.type === "component").map((s) => {
   const cs = s as ComponentSpec;
-  return `- ${cs.name}: ${cs.purpose} (base: ${cs.shadcnBase.join(", ")})`;
+  const ccStatus = cs.codeConnect?.mapped ? " [Code Connect: MAPPED]" : "";
+  return `- ${cs.name}: ${cs.purpose} (base: ${cs.shadcnBase.join(", ")})${ccStatus}`;
 }).join("\n") || "(none)"}
 
 ## Design Tokens Available
@@ -323,6 +329,11 @@ function componentCodegen(intent: string): string {
   return `Generate shadcn/ui + Tailwind React component code.
 
 ## Request: "${intent}"
+
+## Code Connect
+Only generate code for UNMAPPED components. If a component has codeConnect.mapped === true,
+the codebase already has the implementation — use the existing code at codeConnect.codebasePath.
+After generation, establish Code Connect mapping with add_code_connect_map.
 
 ## Code Requirements
 1. "use client" directive at top
