@@ -1,5 +1,5 @@
 {
-  "name": "memoire",
+  "name": "@sarveshsea/memoire",
   "version": "0.1.0",
   "description": "AI-Native Design Intelligence Engine — Figma + Research + Spec-Driven Code Generation",
   "type": "module",
