@@ -1,3 +1,13 @@
+---
+name: figma-audit
+description: Audit Figma file for design system consistency, accessibility, token adoption, Code Connect coverage
+user-invocable: true
+model: opus
+effort: high
+context:
+  - skills/FIGMA_USE.md
+---
+
 # /figma-audit — Design System Audit & Quality Check
 
 > Audit a Figma file for design system consistency, accessibility compliance, token adoption, and Code Connect coverage. Produces actionable findings. Requires /figma-use.

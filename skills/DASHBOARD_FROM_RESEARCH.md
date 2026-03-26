@@ -1,3 +1,13 @@
+---
+name: dashboard-from-research
+description: Transform research data (Excel, CSV, stickies) into structured insights and interactive dashboards
+user-invocable: false
+model: opus
+effort: max
+context:
+  - skills/ATOMIC_DESIGN.md
+---
+
 # Dashboard from Research — Research Data to Interactive Dashboard
 
 > Transform research data (Excel, CSV, FigJam stickies, markdown) into structured insights and interactive dashboards with dataviz components. Chains research pipeline → specs → code generation → preview.

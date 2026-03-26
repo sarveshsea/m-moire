@@ -1,3 +1,14 @@
+---
+name: figma-generate-library
+description: Generate Figma component library from React/shadcn codebase with Code Connect parity
+user-invocable: true
+model: opus
+effort: max
+context:
+  - skills/FIGMA_USE.md
+  - skills/ATOMIC_DESIGN.md
+---
+
 # /figma-generate-library — Create Component Library from Codebase
 
 > Generate Figma components from your React/shadcn codebase, establishing Code Connect for perfect design-code parity. Requires /figma-use.
@@ -104,17 +115,7 @@ Properties:
 ```
 
 ### Step 5: Self-Healing Loop (per component)
-```
-figma_take_screenshot → analyze → fix → verify
-
-Check:
-  ✓ Matches codebase component visually
-  ✓ All variants render correctly
-  ✓ Auto Layout applied (no absolute positioning)
-  ✓ Variables bound (no raw values)
-  ✓ Properties documented
-  ✓ PascalCase naming
-```
+Run the self-healing loop from `/figma-use` for each component. Additionally verify: matches codebase visually, all variants render, properties documented, PascalCase naming.
 
 ### Step 6: Establish Code Connect (PRIMARY OUTPUT)
 This is the most important step. Map every Figma component to code:

@@ -1,3 +1,13 @@
+---
+name: figma-use
+description: Foundational Figma canvas skill — structure, Auto Layout, variables, MCP tools, self-healing loop
+user-invocable: true
+model: opus
+effort: max
+context:
+  - skills/ATOMIC_DESIGN.md
+---
+
 # /figma-use — Foundational Figma Canvas Skill
 
 > Base skill for all Figma operations. Teaches agents how Figma works — structure, Auto Layout, variables, MCP tools, and the mandatory self-healing loop. Load this before any /figma-* skill.

@@ -1,3 +1,13 @@
+---
+name: figma-prototype
+description: Build interactive Figma prototypes with flows, transitions, and user journey mapping
+user-invocable: true
+model: opus
+effort: max
+context:
+  - skills/FIGMA_USE.md
+---
+
 # /figma-prototype — Create Interactive Prototypes
 
 > Build interactive prototypes in Figma with flows, transitions, and user journey mapping. Generates prototype HTML for testing. Requires /figma-use.
@@ -85,15 +95,7 @@ trigger.reactions = [{
 | `PUSH` | Stack navigation (mobile) | 0.3s |
 
 ### Step 5: Self-Healing Validation
-```
-For each screen:
-  figma_take_screenshot → validate layout
-
-For the flow:
-  Check all interactions connect properly
-  Verify no dead-end screens (every screen has a way forward/back)
-  Ensure consistent transition types within a flow
-```
+Run the self-healing loop from `/figma-use` for each screen. Additionally: verify all interactions connect, no dead-end screens, consistent transition types within each flow.
 
 ### Step 6: Generate Prototype HTML
 ```

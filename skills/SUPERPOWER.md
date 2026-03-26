@@ -1,3 +1,11 @@
+---
+name: superpower
+description: Default autonomous superagent mode — read designs, drive canvas, orchestrate agents, generate specs and code
+user-invocable: false
+model: opus
+effort: max
+---
+
 # SUPERPOWER — Mémoire Autonomous Superagent
 
 > Default operating mode. Claude operates as a fully autonomous design intelligence agent — reading designs, driving the canvas, orchestrating multi-agent workflows, generating specs and production code. Activates on every session.
@@ -33,60 +41,10 @@ Intent: "Create a dashboard"
 Plan bottom-up. Build atoms → molecules → organisms → templates → pages.
 
 ### 3. EXECUTE
-
-#### MCP Tool Decision Tree
-```
-Need to write to canvas?
-├── Design-system-aware (uses existing components/tokens)?
-│   └── use_figma ← PREFERRED for structured design writes
-├── Raw Plugin API operation (custom logic, batch ops)?
-│   └── figma_execute
-├── Instantiate an existing component?
-│   └── figma_instantiate_component
-├── Bulk variable creation?
-│   └── figma_batch_create_variables
-└── Simple property change?
-    └── figma_set_fills / figma_set_text / figma_resize_node
-```
-
-**Key rule**: `use_figma` understands your design system. Use it for design writes. Use `figma_execute` for operations that need raw Plugin API access.
-
-#### Multi-Agent Execution
-Spawn parallel agents when possible:
-```
-Agent 1 (token-engineer): Create/update variables
-Agent 2 (component-architect): Build atoms + molecules
-Agent 3 (layout-designer): Compose organisms + templates
-Agent 4 (code-generator): Generate specs + code in parallel
-```
-
-Each agent:
-- Announces role via `agent-status` broadcast
-- Creates a box widget in Figma for visibility
-- Operates on its own port (9223-9232)
-- Collapses box widget when done
+Use the MCP tool decision tree from `/figma-use`. Key rule: prefer `use_figma` for design-system-aware writes. Spawn parallel agents when possible (see `/multi-agent`).
 
 ### 4. VALIDATE (Self-Healing — MANDATORY)
-After every canvas operation:
-```
-figma_take_screenshot → Analyze → Fix → Re-screenshot → Verify (max 3 rounds)
-
-Check for:
-  ✗ Elements using "hug contents" instead of "fill container"
-  ✗ Inconsistent padding
-  ✗ Text/inputs not filling width
-  ✗ Items not centered in containers
-  ✗ Components floating outside frames
-  ✗ Raw hex values (should be variables)
-  ✗ Missing Auto Layout
-  ✗ Broken alignment
-```
-
-### 5. ITERATE
-If the design doesn't match intent after validation:
-- Adjust layout, spacing, or component composition
-- Re-run self-healing loop
-- If stuck after 3 rounds, report clearly and suggest alternatives
+Run the self-healing loop defined in `/figma-use`: CREATE → SCREENSHOT → ANALYZE → FIX → VERIFY (max 3 rounds). If stuck after 3 rounds, report clearly and suggest alternatives.
 
 ## Scripts Over Generated Code
 
@@ -100,33 +58,8 @@ memi tokens                      ← export design tokens
 
 Only generate custom code when no existing tool or command handles the task.
 
-## Code Connect Integration
-
-Every component interaction starts with Code Connect:
-1. **Check**: `get_code_connect_map` — does this component already have a code mapping?
-2. **If mapped**: use the codebase component directly, follow its prop interface
-3. **If not mapped**: create the component, then establish the mapping with `add_code_connect_map`
-4. **Always map**: every Figma component → codebase component after creation
-
-## Multi-Agent Orchestration
-
-### Agent Roles
-| Role | Port | Responsibility |
-|------|------|---------------|
-| `token-engineer` | 9223 | Variables, colors, spacing, typography tokens |
-| `component-architect` | 9224 | Atoms, molecules, component sets, properties |
-| `layout-designer` | 9225 | Organisms, templates, pages, responsive |
-| `dataviz-specialist` | 9226 | Charts, graphs, data visualization |
-| `code-generator` | 9227 | Specs, TypeScript, React, Tailwind output |
-| `accessibility-checker` | 9228 | WCAG audit, contrast, screen reader |
-| `design-auditor` | 9229 | Consistency, token adoption, naming |
-| `research-analyst` | 9230 | User research, competitive analysis |
-
-### Box Widgets (Figma Transparency)
-Each agent creates a collapsible status box visible to all collaborators:
-- Expand when busy (shows role, task, progress)
-- Collapse when done (single line: `✓ [role]: complete`)
-- Colors: idle (gray-blue), busy (amber pulse), error (red), done (green)
+## Code Connect
+Check `get_code_connect_map` before creating anything. If mapped → use it. If not → create, then map with `add_code_connect_map`. See `/figma-use` for full protocol.
 
 ## Token Burning Philosophy
 - **Thoroughness > Speed** — read everything, understand context, then act

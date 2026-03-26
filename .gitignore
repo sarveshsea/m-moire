@@ -13,4 +13,6 @@ preview/auth.html
 preview/bidcraft*.html
 
 .env*
-.claude/
+# Claude Code local settings (ignore) but track rules
+.claude/*
+!.claude/rules/

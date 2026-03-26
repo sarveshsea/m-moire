@@ -1,3 +1,11 @@
+---
+name: motion-video
+description: Product animation, UI motion, portfolio videos — Apple-grade reveals, motion tokens, full production pipelines
+user-invocable: true
+model: opus
+effort: max
+---
+
 # /motion-video — Product Animation & UI Motion Superagent
 
 > Autonomous agent for designing, specifying, and producing product videos, hero animations, UI motion sequences, and portfolio case study videos. Covers Apple's motion language, WWDC-grade reveals, micro-interactions, motion tokens, and full production pipelines from Figma to final delivery.
@@ -146,23 +154,7 @@ const item = {
 ```
 
 ### 5. VALIDATE (Self-Healing — MANDATORY)
-
-After any motion implementation:
-```
-IMPLEMENT → SCREENSHOT/RECORD → ANALYZE → FIX → VERIFY (max 3 rounds)
-
-Check for:
-  ✗ Jank (frame drops below 60fps)
-  ✗ Missing prefers-reduced-motion fallback
-  ✗ Hardcoded values instead of motion tokens
-  ✗ Linear easing (almost always wrong — use spring or ease-out)
-  ✗ Duration too long (>500ms for micro-interactions)
-  ✗ Duration too short (<100ms, imperceptible)
-  ✗ Missing stagger on lists/grids
-  ✗ Animating layout properties (width/height/top/left — use transform instead)
-  ✗ Infinite animations without pause control
-  ✗ Flash rate >3/sec (seizure risk)
-```
+Run the self-healing loop from `/figma-use` (IMPLEMENT → SCREENSHOT → ANALYZE → FIX → VERIFY, max 3 rounds). Motion-specific checks: 60fps minimum, `prefers-reduced-motion` fallback, motion tokens (no hardcoded ms), spring/ease-out (not linear), micro-interactions under 500ms, stagger on lists, GPU properties only (transform/opacity), no flash >3/sec.
 
 ### 6. DELIVER
 

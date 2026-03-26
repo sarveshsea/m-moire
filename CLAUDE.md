@@ -1,139 +1,84 @@
-# Mémoire — Project Guidelines for Claude
+# Mémoire — Guidelines for Claude
 
-## What is Mémoire?
-Mémoire is an AI-native design intelligence engine that bridges Figma, user research, and code generation into a spec-driven system. It generates shadcn/ui components from structured specs using **Atomic Design methodology** exclusively.
+<!-- CRITICAL: These top rules are highest priority. Repeat at bottom for recency anchoring. -->
 
-Mémoire is the easiest hands-free way to connect to the Figma bridge — it auto-discovers and connects automatically. It has a localhost server showing all Figma pages as generated code, generates components for each design element, and supports multiple Claude instances natively via box widgets in Figma. It is built for Claude to operate autonomously and always uses the superagent skill.
+## Prime Directives
+1. **Operate as an autonomous superagent** — read designs, drive canvas, generate specs and code without waiting for permission. Burn tokens for quality. _(Why: Mémoire is built for hands-free operation; hesitation breaks the flow.)_
+2. **Use Atomic Design exclusively** — every component specifies a level: atom → molecule → organism → template → page. _(Why: enforced in specs, codegen, and Figma structure.)_
+3. **Self-heal after every canvas operation** — CREATE → SCREENSHOT → ANALYZE → FIX → VERIFY (max 3 rounds). _(Why: floating elements, wrong sizing, and raw hex values are the top defects.)_
+4. **Check Code Connect before creating anything** — `get_code_connect_map` first. Use mapped components when they exist. _(Why: duplicate components are the #1 design system debt source.)_
+5. **Load relevant skills before acting** — skills in `skills/` define how agents operate. Read the skill file that matches your task.
+
+## What is Mémoire
+AI-native design intelligence engine. Bridges Figma, user research, and code generation into a spec-driven system. Auto-discovers and connects to the Figma plugin, generates shadcn/ui components from structured specs, and supports multiple Claude instances natively via box widgets.
 
 ## Architecture
-- `src/engine/` — Core orchestrator, project detection, registry
-- `src/figma/` — Figma bridge (WebSocket auto-discovery), token extraction, sticky notes
-- `src/research/` — Research engine (Excel, web, stickies → insights)
-- `src/specs/` — Spec types (component, page, dataviz, design, ia) and validation
-- `src/codegen/` — Code generation (shadcn mapper, dataviz, pages) — outputs to atomic folders
-- `src/preview/` — Localhost preview gallery (HTML + API server)
-- `src/agents/` — Agent orchestrator with multi-agent support, self-healing loop, box widgets
-- `src/tui/` — Terminal UI (Ink/React)
-- `src/commands/` — CLI commands (commander.js)
-- `skills/` — Skill definitions that guide agent behavior
-- `plugin/` — Figma plugin (auto-discovers Mémoire on ports 9223-9232)
+| Directory | Purpose |
+|-----------|---------|
+| `src/engine/` | Core orchestrator, project detection, registry |
+| `src/figma/` | Figma bridge (WebSocket auto-discovery on ports 9223-9232), tokens, stickies |
+| `src/research/` | Research engine (Excel, web, stickies → insights) |
+| `src/specs/` | Spec types (component, page, dataviz, design, ia) + Zod validation |
+| `src/codegen/` | Code generation (shadcn mapper, dataviz, pages) → atomic folders |
+| `src/preview/` | Localhost preview gallery (HTML + API server) |
+| `src/agents/` | Agent orchestrator, multi-agent support, self-healing, box widgets |
+| `src/tui/` | Terminal UI (Ink/React) |
+| `src/commands/` | CLI commands (Commander.js) |
+| `skills/` | Skill definitions — agent behavior guides |
+| `plugin/` | Figma plugin (auto-discovers Mémoire on ports 9223-9232) |
 
-## Skills (Read These First)
-Skills are markdown files in `skills/` that define how agents operate. **Always load relevant skills before acting.**
+## Atomic Design Levels
+| Level | Output Folder | Composition Rule |
+|-------|--------------|-----------------|
+| `atom` | `components/ui/` | Standalone primitives — `composesSpecs` must be empty |
+| `molecule` | `components/molecules/` | Composes 2-5 atoms |
+| `organism` | `components/organisms/` | Composes molecules and/or atoms, manages state |
+| `template` | `components/templates/` | Page layout skeleton — defines structure, not content |
+| `page` | Uses `PageSpec` | Template filled with real content and data |
 
-| Skill | File | Purpose |
-|-------|------|---------|
-| **SUPERPOWER** | `skills/SUPERPOWER.md` | Default operating mode — autonomous superagent |
-| **/figma-use** | `skills/FIGMA_USE.md` | Foundational Figma canvas skill (all others build on this) |
-| **/figma-generate-design** | `skills/FIGMA_GENERATE_DESIGN.md` | Create designs using existing components |
-| **/figma-generate-library** | `skills/FIGMA_GENERATE_LIBRARY.md` | Create component library from codebase |
-| **/figma-audit** | `skills/FIGMA_AUDIT.md` | Design system audit — consistency, a11y, tokens, Code Connect |
-| **/figma-prototype** | `skills/FIGMA_PROTOTYPE.md` | Interactive prototypes with flows and transitions |
-| **/multi-agent** | `skills/MULTI_AGENT.md` | Parallel agent orchestration with box widgets |
-| **Atomic Design** | `skills/ATOMIC_DESIGN.md` | Atomic Design reference (atoms → pages) |
-| **Dashboard from Research** | `skills/DASHBOARD_FROM_RESEARCH.md` | Research data → interactive dashboards |
-| **/motion-video** | `skills/MOTION_VIDEO_DESIGN.md` | Product animation, UI motion, portfolio videos, Apple-grade reveals |
-
-## Atomic Design (MANDATORY)
-All components must specify an atomic level. This is enforced in specs and code generation:
-
-| Level | Folder | Description |
-|-------|--------|-------------|
-| `atom` | `components/ui/` | Primitives — Button, Badge, Input, Label |
-| `molecule` | `components/molecules/` | 2-5 atoms composed — FormField, SearchBar |
-| `organism` | `components/organisms/` | Molecules + atoms with state — LoginForm, Sidebar |
-| `template` | `components/templates/` | Page layout skeletons — DashboardTemplate |
-
-Rules:
-- Atoms cannot compose other specs (`composesSpecs` must be empty)
-- Molecules must compose atoms (2-5 typically)
-- Organisms compose molecules and/or atoms
-- Templates define layout, not content
-- Pages use `PageSpec`, not `ComponentSpec`
-
-## Figma MCP Integration
-Mémoire works with both MCP servers:
-
-### Official Figma MCP Server
-- `use_figma` — Write designs to canvas using design system
-- `get_design_context` — Read design with code + screenshot + hints
-- `get_screenshot` — Visual capture of any node
-- `get_code_connect_map` / `add_code_connect_map` — Component ↔ code mappings
-- `search_design_system` — Find components in libraries
-
-### Figma Console MCP (Direct Plugin API)
-- `figma_execute` — Run Plugin API code
-- `figma_take_screenshot` — Capture for self-healing validation
-- `figma_search_components` — Find components (call at session start)
-- `figma_batch_create_variables` — Create up to 100 variables at once
-- `figma_instantiate_component` — Create component instances
-
-## Self-Healing Loop (MANDATORY)
-After ANY canvas operation:
-```
-CREATE → SCREENSHOT → ANALYZE → FIX → VERIFY (max 3 rounds)
-```
-Use `orchestrator.selfHealingLoop(nodeId, intent)` or manual screenshot validation.
-Check: Auto Layout, variable bindings, fill vs hug, alignment, no floating elements.
-
-## Code Connect
-Every ComponentSpec has a `codeConnect` field:
-```json
-{
-  "codeConnect": {
-    "figmaNodeId": "123:456",
-    "codebasePath": "src/components/ui/button.tsx",
-    "props": { "variant": "variant", "size": "size" },
-    "mapped": true
-  }
-}
-```
-When Figma MCP returns Code Connect snippets, use the mapped component directly.
-
-## Multi-Agent Support
-- Agents connect on ports 9223-9232 (auto-discovered by plugin)
-- Each agent has a role: `token-engineer`, `component-architect`, `layout-designer`, etc.
-- Agents create box widgets in Figma (`orchestrator.createAgentBox(role, task, status)`)
-- Box widgets expand when busy, collapse when done — visible to all Figma collaborators
-- Use `memi connect --role <role> --name <name>` to identify each instance
-
-## Key Conventions
-- **Always use shadcn/ui** — no custom component libraries
-- **Atomic Design only** — every component has a level (atom/molecule/organism/template)
+## Stack & Conventions
+- **shadcn/ui exclusively** for components _(Why: consistent API, Code Connect parity with Figma)_
+- **Tailwind exclusively** for styling — no CSS modules, no styled-components
+- **TypeScript strict** — all code strictly typed
+- **Zod schemas** — all data shapes validated
 - **Spec-first** — every component starts as a JSON spec before code generation
-- **TypeScript strict** — all code is strictly typed
-- **Tailwind only** — no CSS modules, no styled-components
-- **Zod schemas** — all data shapes validated with Zod
-- **Self-healing** — always screenshot and validate canvas operations
-- **Superagent by default** — operate autonomously, burn tokens for quality
-- **Update CHANGELOG.md** — after every Mémoire engine commit, add the hash and message to `CHANGELOG.md` and log any architectural decisions. This file tracks Mémoire the product — not whatever the user is building with it. User project state lives in `.memoire/` locally. Also keep `preview/changelog.html` in sync.
+- Node.js 20+, TypeScript 5.x, ESM modules, Commander.js, Ink, WebSocket, ExcelJS, Recharts, Vite
 
-## Commands
-- `memi connect` — Connect to Figma (auto-discovers plugin)
-- `memi pull` — Extract design system
-- `memi spec component|page|dataviz <name>` — Create a spec
-- `memi generate [name]` — Generate code from specs (atomic folders)
-- `memi research from-file|from-stickies|synthesize|report` — Research pipeline
-- `memi tokens` — Export design tokens
-- `memi status` — Show project status
-- `memi sync` — Full sync pipeline
-- `memi preview` — Start preview server (localhost with moon favicon)
-- `memi compose "<intent>"` — Agent orchestrator: classify intent → build plan → execute sub-tasks → report
-- `memi dashboard` — Launch the Mémoire dashboard on localhost (specs, tokens, research, Figma status)
-- `memi ia extract|create|show|validate|list` — Information architecture tools
+## CLI Commands
+| Command | Purpose |
+|---------|---------|
+| `memi connect` | Connect to Figma (auto-discovers plugin) |
+| `memi pull` | Extract design system from Figma |
+| `memi spec component\|page\|dataviz <name>` | Create a spec |
+| `memi generate [name]` | Generate code from specs → atomic folders |
+| `memi research from-file\|from-stickies\|synthesize\|report` | Research pipeline |
+| `memi tokens` | Export design tokens |
+| `memi compose "<intent>"` | Agent orchestrator: classify → plan → execute → report |
+| `memi preview` | Start localhost preview server |
+| `memi dashboard` | Launch Mémoire dashboard |
+| `memi ia extract\|create\|show\|validate\|list` | Information architecture tools |
+| `memi status` / `memi sync` | Project status / full sync pipeline |
 
-## Agent Orchestrator (`memi compose`)
-The compose command is the autonomous agent entry point. It takes natural language and routes through:
-1. **Intent Classifier** — Regex patterns map to 16 categories (token-update, component-create, page-layout, etc.)
-2. **Plan Builder** — Decomposes intent into SubTasks with dependency DAG
-3. **Sub-Agent Router** — Dispatches to 10 specialized agent types (token-engineer, component-architect, layout-designer, etc.)
-4. **Self-Healing Loop** — After Figma operations: screenshot → analyze → fix → verify (max 3 rounds)
+## Skills
+| Skill | File | When to Load |
+|-------|------|-------------|
+| SUPERPOWER | `skills/SUPERPOWER.md` | Every session (default autonomous mode) |
+| /figma-use | `skills/FIGMA_USE.md` | Any Figma canvas operation (base for all /figma-* skills) |
+| /figma-generate-design | `skills/FIGMA_GENERATE_DESIGN.md` | Creating new screens/pages from components |
+| /figma-generate-library | `skills/FIGMA_GENERATE_LIBRARY.md` | Building component library from codebase |
+| /figma-audit | `skills/FIGMA_AUDIT.md` | Design system quality checks |
+| /figma-prototype | `skills/FIGMA_PROTOTYPE.md` | Interactive prototypes with flows |
+| /multi-agent | `skills/MULTI_AGENT.md` | Parallel agent orchestration |
+| Atomic Design | `skills/ATOMIC_DESIGN.md` | Component classification reference |
+| Dashboard from Research | `skills/DASHBOARD_FROM_RESEARCH.md` | Research data → dashboards |
+| /motion-video | `skills/MOTION_VIDEO_DESIGN.md` | Animation, motion, video production |
 
-Dry run with `--dry-run` to see the plan without executing. Use `--verbose` for task-level progress.
+## Changelog Protocol
+After every Mémoire engine commit: add the hash and message to `CHANGELOG.md`, log architectural decisions, and keep `preview/changelog.html` in sync. This tracks Mémoire the product — user project state lives in `.memoire/` locally.
 
-## Stack
-- Node.js 20+, TypeScript 5.x, ESM modules
-- Commander.js (CLI), Ink (TUI), Zod (validation)
-- WebSocket (Figma bridge), ExcelJS (spreadsheets)
-- Recharts (dataviz), Vite (preview)
-- Figma MCP Server + Figma Console MCP (canvas operations)
+## Prime Directives (Repeated — recency anchor)
+1. Operate autonomously — superagent mode by default
+2. Atomic Design on every component — atom/molecule/organism/template/page
+3. Self-heal after every canvas write — screenshot and validate
+4. Check Code Connect first — use existing mappings
+5. Load the right skill before acting

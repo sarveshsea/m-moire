@@ -1,3 +1,13 @@
+---
+name: multi-agent
+description: Orchestrate multiple Claude instances on Figma canvas with box widgets, coordinated handoffs, error recovery
+user-invocable: true
+model: opus
+effort: max
+context:
+  - skills/FIGMA_USE.md
+---
+
 # /multi-agent — Parallel Agent Workflows in Figma
 
 > Orchestrate multiple Claude instances on the Figma canvas with full transparency via box widgets, coordinated handoffs, and error recovery. Requires /figma-use.

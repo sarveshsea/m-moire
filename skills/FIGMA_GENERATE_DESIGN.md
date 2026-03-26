@@ -1,3 +1,14 @@
+---
+name: figma-generate-design
+description: Create new Figma screens and pages using existing components, variables, and design system
+user-invocable: true
+model: opus
+effort: max
+context:
+  - skills/FIGMA_USE.md
+  - skills/ATOMIC_DESIGN.md
+---
+
 # /figma-generate-design — Create Designs Using Existing Components
 
 > Generate new screens and pages in Figma using your existing components, variables, and design system. Produces structured, spec-compliant layouts with full self-healing validation. Requires /figma-use.
@@ -62,19 +73,7 @@ All visual properties MUST bind to variables:
 Never hardcode. If a token doesn't exist, create it with `figma_batch_create_variables` first.
 
 ### Step 5: Self-Healing Validation (MANDATORY)
-```
-figma_take_screenshot → analyze → fix → re-screenshot → verify (max 3 rounds)
-
-Check:
-  ✓ Elements using "fill container" not "hug contents"
-  ✓ Consistent padding and spacing
-  ✓ Text/inputs filling available width
-  ✓ Items centered in containers
-  ✓ No floating elements outside frames
-  ✓ Variables bound (no raw hex)
-  ✓ Auto Layout on all containers
-  ✓ DROP_SHADOW has blendMode: "NORMAL"
-```
+Run the self-healing loop from `/figma-use`: CREATE → SCREENSHOT → ANALYZE → FIX → VERIFY (max 3 rounds).
 
 ### Step 6: Generate Spec & Code
 After the design is validated:
