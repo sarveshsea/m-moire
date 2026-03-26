@@ -1,0 +1,16 @@
+{
+  "name": "mobile-craft",
+  "version": "1.0.0",
+  "description": "Mobile-first design mastery — touch targets, gesture patterns, responsive breakpoints, native-feel animations, thumb zones, platform conventions (iOS/Android), and progressive enhancement strategies",
+  "category": "craft",
+  "tags": ["mobile", "responsive", "touch", "ios", "android", "gestures", "progressive-enhancement"],
+  "skills": [{
+    "file": "mobile-craft.md",
+    "name": "Mobile Craft",
+    "activateOn": "design-creation",
+    "freedomLevel": "high"
+  }],
+  "dependencies": [],
+  "createdAt": "2026-03-26T00:00:00.000Z",
+  "updatedAt": "2026-03-26T00:00:00.000Z"
+}

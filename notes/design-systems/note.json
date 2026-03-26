@@ -1,0 +1,16 @@
+{
+  "name": "design-systems",
+  "version": "1.0.0",
+  "description": "Design system architecture and governance — token taxonomy, component APIs, versioning strategy, adoption metrics, multi-brand theming, and cross-platform consistency",
+  "category": "craft",
+  "tags": ["design-system", "tokens", "governance", "theming", "component-api", "versioning"],
+  "skills": [{
+    "file": "design-systems.md",
+    "name": "Design Systems",
+    "activateOn": "component-creation",
+    "freedomLevel": "high"
+  }],
+  "dependencies": [],
+  "createdAt": "2026-03-26T00:00:00.000Z",
+  "updatedAt": "2026-03-26T00:00:00.000Z"
+}

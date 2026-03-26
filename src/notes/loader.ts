@@ -87,23 +87,29 @@ export class NoteLoader {
   }
 
   /**
-   * Load all notes from both sources.
+   * Load all notes from three sources:
+   * 1. Legacy skills (skills/registry.json, adapted to Note format)
+   * 2. Built-in Note packages (notes/{name}/note.json in npm package)
+   * 3. User-installed Notes (.memoire/notes/)
    */
   async loadAll(): Promise<InstalledNote[]> {
-    const [builtIn, installed] = await Promise.all([
+    const [builtIn, builtInPackages, installed] = await Promise.all([
       this.loadBuiltInNotes(),
+      this.loadBuiltInNotePackages(),
       this.loadInstalledNotes(),
     ]);
 
     // User-installed notes override built-in ones with the same name
     const noteMap = new Map<string, InstalledNote>();
     for (const note of builtIn) noteMap.set(note.manifest.name, note);
+    for (const note of builtInPackages) noteMap.set(note.manifest.name, note);
     for (const note of installed) noteMap.set(note.manifest.name, note);
 
     this._notes = Array.from(noteMap.values());
     this._loaded = true;
 
-    log.info({ builtIn: builtIn.length, installed: installed.length, total: this._notes.length }, "Notes loaded");
+    const totalBuiltIn = builtIn.length + builtInPackages.length;
+    log.info({ builtIn: totalBuiltIn, installed: installed.length, total: this._notes.length }, "Notes loaded");
     return this._notes;
   }
 
@@ -127,6 +133,46 @@ export class NoteLoader {
       log.warn({ err }, "Could not load built-in skills registry");
       return [];
     }
+  }
+
+  /**
+   * Load built-in Note packages from notes/ directory in the npm package.
+   * These are full Note directories with note.json manifests.
+   */
+  async loadBuiltInNotePackages(): Promise<InstalledNote[]> {
+    const notesDir = join(PACKAGE_ROOT, "notes");
+    const notes: InstalledNote[] = [];
+
+    try {
+      const entries = await readdir(notesDir);
+
+      for (const entry of entries) {
+        const noteDir = join(notesDir, entry);
+        const noteJsonPath = join(noteDir, "note.json");
+
+        try {
+          const dirStat = await stat(noteDir);
+          if (!dirStat.isDirectory()) continue;
+
+          const raw = await readFile(noteJsonPath, "utf-8");
+          const parsed = JSON.parse(raw);
+          const manifest = NoteManifestSchema.parse(parsed);
+
+          notes.push({
+            manifest,
+            path: noteDir,
+            builtIn: true,
+            enabled: true,
+          });
+        } catch {
+          // Skip directories without valid note.json
+        }
+      }
+    } catch {
+      // notes/ directory doesn't exist — that's fine
+    }
+
+    return notes;
   }
 
   /**

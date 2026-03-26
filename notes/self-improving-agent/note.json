@@ -1,0 +1,17 @@
+{
+  "name": "self-improving-agent",
+  "version": "3.0.6",
+  "description": "Closed-loop learning system — captures errors, corrections, and discoveries into structured logs, promotes recurring patterns to project memory, and extracts reusable skills",
+  "author": "peterskoett (ported to Mémoire)",
+  "category": "connect",
+  "tags": ["learning", "self-improvement", "error-tracking", "knowledge-management"],
+  "skills": [{
+    "file": "self-improving-agent.md",
+    "name": "Self-Improving Agent",
+    "activateOn": "always",
+    "freedomLevel": "high"
+  }],
+  "dependencies": [],
+  "createdAt": "2026-03-26T00:00:00.000Z",
+  "updatedAt": "2026-03-26T00:00:00.000Z"
+}

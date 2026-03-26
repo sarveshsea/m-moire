@@ -45,6 +45,7 @@
   "files": [
     "dist",
     "skills",
+    "notes",
     "plugin",
     "README.md",
     "CHANGELOG.md",

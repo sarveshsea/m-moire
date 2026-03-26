@@ -1,0 +1,16 @@
+{
+  "name": "competitive-intel",
+  "version": "1.0.0",
+  "description": "Competitive intelligence and market analysis — systematic frameworks for analyzing competitor products, design patterns, feature matrices, positioning maps, and UX benchmarking",
+  "category": "research",
+  "tags": ["competitive-analysis", "market-research", "benchmarking", "ux-audit", "feature-matrix"],
+  "skills": [{
+    "file": "competitive-intel.md",
+    "name": "Competitive Intel",
+    "activateOn": "research-to-dashboard",
+    "freedomLevel": "high"
+  }],
+  "dependencies": [],
+  "createdAt": "2026-03-26T00:00:00.000Z",
+  "updatedAt": "2026-03-26T00:00:00.000Z"
+}
