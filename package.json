@@ -16,7 +16,7 @@
     "memi": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "node scripts/build.mjs",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "preview": "vite --config preview/vite.config.ts",
