@@ -6,6 +6,69 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
+## v0.2.1 — 2026-03-27
+
+### Commits
+| Hash | Message |
+|------|---------|
+| `3b8403e` | Update CHANGELOG — add v0.2.0 Notes ecosystem release |
+| `a347a33` | Fix Notes audit issues — activation gaps, recursive copy, dead code |
+| `4a115e6` | Fix Figma audit issues — race condition, parallel extraction, code safety |
+| `67ba455` | Add self-healing loop, Code Connect checks, and file watcher |
+| `5ca7f64` | Add doc-change polling, preview hot-reload, e2e tests, npm prep, 3 new Notes |
+| `089b60e` | Remove agent portal and generic dashboard — serve preview/ directly |
+| `dd3f4a5` | Fix daemon-aware command routing — commands reuse running bridge |
+| `a9a54b4` | Fix MaxListenersExceededWarning across all EventEmitters |
+| `3b81896` | Fix plugin manifest — enable production network access for WebSocket bridge |
+| `a271b3b` | Add --format flag to tokens command for selective export |
+| `7b94ff1` | Add postinstall — auto-copy Figma plugin + PATH detection |
+| `683109d` | Add navigateToPage helper for dynamic-page document access |
+| `12a3135` | Add dash alias for dashboard command, clarify description |
+| `c6b3b03` | Harden error handling — WS error listener, spawn fallbacks, rejection handler |
+| `c316c3d` | Refactor preview.ts — extract 4000-line HTML generators into templates |
+| `76945f4` | Fix symlink trap — smart plugin path detection in connect and init |
+| `f725e52` | Make design system extraction resilient to partial failures |
+| `9653764` | Fix SIGINT cleanup in go command — kill preview child process on Ctrl+C |
+| `accf7da` | Fix MaxListenersExceededWarning in e2e tests |
+| `9a9cf0b` | Fix API server listener leak and infinite port retry |
+| `2c28c7e` | Use process.once for signal handlers across all commands |
+| `a8f14e6` | Prep npm 0.2.1 — exclude test files from dist, trim package |
+| `2fb2497` | Add AgentSkills workspace skill adapter |
+| `46707f4` | Register hidden CLI commands |
+| `d7ebbbc` | Fix daemon restart argument forwarding |
+| `44aea5e` | Add CLI registration smoke test |
+| `cb81f79` | Fix export destinations by artifact kind |
+| `539d5bf` | Add export path mapping regression test |
+| `5999b15` | Add compose regression test |
+| `1192cad` | Add SKILL.md install regression test |
+| `afe99ac` | Target compose generation to resolved specs |
+| `44aa6e9` | Fix self-improving note hook docs |
+| `d36909e` | Add packaged note asset guard test |
+| `e14ce86` | Neutralize Claude-specific copy |
+| `1378b09` | Fix logger transport toggle in tests |
+| `7fdb657` | Add figma web capture note |
+| `415663d` | Harden preview and bridge bind errors |
+| `1810f4e` | Improve Tailwind and shadcn detection |
+| `bd6bae6` | Add JSON output to status and notes commands |
+
+### Key Design Decisions
+- **Notes Become a Real Extension Surface** — Mémoire now treats Notes as installable skill packs, including workspace `SKILL.md` bundles, built-in notes, and compatibility fixes for activation and copy behavior.
+- **Composable Agent Workflows** — Compose now resolves a concrete target spec before codegen, and the orchestrator no longer silently regenerates the full spec set for creation intents.
+- **Machine-Friendly CLI Surfaces** — `status`, `notes list`, and `notes info` can emit clean JSON, which makes the CLI more usable for Codex, Claude, and other automation.
+- **Runtime and Bridge Hardening** — Preview, the Figma bridge, signal handling, and listener management were tightened so bind failures and cleanup paths surface clearly.
+- **Modern Project Detection and Packaging** — Tailwind v4, shadcn, plugin manifest access, postinstall behavior, and npm packaging were hardened for current app layouts.
+
+### Changes
+- Added the Notes ecosystem release, including audit fixes, activation cleanup, recursive-copy handling, and dead-code removal
+- Added preview hot reload, doc-change polling, e2e tests, and npm packaging prep
+- Added self-healing, Code Connect checks, and file watcher support
+- Hardened the preview and Figma bridge stack with better error handling, signal cleanup, and bind diagnostics
+- Improved command routing, plugin manifest access, and port/path detection for production use
+- Added CLI ergonomics like `--format`, `dash` aliasing, hidden command registration, and JSON output
+- Added regression coverage for compose targeting, export destinations, CLI registration, note installation, and packaged note assets
+- Added the built-in Figma web capture note and fixed note hook documentation
+- Improved project detection for Tailwind and shadcn setups and removed noisy logger transport warnings
+
 ## v0.2.0 — 2026-03-26
 
 ### Commits

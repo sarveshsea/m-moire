@@ -5,300 +5,699 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%230a0a0a'/%3E%3C/svg%3E">
 <title>memoire / changelog</title>
-<meta name="description" content="Mémoire — AI-native design intelligence engine">
+<meta name="description" content="Memoire changelog timeline">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #fafaf9; --bg-card: rgba(255, 255, 255, 0.65); --bg-hover: rgba(0, 0, 0, 0.03);
-  --fg: #0a0a0a; --fg-muted: #8a8a8a; --fg-dim: #b0b0b0; --border: rgba(0, 0, 0, 0.08);
+  --bg: #f5f3ee;
+  --bg-card: rgba(255, 255, 255, 0.72);
+  --bg-soft: rgba(255, 255, 255, 0.46);
+  --bg-hover: rgba(0, 0, 0, 0.035);
+  --fg: #111111;
+  --fg-muted: #5f5a54;
+  --fg-dim: #8f8780;
+  --border: rgba(17, 17, 17, 0.09);
+  --border-strong: rgba(17, 17, 17, 0.15);
+  --shadow: 0 18px 60px rgba(17, 17, 17, 0.08);
   --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   --serif: 'Cormorant Garamond', 'Georgia', serif;
-  --radius: 2px;
-  --green: #16a34a; --yellow: #ca8a04; --red: #dc2626; --blue: #2563eb;
+  --radius: 4px;
+  --green: #1f7a46;
+  --yellow: #8b6a15;
+  --red: #a43a2c;
+  --blue: #2f5eb8;
 }
-body { font-family: var(--mono); font-size: 12px; background: var(--bg); color: var(--fg); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--mono);
+  font-size: 12px;
+  background:
+    radial-gradient(circle at top right, rgba(47, 94, 184, 0.08), transparent 22rem),
+    radial-gradient(circle at bottom left, rgba(31, 122, 70, 0.08), transparent 26rem),
+    var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
 a { color: var(--fg); text-decoration: none; }
 a:hover { text-decoration: underline; }
-::selection { background: rgba(0, 0, 0, 0.08); }
-::-webkit-scrollbar { width: 4px; }
+::selection { background: rgba(17, 17, 17, 0.08); }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #b0b0b0; border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(17, 17, 17, 0.18); border-radius: 999px; }
 
-/* -- Nav ----------------------------------------- */
-.hdr { display: flex; align-items: center; padding: 14px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(250, 250, 249, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 100; }
-.hdr-brand { font-family: var(--serif); font-size: 18px; font-weight: 300; font-style: italic; letter-spacing: 2px; color: var(--fg); margin-right: 32px; white-space: nowrap; }
-.hdr-nav { display: flex; gap: 2px; align-items: center; flex: 1; }
-.hdr-nav a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius); color: var(--fg-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; transition: color 0.15s, background 0.15s; }
-.hdr-nav a:hover { color: var(--fg); background: var(--bg-hover); text-decoration: none; }
-.hdr-nav a.active { color: var(--fg); background: rgba(0, 0, 0, 0.05); text-decoration: none; }
-.hdr-nav a svg { width: 14px; height: 14px; opacity: 0.4; }
-.hdr-nav a.active svg { opacity: 0.8; }
-.hdr-stats { display: flex; gap: 16px; margin-left: auto; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); }
-.hdr-stats .n { color: var(--fg); font-weight: 500; margin-right: 2px; }
+.hdr {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(245, 243, 238, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 100;
+}
+.hdr-brand {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+.hdr-nav {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.hdr-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  color: var(--fg-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.15s, background 0.15s;
+}
+.hdr-nav a:hover,
+.hdr-nav a.active {
+  color: var(--fg);
+  background: var(--bg-hover);
+  text-decoration: none;
+}
+.hdr-nav a svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.45;
+}
+.hdr-stats {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--fg-muted);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.hdr-stats .n {
+  color: var(--fg);
+  font-weight: 500;
+  margin-right: 4px;
+}
 
-/* -- Main ---------------------------------------- */
-.main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+.main {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 28px 24px 56px;
+}
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+  gap: 18px;
+  margin-bottom: 22px;
+}
+.hero-panel,
+.summary-card,
+.release,
+.decision,
+.commit,
+.changes,
+.rail-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+.hero-panel {
+  padding: 28px;
+}
+.eyebrow,
+.section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: var(--fg-muted);
+}
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(38px, 6vw, 72px);
+  line-height: 0.92;
+  margin: 12px 0 14px;
+}
+.hero-copy {
+  max-width: 48rem;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+.hero-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+.summary-card {
+  padding: 18px;
+}
+.summary-kicker {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+  color: var(--fg-muted);
+}
+.summary-value {
+  display: block;
+  font-size: 26px;
+  line-height: 1.1;
+  margin-top: 10px;
+}
+.summary-caption {
+  margin-top: 8px;
+  color: var(--fg-muted);
+}
+.highlight-list {
+  display: grid;
+  gap: 10px;
+}
+.highlight-row {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+}
+.highlight-row strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.rail {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 26px;
+}
+.rail-item {
+  padding: 16px;
+}
+.rail-item h3 {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.rail-item p {
+  color: var(--fg-muted);
+  font-size: 11px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 10px;
+}
+.pill.feature { background: rgba(31, 122, 70, 0.12); color: var(--green); }
+.pill.fix { background: rgba(164, 58, 44, 0.1); color: var(--red); }
+.pill.refactor { background: rgba(47, 94, 184, 0.1); color: var(--blue); }
+.pill.foundation { background: rgba(139, 106, 21, 0.12); color: var(--yellow); }
 
-/* -- Section label ------------------------------- */
-.section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--fg-muted); margin: 40px 0 16px; }
-.section-label:first-child { margin-top: 0; }
+.release-list {
+  display: grid;
+  gap: 18px;
+}
+.release {
+  padding: 24px;
+}
+.release-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.release-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.release-title {
+  font-size: 22px;
+  line-height: 1;
+}
+.release-date,
+.release-meta {
+  color: var(--fg-muted);
+  font-size: 11px;
+}
+.release-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 22px;
+  margin-top: 20px;
+}
+.column {
+  display: grid;
+  gap: 14px;
+}
+.card-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--fg-muted);
+  margin-bottom: 10px;
+}
+.decision {
+  padding: 16px 18px;
+}
+.decision strong {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.decision p {
+  color: var(--fg-muted);
+}
+.changes {
+  padding: 16px 18px;
+}
+.change-list {
+  display: grid;
+  gap: 8px;
+}
+.change-item {
+  padding-left: 14px;
+  position: relative;
+  color: var(--fg-muted);
+}
+.change-item::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fg);
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+}
+.commit-grid {
+  display: grid;
+  gap: 10px;
+}
+.commit {
+  padding: 14px 16px;
+}
+.commit-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.commit-hash {
+  color: var(--fg-dim);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.commit-msg {
+  font-size: 12px;
+  margin-top: 6px;
+}
+.footer {
+  padding: 24px;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 10px;
+  border-top: 1px solid var(--border);
+  margin-top: 32px;
+}
 
-/* -- Version block ------------------------------- */
-.version-block { margin-bottom: 48px; }
-.version-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-.version-tag { font-size: 16px; font-weight: 500; }
-.version-date { font-size: 11px; color: var(--fg-muted); }
-.version-count { font-size: 10px; color: var(--fg-dim); text-transform: uppercase; letter-spacing: 1px; margin-left: auto; }
+@media (max-width: 1100px) {
+  .hero,
+  .release-grid {
+    grid-template-columns: 1fr;
+  }
+  .rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
-/* -- Commit entry -------------------------------- */
-.commit { display: flex; align-items: flex-start; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
-.commit:last-child { border-bottom: none; }
-.commit-hash { font-size: 11px; color: var(--fg-dim); flex-shrink: 0; width: 64px; }
-.commit-body { flex: 1; }
-.commit-msg { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
-.commit-desc { font-size: 11px; color: var(--fg-muted); line-height: 1.7; }
-.commit-files { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-.commit-file { display: inline-block; padding: 2px 6px; background: rgba(0, 0, 0, 0.04); border-radius: var(--radius); font-size: 10px; color: var(--fg-muted); }
-
-/* -- Decision card ------------------------------- */
-.decision-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--fg); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 12px; backdrop-filter: blur(8px); }
-.decision-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-.decision-body { font-size: 11px; color: var(--fg-muted); line-height: 1.7; }
-.decision-meta { display: flex; gap: 16px; margin-top: 10px; font-size: 10px; color: var(--fg-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-
-/* -- Badge --------------------------------------- */
-.badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-.badge-feature { background: rgba(22, 163, 74, 0.1); color: var(--green); }
-.badge-fix { background: rgba(220, 38, 38, 0.08); color: var(--red); }
-.badge-refactor { background: rgba(37, 99, 235, 0.1); color: var(--blue); }
-.badge-breaking { background: rgba(202, 138, 4, 0.1); color: var(--yellow); }
-
-/* -- Footer -------------------------------------- */
-.footer { padding: 24px; text-align: center; color: var(--fg-muted); font-size: 10px; border-top: 1px solid var(--border); margin-top: 48px; }
+@media (max-width: 720px) {
+  .hdr {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .hdr-stats {
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+  .hero-kpis,
+  .rail {
+    grid-template-columns: 1fr;
+  }
+  .release-header,
+  .commit-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 </style>
 </head>
 <body>
   <header class="hdr">
     <div class="hdr-brand">m&eacute;moire</div>
-    <nav class="hdr-nav"><a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-8 9 8M5 11v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8"/></svg>Home</a><a href="research.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Research</a><a href="specs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Specs</a><a href="design-system.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Systems</a><a href="monitor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Monitor</a><a href="changelog.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a></nav>
+    <nav class="hdr-nav">
+      <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-8 9 8M5 11v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8"/></svg>Home</a>
+      <a href="research.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Research</a>
+      <a href="specs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Specs</a>
+      <a href="design-system.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Systems</a>
+      <a href="monitor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Monitor</a>
+      <a href="changelog.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a>
+    </nav>
     <div class="hdr-stats">
-      <span><span class="n">12</span> entries</span>
-      <span><span class="n">4</span> versions</span>
+      <span><span class="n" id="stat-commits">67</span> commits</span>
+      <span><span class="n" id="stat-versions">5</span> versions</span>
+      <span><span class="n" id="stat-latest">2026-03-27</span> latest</span>
     </div>
   </header>
 
-  <div class="main">
-
-    <!-- v0.3.0 -->
-    <div class="version-block">
-      <div class="version-header">
-        <span class="version-tag">v0.3.0</span>
-        <span class="version-date">2026-03-25</span>
-        <span class="badge badge-feature">feature</span>
-        <span class="version-count">4 commits</span>
-      </div>
-
-      <div class="commit">
-        <span class="commit-hash">a7c3f01</span>
-        <div class="commit-body">
-          <div class="commit-msg">Adipiscing elit sed do eiusmod tempor incididunt</div>
-          <div class="commit-desc">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/lorem/ipsum.ts</span>
-            <span class="commit-file">src/dolor/sit.ts</span>
-            <span class="commit-file">lib/amet/consectetur.ts</span>
+  <main class="main">
+    <section class="hero">
+      <div class="hero-panel">
+        <div class="eyebrow">Product Timeline</div>
+        <h1 class="hero-title">Real release history, not placeholder demo copy.</h1>
+        <p class="hero-copy">
+          This page now mirrors the actual product changelog for M&eacute;moire. It tracks release-by-release work across Notes, Figma bridge hardening, preview infrastructure, project detection, agent orchestration, and CLI ergonomics.
+        </p>
+        <div class="hero-kpis">
+          <div class="summary-card">
+            <span class="summary-kicker">Current release</span>
+            <strong class="summary-value">v0.2.1</strong>
+            <div class="summary-caption">Notes ecosystem hardening, bridge stability, machine-readable CLI output.</div>
+          </div>
+          <div class="summary-card">
+            <span class="summary-kicker">Biggest theme</span>
+            <strong class="summary-value">Extensibility</strong>
+            <div class="summary-caption">Notes, skills, activation, install flows, and agent-oriented ergonomics.</div>
+          </div>
+          <div class="summary-card">
+            <span class="summary-kicker">Reliability push</span>
+            <strong class="summary-value">Bridge + Preview</strong>
+            <div class="summary-caption">Bind handling, cleanup, hot reload, listener hygiene, and daemon-aware routing.</div>
           </div>
         </div>
       </div>
-
-      <div class="commit">
-        <span class="commit-hash">b9d4e22</span>
-        <div class="commit-body">
-          <div class="commit-msg">Quis autem vel eum iure reprehenderit voluptatem</div>
-          <div class="commit-desc">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/nemo/enim.ts</span>
-            <span class="commit-file">config/voluptas.json</span>
-          </div>
-        </div>
+      <div class="summary-card">
+        <div class="card-title">Latest release focus</div>
+        <div class="highlight-list" id="latest-highlights"></div>
       </div>
+    </section>
 
-      <div class="commit">
-        <span class="commit-hash">c1f8a33</span>
-        <div class="commit-body">
-          <div class="commit-msg">Temporibus autem quibusdam et aut officiis debitis</div>
-          <div class="commit-desc">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/perspiciatis/unde.ts</span>
-          </div>
-        </div>
+    <section class="rail" id="release-rail"></section>
+
+    <div class="section-label">Release Details</div>
+    <section class="release-list" id="release-list"></section>
+  </main>
+
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v0.2.1</footer>
+
+<script>
+const releases = [
+  {
+    version: "v0.2.1",
+    date: "2026-03-27",
+    tag: "fix",
+    summary: "Notes compatibility, compose targeting, preview and bridge hardening, project detection, and JSON-ready CLI output.",
+    commits: [
+      ["3b8403e", "Update CHANGELOG - add v0.2.0 Notes ecosystem release"],
+      ["a347a33", "Fix Notes audit issues - activation gaps, recursive copy, dead code"],
+      ["4a115e6", "Fix Figma audit issues - race condition, parallel extraction, code safety"],
+      ["67ba455", "Add self-healing loop, Code Connect checks, and file watcher"],
+      ["5ca7f64", "Add doc-change polling, preview hot-reload, e2e tests, npm prep, 3 new Notes"],
+      ["089b60e", "Remove agent portal and generic dashboard - serve preview/ directly"],
+      ["dd3f4a5", "Fix daemon-aware command routing - commands reuse running bridge"],
+      ["a9a54b4", "Fix MaxListenersExceededWarning across all EventEmitters"],
+      ["3b81896", "Fix plugin manifest - enable production network access for WebSocket bridge"],
+      ["a271b3b", "Add --format flag to tokens command for selective export"],
+      ["7b94ff1", "Add postinstall - auto-copy Figma plugin + PATH detection"],
+      ["683109d", "Add navigateToPage helper for dynamic-page document access"],
+      ["12a3135", "Add dash alias for dashboard command, clarify description"],
+      ["c6b3b03", "Harden error handling - WS error listener, spawn fallbacks, rejection handler"],
+      ["c316c3d", "Refactor preview.ts - extract 4000-line HTML generators into templates"],
+      ["76945f4", "Fix symlink trap - smart plugin path detection in connect and init"],
+      ["f725e52", "Make design system extraction resilient to partial failures"],
+      ["9653764", "Fix SIGINT cleanup in go command - kill preview child process on Ctrl+C"],
+      ["accf7da", "Fix MaxListenersExceededWarning in e2e tests"],
+      ["9a9cf0b", "Fix API server listener leak and infinite port retry"],
+      ["2c28c7e", "Use process.once for signal handlers across all commands"],
+      ["a8f14e6", "Prep npm 0.2.1 - exclude test files from dist, trim package"],
+      ["2fb2497", "Add AgentSkills workspace skill adapter"],
+      ["46707f4", "Register hidden CLI commands"],
+      ["d7ebbbc", "Fix daemon restart argument forwarding"],
+      ["44aea5e", "Add CLI registration smoke test"],
+      ["cb81f79", "Fix export destinations by artifact kind"],
+      ["539d5bf", "Add export path mapping regression test"],
+      ["5999b15", "Add compose regression test"],
+      ["1192cad", "Add SKILL.md install regression test"],
+      ["afe99ac", "Target compose generation to resolved specs"],
+      ["44aa6e9", "Fix self-improving note hook docs"],
+      ["d36909e", "Add packaged note asset guard test"],
+      ["e14ce86", "Neutralize Claude-specific copy"],
+      ["1378b09", "Fix logger transport toggle in tests"],
+      ["7fdb657", "Add figma web capture note"],
+      ["415663d", "Harden preview and bridge bind errors"],
+      ["1810f4e", "Improve Tailwind and shadcn detection"],
+      ["bd6bae6", "Add JSON output to status and notes commands"]
+    ],
+    decisions: [
+      ["Notes become a real extension surface", "M\u00e9moire now treats Notes as installable skill packs, including workspace SKILL.md bundles, built-in notes, and compatibility fixes for activation and copy behavior."],
+      ["Composable agent workflows", "Compose now resolves a concrete target spec before codegen, so create intents stop silently regenerating the full spec set."],
+      ["Machine-friendly CLI surfaces", "status, notes list, and notes info can emit clean JSON for Codex, Claude, and other automation."],
+      ["Runtime and bridge hardening", "Preview, the Figma bridge, signal handling, and listener management now surface bind failures and cleanup paths clearly."],
+      ["Modern project detection and packaging", "Tailwind v4, shadcn, plugin manifest access, postinstall behavior, and npm packaging were hardened for current app layouts."]
+    ],
+    changes: [
+      "Added the Notes ecosystem release with activation cleanup, recursive-copy handling, and dead-code removal.",
+      "Added preview hot reload, doc-change polling, e2e tests, and npm packaging prep.",
+      "Added self-healing, Code Connect checks, and file watcher support.",
+      "Hardened preview and the Figma bridge with clearer error handling, signal cleanup, and bind diagnostics.",
+      "Improved command routing, plugin manifest access, and port and path detection for production use.",
+      "Added CLI ergonomics like --format, dash aliasing, hidden command registration, and JSON output.",
+      "Added regression coverage for compose targeting, export destinations, CLI registration, note installation, and packaged note assets.",
+      "Added the built-in Figma web capture note and fixed note hook documentation.",
+      "Improved project detection for Tailwind and shadcn setups and removed logger transport warnings."
+    ]
+  },
+  {
+    version: "v0.2.0",
+    date: "2026-03-26",
+    tag: "feature",
+    summary: "Notes became the first-class extension surface for craft, research, connect, and specialized generation.",
+    commits: [
+      ["358c9e3", "Add 4 powerhouse Notes - deep skill packs (4,400+ lines)"],
+      ["dbcb551", "Add M\u00e9moire Notes - downloadable skill pack ecosystem"]
+    ],
+    decisions: [
+      ["Notes as first-class extension system", "M\u00e9moire Notes are downloadable skill packs that extend what the engine can do across craft, research, connect, and generate workflows."],
+      ["Three-source loading", "NoteLoader discovers notes from legacy registry skills, built-in notes packages, and user-installed .memoire/notes folders."],
+      ["Activation by intent", "Notes resolve per classified intent and are injected into agent prompts with a controlled size limit."],
+      ["Deep skill files", "The built-in note packs ship as substantial expertise assets rather than light templates."]
+    ],
+    changes: [
+      "Added src/notes module types, loader, resolver, installer, and public index.",
+      "Added notes CLI subcommands for install, list, remove, create, and info.",
+      "Integrated NoteLoader into MemoireEngine and orchestrator prompts.",
+      "Status now shows note counts and init creates .memoire/notes."
+    ]
+  },
+  {
+    version: "v0.1.1",
+    date: "2026-03-25",
+    tag: "refactor",
+    summary: "Preview shifted from a component gallery to a richer product-demo surface for Dibs research, workflows, and AI interactions.",
+    commits: [
+      ["0bbd524", "Add #ai-open hash trigger to auto-open AI drawer in line items"],
+      ["e49792e", "Force explicit #ffffff on title and desc highlights"],
+      ["1e130e8", "Fix title color - use explicit gold #C4A35A instead of --accent"],
+      ["cc0ab4e", "Fix title visibility - ensure full text is bright"],
+      ["780468d", "Highlight key phrases in Home about section"],
+      ["806cd1f", "Rewrite Home about section - focus on AICP accuracy and structured form"],
+      ["816db8f", "Minor preview index tweaks"],
+      ["ee56ff5", "Strip animation CSS, clean up Home tab styling"],
+      ["d4a3d7e", "Polish preview animations and fix broken CSS rules"],
+      ["39fd80f", "Add all Dibs preview pages for Vercel hosting"],
+      ["1934921", "Add Dibs preview screens, AICP research, and project state"]
+    ],
+    decisions: [
+      ["Preview as product demo", "Preview now serves full interactive product prototypes rather than only component galleries."],
+      ["PDF reader aesthetic for documents", "Research documents render inside an off-white paper container with light-theme overrides for legibility."],
+      ["Research citation system", "goToInsight links citations into the insights panel without duplicate-ID collisions."],
+      ["Visual persona cards", "Personas were redesigned as visual cards with stats, tags, icons, and citations."],
+      ["Brightness pass on research text", "Muted research colors were brightened to improve readability inside the preview."]
+    ],
+    changes: [
+      "Added full Dibs preview pages: dashboard, bid setup, bid board, line items with AI drawer.",
+      "Added AICP research content with insights, personas, themes, documents, and sources.",
+      "Built the PDF-like document reader and redesigned persona cards.",
+      "Added the validation sweep panel, hash-triggered AI drawer open state, and readability fixes."
+    ]
+  },
+  {
+    version: "v0.1.0",
+    date: "2026-03-24",
+    tag: "feature",
+    summary: "Atomic design, Figma MCP workflows, auto-spec generation, export, motion skill, and product changelog conventions all landed here.",
+    commits: [
+      ["fc71ca1", "Add /motion-video skill - product animation & UI motion superagent"],
+      ["7b2cda3", "Add auto-spec engine, noche go, noche export, and token-aware codegen"],
+      ["709bb57", "Clean up CLI output - human-readable logs, suppress internal noise"],
+      ["82895d6", "Clean preview of user-project content, wire /api/specs to registry"],
+      ["d9f4eef", "Rename BidCraft -> Dibs, swap emojis for Lucide icons, update nav across preview"],
+      ["1673d3c", "Fix CHANGELOG.md: track Noche the product, not user projects"],
+      ["59bc247", "Add CHANGELOG.md as project decision log, update CLAUDE.md convention"],
+      ["bdad1cc", "Replace Labor Budgeting design system with M\u00e9moire DS, add changelog page"],
+      ["a20c747", "Finalize ark -> noche rename across entire codebase"],
+      ["9c15762", "Add animated 3D spinning moon to README header"],
+      ["7881845", "Audit and upgrade all M\u00e9moire skills against Figma MCP best practices"],
+      ["70d8f6a", "Replace remaining ark CLI references with noche"],
+      ["9f57f82", "Rename Figma Ark -> Noche across entire codebase"],
+      ["2b0017f", "Add Figma MCP canvas integration, skills, atomic design enforcement, and README"]
+    ],
+    decisions: [
+      ["Atomic design only", "Every generated component must declare an atomic level and follow atom, molecule, organism, template, or page composition rules."],
+      ["MCP tool decision tree", "use_figma handles design-system-aware ops while raw execution stays isolated; Code Connect is checked first."],
+      ["Self-healing loop", "Canvas operations follow create, screenshot, analyze, fix, verify with up to three passes."],
+      ["Code Connect first-class", "Component specs carry codeConnect mappings from Figma nodes to source paths."],
+      ["Multi-agent native", "Multiple agent instances coordinate through color-coded Figma widgets on discovery ports 9223-9232."],
+      ["Changelog convention", "The changelog tracks the product itself, while user project state stays local in .memoire."]
+    ],
+    changes: [
+      "Created the auto-spec engine, go command, export command, and motion-video skill.",
+      "Made codegen token-aware and connected pull to auto-spec generation.",
+      "Cleaned CLI output and rewrote preview/design-system.html around the actual Memoire system.",
+      "Upgraded shipped skills and established the product changelog convention."
+    ]
+  },
+  {
+    version: "v0.0.1",
+    date: "2026-03-23",
+    tag: "foundation",
+    summary: "The initial product foundation: specs, bridge, research, codegen, preview, CLI, and Figma plugin.",
+    commits: [
+      ["199df7a", "Initial commit: Ark - AI-native Figma design intelligence engine"]
+    ],
+    decisions: [
+      ["Spec-first architecture", "Every component starts as a JSON spec before code generation."],
+      ["WebSocket Figma bridge", "The plugin auto-discovers M\u00e9moire on ports 9223-9232 with zero config."],
+      ["shadcn/ui plus Tailwind", "Generated code uses shadcn/ui, Tailwind CSS, and Zod validation."],
+      ["Research pipeline", "Excel and CSV import, sticky extraction, AI synthesis, and report generation are first-class workflows."],
+      ["Built for autonomous agents", "The repo ships guidance and skills so an agent can operate the product without hand-holding."]
+    ],
+    changes: [
+      "Initial codebase: engine, Figma bridge, research engine, spec system, codegen, preview server, CLI, TUI, Figma plugin, and skills."
+    ]
+  }
+];
+
+const rail = document.getElementById("release-rail");
+const releaseList = document.getElementById("release-list");
+const latestHighlights = document.getElementById("latest-highlights");
+
+const totals = releases.reduce((acc, release) => {
+  acc.commits += release.commits.length;
+  return acc;
+}, { commits: 0 });
+
+document.getElementById("stat-commits").textContent = String(totals.commits);
+document.getElementById("stat-versions").textContent = String(releases.length);
+document.getElementById("stat-latest").textContent = releases[0].date;
+
+for (const item of releases[0].changes.slice(0, 4)) {
+  const row = document.createElement("div");
+  row.className = "highlight-row";
+  row.innerHTML = `<strong>v0.2.1</strong><span>${item}</span>`;
+  latestHighlights.appendChild(row);
+}
+
+for (const release of releases) {
+  const pillClass = release.tag === "fix" ? "fix" : release.tag === "refactor" ? "refactor" : release.tag === "foundation" ? "foundation" : "feature";
+  const railItem = document.createElement("article");
+  railItem.className = "rail-item";
+  railItem.innerHTML = `
+    <span class="pill ${pillClass}">${release.tag}</span>
+    <h3>${release.version}</h3>
+    <p>${release.summary}</p>
+    <p style="margin-top: 10px;">${release.date} · ${release.commits.length} commits</p>
+  `;
+  rail.appendChild(railItem);
+
+  const releaseEl = document.createElement("article");
+  releaseEl.className = "release";
+  releaseEl.innerHTML = `
+    <div class="release-header">
+      <div class="release-title-wrap">
+        <span class="pill ${pillClass}">${release.tag}</span>
+        <h2 class="release-title">${release.version}</h2>
+        <div class="release-date">${release.date}</div>
       </div>
-
-      <div class="commit">
-        <span class="commit-hash">d3e9b44</span>
-        <div class="commit-body">
-          <div class="commit-msg">Totam rem aperiam eaque ipsa quae ab illo inventore</div>
-          <div class="commit-desc">Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/totam/rem.ts</span>
-            <span class="commit-file">src/aperiam/eaque.ts</span>
+      <div class="release-meta">${release.commits.length} commits · ${release.decisions.length} key decisions · ${release.changes.length} change notes</div>
+    </div>
+    <div class="release-grid">
+      <div class="column">
+        <section class="changes">
+          <div class="card-title">Release Summary</div>
+          <div class="change-list">
+            <div class="change-item">${release.summary}</div>
           </div>
+        </section>
+        <section class="changes">
+          <div class="card-title">Product Changes</div>
+          <div class="change-list">
+            ${release.changes.map((change) => `<div class="change-item">${change}</div>`).join("")}
+          </div>
+        </section>
+        <section class="column">
+          <div class="card-title">Architectural Decisions</div>
+          ${release.decisions.map(([title, body]) => `
+            <article class="decision">
+              <strong>${title}</strong>
+              <p>${body}</p>
+            </article>
+          `).join("")}
+        </section>
+      </div>
+      <div class="column">
+        <div class="card-title">Commits</div>
+        <div class="commit-grid">
+          ${release.commits.map(([hash, message]) => `
+            <article class="commit">
+              <div class="commit-top">
+                <span class="commit-hash">${hash}</span>
+              </div>
+              <div class="commit-msg">${message}</div>
+            </article>
+          `).join("")}
         </div>
       </div>
     </div>
-
-    <!-- v0.2.0 -->
-    <div class="version-block">
-      <div class="version-header">
-        <span class="version-tag">v0.2.0</span>
-        <span class="version-date">2026-03-18</span>
-        <span class="badge badge-refactor">refactor</span>
-        <span class="version-count">3 commits</span>
-      </div>
-
-      <div class="commit">
-        <span class="commit-hash">e5a1c55</span>
-        <div class="commit-body">
-          <div class="commit-msg">Lorem ipsum dolor sit amet consectetur</div>
-          <div class="commit-desc">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/vero/eos.ts</span>
-            <span class="commit-file">src/accusamus/iusto.ts</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="commit">
-        <span class="commit-hash">f7b2d66</span>
-        <div class="commit-body">
-          <div class="commit-msg">Nam libero tempore cum soluta nobis eligendi</div>
-          <div class="commit-desc">Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus maiores.</div>
-          <div class="commit-files">
-            <span class="commit-file">lib/earum/rerum.ts</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="commit">
-        <span class="commit-hash">a8c3e77</span>
-        <div class="commit-body">
-          <div class="commit-msg">Excepturi sint occaecati cupiditate non provident</div>
-          <div class="commit-desc">Similique sunt in culpa qui officia deserunt mollitia animi id est laborum et dolorum fuga.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/culpa/officia.ts</span>
-            <span class="commit-file">src/mollitia/animi.ts</span>
-            <span class="commit-file">config/laborum.json</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Decisions -->
-    <div class="section-label">Architectural Decisions</div>
-
-    <div class="decision-card">
-      <div class="decision-title">Voluptatem accusantium doloremque laudantium</div>
-      <div class="decision-body">Totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores.</div>
-      <div class="decision-meta">
-        <span>v0.3.0</span>
-        <span>a7c3f01</span>
-      </div>
-    </div>
-
-    <div class="decision-card">
-      <div class="decision-title">Sed ut perspiciatis unde omnis iste natus error</div>
-      <div class="decision-body">Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.</div>
-      <div class="decision-meta">
-        <span>v0.2.0</span>
-        <span>e5a1c55</span>
-      </div>
-    </div>
-
-    <!-- v0.1.0 -->
-    <div class="section-label">Earlier Versions</div>
-
-    <div class="version-block">
-      <div class="version-header">
-        <span class="version-tag">v0.1.0</span>
-        <span class="version-date">2026-03-10</span>
-        <span class="badge badge-feature">feature</span>
-        <span class="version-count">3 commits</span>
-      </div>
-
-      <div class="commit">
-        <span class="commit-hash">b9d4f88</span>
-        <div class="commit-body">
-          <div class="commit-msg">Ut enim ad minima veniam quis nostrum exercitationem</div>
-          <div class="commit-desc">Corporis suscipit laboriosam nisi ut aliquid ex ea commodi consequatur.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/corporis/suscipit.ts</span>
-            <span class="commit-file">src/laboriosam/nisi.ts</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="commit">
-        <span class="commit-hash">c0e5a99</span>
-        <div class="commit-body">
-          <div class="commit-msg">Harum quidem rerum facilis est et expedita distinctio</div>
-          <div class="commit-desc">Nam libero tempore cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/libero/tempore.ts</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="commit">
-        <span class="commit-hash">d1f6b00</span>
-        <div class="commit-body">
-          <div class="commit-msg">Omnis voluptas assumenda est omnis dolor repellendus</div>
-          <div class="commit-desc">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/temporibus/autem.ts</span>
-            <span class="commit-file">lib/officiis/debitis.ts</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- v0.0.1 -->
-    <div class="version-block">
-      <div class="version-header">
-        <span class="version-tag">v0.0.1</span>
-        <span class="version-date">2026-03-01</span>
-        <span class="badge badge-breaking">initial</span>
-        <span class="version-count">2 commits</span>
-      </div>
-
-      <div class="commit">
-        <span class="commit-hash">e2a7c11</span>
-        <div class="commit-body">
-          <div class="commit-msg">Quis nostrud exercitation ullamco laboris nisi</div>
-          <div class="commit-desc">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/index.ts</span>
-            <span class="commit-file">package.json</span>
-            <span class="commit-file">tsconfig.json</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="commit">
-        <span class="commit-hash">f3b8d22</span>
-        <div class="commit-body">
-          <div class="commit-msg">Excepteur sint occaecat cupidatat non proident</div>
-          <div class="commit-desc">Sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
-          <div class="commit-files">
-            <span class="commit-file">src/init/setup.ts</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer">memoire changelog</div>
-  </div>
+  `;
+  releaseList.appendChild(releaseEl);
+}
+</script>
 </body>
 </html>
