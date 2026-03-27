@@ -95,7 +95,7 @@ export function registerPreviewCommand(program: Command, engine: MemoireEngine) 
         console.log(`  Generated gallery:    http://localhost:${actualPort}/generated/gallery.html`);
         console.log(`  Figma bridge:         ${engine.figma.isConnected ? "connected" : "not connected"}\n`);
 
-        process.on("SIGINT", () => {
+        process.once("SIGINT", () => {
           console.log("\n  Shutting down preview server...");
           apiServer.stop();
           process.exit(0);

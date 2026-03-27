@@ -298,7 +298,7 @@ export function registerHeartbeatCommand(program: Command, engine: MemoireEngine
         process.exit(0);
       };
 
-      process.on("SIGINT", cleanup);
-      process.on("SIGTERM", cleanup);
+      process.once("SIGINT", cleanup);
+      process.once("SIGTERM", cleanup);
     });
 }

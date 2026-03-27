@@ -73,8 +73,8 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
           engine.figma.disconnect();
           process.exit(0);
         };
-        process.on("SIGINT", cleanup);
-        process.on("SIGTERM", cleanup);
+        process.once("SIGINT", cleanup);
+        process.once("SIGTERM", cleanup);
       }
 
       console.log("  Pipeline complete. Memoire is live.\n");

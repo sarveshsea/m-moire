@@ -244,7 +244,7 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
         });
 
         // Clean up on exit
-        process.on("SIGINT", () => {
+        process.once("SIGINT", () => {
           engine.figma.disconnect();
           process.exit(0);
         });

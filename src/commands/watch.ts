@@ -109,8 +109,8 @@ export function registerWatchCommand(program: Command, engine: MemoireEngine) {
         process.exit(0);
       };
 
-      process.on("SIGINT", cleanup);
-      process.on("SIGTERM", cleanup);
+      process.once("SIGINT", cleanup);
+      process.once("SIGTERM", cleanup);
 
       // Keep process alive
       setInterval(() => {}, 60_000);

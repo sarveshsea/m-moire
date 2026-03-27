@@ -158,8 +158,8 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
         process.exit(0);
       };
 
-      process.on("SIGTERM", shutdown);
-      process.on("SIGINT", shutdown);
+      process.once("SIGTERM", shutdown);
+      process.once("SIGINT", shutdown);
 
       // 7. Listen for Figma plugin events
       engine.figma.on("plugin-connected", (client: { file: string; editor: string }) => {
