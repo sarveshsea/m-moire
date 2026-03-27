@@ -287,7 +287,7 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
 
       // Delegate to start — programmatically invoke the start subcommand
       console.log("  Restarting daemon...\n");
-      await daemon.parseAsync(["start", "-p", opts.port, "-d", opts.dashPort, "-f", opts.figmaPort], {
+      await daemon.parseAsync(["start", "-p", opts.port, "-f", opts.figmaPort], {
         from: "user",
       });
     });
