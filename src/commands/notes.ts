@@ -10,14 +10,38 @@
  */
 
 import type { Command } from "commander";
+import { join } from "path";
 import type { MemoireEngine } from "../engine/core.js";
 import {
   installNote,
   removeNote,
   scaffoldNote,
+  getNoteInfo,
   type NoteCategory,
 } from "../notes/index.js";
 import type { InstalledNote, NoteManifest } from "../notes/index.js";
+
+type NoteMutationAction = "install" | "create" | "remove";
+type NoteMutationStatus = "completed" | "failed";
+
+interface NoteMutationPayload {
+  action: NoteMutationAction;
+  status: NoteMutationStatus;
+  options: {
+    json: boolean;
+  };
+  source?: string;
+  name?: string;
+  category?: NoteCategory;
+  installedPath?: string | null;
+  noteDir?: string | null;
+  removedPath?: string | null;
+  filesCreated?: string[];
+  note?: ReturnType<typeof serializeManifest> | null;
+  error?: {
+    message: string;
+  };
+}
 
 export function registerNotesCommand(program: Command, engine: MemoireEngine) {
   const notes = program
@@ -29,12 +53,28 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
   notes
     .command("install <source>")
     .description("Install a note (local path or github:user/repo)")
-    .action(async (source: string) => {
+    .option("--json", "Output install result as JSON")
+    .action(async (source: string, opts: { json?: boolean }) => {
       const root = engine.config.projectRoot;
-      console.log(`\n  Installing note from ${source}...\n`);
+      const json = Boolean(opts.json);
+      if (!json) {
+        console.log(`\n  Installing note from ${source}...\n`);
+      }
 
       try {
         const manifest = await installNote(source, root);
+        if (json) {
+          const payload: NoteMutationPayload = {
+            action: "install",
+            status: "completed",
+            options: { json: true },
+            source,
+            installedPath: join(root, ".memoire", "notes", manifest.name),
+            note: serializeManifest(manifest),
+          };
+          console.log(JSON.stringify(payload, null, 2));
+          return;
+        }
         console.log(`  + ${manifest.name}@${manifest.version}`);
         console.log(`    ${manifest.description}`);
         console.log(`    Category: ${manifest.category}`);
@@ -42,6 +82,20 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
         console.log(`\n  Note installed. It will activate automatically during agent execution.\n`);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
+        if (json) {
+          const payload: NoteMutationPayload = {
+            action: "install",
+            status: "failed",
+            options: { json: true },
+            source,
+            installedPath: null,
+            note: null,
+            error: { message: msg },
+          };
+          console.log(JSON.stringify(payload, null, 2));
+          process.exitCode = 1;
+          return;
+        }
         console.error(`  x Failed to install: ${msg}\n`);
         process.exitCode = 1;
       }
@@ -115,12 +169,38 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
   notes
     .command("remove <name>")
     .description("Uninstall a note")
-    .action(async (name: string) => {
+    .option("--json", "Output removal result as JSON")
+    .action(async (name: string, opts: { json?: boolean }) => {
+      const removedPath = join(engine.config.projectRoot, ".memoire", "notes", name);
       try {
         await removeNote(name, engine.config.projectRoot);
+        if (opts.json) {
+          const payload: NoteMutationPayload = {
+            action: "remove",
+            status: "completed",
+            options: { json: true },
+            name,
+            removedPath,
+          };
+          console.log(JSON.stringify(payload, null, 2));
+          return;
+        }
         console.log(`\n  - Removed note "${name}"\n`);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
+        if (opts.json) {
+          const payload: NoteMutationPayload = {
+            action: "remove",
+            status: "failed",
+            options: { json: true },
+            name,
+            removedPath: null,
+            error: { message: msg },
+          };
+          console.log(JSON.stringify(payload, null, 2));
+          process.exitCode = 1;
+          return;
+        }
         console.error(`  x ${msg}\n`);
         process.exitCode = 1;
       }
@@ -132,10 +212,28 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
     .command("create <name>")
     .description("Scaffold a new note")
     .option("-c, --category <category>", "Note category (craft|research|connect|generate)", "craft")
-    .action(async (name: string, opts: { category: string }) => {
+    .option("--json", "Output scaffold result as JSON")
+    .action(async (name: string, opts: { category: string; json?: boolean }) => {
       const category = opts.category as NoteCategory;
       const validCategories = ["craft", "research", "connect", "generate"];
       if (!validCategories.includes(category)) {
+        if (opts.json) {
+          const payload: NoteMutationPayload = {
+            action: "create",
+            status: "failed",
+            options: { json: true },
+            name,
+            category,
+            noteDir: null,
+            note: null,
+            error: {
+              message: `Invalid category "${category}". Use: ${validCategories.join(", ")}`,
+            },
+          };
+          console.log(JSON.stringify(payload, null, 2));
+          process.exitCode = 1;
+          return;
+        }
         console.error(`  x Invalid category "${category}". Use: ${validCategories.join(", ")}\n`);
         process.exitCode = 1;
         return;
@@ -143,6 +241,21 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
 
       try {
         const noteDir = await scaffoldNote(name, category, engine.config.projectRoot);
+        const manifest = await getNoteInfo(name, engine.config.projectRoot);
+        if (opts.json) {
+          const payload: NoteMutationPayload = {
+            action: "create",
+            status: "completed",
+            options: { json: true },
+            name,
+            category,
+            noteDir,
+            filesCreated: ["note.json", `${name}.md`],
+            note: manifest ? serializeManifest(manifest) : null,
+          };
+          console.log(JSON.stringify(payload, null, 2));
+          return;
+        }
         console.log(`\n  + Scaffolded note "${name}" in:`);
         console.log(`    ${noteDir}`);
         console.log(`\n  Files created:`);
@@ -151,6 +264,21 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
         console.log(`  Edit ${name}.md to add your skill knowledge, then it's ready to use.\n`);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
+        if (opts.json) {
+          const payload: NoteMutationPayload = {
+            action: "create",
+            status: "failed",
+            options: { json: true },
+            name,
+            category,
+            noteDir: null,
+            note: null,
+            error: { message: msg },
+          };
+          console.log(JSON.stringify(payload, null, 2));
+          process.exitCode = 1;
+          return;
+        }
         console.error(`  x ${msg}\n`);
         process.exitCode = 1;
       }
@@ -206,16 +334,22 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
 
 function serializeInstalledNote(note: InstalledNote) {
   return {
-    name: note.manifest.name,
-    version: note.manifest.version,
-    description: note.manifest.description,
-    category: note.manifest.category,
-    tags: note.manifest.tags,
-    author: note.manifest.author ?? null,
-    dependencies: note.manifest.dependencies,
+    ...serializeManifest(note.manifest),
     builtIn: note.builtIn,
     enabled: note.enabled,
-    skills: note.manifest.skills.map((skill) => ({
+  };
+}
+
+function serializeManifest(manifest: NoteManifest) {
+  return {
+    name: manifest.name,
+    version: manifest.version,
+    description: manifest.description,
+    category: manifest.category,
+    tags: manifest.tags,
+    author: manifest.author ?? null,
+    dependencies: manifest.dependencies,
+    skills: manifest.skills.map((skill) => ({
       file: skill.file,
       name: skill.name,
       activateOn: skill.activateOn,
