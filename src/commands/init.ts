@@ -72,6 +72,7 @@ export function registerInitCommand(program: Command, engine: MemoireEngine) {
 
       // Step 4: Create starter specs
       console.log(`\n  Step 4/5: Creating starter dashboard specs...\n`);
+      const createdSpecs: string[] = [];
 
       const metricCard: ComponentSpec = {
         name: "MetricCard",
@@ -96,8 +97,13 @@ export function registerInitCommand(program: Command, engine: MemoireEngine) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      await engine.registry.saveSpec(metricCard);
-      console.log("    Created spec: MetricCard (component)");
+      if (await engine.registry.getSpec(metricCard.name)) {
+        console.log("    Retained spec: MetricCard (already exists)");
+      } else {
+        await engine.registry.saveSpec(metricCard);
+        createdSpecs.push(metricCard.name);
+        console.log("    Created spec: MetricCard (component)");
+      }
 
       const activityChart: DataVizSpec = {
         name: "ActivityChart",
@@ -126,8 +132,13 @@ export function registerInitCommand(program: Command, engine: MemoireEngine) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      await engine.registry.saveSpec(activityChart);
-      console.log("    Created spec: ActivityChart (dataviz)");
+      if (await engine.registry.getSpec(activityChart.name)) {
+        console.log("    Retained spec: ActivityChart (already exists)");
+      } else {
+        await engine.registry.saveSpec(activityChart);
+        createdSpecs.push(activityChart.name);
+        console.log("    Created spec: ActivityChart (dataviz)");
+      }
 
       const dashboard: PageSpec = {
         name: "Dashboard",
@@ -146,19 +157,27 @@ export function registerInitCommand(program: Command, engine: MemoireEngine) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      await engine.registry.saveSpec(dashboard);
-      console.log("    Created spec: Dashboard (page)");
+      if (await engine.registry.getSpec(dashboard.name)) {
+        console.log("    Retained spec: Dashboard (already exists)");
+      } else {
+        await engine.registry.saveSpec(dashboard);
+        createdSpecs.push(dashboard.name);
+        console.log("    Created spec: Dashboard (page)");
+      }
 
       // Step 5: Generate and build
       console.log(`\n  Step 5/5: Generating code from starter specs...\n`);
 
-      const specs = await engine.registry.getAllSpecs();
-      for (const spec of specs) {
-        try {
-          await engine.generateFromSpec(spec.name);
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          console.log(`    Skipped ${spec.name}: ${msg}`);
+      if (createdSpecs.length === 0) {
+        console.log("    Starter specs already present. Skipping regeneration.");
+      } else {
+        for (const specName of createdSpecs) {
+          try {
+            await engine.generateFromSpec(specName);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            console.log(`    Skipped ${specName}: ${msg}`);
+          }
         }
       }
 

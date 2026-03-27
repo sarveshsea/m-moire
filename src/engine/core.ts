@@ -33,6 +33,11 @@ export interface MemoireEvent {
   data?: unknown;
 }
 
+function stripProjectTimestamp(project: ProjectContext): Omit<ProjectContext, "detectedAt"> {
+  const { detectedAt: _detectedAt, ...rest } = project;
+  return rest;
+}
+
 export class MemoireEngine extends EventEmitter {
   readonly config: MemoireConfig;
   readonly log = createLogger("memoire");
@@ -329,6 +334,25 @@ export class MemoireEngine extends EventEmitter {
   private async saveProjectContext(): Promise<void> {
     if (!this._project) return;
     const path = join(this.config.projectRoot, ".memoire", "project.json");
-    await writeFile(path, JSON.stringify(this._project, null, 2));
+    let existingRaw: string | null = null;
+    try {
+      existingRaw = await readFile(path, "utf-8");
+      const existing = JSON.parse(existingRaw) as ProjectContext;
+      if (JSON.stringify(stripProjectTimestamp(existing)) === JSON.stringify(stripProjectTimestamp(this._project))) {
+        this._project = {
+          ...this._project,
+          detectedAt: existing.detectedAt,
+        };
+      }
+    } catch {
+      // No existing project context yet
+    }
+
+    const nextRaw = JSON.stringify(this._project, null, 2);
+    if (existingRaw === nextRaw) {
+      return;
+    }
+
+    await writeFile(path, nextRaw);
   }
 }

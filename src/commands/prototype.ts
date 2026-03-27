@@ -7,7 +7,7 @@ export function registerPrototypeCommand(program: Command, engine: MemoireEngine
   program
     .command("prototype")
     .description("Generate a cinematic prototype with Playwright video + interactive HTML")
-    .option("-o, --output <dir>", "Output directory", "prototype")
+    .option("-o, --output <dir>", "Output directory", ".memoire/prototype")
     .option("-t, --transition <style>", "Transition style: fade, slide-left, slide-up, zoom, morph, cinematic", "cinematic")
     .option("-w, --width <px>", "Viewport width", "1440")
     .option("-h, --height <px>", "Viewport height", "900")
