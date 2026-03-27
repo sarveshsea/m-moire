@@ -58,6 +58,7 @@ export interface SubTask {
   agentType: SubAgentType;
   prompt: string;
   dependencies: string[]; // IDs of tasks that must complete first
+  targetSpecs?: string[];
   status: "pending" | "running" | "completed" | "failed";
   result?: unknown;
   error?: string;
@@ -260,9 +261,15 @@ export class AgentOrchestrator {
     }
   }
 
-  private makeTask(name: string, agentType: SubAgentType, prompt: string, deps: string[] = []): SubTask {
+  private makeTask(
+    name: string,
+    agentType: SubAgentType,
+    prompt: string,
+    deps: string[] = [],
+    targetSpecs?: string[],
+  ): SubTask {
     const id = `task-${++this.taskCounter}`;
-    return { id, name, agentType, prompt, dependencies: deps, status: "pending" };
+    return { id, name, agentType, prompt, dependencies: deps, targetSpecs, status: "pending" };
   }
 
   // ── Color Palette Decomposition ────────────────────────
@@ -415,6 +422,8 @@ export class AgentOrchestrator {
   // ── Component Create Decomposition ─────────────────────
 
   private decomposeComponentCreate(intent: string, ctx: AgentContext): SubTask[] {
+    const targetSpec = this.resolveTargetSpecName(intent, "component", ctx);
+
     // Pre-check: verify component doesn't already exist via Code Connect
     const existingMappings = ctx.specs
       .filter((s) => s.type === "component")
@@ -431,6 +440,7 @@ export class AgentOrchestrator {
       `Before creating a new component, check if it already exists in the codebase via Code Connect.
 
 ## Request: "${intent}"
+## Target Spec: ${targetSpec}
 
 ## Existing Component Specs
 ${existingMappings}
@@ -440,6 +450,8 @@ ${existingMappings}
 2. If the requested component already exists and is mapped, STOP and use the existing component
 3. If not mapped, proceed with creation
 4. Return: { exists: boolean, existingPath?: string, proceed: boolean }`,
+      [],
+      [targetSpec],
     );
 
     const t1 = this.makeTask(
@@ -447,23 +459,26 @@ ${existingMappings}
       "component-architect",
       AGENT_PROMPTS.componentAnalysis(intent, ctx.designSystem, ctx.specs),
       [t0.id],
+      [targetSpec],
     );
     const t2 = this.makeTask(
       "Design component spec",
       "component-architect",
       AGENT_PROMPTS.componentDesign(intent, ctx.designSystem),
       [t1.id],
+      [targetSpec],
     );
     const t3 = this.makeTask(
       "Generate component code",
       "code-generator",
       AGENT_PROMPTS.componentCodegen(intent),
       [t2.id],
+      [targetSpec],
     );
     const tasks = [t0, t1, t2, t3];
 
     if (ctx.figmaConnected) {
-      tasks.push(this.makeTask("Create component in Figma", "figma-executor", AGENT_PROMPTS.figmaComponentCreate(intent), [t3.id]));
+      tasks.push(this.makeTask("Create component in Figma", "figma-executor", AGENT_PROMPTS.figmaComponentCreate(intent), [t3.id], [targetSpec]));
     }
 
     return tasks;
@@ -472,22 +487,27 @@ ${existingMappings}
   // ── Component Modify Decomposition ─────────────────────
 
   private decomposeComponentModify(intent: string, ctx: AgentContext): SubTask[] {
+    const targetSpec = this.resolveTargetSpecName(intent, "component", ctx);
     const t1 = this.makeTask(
       "Identify target component",
       "component-architect",
       AGENT_PROMPTS.componentIdentify(intent, ctx.specs),
+      [],
+      [targetSpec],
     );
     const t2 = this.makeTask(
       "Update component spec",
       "component-architect",
       AGENT_PROMPTS.componentModify(intent),
       [t1.id],
+      [targetSpec],
     );
     const t3 = this.makeTask(
       "Regenerate component code",
       "code-generator",
       AGENT_PROMPTS.componentCodegen(intent),
       [t2.id],
+      [targetSpec],
     );
     return [t1, t2, t3];
   }
@@ -495,27 +515,32 @@ ${existingMappings}
   // ── Page Layout Decomposition ──────────────────────────
 
   private decomposePageLayout(intent: string, ctx: AgentContext): SubTask[] {
+    const targetSpec = this.resolveTargetSpecName(intent, "page", ctx);
     const t1 = this.makeTask(
       "Analyze page requirements",
       "layout-designer",
       AGENT_PROMPTS.pageAnalysis(intent, ctx.specs),
+      [],
+      [targetSpec],
     );
     const t2 = this.makeTask(
       "Design page layout spec",
       "layout-designer",
       AGENT_PROMPTS.pageDesign(intent, ctx.designSystem, ctx.specs),
       [t1.id],
+      [targetSpec],
     );
     const t3 = this.makeTask(
       "Generate page code",
       "code-generator",
       AGENT_PROMPTS.pageCodegen(intent),
       [t2.id],
+      [targetSpec],
     );
     const tasks = [t1, t2, t3];
 
     if (ctx.figmaConnected) {
-      tasks.push(this.makeTask("Compose page in Figma", "figma-executor", AGENT_PROMPTS.figmaPageCompose(intent), [t3.id]));
+      tasks.push(this.makeTask("Compose page in Figma", "figma-executor", AGENT_PROMPTS.figmaPageCompose(intent), [t3.id], [targetSpec]));
     }
 
     return tasks;
@@ -524,22 +549,27 @@ ${existingMappings}
   // ── DataViz Create Decomposition ───────────────────────
 
   private decomposeDatavizCreate(intent: string, ctx: AgentContext): SubTask[] {
+    const targetSpec = this.resolveTargetSpecName(intent, "dataviz", ctx);
     const t1 = this.makeTask(
       "Analyze data visualization needs",
       "dataviz-specialist",
       AGENT_PROMPTS.datavizAnalysis(intent),
+      [],
+      [targetSpec],
     );
     const t2 = this.makeTask(
       "Design chart spec",
       "dataviz-specialist",
       AGENT_PROMPTS.datavizDesign(intent, ctx.designSystem),
       [t1.id],
+      [targetSpec],
     );
     const t3 = this.makeTask(
       "Generate chart code",
       "code-generator",
       AGENT_PROMPTS.datavizCodegen(intent),
       [t2.id],
+      [targetSpec],
     );
     return [t1, t2, t3];
   }
@@ -601,6 +631,7 @@ ${existingMappings}
         "code-generator",
         AGENT_PROMPTS.specCodegen(spec),
         [tasks[0].id],
+        [spec.name],
       ));
     }
 
@@ -732,14 +763,10 @@ ${existingMappings}
 
   private static readonly AI_AGENT_TYPES: SubAgentType[] = [
     "token-engineer",
-    "component-architect",
-    "layout-designer",
-    "dataviz-specialist",
     "design-auditor",
     "accessibility-checker",
     "theme-builder",
     "responsive-specialist",
-    "code-generator",
   ];
 
   // ── Sub-Agent Execution ────────────────────────────────
@@ -804,25 +831,104 @@ ${existingMappings}
   // ── Component Architect Sub-Agent ──────────────────────
 
   private async executeComponentArchitect(task: SubTask, ctx: AgentContext): Promise<unknown> {
-    if (task.name.includes("Design") || task.name.includes("Create")) {
-      log.info({ task: task.name }, "Component architect designing spec");
+    if (task.name.includes("Design") || task.name.includes("Update") || task.name.includes("Create")) {
+      const specName = task.targetSpecs?.[0] ?? this.resolveTargetSpecName(task.prompt, "component", ctx);
+      const existing = await this.engine.registry.getSpec(specName);
+
+      const componentSpec: ComponentSpec = existing?.type === "component"
+        ? {
+            ...existing,
+            updatedAt: new Date().toISOString(),
+          }
+        : this.scaffoldComponentSpec(specName, task.prompt);
+
+      await this.engine.registry.saveSpec(componentSpec);
+      this.upsertContextSpec(ctx, componentSpec);
+
+      const mutationType: DesignMutation["type"] = existing ? "spec-updated" : "spec-created";
+      return {
+        status: "completed",
+        targetSpecs: [componentSpec.name],
+        mutations: [{
+          type: mutationType,
+          target: componentSpec.name,
+          detail: `${existing ? "Updated" : "Created"} component spec ${componentSpec.name}`,
+          after: componentSpec,
+        }],
+      };
     }
 
-    return { status: "completed", specs: ctx.specs.length };
+    return { status: "completed", targetSpecs: task.targetSpecs ?? [] };
   }
 
   // ── Layout Designer Sub-Agent ──────────────────────────
 
   private async executeLayoutDesigner(task: SubTask, ctx: AgentContext): Promise<unknown> {
     log.info({ task: task.name }, "Layout designer processing");
-    return { status: "completed" };
+
+    if (task.name.includes("Design")) {
+      const specName = task.targetSpecs?.[0] ?? this.resolveTargetSpecName(task.prompt, "page", ctx);
+      const existing = await this.engine.registry.getSpec(specName);
+
+      const pageSpec: PageSpec = existing?.type === "page"
+        ? {
+            ...existing,
+            updatedAt: new Date().toISOString(),
+          }
+        : this.scaffoldPageSpec(specName, task.prompt, ctx);
+
+      await this.engine.registry.saveSpec(pageSpec);
+      this.upsertContextSpec(ctx, pageSpec);
+
+      const mutationType: DesignMutation["type"] = existing ? "spec-updated" : "spec-created";
+      return {
+        status: "completed",
+        targetSpecs: [pageSpec.name],
+        mutations: [{
+          type: mutationType,
+          target: pageSpec.name,
+          detail: `${existing ? "Updated" : "Created"} page spec ${pageSpec.name}`,
+          after: pageSpec,
+        }],
+      };
+    }
+
+    return { status: "completed", targetSpecs: task.targetSpecs ?? [] };
   }
 
   // ── Dataviz Specialist Sub-Agent ───────────────────────
 
   private async executeDatavizSpecialist(task: SubTask, ctx: AgentContext): Promise<unknown> {
     log.info({ task: task.name }, "Dataviz specialist processing");
-    return { status: "completed" };
+
+    if (task.name.includes("Design")) {
+      const specName = task.targetSpecs?.[0] ?? this.resolveTargetSpecName(task.prompt, "dataviz", ctx);
+      const existing = await this.engine.registry.getSpec(specName);
+
+      const datavizSpec: DataVizSpec = existing?.type === "dataviz"
+        ? {
+            ...existing,
+            updatedAt: new Date().toISOString(),
+          }
+        : this.scaffoldDataVizSpec(specName, task.prompt);
+
+      await this.engine.registry.saveSpec(datavizSpec);
+      this.upsertContextSpec(ctx, datavizSpec);
+
+      const mutationType: DesignMutation["type"] = existing ? "spec-updated" : "spec-created";
+      return {
+        status: "completed",
+        targetSpecs: [datavizSpec.name],
+        mutations: [{
+          type: mutationType,
+          target: datavizSpec.name,
+          detail: `${existing ? "Updated" : "Created"} dataviz spec ${datavizSpec.name}`,
+          after: datavizSpec,
+        }],
+      };
+    }
+
+    return { status: "completed", targetSpecs: task.targetSpecs ?? [] };
   }
 
   // ── Figma Executor Sub-Agent ───────────────────────────
@@ -878,13 +984,22 @@ ${existingMappings}
 
   private async executeCodeGenerator(task: SubTask, ctx: AgentContext): Promise<unknown> {
     const generated: string[] = [];
+    const targetSpecs = task.targetSpecs && task.targetSpecs.length > 0
+      ? task.targetSpecs
+      : task.name.startsWith("Generate ")
+        ? ctx.specs.map((spec) => spec.name)
+        : [];
 
-    for (const spec of ctx.specs) {
+    if (targetSpecs.length === 0) {
+      return { status: "skipped", generated, mutations: [] };
+    }
+
+    for (const specName of targetSpecs) {
       try {
-        const file = await this.engine.generateFromSpec(spec.name);
+        const file = await this.engine.generateFromSpec(specName);
         generated.push(file);
       } catch (err) {
-        log.warn({ spec: spec.name, err }, "Failed to generate");
+        log.warn({ spec: specName, err }, "Failed to generate");
       }
     }
 
@@ -897,6 +1012,196 @@ ${existingMappings}
         detail: `Generated ${f}`,
       })),
     };
+  }
+
+  private resolveTargetSpecName(
+    intent: string,
+    kind: "component" | "page" | "dataviz",
+    ctx: AgentContext,
+  ): string {
+    const exactExisting = ctx.specs.find((spec) => new RegExp(`\\b${spec.name}\\b`, "i").test(intent));
+    if (exactExisting) {
+      return exactExisting.name;
+    }
+
+    const extracted = this.extractNameFromIntent(intent, kind);
+    if (extracted) {
+      return extracted;
+    }
+
+    const suffix = kind === "page" ? "Page" : kind === "dataviz" ? "Chart" : "Component";
+    return `Generated${suffix}`;
+  }
+
+  private extractNameFromIntent(intent: string, kind: "component" | "page" | "dataviz"): string | null {
+    const patterns: Record<typeof kind, RegExp[]> = {
+      component: [
+        /\b(?:create|add|build|design|new)\s+(?:a|an|the)?\s*([a-z0-9][a-z0-9\s-]*?)\s+(?:component|widget|element)\b/i,
+        /\b(?:create|add|build|design|new)\s+(?:a|an|the)?\s*([a-z0-9][a-z0-9\s-]*?)\s+(button|card|input|form|modal|dialog|table|nav|header|footer|sidebar)\b/i,
+      ],
+      page: [
+        /\b(?:create|add|build|design|compose|new)\s+(?:a|an|the)?\s*([a-z0-9][a-z0-9\s-]*?)\s+(page|screen|view|layout)\b/i,
+      ],
+      dataviz: [
+        /\b(?:create|add|build|design|new)\s+(?:a|an|the)?\s*([a-z0-9][a-z0-9\s-]*?)\s+(chart|graph|visualization|viz)\b/i,
+      ],
+    };
+
+    for (const pattern of patterns[kind]) {
+      const match = intent.match(pattern);
+      if (!match) continue;
+      const nameParts = match.slice(1).filter(Boolean);
+      const normalized = this.toPascalCase(nameParts.join(" "));
+      if (!normalized) continue;
+
+      if (kind === "page" && !normalized.endsWith("Page")) return `${normalized}Page`;
+      if (kind === "dataviz" && !/(Chart|Graph|Viz)$/i.test(normalized)) return `${normalized}Chart`;
+      return normalized;
+    }
+
+    return null;
+  }
+
+  private toPascalCase(value: string): string {
+    return value
+      .replace(/[^A-Za-z0-9\s-]/g, " ")
+      .trim()
+      .split(/[\s-]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join("");
+  }
+
+  private scaffoldComponentSpec(name: string, intent: string): ComponentSpec {
+    const now = new Date().toISOString();
+    const shadcnBase = this.inferShadcnBase(intent, "component");
+    const primaryBase = shadcnBase[0] ?? "Card";
+    const lowerIntent = intent.toLowerCase();
+    const level = /\b(form|table|sidebar|header|footer|dialog|modal)\b/.test(lowerIntent)
+      ? "organism"
+      : /\b(card|search|filter|metric|stat)\b/.test(lowerIntent)
+        ? "molecule"
+        : "atom";
+
+    return {
+      name,
+      type: "component",
+      level,
+      purpose: `${name} component generated from compose intent`,
+      researchBacking: [],
+      designTokens: { source: "none", mapped: false },
+      variants: ["default"],
+      props: {},
+      shadcnBase,
+      composesSpecs: [],
+      codeConnect: { props: {}, mapped: false },
+      accessibility: {
+        role: primaryBase === "Dialog" ? "dialog" : undefined,
+        ariaLabel: "optional",
+        keyboardNav: /dialog|modal|menu|dropdown|select|sidebar/i.test(lowerIntent),
+      },
+      dataviz: null,
+      tags: ["compose-generated"],
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  private scaffoldPageSpec(name: string, intent: string, ctx: AgentContext): PageSpec {
+    const now = new Date().toISOString();
+    const lowerIntent = intent.toLowerCase();
+    const layout: PageSpec["layout"] = lowerIntent.includes("dashboard")
+      ? "dashboard"
+      : /\b(login|auth|signin|signup)\b/.test(lowerIntent)
+        ? "centered"
+        : /\blanding|marketing|hero\b/.test(lowerIntent)
+          ? "marketing"
+          : "full-width";
+
+    const componentSections = ctx.specs
+      .filter((spec): spec is ComponentSpec => spec.type === "component")
+      .slice(0, layout === "dashboard" ? 3 : 0)
+      .map((spec, index) => ({
+        name: spec.name.toLowerCase(),
+        component: spec.name,
+        layout: index === 0 ? "full-width" : "grid-2",
+        repeat: 1,
+        props: {},
+      })) as PageSpec["sections"];
+
+    return {
+      name,
+      type: "page",
+      purpose: `${name} page generated from compose intent`,
+      researchBacking: [],
+      layout,
+      sections: componentSections,
+      shadcnLayout: layout === "dashboard" ? ["SidebarProvider", "SidebarInset"] : [],
+      responsive: { mobile: "stack", tablet: "grid-2", desktop: layout === "dashboard" ? "grid-4" : "grid-2" },
+      meta: {
+        title: name.replace(/Page$/, ""),
+        description: intent,
+      },
+      tags: ["compose-generated"],
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  private scaffoldDataVizSpec(name: string, intent: string): DataVizSpec {
+    const now = new Date().toISOString();
+    const lowerIntent = intent.toLowerCase();
+    const chartType: DataVizSpec["chartType"] = lowerIntent.includes("bar")
+      ? "bar"
+      : lowerIntent.includes("area")
+        ? "area"
+        : lowerIntent.includes("pie") || lowerIntent.includes("donut")
+          ? "donut"
+          : lowerIntent.includes("scatter")
+            ? "scatter"
+            : "line";
+
+    return {
+      name,
+      type: "dataviz",
+      purpose: `${name} chart generated from compose intent`,
+      chartType,
+      library: "recharts",
+      dataShape: { x: "label", y: "value" },
+      interactions: ["hover-tooltip"],
+      accessibility: { altText: "required", keyboardNav: true, dataTableFallback: true },
+      responsive: {
+        mobile: { height: 200, simplify: true },
+        desktop: { height: 400 },
+      },
+      shadcnWrapper: "Card",
+      sampleData: [],
+      tags: ["compose-generated"],
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  private inferShadcnBase(intent: string, kind: "component" | "page" | "dataviz"): string[] {
+    const text = intent.toLowerCase();
+    if (kind === "dataviz") return ["Card"];
+    if (text.includes("button")) return ["Button"];
+    if (text.includes("input")) return ["Input"];
+    if (text.includes("form")) return ["Form", "Input", "Label"];
+    if (text.includes("dialog") || text.includes("modal")) return ["Dialog"];
+    if (text.includes("table")) return ["Table"];
+    if (text.includes("sidebar") || text.includes("nav")) return ["Sidebar"];
+    if (text.includes("badge")) return ["Badge"];
+    return ["Card"];
+  }
+
+  private upsertContextSpec(ctx: AgentContext, spec: AnySpec): void {
+    const index = ctx.specs.findIndex((entry) => entry.name === spec.name);
+    if (index >= 0) {
+      ctx.specs[index] = spec;
+      return;
+    }
+    ctx.specs.push(spec);
   }
 
   // ── Design Auditor Sub-Agent ───────────────────────────
