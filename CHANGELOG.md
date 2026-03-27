@@ -56,6 +56,8 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 | `722496d` | Add JSON output to spec list command |
 | `a223ac3` | Add JSON output to IA commands |
 | `eef0a91` | Add JSON output to note mutation commands |
+| `04bd773` | Add JSON output to research commands |
+| `ed0bd00` | Ignore generated workspace artifacts |
 
 ### Key Design Decisions
 - **Notes Become a Real Extension Surface** — Mémoire now treats Notes as installable skill packs, including workspace `SKILL.md` bundles, built-in notes, and compatibility fixes for activation and copy behavior.
@@ -63,6 +65,8 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - **Machine-Friendly CLI Surfaces** — `status`, `notes list`, and `notes info` can emit clean JSON, which makes the CLI more usable for Codex, Claude, and other automation.
 - **Fast Local Build Loop** — dedicated build config and build script reduce warm build latency and stop shipping unnecessary sourcemap artifacts during normal iteration.
 - **Codex-Oriented Operating Guidance** — built-in notes now include Codex ops guidance, and core inventory commands expose more JSON so agent workflows can inspect specs and IA state without scraping prose.
+- **Research Pipeline Becomes Scriptable** — research import, synthesis, and report commands now expose artifact paths and summaries in JSON, so automation can chain them without terminal scraping.
+- **Workspace State Is Less Noisy** — generated atomic output and preview build artifacts are now treated as workspace state in git ignore rules, reducing irrelevant status noise during agent work.
 - **Runtime and Bridge Hardening** — Preview, the Figma bridge, signal handling, and listener management were tightened so bind failures and cleanup paths surface clearly.
 - **Modern Project Detection and Packaging** — Tailwind v4, shadcn, plugin manifest access, postinstall behavior, and npm packaging were hardened for current app layouts.
 
@@ -80,6 +84,8 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - Sped up local TypeScript builds with a dedicated build config and restored the working fast-build script
 - Added JSON output to `spec list` and IA `list`/`show`/`validate` so agents can inspect architecture state without terminal scraping
 - Added JSON output to `notes install`, `notes create`, and `notes remove` so downloadable note workflows can be automated end to end
+- Added JSON output to research `from-file`, `from-stickies`, `synthesize`, and `report` with artifact metadata and no human preamble noise in JSON mode
+- Ignored generated atomic component folders, `.astro/`, and preview-generated workspace artifacts to reduce git noise during normal operation
 
 ## v0.2.0 — 2026-03-26
 

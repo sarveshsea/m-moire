@@ -488,7 +488,9 @@ const releases = [
       ["324de7f", "Add codex ops note"],
       ["722496d", "Add JSON output to spec list command"],
       ["a223ac3", "Add JSON output to IA commands"],
-      ["eef0a91", "Add JSON output to note mutation commands"]
+      ["eef0a91", "Add JSON output to note mutation commands"],
+      ["04bd773", "Add JSON output to research commands"],
+      ["ed0bd00", "Ignore generated workspace artifacts"]
     ],
     decisions: [
       ["Notes become a real extension surface", "M\u00e9moire now treats Notes as installable skill packs, including workspace SKILL.md bundles, built-in notes, and compatibility fixes for activation and copy behavior."],
@@ -496,6 +498,8 @@ const releases = [
       ["Machine-friendly CLI surfaces", "status, notes list, and notes info can emit clean JSON for Codex, Claude, and other automation."],
       ["Fast local build loop", "A dedicated TypeScript build config and build script reduce warm build time and remove unnecessary map output from the normal dist build."],
       ["Codex-oriented operating guidance", "The built-in Codex ops note and new JSON inventory commands make it easier for agents to inspect repo state and follow safe commit workflows."],
+      ["Research pipeline becomes scriptable", "Research import, synthesis, and report commands now expose artifact paths and summaries in JSON so automation can chain them without scraping terminal prose."],
+      ["Workspace state is less noisy", "Generated atomic output and preview build artifacts are now treated as workspace state in git ignore rules, which reduces irrelevant git status noise during agent work."],
       ["Runtime and bridge hardening", "Preview, the Figma bridge, signal handling, and listener management now surface bind failures and cleanup paths clearly."],
       ["Modern project detection and packaging", "Tailwind v4, shadcn, plugin manifest access, postinstall behavior, and npm packaging were hardened for current app layouts."]
     ],
@@ -512,7 +516,9 @@ const releases = [
       "Improved project detection for Tailwind and shadcn setups and removed logger transport warnings.",
       "Sped up local TypeScript builds with a dedicated build config and restored the working fast-build script.",
       "Added JSON output to spec list and IA list, show, and validate so agents can inspect architecture state without terminal scraping.",
-      "Added JSON output to notes install, create, and remove so downloadable note workflows can be automated end to end."
+      "Added JSON output to notes install, create, and remove so downloadable note workflows can be automated end to end.",
+      "Added JSON output to research from-file, from-stickies, synthesize, and report with artifact metadata and no human preamble noise in JSON mode.",
+      "Ignored generated atomic component folders, .astro, and preview-generated workspace artifacts to reduce git noise during normal operation."
     ]
   },
   {
