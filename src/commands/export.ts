@@ -8,6 +8,8 @@ import type { MemoireEngine } from "../engine/core.js";
 import { readdir, readFile, writeFile, mkdir, access } from "fs/promises";
 import { join, relative } from "path";
 
+type ExportKind = "components" | "pages" | "dataviz" | "other";
+
 export function registerExportCommand(program: Command, engine: MemoireEngine) {
   program
     .command("export")
@@ -25,9 +27,6 @@ export function registerExportCommand(program: Command, engine: MemoireEngine) {
       }
 
       const generatedDir = join(engine.config.projectRoot, "generated");
-      const targetBase = opts.target
-        ? join(engine.config.projectRoot, opts.target)
-        : join(engine.config.projectRoot, project.paths.components);
 
       // Discover all generated files
       const files = await walkDir(generatedDir);
@@ -36,14 +35,17 @@ export function registerExportCommand(program: Command, engine: MemoireEngine) {
         return;
       }
 
-      console.log(`\n  Exporting ${files.length} files to ${relative(engine.config.projectRoot, targetBase) || targetBase}\n`);
+      console.log(`\n  Exporting ${files.length} files to project destinations\n`);
 
       let written = 0;
       let skipped = 0;
 
       for (const file of files) {
         const relPath = relative(generatedDir, file);
-        const targetPath = join(targetBase, relPath);
+        const kind = getExportKind(relPath);
+        const targetBase = getTargetBase(engine.config.projectRoot, project, opts.target, kind);
+        const mappedRelPath = stripGeneratedPrefix(relPath);
+        const targetPath = join(targetBase, mappedRelPath);
 
         if (opts.dryRun) {
           console.log(`  · ${relPath} → ${relative(engine.config.projectRoot, targetPath)}`);
@@ -94,4 +96,45 @@ async function walkDir(dir: string): Promise<string[]> {
     // Directory doesn't exist
   }
   return results;
+}
+
+function getExportKind(relPath: string): ExportKind {
+  const [firstSegment] = relPath.split(/[\\/]/);
+  if (firstSegment === "components" || firstSegment === "pages" || firstSegment === "dataviz") {
+    return firstSegment;
+  }
+  return "other";
+}
+
+function stripGeneratedPrefix(relPath: string): string {
+  const segments = relPath.split(/[\\/]/);
+  if (segments.length <= 1) return relPath;
+
+  const [firstSegment, ...rest] = segments;
+  if (firstSegment === "components" || firstSegment === "pages" || firstSegment === "dataviz") {
+    return rest.join("/");
+  }
+
+  return relPath;
+}
+
+function getTargetBase(
+  projectRoot: string,
+  project: { paths: { components: string; pages?: string } },
+  customTarget: string | undefined,
+  kind: ExportKind,
+): string {
+  if (customTarget) {
+    return join(projectRoot, customTarget);
+  }
+
+  switch (kind) {
+    case "pages":
+      return join(projectRoot, project.paths.pages ?? "src/pages");
+    case "dataviz":
+      return join(projectRoot, project.paths.components, "dataviz");
+    case "components":
+    default:
+      return join(projectRoot, project.paths.components);
+  }
 }
