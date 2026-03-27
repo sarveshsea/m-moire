@@ -30,11 +30,11 @@ Port 9228-9232 → Additional specialists
 The Mémoire plugin auto-discovers all instances via port scanning (9223-9232) every 5 seconds.
 
 ### Instance Identification
-Each agent MUST identify itself on connect:
+Each agent instance should use a distinct bridge session name:
 ```
-memi connect --role token-engineer --name "Token Agent"
-memi connect --role component-architect --name "Component Agent"
-memi connect --role layout-designer --name "Layout Agent"
+memi connect --name "Token Agent"
+memi connect --name "Component Agent"
+memi connect --name "Layout Agent"
 ```
 
 ## Box Widget Protocol
@@ -132,7 +132,7 @@ All three work simultaneously, communicating via agent-broadcast
 When an agent encounters an error:
 ```
 1. Update box widget: status → "error", show error message
-2. Broadcast: agent-status { role, task, status: "error", error: "..." }
+2. Publish visible status with the canvas widget and bridge `agent-status`
 3. Attempt self-fix (max 2 retries)
 4. If unrecoverable:
    a. Broadcast failure to orchestrator

@@ -87,7 +87,7 @@ When learnings prove broadly applicable, promote them to project files:
 Memoire provides multi-agent orchestration via `memi compose`:
 
 - **Agent orchestrator** — classify intent, plan steps, execute across agents
-- **Box widgets** — multiple Claude instances communicate natively
+- **Box widgets** — on-canvas task and status visibility for multi-agent runs
 - **Shared project state** — `.memoire/` directory persists across sessions
 - **Skill injection** — Notes are loaded at engine init and injected when context matches
 

@@ -6,11 +6,14 @@ import { Command } from "commander";
 import { registerConnectCommand } from "../connect.js";
 
 let projectRoot: string;
+let originalHome: string | undefined;
 
 beforeEach(async () => {
   projectRoot = join(tmpdir(), `memoire-connect-json-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   await mkdir(join(projectRoot, "plugin"), { recursive: true });
-  await writeFile(join(projectRoot, "plugin", "manifest.json"), JSON.stringify({ name: "memoire-plugin" }), "utf-8");
+  await writePluginBundle(join(projectRoot, "plugin"), { packageVersion: "0.2.1", widgetVersion: "2" });
+  originalHome = process.env.HOME;
+  process.env.HOME = join(projectRoot, "fake-home");
   delete process.env.FIGMA_TOKEN;
   delete process.env.FIGMA_FILE_KEY;
 });
@@ -20,6 +23,11 @@ afterEach(async () => {
   process.exitCode = 0;
   delete process.env.FIGMA_TOKEN;
   delete process.env.FIGMA_FILE_KEY;
+  if (originalHome === undefined) {
+    delete process.env.HOME;
+  } else {
+    process.env.HOME = originalHome;
+  }
   await rm(projectRoot, { recursive: true, force: true });
 });
 
@@ -55,9 +63,18 @@ describe("connect --json", () => {
       },
       plugin: {
         manifestPath: join(projectRoot, "plugin", "manifest.json"),
+        installPath: join(projectRoot, "plugin"),
         source: "local",
         exists: true,
         symlinked: false,
+        health: "local-only",
+        current: false,
+        operatorConsole: true,
+      },
+      widget: {
+        operatorConsole: true,
+        widgetVersion: "2",
+        packageVersion: "0.2.1",
       },
     });
     expect(payload.nextSteps[0]).toContain("Set FIGMA_TOKEN");
@@ -96,6 +113,15 @@ describe("connect --json", () => {
         connectedClients: 1,
         connected: true,
       },
+      plugin: {
+        source: "local",
+        health: "local-only",
+        operatorConsole: true,
+      },
+      widget: {
+        widgetVersion: "2",
+        packageVersion: "0.2.1",
+      },
     });
     expect(engine.connectFigma).toHaveBeenCalledTimes(1);
   });
@@ -124,6 +150,13 @@ describe("connect --json", () => {
         port: null,
         connectedClients: 0,
         connected: false,
+      },
+      plugin: {
+        health: "local-only",
+        operatorConsole: true,
+      },
+      widget: {
+        widgetVersion: "2",
       },
       error: {
         message: "Port scan failed",
@@ -169,4 +202,34 @@ function lastLog(logs: string[]): string {
   const value = logs.at(-1);
   if (!value) throw new Error("Expected a console.log call");
   return value;
+}
+
+async function writePluginBundle(pluginRoot: string, meta: { packageVersion: string; widgetVersion: string }) {
+  await writeFile(join(pluginRoot, "manifest.json"), JSON.stringify({ name: "memoire-plugin" }), "utf-8");
+  await writeFile(join(pluginRoot, "code.js"), "console.log('widget');\n", "utf-8");
+  await writeFile(join(pluginRoot, "ui.html"), "<html><body>Operator Console</body></html>\n", "utf-8");
+  await writeFile(join(pluginRoot, "widget-meta.json"), JSON.stringify({
+    widgetVersion: meta.widgetVersion,
+    packageVersion: meta.packageVersion,
+    builtAt: "2026-03-27T12:00:00.000Z",
+    bundleHash: "bundle-hash",
+    manifest: {
+      path: join(pluginRoot, "manifest.json"),
+      exists: true,
+      bytes: 20,
+      sha256: "manifest-hash",
+    },
+    code: {
+      path: join(pluginRoot, "code.js"),
+      exists: true,
+      bytes: 22,
+      sha256: "code-hash",
+    },
+    ui: {
+      path: join(pluginRoot, "ui.html"),
+      exists: true,
+      bytes: 38,
+      sha256: "ui-hash",
+    },
+  }, null, 2), "utf-8");
 }

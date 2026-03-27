@@ -8,13 +8,18 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { access, readdir, constants } from "fs/promises";
 import { join } from "path";
+import { resolvePluginHealth } from "../plugin/install-info.js";
 
 type CheckStatus = "pass" | "warn" | "fail";
+type CheckCategory = "project" | "design" | "plugin" | "bridge" | "runtime" | "workspace";
 
 interface CheckResult {
+  code: string;
+  category: CheckCategory;
   status: CheckStatus;
   label: string;
   detail: string;
+  meta?: Record<string, unknown>;
 }
 
 interface DoctorPayload {
@@ -40,6 +45,16 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
     .option("--json", "Output doctor results as JSON")
     .action(async (opts: { json?: boolean }) => {
       const results: CheckResult[] = [];
+      const push = (
+        code: string,
+        category: CheckCategory,
+        status: CheckStatus,
+        label: string,
+        detail: string,
+        meta?: Record<string, unknown>,
+      ) => {
+        results.push({ code, category, status, label, detail, meta });
+      };
 
       // 1. Project detected
       try {
@@ -48,13 +63,16 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
         if (project) {
           const parts: string[] = [project.framework];
           if (project.styling.tailwind) parts.push("Tailwind");
-          results.push({ status: "pass", label: "Project detected", detail: parts.join(" + ") });
+          push("project.detected", "project", "pass", "Project detected", parts.join(" + "), {
+            framework: project.framework,
+            tailwind: project.styling.tailwind,
+          });
         } else {
-          results.push({ status: "fail", label: "Project detected", detail: "no project context found" });
+          push("project.detected", "project", "fail", "Project detected", "no project context found");
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        results.push({ status: "fail", label: "Project detected", detail: msg });
+        push("project.detected", "project", "fail", "Project detected", msg);
       }
 
       // 2. Design system loaded
@@ -70,17 +88,16 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
           const breakdown = Object.entries(byType)
             .map(([type, count]) => `${type}: ${count}`)
             .join(", ");
-          results.push({
-            status: "pass",
-            label: "Design system",
-            detail: `${tokenCount} tokens (${breakdown})`,
+          push("design.system", "design", "pass", "Design system", `${tokenCount} tokens (${breakdown})`, {
+            tokens: tokenCount,
+            breakdown: byType,
           });
         } else {
-          results.push({ status: "warn", label: "Design system", detail: "no tokens loaded" });
+          push("design.system", "design", "warn", "Design system", "no tokens loaded");
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        results.push({ status: "fail", label: "Design system", detail: msg });
+        push("design.system", "design", "fail", "Design system", msg);
       }
 
       // 3. Specs valid
@@ -119,23 +136,22 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
           .join(", ");
 
         if (warnings > 0) {
-          results.push({
-            status: "warn",
-            label: "Specs",
-            detail: `${valid} valid, ${warnings} with issues (${typeSummary}). ${issues.join("; ")}`,
+          push("design.specs", "design", "warn", "Specs", `${valid} valid, ${warnings} with issues (${typeSummary}). ${issues.join("; ")}`, {
+            valid,
+            warnings,
+            types: byType,
           });
         } else if (specs.length > 0) {
-          results.push({
-            status: "pass",
-            label: "Specs",
-            detail: `${valid} valid (${typeSummary})`,
+          push("design.specs", "design", "pass", "Specs", `${valid} valid (${typeSummary})`, {
+            valid,
+            types: byType,
           });
         } else {
-          results.push({ status: "warn", label: "Specs", detail: "no specs found" });
+          push("design.specs", "design", "warn", "Specs", "no specs found");
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        results.push({ status: "fail", label: "Specs", detail: msg });
+        push("design.specs", "design", "fail", "Specs", msg);
       }
 
       // 4. Token coverage
@@ -146,68 +162,154 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
         const missing = requiredTypes.filter((t) => !presentTypes.has(t));
 
         if (missing.length === 0) {
-          results.push({ status: "pass", label: "Token coverage", detail: "all core types present" });
+          push("design.tokens", "design", "pass", "Token coverage", "all core types present", {
+            requiredTypes,
+          });
         } else {
-          results.push({
-            status: "fail",
-            label: "Token gap",
-            detail: `no ${missing.join(", ")} tokens`,
+          push("design.tokens", "design", "fail", "Token gap", `no ${missing.join(", ")} tokens`, {
+            missing,
           });
         }
       }
 
-      // 5. Figma bridge
+      // 5. Plugin bundle
       try {
-        if (engine.figma.isConnected) {
-          results.push({ status: "pass", label: "Figma bridge", detail: "connected" });
+        const plugin = await resolvePluginHealth(engine.config.projectRoot);
+        const missing = [
+          !plugin.localBundle.meta?.manifest.exists ? "manifest.json" : "",
+          !plugin.localBundle.meta?.code.exists ? "code.js" : "",
+          !plugin.localBundle.meta?.ui.exists ? "ui.html" : "",
+          !plugin.localBundle.meta ? "widget-meta.json" : "",
+        ].filter(Boolean);
+
+        if (plugin.localBundle.ready && plugin.localBundle.meta) {
+          push("plugin.bundle", "plugin", "pass", "Plugin bundle", "manifest, code.js, ui.html, and widget-meta.json ready", {
+            root: plugin.localBundle.root,
+            builtAt: plugin.localBundle.meta.builtAt,
+            packageVersion: plugin.localBundle.meta.packageVersion,
+            widgetVersion: plugin.localBundle.meta.widgetVersion,
+          });
         } else {
-          results.push({ status: "warn", label: "Figma bridge", detail: "not connected (ports 9223-9232)" });
+          push("plugin.bundle", "plugin", "fail", "Plugin bundle", `missing ${missing.join(", ") || "plugin assets"}`, {
+            root: plugin.localBundle.root,
+            missing,
+          });
         }
-      } catch {
-        results.push({ status: "warn", label: "Figma bridge", detail: "unable to check connection" });
+
+        if (plugin.health === "current") {
+          push("plugin.install", "plugin", "pass", "Plugin install", `${plugin.installPath} is current`, {
+            source: plugin.source,
+            health: plugin.health,
+          });
+        } else if (plugin.health === "local-only" || plugin.health === "symlink-risk" || plugin.health === "stale-home-copy") {
+          push("plugin.install", "plugin", "warn", "Plugin install", `${plugin.installPath} (${plugin.health})`, {
+            source: plugin.source,
+            health: plugin.health,
+            manifestPath: plugin.manifestPath,
+          });
+        } else {
+          push("plugin.install", "plugin", "fail", "Plugin install", `${plugin.installPath} (${plugin.health})`, {
+            source: plugin.source,
+            health: plugin.health,
+            manifestPath: plugin.manifestPath,
+          });
+        }
+
+        if (plugin.widgetVersion || plugin.packageVersion || plugin.builtAt) {
+          push(
+            "plugin.widget-meta",
+            "plugin",
+            "pass",
+            "Widget V2 metadata",
+            `widget ${plugin.widgetVersion ?? "unknown"} / package ${plugin.packageVersion ?? "unknown"}`,
+            {
+              widgetVersion: plugin.widgetVersion,
+              packageVersion: plugin.packageVersion,
+              builtAt: plugin.builtAt,
+              bundleHash: plugin.bundleHash,
+            },
+          );
+        } else {
+          push("plugin.widget-meta", "plugin", "warn", "Widget V2 metadata", "metadata not available", {
+            manifestPath: plugin.manifestPath,
+          });
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        push("plugin.bundle", "plugin", "fail", "Plugin bundle", msg);
+        push("plugin.install", "plugin", "fail", "Plugin install", msg);
       }
 
-      // 6. Preview files
+      // 6. Figma bridge
+      try {
+        const bridgeStatus = typeof engine.figma.getStatus === "function"
+          ? engine.figma.getStatus()
+          : { running: false, port: 0, clients: [] };
+
+        if (engine.figma.isConnected) {
+          push("bridge.figma", "bridge", "pass", "Figma bridge", `connected (${bridgeStatus.clients.length} client${bridgeStatus.clients.length === 1 ? "" : "s"})`, {
+            running: bridgeStatus.running,
+            port: bridgeStatus.port,
+            clients: bridgeStatus.clients.length,
+          });
+        } else if (bridgeStatus.running) {
+          push("bridge.figma", "bridge", "warn", "Figma bridge", `listening on :${bridgeStatus.port} — waiting for the Control Plane`, {
+            running: bridgeStatus.running,
+            port: bridgeStatus.port,
+          });
+        } else {
+          push("bridge.figma", "bridge", "warn", "Figma bridge", "not connected (ports 9223-9232)", {
+            running: bridgeStatus.running,
+            port: bridgeStatus.port,
+          });
+        }
+      } catch {
+        push("bridge.figma", "bridge", "warn", "Figma bridge", "unable to check connection");
+      }
+
+      // 7. Preview files
       try {
         const previewDir = join(engine.config.projectRoot, "preview");
         const files = await readdir(previewDir);
         const htmlFiles = files.filter((f) => f.endsWith(".html"));
         if (htmlFiles.length > 0) {
-          results.push({ status: "pass", label: "Preview", detail: `${htmlFiles.length} pages` });
+          push("runtime.preview", "runtime", "pass", "Preview", `${htmlFiles.length} pages`, {
+            htmlFiles,
+          });
         } else {
-          results.push({ status: "warn", label: "Preview", detail: "no HTML files in preview/" });
+          push("runtime.preview", "runtime", "warn", "Preview", "no HTML files in preview/");
         }
       } catch {
-        results.push({ status: "fail", label: "Preview", detail: "preview/ directory not found" });
+        push("runtime.preview", "runtime", "fail", "Preview", "preview/ directory not found");
       }
 
-      // 7. Node version
+      // 8. Node version
       {
         const version = process.version;
         const major = parseInt(version.slice(1).split(".")[0], 10);
         if (major >= 20) {
-          results.push({ status: "pass", label: "Node", detail: version });
+          push("runtime.node", "runtime", "pass", "Node", version, { version });
         } else {
-          results.push({ status: "fail", label: "Node", detail: `${version} (requires >= 20)` });
+          push("runtime.node", "runtime", "fail", "Node", `${version} (requires >= 20)`, { version });
         }
       }
 
-      // 8. Dependencies
+      // 9. Dependencies
       try {
         const nmPath = join(engine.config.projectRoot, "node_modules");
         await access(nmPath, constants.R_OK);
-        results.push({ status: "pass", label: "Dependencies", detail: "installed" });
+        push("runtime.dependencies", "runtime", "pass", "Dependencies", "installed");
       } catch {
-        results.push({ status: "fail", label: "Dependencies", detail: "node_modules not found" });
+        push("runtime.dependencies", "runtime", "fail", "Dependencies", "node_modules not found");
       }
 
-      // 9. Workspace
+      // 10. Workspace
       try {
         const memoireDir = join(engine.config.projectRoot, ".memoire");
         await access(memoireDir, constants.R_OK | constants.W_OK);
-        results.push({ status: "pass", label: "Workspace", detail: ".memoire/ OK" });
+        push("workspace.memoire", "workspace", "pass", "Workspace", ".memoire/ OK");
       } catch {
-        results.push({ status: "fail", label: "Workspace", detail: ".memoire/ missing or not writable" });
+        push("workspace.memoire", "workspace", "fail", "Workspace", ".memoire/ missing or not writable");
       }
 
       const payload = buildDoctorPayload(results);
@@ -220,8 +322,24 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
       // Print results
       console.log("\n  Memoire Doctor\n");
 
-      for (const r of results) {
-        console.log(`  ${ICON[r.status]} ${r.label}: ${r.detail}`);
+      const categories: CheckCategory[] = ["project", "design", "plugin", "bridge", "runtime", "workspace"];
+      const labels: Record<CheckCategory, string> = {
+        project: "Project",
+        design: "Design",
+        plugin: "Plugin",
+        bridge: "Bridge",
+        runtime: "Runtime",
+        workspace: "Workspace",
+      };
+
+      for (const category of categories) {
+        const group = results.filter((result) => result.category === category);
+        if (!group.length) continue;
+        console.log(`  ${labels[category]}`);
+        for (const r of group) {
+          console.log(`    ${ICON[r.status]} ${r.label}: ${r.detail}`);
+        }
+        console.log("");
       }
 
       console.log(`\n  ${payload.summary.pass} passed, ${payload.summary.warn} warnings, ${payload.summary.fail} failed\n`);

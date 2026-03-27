@@ -10,7 +10,15 @@
 5. **Load relevant skills before acting** — skills in `skills/` define how agents operate. Read the skill file that matches your task.
 
 ## What is Mémoire
-AI-native design intelligence engine. Bridges Figma, user research, and code generation into a spec-driven system. Auto-discovers and connects to the Figma plugin, generates shadcn/ui components from structured specs, and supports multiple Claude instances natively via box widgets.
+AI-native design intelligence engine. Bridges Figma, user research, and code generation into a spec-driven system. Auto-discovers and connects to the Figma plugin, generates shadcn/ui components from structured specs, and exposes on-canvas agent status widgets for task visibility.
+
+## Widget V2 Operating Model
+- Use the Figma Control Plane as an operator surface, not only as a bridge transport
+- Check `Jobs` first for sync, capture, inspect, and healer state
+- Use `Selection` for node IDs, styles, variants, layout facts, and quick actions
+- Use `System` for bridge state, ports, latency, and buffered change-stream visibility
+- Treat canvas agent widgets as task/status surfaces, not as a durable communication log
+- Use `memi connect --json` and `memi doctor --json` when an agent needs machine-readable widget and bridge health
 
 ## Architecture
 | Directory | Purpose |

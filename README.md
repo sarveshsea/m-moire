@@ -77,7 +77,7 @@ memoire preview
 | Command | What it does |
 |---------|-------------|
 | `memoire init` | Initialize workspace |
-| `memoire connect` | Start Figma bridge (auto-discovers plugin on ports 9223-9232) |
+| `memoire connect` | Start the Figma bridge and report Control Plane install health |
 | `memoire pull` | Extract design tokens, components, styles from Figma |
 | `memoire spec <type> <name>` | Create a component/page/dataviz spec |
 | `memoire generate [name]` | Generate shadcn/ui code from specs |
@@ -88,7 +88,7 @@ memoire preview
 | `memoire research <sub>` | Research pipeline (Excel, stickies, synthesis) |
 | `memoire tokens` | Export design tokens as CSS variables |
 | `memoire status` | Show project status |
-| `memoire doctor` | Health check and diagnostics |
+| `memoire doctor` | Health check for project, plugin bundle, bridge, and workspace |
 | `memoire dashboard` | Launch monitoring dashboard |
 
 ---
@@ -117,7 +117,24 @@ The Figma plugin auto-discovers Memoire on ports 9223-9232.
 
 1. Open Figma Desktop
 2. Go to **Plugins > Development > Import plugin from manifest**
-3. Select `plugin/manifest.json`
+3. Select `~/.memoire/plugin/manifest.json`
+
+### Figma Operator Console
+
+The Widget V2 plugin is an operator console, not only a bridge debugger.
+
+- `Jobs` shows sync, inspect, capture, and healer work as tracked job state
+- `Selection` shows live node IDs, layout facts, styles, variants, and quick actions
+- `System` shows bridge status, ports, latency, and buffered change-stream state
+
+Use these commands to verify the installed bundle and bridge health:
+
+```bash
+memi connect --json
+memi doctor --json
+```
+
+`memi connect --json` reports where the Control Plane manifest is being loaded from, whether the installed bundle is current, and which widget assets are present. `memi doctor --json` reports plugin bundle health, install freshness, and bridge state.
 
 ---
 

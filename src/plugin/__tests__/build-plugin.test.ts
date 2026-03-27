@@ -14,6 +14,7 @@ describe("plugin build pipeline", () => {
 
       const code = await readFile(result.codePath, "utf8");
       const html = await readFile(result.htmlPath, "utf8");
+      const meta = await readFile(result.metaPath, "utf8");
 
       expect(code).toContain("figma.showUI");
       expect(html).toContain("Operator Console");
@@ -23,6 +24,8 @@ describe("plugin build pipeline", () => {
       expect(html).toContain("System");
       expect(html).not.toContain('src="/assets/');
       expect(html).not.toContain('href="/assets/');
+      expect(meta).toContain('"widgetVersion": "2"');
+      expect(meta).toContain('"packageVersion": "0.2.1"');
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

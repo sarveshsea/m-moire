@@ -1,10 +1,12 @@
 import { build } from "vite";
-import { access, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { access, copyFile, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { createHash } from "node:crypto";
 
 const defaultRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const widgetVersion = "2";
 
 export async function buildPluginBundle(options = {}) {
   const rootDir = options.rootDir ? resolve(options.rootDir) : defaultRoot;
@@ -67,15 +69,25 @@ export async function buildPluginBundle(options = {}) {
     },
   });
 
+  const manifestSource = resolve(rootDir, "plugin", "manifest.json");
+  const manifestTarget = join(outDir, "manifest.json");
+  try {
+    await access(manifestTarget);
+  } catch {
+    await copyFile(manifestSource, manifestTarget);
+  }
+
   const html = await readFile(join(uiOutDir, "index.html"), "utf-8");
   const inlined = await inlineAssets(html, uiOutDir);
   await writeFile(join(outDir, "ui.html"), inlined, "utf-8");
+  await writeWidgetMeta(rootDir, outDir);
   await rm(tempRoot, { recursive: true, force: true });
 
   return {
     outDir,
     codePath: join(outDir, "code.js"),
     htmlPath: join(outDir, "ui.html"),
+    metaPath: join(outDir, "widget-meta.json"),
   };
 }
 
@@ -99,6 +111,46 @@ async function inlineAssets(html, outDir) {
   }
 
   return result;
+}
+
+async function writeWidgetMeta(rootDir, outDir) {
+  const packageJson = JSON.parse(await readFile(join(rootDir, "package.json"), "utf-8"));
+  const manifest = await createAsset(join(outDir, "manifest.json"));
+  const code = await createAsset(join(outDir, "code.js"));
+  const ui = await createAsset(join(outDir, "ui.html"));
+  const bundleHash = sha256(JSON.stringify([
+    manifest.sha256 || "missing",
+    code.sha256 || "missing",
+    ui.sha256 || "missing",
+  ]));
+
+  await writeFile(
+    join(outDir, "widget-meta.json"),
+    JSON.stringify({
+      widgetVersion,
+      packageVersion: packageJson.version ?? null,
+      builtAt: new Date().toISOString(),
+      bundleHash,
+      manifest,
+      code,
+      ui,
+    }, null, 2) + "\n",
+    "utf-8",
+  );
+}
+
+async function createAsset(path) {
+  const buffer = await readFile(path);
+  return {
+    path,
+    exists: true,
+    bytes: buffer.byteLength,
+    sha256: sha256(buffer),
+  };
+}
+
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
 }
 
 const invokedPath = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : "";

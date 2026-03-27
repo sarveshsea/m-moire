@@ -29,6 +29,7 @@ scrape terminal prose if a JSON surface exists.
 Current JSON-first commands:
 
 - `memi status --json`
+- `memi connect --json`
 - `memi notes list --json`
 - `memi notes info <name> --json`
 - `memi compose "..." --json`
@@ -85,12 +86,13 @@ Current JSON-first commands:
 For a normal implementation lane:
 
 1. `memi status --json`
-2. `memi doctor --json`
-3. edit the smallest viable set of files
-4. run focused tests
-5. run `npm run typecheck`
-6. commit one lane
-7. push immediately
+2. `memi connect --json`
+3. `memi doctor --json`
+4. edit the smallest viable set of files
+5. run focused tests
+6. run `npm run typecheck`
+7. commit one lane
+8. push immediately
 
 For note work:
 

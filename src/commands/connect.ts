@@ -3,22 +3,15 @@ import type { MemoireEngine } from "../engine/core.js";
 import type { BridgeClient } from "../figma/ws-server.js";
 
 import { readFile, writeFile } from "fs/promises";
-import { existsSync, lstatSync } from "fs";
 import { join } from "path";
 import { createInterface } from "readline";
+import { resolvePluginHealth, type PluginInstallHealth } from "../plugin/install-info.js";
 
 type ConfigSource = "process" | ".env.local" | ".env" | "missing";
 
 interface ExistingConfigValue {
   value: string | null;
   source: ConfigSource;
-}
-
-interface PluginInfo {
-  manifestPath: string;
-  source: "home" | "local" | "missing";
-  symlinked: boolean;
-  exists: boolean;
 }
 
 interface ConnectJsonPayload {
@@ -41,7 +34,36 @@ interface ConnectJsonPayload {
     connectedClients: number;
     connected: boolean;
   };
-  plugin: PluginInfo;
+  plugin: {
+    manifestPath: string;
+    installPath: string;
+    source: "home" | "local" | "missing";
+    symlinked: boolean;
+    exists: boolean;
+    current: boolean;
+    health: PluginInstallHealth["health"];
+    operatorConsole: boolean;
+    bundle: {
+      ready: boolean;
+      codePath: string;
+      uiPath: string;
+      metaPath: string;
+      installMetaPath: string;
+    };
+    localBundle: {
+      ready: boolean;
+      codePath: string;
+      uiPath: string;
+      metaPath: string;
+    };
+  };
+  widget: {
+    operatorConsole: boolean;
+    widgetVersion: string | null;
+    packageVersion: string | null;
+    builtAt: string | null;
+    bundleHash: string | null;
+  };
   nextSteps: string[];
   error?: {
     message: string;
@@ -90,44 +112,6 @@ async function findExistingEnvValue(root: string, key: string): Promise<Existing
   };
 }
 
-function resolvePluginInfo(root: string): PluginInfo {
-  const home = process.env.HOME || process.env.USERPROFILE || "";
-  const homePlugin = join(home, ".memoire", "plugin", "manifest.json");
-  const localPlugin = join(root, "plugin", "manifest.json");
-
-  if (existsSync(homePlugin)) {
-    return {
-      manifestPath: homePlugin,
-      source: "home",
-      symlinked: false,
-      exists: true,
-    };
-  }
-
-  if (existsSync(localPlugin)) {
-    let symlinked = false;
-    try {
-      symlinked = lstatSync(localPlugin).isSymbolicLink();
-    } catch {
-      symlinked = false;
-    }
-
-    return {
-      manifestPath: localPlugin,
-      source: "local",
-      symlinked,
-      exists: true,
-    };
-  }
-
-  return {
-    manifestPath: localPlugin,
-    source: "missing",
-    symlinked: false,
-    exists: false,
-  };
-}
-
 function buildSetupPayload(
   skipSetup: boolean,
   token: ExistingConfigValue,
@@ -145,6 +129,81 @@ function buildSetupPayload(
       value: fileKey.value,
     },
   };
+}
+
+function buildPluginPayload(plugin: PluginInstallHealth): ConnectJsonPayload["plugin"] {
+  return {
+    manifestPath: plugin.manifestPath,
+    installPath: plugin.installPath,
+    source: plugin.source,
+    symlinked: plugin.symlinked,
+    exists: plugin.exists,
+    current: plugin.current,
+    health: plugin.health,
+    operatorConsole: plugin.operatorConsole,
+    bundle: {
+      ready: plugin.bundle.ready,
+      codePath: plugin.bundle.codePath,
+      uiPath: plugin.bundle.uiPath,
+      metaPath: plugin.bundle.metaPath,
+      installMetaPath: plugin.bundle.installMetaPath,
+    },
+    localBundle: {
+      ready: plugin.localBundle.ready,
+      codePath: plugin.localBundle.codePath,
+      uiPath: plugin.localBundle.uiPath,
+      metaPath: plugin.localBundle.metaPath,
+    },
+  };
+}
+
+function buildWidgetPayload(plugin: PluginInstallHealth): ConnectJsonPayload["widget"] {
+  return {
+    operatorConsole: plugin.operatorConsole,
+    widgetVersion: plugin.widgetVersion,
+    packageVersion: plugin.packageVersion,
+    builtAt: plugin.builtAt,
+    bundleHash: plugin.bundleHash,
+  };
+}
+
+function buildPluginNextSteps(plugin: PluginInstallHealth): string[] {
+  const steps: string[] = [];
+
+  if (!plugin.localBundle.ready) {
+    steps.push("Run `npm run build` so plugin/code.js, plugin/ui.html, and widget-meta.json exist");
+  }
+  if (plugin.health === "missing" || plugin.health === "local-only") {
+    steps.push("Import the Memoire Control Plane manifest in Figma from the reported manifest path");
+  }
+  if (plugin.health === "stale-home-copy") {
+    steps.push("Reinstall or rerun postinstall so ~/.memoire/plugin matches the current package bundle");
+  }
+  if (plugin.health === "symlink-risk") {
+    steps.push("Avoid symlinked manifests when importing into Figma; prefer ~/.memoire/plugin/manifest.json");
+  }
+  if (plugin.health === "missing-assets") {
+    steps.push("Rebuild the widget bundle and verify manifest, code.js, ui.html, and widget-meta.json are all present");
+  }
+
+  return steps;
+}
+
+function describePluginHealth(plugin: PluginInstallHealth): string {
+  switch (plugin.health) {
+    case "current":
+      return "current home install";
+    case "stale-home-copy":
+      return "stale home install";
+    case "local-only":
+      return "local bundle only";
+    case "missing-assets":
+      return "missing bundle assets";
+    case "symlink-risk":
+      return "symlink risk";
+    default:
+      return "not installed";
+  }
 }
 
 /** Append or update a key in a .env file */
@@ -184,7 +243,7 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
       const json = Boolean(opts.json);
       const token = await findExistingEnvValue(root, "FIGMA_TOKEN");
       const fileKey = await findExistingEnvValue(root, "FIGMA_FILE_KEY");
-      const plugin = resolvePluginInfo(root);
+      const plugin = await resolvePluginHealth(root);
 
       if (json && !token.value) {
         console.log(JSON.stringify({
@@ -196,10 +255,11 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
             connectedClients: 0,
             connected: false,
           },
-          plugin,
+          plugin: buildPluginPayload(plugin),
+          widget: buildWidgetPayload(plugin),
           nextSteps: [
             "Set FIGMA_TOKEN in .env.local, .env, or process environment",
-            "Install the Memoire Figma plugin from the manifest path",
+            ...buildPluginNextSteps(plugin),
             "Run `memi connect --json --skip-setup` again after token setup",
           ],
         } satisfies ConnectJsonPayload, null, 2));
@@ -271,13 +331,22 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
         }
 
         // ── Step 3: Install plugin ────────────────────────
-        console.log("  STEP 3 / 3 - Install the Memoire Plugin\n");
-        console.log("  The plugin runs inside Figma and talks to Memoire over WebSocket.\n");
+        console.log("  STEP 3 / 3 - Install the Memoire Control Plane\n");
+        console.log("  The widget runs inside Figma and talks to Memoire over WebSocket.\n");
 
         if (plugin.source === "local" && plugin.symlinked) {
           console.log("  Warning: plugin/manifest.json is a symlink - Figma may reject it.");
           console.log("  Run `npm install -g @sarveshsea/memoire` again to copy the plugin to ~/.memoire/plugin/\n");
         }
+
+        console.log(`  Bundle health: ${describePluginHealth(plugin)}`);
+        console.log(`  Widget V2: ${plugin.widgetVersion ?? "unknown"} / package ${plugin.packageVersion ?? "unknown"}`);
+        if (plugin.builtAt) {
+          console.log(`  Built at: ${plugin.builtAt}`);
+        }
+        console.log(`  Install path: ${plugin.installPath}`);
+        console.log(`  Bundle assets: ${plugin.bundle.ready ? "ready" : "missing"}`);
+        console.log();
 
         console.log("  To install it:");
         console.log("    1. Open Figma Desktop");
@@ -322,26 +391,33 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
               connectedClients,
               connected: connectedClients > 0,
             },
-            plugin,
+            plugin: buildPluginPayload(plugin),
+            widget: buildWidgetPayload(plugin),
             nextSteps: connectedClients > 0
               ? []
-              : ["Open the Memoire plugin in Figma to attach to the running bridge"],
+              : [
+                ...buildPluginNextSteps(plugin),
+                "Open the Memoire Control Plane in Figma to attach to the running bridge",
+              ],
           } satisfies ConnectJsonPayload, null, 2));
           return;
         }
 
         console.log(`  ┌──────────────────────────────────────────────┐`);
-        console.log(`  │  MEMOIRE BRIDGE - PORT ${String(port).padEnd(22)}    │`);
+        console.log(`  │  MEMOIRE CONTROL PLANE - PORT ${String(port).padEnd(15)}│`);
         console.log(`  │                                              │`);
         console.log(`  │  In Figma:                                   │`);
         console.log(`  │    Plugins -> Development -> Memoire -> Run    │`);
-        console.log(`  │    The plugin auto-connects to port ${String(port).padEnd(8)} │`);
+        console.log(`  │    Open the Control Plane on port ${String(port).padEnd(9)}│`);
         console.log(`  │                                              │`);
         console.log(`  │  Once connected, you can:                    │`);
         console.log(`  │    memi pull           Sync design tokens    │`);
         console.log(`  │    memi ia extract app Extract page tree     │`);
         console.log(`  │    memi sync           Full pipeline         │`);
         console.log(`  └──────────────────────────────────────────────┘\n`);
+        console.log(`  Widget V2: ${plugin.widgetVersion ?? "unknown"} / package ${plugin.packageVersion ?? "unknown"}`);
+        console.log(`  Install source: ${plugin.source} (${describePluginHealth(plugin)})`);
+        console.log(`  Manifest: ${plugin.manifestPath}\n`);
 
         engine.figma.on("plugin-connected", (client: BridgeClient) => {
           console.log(`  + Connected: ${client.file} (${client.editor})`);
@@ -410,8 +486,10 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
               connectedClients: 0,
               connected: false,
             },
-            plugin,
+            plugin: buildPluginPayload(plugin),
+            widget: buildWidgetPayload(plugin),
             nextSteps: [
+              ...buildPluginNextSteps(plugin),
               "Verify the Figma token and plugin manifest path",
               "Retry once the bridge port is available",
             ],

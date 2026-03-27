@@ -133,6 +133,16 @@ The Memoire bridge emits these sync-relevant events:
 | `page-changed` | User switches Figma pages | Refresh page tree |
 | `sync-data` | Plugin sends bulk data | Process and update registry |
 
+### Operator Console
+
+Widget V2 exposes the bridge as an operator console:
+
+- `Jobs` shows sync, capture, inspect, and healer activity as tracked job state
+- `Selection` shows current node IDs, styles, variants, and layout facts
+- `System` shows bridge status, ports, latency, reconnect state, and buffered changes
+- `agent-status` surfaces on-canvas task visibility from the orchestrator
+- `connection-state`, `job-status`, `sync-result`, and healer state are better sources of truth than raw bridge logs
+
 ### Debounce Strategy
 
 - `document-changed`: 3 second debounce — batch rapid edits
@@ -146,7 +156,7 @@ The Memoire bridge emits these sync-relevant events:
 
 | Error | Recovery |
 |-------|---------|
-| Plugin disconnected mid-sync | Retry on reconnect, resume from last checkpoint |
+| Plugin disconnected mid-sync | Retry on reconnect and re-run the affected operation explicitly |
 | Timeout on getVariables | Retry once with 2x timeout, fall back to cached data |
 | Rate limited | Back off 5s, retry with exponential backoff |
 | Corrupted response | Log warning, skip this sync cycle, retry next event |
