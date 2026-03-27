@@ -72,6 +72,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 | `4a40053` | Sync changelog for widget job state |
 | `5d13713` | Rewrite canvas agent box lifecycle |
 | `d64527d` | Add preview control-plane endpoints and agent visibility |
+| `0f02bcd` | Add widget bundle metadata and health checks |
 
 ### Key Design Decisions
 - **Notes Become a Real Extension Surface** — Mémoire now treats Notes as installable skill packs, including workspace `SKILL.md` bundles, built-in notes, and compatibility fixes for activation and copy behavior.
@@ -92,6 +93,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - **Jobs Become Persistent Widget State** — The plugin main thread now owns a real job store, bootstrap can restore existing job state, reconnect downgrades active work explicitly, and sync/healer summaries persist in the operator console instead of vanishing into transient logs.
 - **Canvas Agent Widgets Gain Stable Identity** — On-canvas agent boxes are now keyed by `{runId, taskId, role}`, seeded per plan, and updated through real idle/busy/done/error lifecycle transitions instead of overwriting a single role-based box.
 - **Preview Gains Widget-Grade State** — The preview API now keeps a live cache of bridge, selection, job, sync, healer, and agent status so dashboards can query the same operational state the Figma widget sees.
+- **Widget Bundle Health Becomes Explicit** — The build now emits widget metadata, postinstall records install state, and `connect` / `doctor` report whether the installed Control Plane bundle is built, current, and operator-ready.
 
 ### Changes
 - Added the Notes ecosystem release, including audit fixes, activation cleanup, recursive-copy handling, and dead-code removal
@@ -125,6 +127,8 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - Rewrote the canvas agent widget lifecycle with stable run/task identity, deterministic ordering, richer box content, and orchestration wiring backed by helper tests
 - Added widget-aware preview endpoints for Figma status, jobs, selection, and agents, backed by a dedicated preview state cache and regression coverage
 - Upgraded the preview gallery footer into a live control summary and published agent-status updates beyond the canvas so preview and the Control Plane share the same orchestration view
+- Added widget build metadata, install metadata, and a new install-health resolver so the Control Plane bundle can be verified programmatically
+- Upgraded `connect` and `doctor` to report widget version, bundle readiness, install freshness, and plugin health in both JSON and human-readable output, then aligned README, notes, and multi-agent guidance with the shipped Widget V2 behavior
 
 ## v0.2.0 — 2026-03-26
 

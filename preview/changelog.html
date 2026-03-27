@@ -442,7 +442,7 @@ const releases = [
     version: "v0.2.1",
     date: "2026-03-27",
     tag: "fix",
-    summary: "Notes compatibility, faster build loops, Codex-oriented guidance, compose targeting, preview hardening, project detection, broader JSON-ready CLI output, a new plugin V2 foundation, a normalized widget-bridge protocol, stronger operator workflows, persistent widget job state, stable canvas agent widgets, and a widget-grade preview control plane.",
+    summary: "Notes compatibility, faster build loops, Codex-oriented guidance, compose targeting, preview hardening, project detection, broader JSON-ready CLI output, a new plugin V2 foundation, a normalized widget-bridge protocol, stronger operator workflows, persistent widget job state, stable canvas agent widgets, a widget-grade preview control plane, and explicit widget bundle health checks.",
     commits: [
       ["3b8403e", "Update CHANGELOG - add v0.2.0 Notes ecosystem release"],
       ["a347a33", "Fix Notes audit issues - activation gaps, recursive copy, dead code"],
@@ -504,7 +504,8 @@ const releases = [
       ["813e481", "Add widget job state and sync summaries"],
       ["4a40053", "Sync changelog for widget job state"],
       ["5d13713", "Rewrite canvas agent box lifecycle"],
-      ["d64527d", "Add preview control-plane endpoints and agent visibility"]
+      ["d64527d", "Add preview control-plane endpoints and agent visibility"],
+      ["0f02bcd", "Add widget bundle metadata and health checks"]
     ],
     decisions: [
       ["Notes become a real extension surface", "M\u00e9moire now treats Notes as installable skill packs, including workspace SKILL.md bundles, built-in notes, and compatibility fixes for activation and copy behavior."],
@@ -524,7 +525,8 @@ const releases = [
       ["Operator console optimizes for triage", "The plugin panel now treats jobs and selected nodes as operational surfaces, with presenter-driven summaries, node quick actions, and richer selection diagnostics above raw logs."],
       ["Jobs become persistent widget state", "The plugin main thread now owns a real job store, bootstrap can restore existing job state, reconnect downgrades active work explicitly, and sync and healer summaries persist in the operator console instead of vanishing into logs."],
       ["Canvas agent widgets gain stable identity", "On-canvas agent boxes are now keyed by runId, taskId, and role, seeded per plan, and updated through real idle, busy, done, and error lifecycle transitions instead of overwriting a single role-based box."],
-      ["Preview gains widget-grade state", "The preview API now keeps a live cache of bridge, selection, job, sync, healer, and agent status so dashboards can query the same operational state the Figma widget sees."]
+      ["Preview gains widget-grade state", "The preview API now keeps a live cache of bridge, selection, job, sync, healer, and agent status so dashboards can query the same operational state the Figma widget sees."],
+      ["Widget bundle health becomes explicit", "The build now emits widget metadata, postinstall records install state, and connect and doctor report whether the installed Control Plane bundle is built, current, and operator-ready."]
     ],
     changes: [
       "Added the Notes ecosystem release with activation cleanup, recursive-copy handling, and dead-code removal.",
@@ -557,7 +559,9 @@ const releases = [
       "Synced changelog surfaces for the widget job state push.",
       "Rewrote the canvas agent widget lifecycle with stable run and task identity, deterministic ordering, richer box content, and orchestration wiring backed by helper tests.",
       "Added widget-aware preview endpoints for Figma status, jobs, selection, and agents, backed by a dedicated preview state cache and regression coverage.",
-      "Upgraded the preview gallery footer into a live control summary and published agent-status updates beyond the canvas so preview and the Control Plane share the same orchestration view."
+      "Upgraded the preview gallery footer into a live control summary and published agent-status updates beyond the canvas so preview and the Control Plane share the same orchestration view.",
+      "Added widget build metadata, install metadata, and a new install-health resolver so the Control Plane bundle can be verified programmatically.",
+      "Upgraded connect and doctor to report widget version, bundle readiness, install freshness, and plugin health in both JSON and human-readable output, then aligned README, notes, and multi-agent guidance with the shipped Widget V2 behavior."
     ]
   },
   {
