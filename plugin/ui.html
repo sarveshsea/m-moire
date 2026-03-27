@@ -45,6 +45,25 @@
   }
 })();
 const WIDGET_V2_CHANNEL = "memoire.widget.v2";
+const WIDGET_COMMAND_NAMES = [
+  "execute",
+  "getSelection",
+  "getFileData",
+  "getVariables",
+  "getComponents",
+  "getStyles",
+  "getStickies",
+  "getChanges",
+  "getComponentImage",
+  "createNode",
+  "updateNode",
+  "deleteNode",
+  "setSelection",
+  "navigateTo",
+  "getPageList",
+  "getPageTree",
+  "captureScreenshot"
+];
 function isWidgetV2Envelope(value) {
   return Boolean(
     value && typeof value === "object" && "channel" in value && value.channel === WIDGET_V2_CHANNEL && "type" in value
@@ -53,10 +72,421 @@ function isWidgetV2Envelope(value) {
 function createRunId(prefix = "run") {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
+function isWidgetCommandName(value) {
+  return typeof value === "string" && WIDGET_COMMAND_NAMES.includes(value);
+}
+const BRIDGE_V2_CHANNEL = "memoire.bridge.v2";
+function isBridgeEnvelope(value) {
+  return Boolean(
+    value && typeof value === "object" && "channel" in value && value.channel === BRIDGE_V2_CHANNEL && "type" in value
+  );
+}
+function createBridgeCommandEnvelope(id, method, params = {}) {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "server",
+    type: "command",
+    id,
+    method,
+    params
+  };
+}
+function createBridgeResponseEnvelope(id, result, error) {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "plugin",
+    type: "response",
+    id,
+    result,
+    error
+  };
+}
+function normalizeBridgeMessage(value) {
+  if (isBridgeEnvelope(value)) {
+    return value;
+  }
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  const message = value;
+  const type = typeof message.type === "string" ? message.type : null;
+  if (!type) {
+    return null;
+  }
+  switch (type) {
+    case "command":
+      if (typeof message.id === "string" && isWidgetCommandName(message.method)) {
+        return createBridgeCommandEnvelope(message.id, message.method, asRecord(message.params));
+      }
+      return null;
+    case "response":
+      if (typeof message.id === "string") {
+        return createBridgeResponseEnvelope(message.id, message.result, asString(message.error));
+      }
+      return null;
+    case "ping":
+    case "pong":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: type === "ping" ? "server" : "plugin",
+        type
+      };
+    case "identify":
+      if (typeof message.name === "string") {
+        return {
+          channel: BRIDGE_V2_CHANNEL,
+          source: "server",
+          type,
+          name: message.name,
+          port: typeof message.port === "number" ? message.port : void 0
+        };
+      }
+      return null;
+    case "bridge-hello":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        file: asString(message.file) ?? "unknown",
+        fileKey: asString(message.fileKey) ?? "",
+        editor: asString(message.editor) ?? "figma"
+      };
+    case "event":
+      if (typeof message.message === "string") {
+        return {
+          channel: BRIDGE_V2_CHANNEL,
+          source: "server",
+          type,
+          level: normalizeBridgeLevel(message.level),
+          message: message.message,
+          data: message.data
+        };
+      }
+      return null;
+    case "chat":
+      if (typeof message.text === "string") {
+        return {
+          channel: BRIDGE_V2_CHANNEL,
+          source: "server",
+          type,
+          text: message.text,
+          from: asString(message.from) ?? "memoire-terminal"
+        };
+      }
+      return null;
+    case "error":
+      if (typeof message.message === "string") {
+        return {
+          channel: BRIDGE_V2_CHANNEL,
+          source: "server",
+          type,
+          message: message.message,
+          details: message.details
+        };
+      }
+      return null;
+    case "selection":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: message.data
+      };
+    case "page-changed":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: {
+          page: asRecord(message.data).page,
+          pageId: asString(asRecord(message.data).pageId) ?? null,
+          updatedAt: asNumber(asRecord(message.data).updatedAt) ?? Date.now()
+        }
+      };
+    case "document-changed":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: {
+          changes: asNumber(asRecord(message.data).changes) ?? 0,
+          buffered: asNumber(asRecord(message.data).buffered) ?? 0,
+          sessionId: asString(asRecord(message.data).sessionId) ?? "unknown",
+          runId: asString(asRecord(message.data).runId) ?? null,
+          updatedAt: asNumber(asRecord(message.data).updatedAt) ?? Date.now()
+        }
+      };
+    case "action-result":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        action: asString(message.action) ?? "unknown",
+        result: message.result,
+        error: asString(message.error)
+      };
+    case "sync-data":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type: "sync-result",
+        part: normalizeSyncPart(message.part),
+        summary: message.summary ?? emptySyncSummary(),
+        result: message.result,
+        error: asString(message.error)
+      };
+    case "connection-state":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: message.data
+      };
+    case "job-status":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: message.data
+      };
+    case "heal-result":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: message.data
+      };
+    case "agent-status":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: message.data
+      };
+    default:
+      return null;
+  }
+}
+function serializeBridgeEnvelope(envelope, mode = "legacy") {
+  if (mode === "v2") {
+    return envelope;
+  }
+  switch (envelope.type) {
+    case "command":
+      return {
+        type: "command",
+        id: envelope.id,
+        method: envelope.method,
+        params: envelope.params
+      };
+    case "response":
+      return {
+        type: "response",
+        id: envelope.id,
+        result: envelope.result,
+        error: envelope.error
+      };
+    case "ping":
+    case "pong":
+      return { type: envelope.type };
+    case "identify":
+      return {
+        type: "identify",
+        name: envelope.name,
+        port: envelope.port
+      };
+    case "bridge-hello":
+      return {
+        type: "bridge-hello",
+        file: envelope.file,
+        fileKey: envelope.fileKey,
+        editor: envelope.editor
+      };
+    case "event":
+      return {
+        type: "event",
+        level: envelope.level,
+        message: envelope.message,
+        data: envelope.data
+      };
+    case "chat":
+      return {
+        type: "chat",
+        text: envelope.text,
+        from: envelope.from
+      };
+    case "error":
+      return {
+        type: "error",
+        message: envelope.message,
+        details: envelope.details
+      };
+    case "selection":
+      return { type: "selection", data: envelope.data };
+    case "page-changed":
+      return { type: "page-changed", data: envelope.data };
+    case "document-changed":
+      return { type: "document-changed", data: envelope.data };
+    case "action-result":
+      return {
+        type: "action-result",
+        action: envelope.action,
+        result: envelope.result,
+        error: envelope.error
+      };
+    case "sync-result":
+      return {
+        type: "sync-data",
+        part: envelope.part,
+        summary: envelope.summary,
+        result: envelope.result,
+        error: envelope.error
+      };
+    case "connection-state":
+    case "job-status":
+    case "heal-result":
+    case "agent-status":
+      return {
+        type: envelope.type,
+        data: envelope.data
+      };
+  }
+}
+function normalizeBridgeLevel(value) {
+  if (value === "success" || value === "warn" || value === "error") {
+    return value;
+  }
+  return "info";
+}
+function normalizeSyncPart(value) {
+  if (value === "components" || value === "styles") {
+    return value;
+  }
+  return "tokens";
+}
+function emptySyncSummary() {
+  return {
+    tokens: 0,
+    components: 0,
+    styles: 0,
+    partialFailures: []
+  };
+}
+function asRecord(value) {
+  return value && typeof value === "object" ? value : {};
+}
+function asString(value) {
+  return typeof value === "string" ? value : void 0;
+}
+function asNumber(value) {
+  return typeof value === "number" ? value : void 0;
+}
+function createBridgeCommandDispatch(message) {
+  return {
+    requestId: createRunId("bridge"),
+    command: message.method,
+    params: message.params
+  };
+}
+function trackBridgeRequest(pending, requestId, message) {
+  pending.set(requestId, {
+    bridgeId: message.id,
+    command: message.method
+  });
+}
+function resolveBridgeResponse(pending, message) {
+  const matched = pending.get(message.requestId);
+  if (!matched || matched.command !== message.command) {
+    return null;
+  }
+  pending.delete(message.requestId);
+  return createBridgeResponseEnvelope(matched.bridgeId, message.result, message.error);
+}
+function createBridgeSelectionMessage(selection) {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "plugin",
+    type: "selection",
+    data: selection
+  };
+}
+function createBridgePageChangedMessage(pageName, pageId, updatedAt) {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "plugin",
+    type: "page-changed",
+    data: {
+      page: pageName,
+      pageId,
+      updatedAt
+    }
+  };
+}
+function createBridgeDocumentChangedMessage(changes, buffered, sessionId, runId, updatedAt) {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "plugin",
+    type: "document-changed",
+    data: {
+      changes,
+      buffered,
+      sessionId,
+      runId,
+      updatedAt
+    }
+  };
+}
+function createBridgeConnectionStateMessage(connection) {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "plugin",
+    type: "connection-state",
+    data: connection
+  };
+}
+function createBridgeJobStatusMessage(job) {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "plugin",
+    type: "job-status",
+    data: job
+  };
+}
+function createBridgeSyncResultMessage(part, result, error) {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "plugin",
+    type: "sync-result",
+    part,
+    summary: summarizeSyncResult(part, result, error),
+    result,
+    error
+  };
+}
+function summarizeSyncResult(part, result, error) {
+  const summary = {
+    tokens: 0,
+    components: 0,
+    styles: 0,
+    partialFailures: error ? [error] : []
+  };
+  if (part === "tokens") {
+    const collections = result?.collections || [];
+    summary.tokens = Array.isArray(collections) ? collections.length : 0;
+  }
+  if (part === "components") {
+    summary.components = Array.isArray(result) ? result.length : 0;
+  }
+  if (part === "styles") {
+    summary.styles = Array.isArray(result) ? result.length : 0;
+  }
+  return summary;
+}
 const PORT_START = 9223;
 const PORT_END = 9232;
 const LOG_LIMIT = 80;
 const MAX_JOBS = 24;
+const pendingBridgeRequests = /* @__PURE__ */ new Map();
 const appRoot = document.getElementById("app");
 if (!appRoot) {
   throw new Error("Plugin root element not found");
@@ -142,11 +572,12 @@ function bindPluginMessages() {
         break;
       case "connection":
         state.connection = message.connection;
+        forwardToBridge(serializeBridgeEnvelope(createBridgeConnectionStateMessage(message.connection)));
         render();
         break;
       case "selection":
         state.selection = message.selection;
-        forwardToBridge({ type: "selection", data: message.selection });
+        forwardToBridge(serializeBridgeEnvelope(createBridgeSelectionMessage(message.selection)));
         render();
         break;
       case "page":
@@ -156,23 +587,28 @@ function bindPluginMessages() {
           pageId: message.pageId
         };
         state.lastPageUpdate = message.updatedAt;
-        forwardToBridge({
-          type: "page-changed",
-          data: { page: message.pageName, pageId: message.pageId }
-        });
+        forwardToBridge(serializeBridgeEnvelope(createBridgePageChangedMessage(
+          message.pageName,
+          message.pageId,
+          message.updatedAt
+        )));
         render();
         break;
       case "changes":
         state.changeCount = message.count;
         state.bufferedChanges = message.buffered;
-        forwardToBridge({
-          type: "document-changed",
-          data: { changes: message.count, buffered: message.buffered, updatedAt: message.updatedAt }
-        });
+        forwardToBridge(serializeBridgeEnvelope(createBridgeDocumentChangedMessage(
+          message.count,
+          message.buffered,
+          message.sessionId,
+          message.runId ?? null,
+          message.updatedAt
+        )));
         render();
         break;
       case "job":
         upsertJob(message.job);
+        forwardToBridge(serializeBridgeEnvelope(createBridgeJobStatusMessage(message.job)));
         render();
         break;
       case "command-result":
@@ -304,21 +740,52 @@ function forwardToBridge(payload) {
   return true;
 }
 function handleBridgeMessage(payload) {
-  switch (payload.type) {
+  const message = normalizeBridgeMessage(payload);
+  if (!message) {
+    return;
+  }
+  switch (message.type) {
+    case "command":
+      handleBridgeCommand(message);
+      break;
     case "identify":
-      state.bridge.name = payload.name || state.bridge.name;
+      state.bridge.name = message.name || state.bridge.name;
       break;
     case "event": {
-      const level = payload.level === "success" ? "success" : payload.level === "error" ? "error" : payload.level === "warn" ? "warn" : "info";
-      addLog(level, payload.message || "Bridge event", payload.data || null);
+      addLog(message.level, message.message || "Bridge event", message.data || null);
       break;
     }
+    case "chat":
+      addLog("info", `Bridge chat from ${message.from}`, message.text);
+      break;
     case "error":
-      addLog("error", payload.message || "Bridge error", payload.details || null);
+      addLog("error", message.message || "Bridge error", message.details || null);
       break;
   }
 }
+function handleBridgeCommand(message) {
+  if (!isWidgetCommandName(message.method)) {
+    forwardToBridge(serializeBridgeEnvelope(
+      createBridgeResponseEnvelope(message.id, void 0, `Unknown bridge command: ${message.method}`)
+    ));
+    return;
+  }
+  const dispatch = createBridgeCommandDispatch(message);
+  trackBridgeRequest(pendingBridgeRequests, dispatch.requestId, message);
+  sendToMain({
+    channel: WIDGET_V2_CHANNEL,
+    source: "ui",
+    type: "run-command",
+    requestId: dispatch.requestId,
+    command: dispatch.command,
+    params: dispatch.params
+  });
+}
 function handleCommandResult(message) {
+  const bridgeResponse = resolveBridgeResponse(pendingBridgeRequests, message);
+  if (bridgeResponse) {
+    forwardToBridge(serializeBridgeEnvelope(bridgeResponse));
+  }
   if (message.error) {
     addLog("error", `${message.command} failed`, message.error);
     return;
@@ -339,17 +806,17 @@ function handleCommandResult(message) {
   }
   if (message.command === "getVariables") {
     const collections = (message.result?.collections || []).length;
-    forwardToBridge({ type: "sync-data", part: "tokens", result: message.result });
+    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("tokens", message.result)));
     addLog("success", `Synced tokens`, { collections });
   }
   if (message.command === "getComponents") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
-    forwardToBridge({ type: "sync-data", part: "components", result: message.result });
+    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("components", message.result)));
     addLog("success", `Synced components`, { count });
   }
   if (message.command === "getStyles") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
-    forwardToBridge({ type: "sync-data", part: "styles", result: message.result });
+    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("styles", message.result)));
     addLog("success", `Synced styles`, { count });
   }
   if (message.command === "getChanges") {

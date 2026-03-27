@@ -18,10 +18,19 @@ import {
 
 interface PluginState {
   sessionId: string;
+  activeRunId: string | null;
   selectionListenerActive: boolean;
   lastSelectionUpdate: number;
   selectionThrottleMs: number;
-  changeBuffer: Array<{ type: string; id: string; origin: string | null; sessionId: string; timestamp: number }>;
+  changeBuffer: Array<{
+    type: string;
+    id: string;
+    origin: string | null;
+    sessionId: string;
+    runId: string | null;
+    pageId: string | null;
+    timestamp: number;
+  }>;
   maxChangeBuffer: number;
   connection: WidgetConnectionState;
 }
@@ -32,6 +41,7 @@ const BLOCKED_GLOBALS = [/\bFunction\s*\(/, /\bimport\s*\(/, /\brequire\s*\(/, /
 
 const state: PluginState = {
   sessionId: createRunId("widget"),
+  activeRunId: null,
   selectionListenerActive: true,
   lastSelectionUpdate: 0,
   selectionThrottleMs: 180,
@@ -112,6 +122,8 @@ async function bootstrap(): Promise<void> {
         id: change.id,
         origin: change.origin ?? null,
         sessionId: state.sessionId,
+        runId: state.activeRunId,
+        pageId: figma.currentPage?.id ?? null,
         timestamp: now,
       });
     }
@@ -124,6 +136,8 @@ async function bootstrap(): Promise<void> {
       type: "changes",
       count: event.documentChanges?.length ?? 0,
       buffered: state.changeBuffer.length,
+      sessionId: state.sessionId,
+      runId: state.activeRunId,
       updatedAt: now,
     });
   });
@@ -152,6 +166,7 @@ figma.ui.onmessage = async (message: WidgetUiEnvelope) => {
   const job = message.action ? startJob(message.requestId, message.command, message.action.kind, message.action.label) : null;
 
   try {
+    state.activeRunId = job?.runId ?? null;
     const result = await handleCommand(message.command, message.params ?? {});
     if (job) {
       finishJob(job, "completed", summarizeCommandResult(message.command, result));
@@ -162,6 +177,9 @@ figma.ui.onmessage = async (message: WidgetUiEnvelope) => {
       type: "command-result",
       requestId: message.requestId,
       command: message.command,
+      ok: true,
+      sessionId: state.sessionId,
+      runId: job?.runId ?? null,
       result,
     });
   } catch (error) {
@@ -175,8 +193,13 @@ figma.ui.onmessage = async (message: WidgetUiEnvelope) => {
       type: "command-result",
       requestId: message.requestId,
       command: message.command,
+      ok: false,
+      sessionId: state.sessionId,
+      runId: job?.runId ?? null,
       error: messageText,
     });
+  } finally {
+    state.activeRunId = null;
   }
 };
 
@@ -201,7 +224,7 @@ function startJob(id: string, command: WidgetCommandName, kind: WidgetJob["kind"
   const now = Date.now();
   const job: WidgetJob = {
     id,
-    runId: state.sessionId,
+    runId: createRunId("job"),
     kind,
     label,
     command,
@@ -306,6 +329,7 @@ function createSelectionSnapshot(): WidgetSelectionSnapshot {
     count: figma.currentPage.selection.length,
     pageName: figma.currentPage.name,
     pageId: figma.currentPage.id,
+    sessionId: state.sessionId,
     nodes: figma.currentPage.selection.map((node: any) => serializeSelectionNode(node)),
     updatedAt: Date.now(),
   };
@@ -693,11 +717,19 @@ async function loadTextNodeFonts(node: any): Promise<void> {
   if (!node || node.type !== "TEXT") return;
   const characters = node.characters || "";
   if (!characters.length) {
-    await figma.loadFontAsync(node.fontName);
+    const fontName = node.fontName;
+    if (fontName && fontName !== figma.mixed) {
+      await figma.loadFontAsync(fontName);
+    }
     return;
   }
   const fonts = node.getRangeAllFontNames(0, characters.length);
-  await Promise.all(fonts.map((font: any) => figma.loadFontAsync(font)));
+  const uniqueFonts = new Map<string, { family: string; style: string }>();
+  for (const font of fonts) {
+    if (!font || font === figma.mixed) continue;
+    uniqueFonts.set(`${font.family}::${font.style}`, font);
+  }
+  await Promise.all(Array.from(uniqueFonts.values()).map((font) => figma.loadFontAsync(font)));
 }
 
 async function deleteNode(nodeId: string): Promise<unknown> {

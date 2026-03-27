@@ -10,6 +10,13 @@ import { WebSocketServer, WebSocket } from "ws";
 import { createLogger } from "../engine/logger.js";
 import { EventEmitter } from "events";
 import type { MemoireEvent } from "../engine/core.js";
+import {
+  createBridgeCommandEnvelope,
+  normalizeBridgeMessage,
+  serializeBridgeEnvelope,
+  type BridgeEnvelope,
+} from "../plugin/shared/bridge.js";
+import type { WidgetCommandName } from "../plugin/shared/contracts.js";
 
 const log = createLogger("ws-server");
 
@@ -29,21 +36,6 @@ export interface MemoireWsServerConfig {
   onCommand?: (method: string, params: Record<string, unknown>) => Promise<unknown>;
   onChat?: (text: string, fromPlugin: string) => void;
   onEvent?: (event: MemoireEvent) => void;
-}
-
-/** Shape of messages received from the Figma plugin */
-interface PluginMessage {
-  type: string;
-  id?: string;
-  file?: string;
-  fileKey?: string;
-  editor?: string;
-  text?: string;
-  data?: unknown;
-  result?: unknown;
-  error?: string;
-  action?: string;
-  part?: string;
 }
 
 /** Per-client rate limiter — sliding window counter */
@@ -192,12 +184,13 @@ export class MemoireWsServer extends EventEmitter {
         return;
       }
 
-      client.ws.send(JSON.stringify({
-        type: "command",
-        id,
-        method,
-        params,
-      }));
+      client.ws.send(
+        JSON.stringify(
+          serializeBridgeEnvelope(
+            createBridgeCommandEnvelope(id, method as WidgetCommandName, params),
+          ),
+        ),
+      );
     });
   }
 
@@ -205,23 +198,31 @@ export class MemoireWsServer extends EventEmitter {
    * Send a chat message to all connected Figma plugins.
    */
   sendChat(text: string): void {
-    this.broadcast({
-      type: "chat",
-      text,
-      from: this.config.instanceName ?? "memoire-terminal",
-    });
+    this.broadcast(
+      serializeBridgeEnvelope({
+        channel: "memoire.bridge.v2",
+        source: "server",
+        type: "chat",
+        text,
+        from: this.config.instanceName ?? "memoire-terminal",
+      }),
+    );
   }
 
   /**
    * Send an event notification to all plugins.
    */
   sendEvent(event: MemoireEvent): void {
-    this.broadcast({
-      type: "event",
-      level: event.type,
-      message: event.message,
-      source: event.source,
-    });
+    this.broadcast(
+      serializeBridgeEnvelope({
+        channel: "memoire.bridge.v2",
+        source: "server",
+        type: "event",
+        level: event.type,
+        message: event.message,
+        data: { source: event.source },
+      }),
+    );
   }
 
   /**
@@ -297,11 +298,17 @@ export class MemoireWsServer extends EventEmitter {
       this.emit("client-connected", client);
 
       // Send identification
-      ws.send(JSON.stringify({
-        type: "identify",
-        name: this.config.instanceName ?? `Mémoire Terminal`,
-        port: this.port,
-      }));
+      ws.send(
+        JSON.stringify(
+          serializeBridgeEnvelope({
+            channel: "memoire.bridge.v2",
+            source: "server",
+            type: "identify",
+            name: this.config.instanceName ?? `Mémoire Terminal`,
+            port: this.port,
+          }),
+        ),
+      );
 
       ws.on("message", (data) => {
         try {
@@ -317,9 +324,9 @@ export class MemoireWsServer extends EventEmitter {
             ws.send(JSON.stringify({ type: "error", message: "Rate limit exceeded. Slow down." }));
             return;
           }
-          const msg = JSON.parse(raw) as PluginMessage;
-          if (!msg.type || typeof msg.type !== "string") {
-            log.warn({ clientId }, "Invalid message: missing type field");
+          const msg = normalizeBridgeMessage(JSON.parse(raw));
+          if (!msg) {
+            log.warn({ clientId }, "Invalid message: unsupported bridge payload");
             return;
           }
           this.handleMessage(clientId, msg);
@@ -365,7 +372,7 @@ export class MemoireWsServer extends EventEmitter {
     }, 30000);
   }
 
-  private handleMessage(clientId: string, msg: PluginMessage): void {
+  private handleMessage(clientId: string, msg: BridgeEnvelope): void {
     const client = this.clients.get(clientId);
     if (!client) return;
 
@@ -373,24 +380,32 @@ export class MemoireWsServer extends EventEmitter {
       case "ping":
         // JSON-level keepalive from plugin UI
         client.lastPing = new Date();
-        client.ws.send(JSON.stringify({ type: "pong" }));
+        client.ws.send(
+          JSON.stringify(
+            serializeBridgeEnvelope({
+              channel: "memoire.bridge.v2",
+              source: "plugin",
+              type: "pong",
+            }),
+          ),
+        );
         break;
 
       case "bridge-hello":
         // Plugin identifying itself — validate string types
-        if (typeof msg.file === "string") client.file = msg.file;
-        if (typeof msg.fileKey === "string") client.fileKey = msg.fileKey;
-        if (typeof msg.editor === "string") client.editor = msg.editor;
+        client.file = msg.file;
+        client.fileKey = msg.fileKey;
+        client.editor = msg.editor;
         this.emit("client-updated", client);
         log.info(`Plugin identified: ${client.file} (${client.editor})`);
         break;
 
       case "response": {
         // Response to a command we sent
-        const pending = msg.id ? this.pendingCommands.get(msg.id) : undefined;
+        const pending = this.pendingCommands.get(msg.id);
         if (pending) {
           clearTimeout(pending.timeout);
-          this.pendingCommands.delete(msg.id!);
+          this.pendingCommands.delete(msg.id);
           if (msg.error) {
             pending.reject(new Error(msg.error));
           } else {
@@ -402,10 +417,6 @@ export class MemoireWsServer extends EventEmitter {
 
       case "chat":
         // Chat from plugin UI
-        if (typeof msg.text === "string") {
-          this.config.onChat?.(msg.text, clientId);
-          this.emit("chat", { text: msg.text, from: clientId, file: client.file });
-        }
         break;
 
       case "selection":
@@ -424,8 +435,41 @@ export class MemoireWsServer extends EventEmitter {
         this.emit("action-result", { action: msg.action, result: msg.result, error: msg.error });
         break;
 
-      case "sync-data":
-        this.emit("sync-data", { part: msg.part, result: msg.result, error: msg.error });
+      case "sync-result":
+        this.emit("sync-result", {
+          part: msg.part,
+          summary: msg.summary,
+          result: msg.result,
+          error: msg.error,
+        });
+        this.emit("sync-data", {
+          part: msg.part,
+          summary: msg.summary,
+          result: msg.result,
+          error: msg.error,
+        });
+        break;
+
+      case "connection-state":
+        this.emit("connection-state", msg.data);
+        break;
+
+      case "job-status":
+        this.emit("job-status", msg.data);
+        break;
+
+      case "heal-result":
+        this.emit("heal-result", msg.data);
+        break;
+
+      case "agent-status":
+        this.emit("agent-status", msg.data);
+        break;
+
+      case "identify":
+      case "event":
+      case "error":
+      case "pong":
         break;
 
       default:

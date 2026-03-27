@@ -9,6 +9,8 @@
   const BLOCKED_GLOBALS = [/\bFunction\s*\(/, /\bimport\s*\(/, /\brequire\s*\(/, /\bglobalThis\b/, /\bself\b/, /\bwindow\b/];
   const state = {
     sessionId: createRunId("widget"),
+    activeRunId: null,
+    selectionListenerActive: true,
     lastSelectionUpdate: 0,
     selectionThrottleMs: 180,
     changeBuffer: [],
@@ -81,6 +83,8 @@
           id: change.id,
           origin: change.origin ?? null,
           sessionId: state.sessionId,
+          runId: state.activeRunId,
+          pageId: figma.currentPage?.id ?? null,
           timestamp: now
         });
       }
@@ -93,6 +97,8 @@
         type: "changes",
         count: event.documentChanges?.length ?? 0,
         buffered: state.changeBuffer.length,
+        sessionId: state.sessionId,
+        runId: state.activeRunId,
         updatedAt: now
       });
     });
@@ -116,6 +122,7 @@
     }
     const job = message.action ? startJob(message.requestId, message.command, message.action.kind, message.action.label) : null;
     try {
+      state.activeRunId = job?.runId ?? null;
       const result = await handleCommand(message.command, message.params ?? {});
       if (job) {
         finishJob(job, "completed", summarizeCommandResult(message.command, result));
@@ -126,6 +133,9 @@
         type: "command-result",
         requestId: message.requestId,
         command: message.command,
+        ok: true,
+        sessionId: state.sessionId,
+        runId: job?.runId ?? null,
         result
       });
     } catch (error) {
@@ -139,8 +149,13 @@
         type: "command-result",
         requestId: message.requestId,
         command: message.command,
+        ok: false,
+        sessionId: state.sessionId,
+        runId: job?.runId ?? null,
         error: messageText
       });
+    } finally {
+      state.activeRunId = null;
     }
   };
   function refreshConnectionState() {
@@ -162,7 +177,7 @@
     const now = Date.now();
     const job = {
       id,
-      runId: state.sessionId,
+      runId: createRunId("job"),
       kind,
       label,
       command,
@@ -263,6 +278,7 @@
       count: figma.currentPage.selection.length,
       pageName: figma.currentPage.name,
       pageId: figma.currentPage.id,
+      sessionId: state.sessionId,
       nodes: figma.currentPage.selection.map((node) => serializeSelectionNode(node)),
       updatedAt: Date.now()
     };
@@ -598,11 +614,19 @@
     if (!node || node.type !== "TEXT") return;
     const characters = node.characters || "";
     if (!characters.length) {
-      await figma.loadFontAsync(node.fontName);
+      const fontName = node.fontName;
+      if (fontName && fontName !== figma.mixed) {
+        await figma.loadFontAsync(fontName);
+      }
       return;
     }
     const fonts = node.getRangeAllFontNames(0, characters.length);
-    await Promise.all(fonts.map((font) => figma.loadFontAsync(font)));
+    const uniqueFonts = /* @__PURE__ */ new Map();
+    for (const font of fonts) {
+      if (!font || font === figma.mixed) continue;
+      uniqueFonts.set(`${font.family}::${font.style}`, font);
+    }
+    await Promise.all(Array.from(uniqueFonts.values()).map((font) => figma.loadFontAsync(font)));
   }
   async function deleteNode(nodeId) {
     const node = await figma.getNodeByIdAsync(nodeId);

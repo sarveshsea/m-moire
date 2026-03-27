@@ -1,23 +1,26 @@
 export const WIDGET_V2_CHANNEL = "memoire.widget.v2";
 
-export type WidgetCommandName =
-  | "execute"
-  | "getSelection"
-  | "getFileData"
-  | "getVariables"
-  | "getComponents"
-  | "getStyles"
-  | "getStickies"
-  | "getChanges"
-  | "getComponentImage"
-  | "createNode"
-  | "updateNode"
-  | "deleteNode"
-  | "setSelection"
-  | "navigateTo"
-  | "getPageList"
-  | "getPageTree"
-  | "captureScreenshot";
+export const WIDGET_COMMAND_NAMES = [
+  "execute",
+  "getSelection",
+  "getFileData",
+  "getVariables",
+  "getComponents",
+  "getStyles",
+  "getStickies",
+  "getChanges",
+  "getComponentImage",
+  "createNode",
+  "updateNode",
+  "deleteNode",
+  "setSelection",
+  "navigateTo",
+  "getPageList",
+  "getPageTree",
+  "captureScreenshot",
+] as const;
+
+export type WidgetCommandName = (typeof WIDGET_COMMAND_NAMES)[number];
 
 export type WidgetJobKind =
   | "sync"
@@ -100,6 +103,7 @@ export interface WidgetSelectionSnapshot {
   count: number;
   pageName: string;
   pageId: string | null;
+  sessionId?: string;
   nodes: WidgetSelectionNodeSnapshot[];
   updatedAt: number;
 }
@@ -222,6 +226,8 @@ export interface WidgetChangesEnvelope {
   type: "changes";
   count: number;
   buffered: number;
+  sessionId: string;
+  runId?: string | null;
   updatedAt: number;
 }
 
@@ -238,6 +244,9 @@ export interface WidgetCommandResultEnvelope {
   type: "command-result";
   requestId: string;
   command: WidgetCommandName;
+  ok: boolean;
+  sessionId: string;
+  runId?: string | null;
   result?: unknown;
   error?: string;
 }
@@ -272,4 +281,8 @@ export function isWidgetV2Envelope(value: unknown): value is WidgetUiEnvelope | 
 
 export function createRunId(prefix = "run"): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function isWidgetCommandName(value: unknown): value is WidgetCommandName {
+  return typeof value === "string" && WIDGET_COMMAND_NAMES.includes(value as WidgetCommandName);
 }

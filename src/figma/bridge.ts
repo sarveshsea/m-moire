@@ -127,6 +127,11 @@ export class FigmaBridge extends EventEmitter {
     this.server.on("page-changed", (data) => this.emit("page-changed", data));
     this.server.on("document-changed", (data) => this.emit("document-changed", data));
     this.server.on("action-result", (data) => this.emit("action-result", data));
+    this.server.on("connection-state", (data) => this.emit("connection-state", data));
+    this.server.on("job-status", (data) => this.emit("job-status", data));
+    this.server.on("heal-result", (data) => this.emit("heal-result", data));
+    this.server.on("agent-status", (data) => this.emit("agent-status", data));
+    this.server.on("sync-result", (data) => this.emit("sync-result", data));
     this.server.on("sync-data", (data) => this.emit("sync-data", data));
   }
 

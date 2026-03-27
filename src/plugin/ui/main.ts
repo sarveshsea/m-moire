@@ -2,6 +2,7 @@ import {
   WIDGET_V2_CHANNEL,
   createRunId,
   isWidgetV2Envelope,
+  isWidgetCommandName,
   type WidgetCommandName,
   type WidgetConnectionState,
   type WidgetJob,
@@ -11,6 +12,24 @@ import {
   type WidgetUiEnvelope,
   type WidgetMainEnvelope,
 } from "../shared/contracts.js";
+import {
+  createBridgeResponseEnvelope,
+  normalizeBridgeMessage,
+  serializeBridgeEnvelope,
+  type BridgeCommandEnvelope,
+} from "../shared/bridge.js";
+import {
+  createBridgeCommandDispatch,
+  createBridgeConnectionStateMessage,
+  createBridgeDocumentChangedMessage,
+  createBridgeJobStatusMessage,
+  createBridgePageChangedMessage,
+  createBridgeSelectionMessage,
+  createBridgeSyncResultMessage,
+  resolveBridgeResponse,
+  trackBridgeRequest,
+  type PendingBridgeRequest,
+} from "./bridge-adapter.js";
 
 interface UiState {
   activeTab: "jobs" | "selection" | "system";
@@ -40,6 +59,7 @@ const PORT_START = 9223;
 const PORT_END = 9232;
 const LOG_LIMIT = 80;
 const MAX_JOBS = 24;
+const pendingBridgeRequests = new Map<string, PendingBridgeRequest>();
 
 const appRoot = document.getElementById("app");
 if (!appRoot) {
@@ -132,11 +152,12 @@ function bindPluginMessages(): void {
         break;
       case "connection":
         state.connection = message.connection;
+        forwardToBridge(serializeBridgeEnvelope(createBridgeConnectionStateMessage(message.connection)));
         render();
         break;
       case "selection":
         state.selection = message.selection;
-        forwardToBridge({ type: "selection", data: message.selection });
+        forwardToBridge(serializeBridgeEnvelope(createBridgeSelectionMessage(message.selection)));
         render();
         break;
       case "page":
@@ -146,23 +167,28 @@ function bindPluginMessages(): void {
           pageId: message.pageId,
         };
         state.lastPageUpdate = message.updatedAt;
-        forwardToBridge({
-          type: "page-changed",
-          data: { page: message.pageName, pageId: message.pageId },
-        });
+        forwardToBridge(serializeBridgeEnvelope(createBridgePageChangedMessage(
+          message.pageName,
+          message.pageId,
+          message.updatedAt,
+        )));
         render();
         break;
       case "changes":
         state.changeCount = message.count;
         state.bufferedChanges = message.buffered;
-        forwardToBridge({
-          type: "document-changed",
-          data: { changes: message.count, buffered: message.buffered, updatedAt: message.updatedAt },
-        });
+        forwardToBridge(serializeBridgeEnvelope(createBridgeDocumentChangedMessage(
+          message.count,
+          message.buffered,
+          message.sessionId,
+          message.runId ?? null,
+          message.updatedAt,
+        )));
         render();
         break;
       case "job":
         upsertJob(message.job);
+        forwardToBridge(serializeBridgeEnvelope(createBridgeJobStatusMessage(message.job)));
         render();
         break;
       case "command-result":
@@ -313,31 +339,59 @@ function forwardToBridge(payload: Record<string, unknown>): boolean {
 }
 
 function handleBridgeMessage(payload: any): void {
-  switch (payload.type) {
+  const message = normalizeBridgeMessage(payload);
+  if (!message) {
+    return;
+  }
+
+  switch (message.type) {
+    case "command":
+      handleBridgeCommand(message);
+      break;
     case "identify":
-      state.bridge.name = payload.name || state.bridge.name;
+      state.bridge.name = message.name || state.bridge.name;
       break;
     case "event": {
-      const level =
-        payload.level === "success"
-          ? "success"
-          : payload.level === "error"
-            ? "error"
-            : payload.level === "warn"
-              ? "warn"
-              : "info";
-      addLog(level, payload.message || "Bridge event", payload.data || null);
+      addLog(message.level, message.message || "Bridge event", message.data || null);
       break;
     }
+    case "chat":
+      addLog("info", `Bridge chat from ${message.from}`, message.text);
+      break;
     case "error":
-      addLog("error", payload.message || "Bridge error", payload.details || null);
+      addLog("error", message.message || "Bridge error", message.details || null);
       break;
     default:
       break;
   }
 }
 
+function handleBridgeCommand(message: BridgeCommandEnvelope): void {
+  if (!isWidgetCommandName(message.method)) {
+    forwardToBridge(serializeBridgeEnvelope(
+      createBridgeResponseEnvelope(message.id, undefined, `Unknown bridge command: ${message.method}`),
+    ));
+    return;
+  }
+
+  const dispatch = createBridgeCommandDispatch(message);
+  trackBridgeRequest(pendingBridgeRequests, dispatch.requestId, message);
+  sendToMain({
+    channel: WIDGET_V2_CHANNEL,
+    source: "ui",
+    type: "run-command",
+    requestId: dispatch.requestId,
+    command: dispatch.command,
+    params: dispatch.params,
+  });
+}
+
 function handleCommandResult(message: Extract<WidgetMainEnvelope, { type: "command-result" }>): void {
+  const bridgeResponse = resolveBridgeResponse(pendingBridgeRequests, message);
+  if (bridgeResponse) {
+    forwardToBridge(serializeBridgeEnvelope(bridgeResponse));
+  }
+
   if (message.error) {
     addLog("error", `${message.command} failed`, message.error);
     return;
@@ -361,19 +415,19 @@ function handleCommandResult(message: Extract<WidgetMainEnvelope, { type: "comma
 
   if (message.command === "getVariables") {
     const collections = ((message.result as { collections?: unknown[] })?.collections || []).length;
-    forwardToBridge({ type: "sync-data", part: "tokens", result: message.result });
+    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("tokens", message.result)));
     addLog("success", `Synced tokens`, { collections });
   }
 
   if (message.command === "getComponents") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
-    forwardToBridge({ type: "sync-data", part: "components", result: message.result });
+    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("components", message.result)));
     addLog("success", `Synced components`, { count });
   }
 
   if (message.command === "getStyles") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
-    forwardToBridge({ type: "sync-data", part: "styles", result: message.result });
+    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("styles", message.result)));
     addLog("success", `Synced styles`, { count });
   }
 
