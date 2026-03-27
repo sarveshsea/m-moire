@@ -60,6 +60,8 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 | `ed0bd00` | Ignore generated workspace artifacts |
 | `25e42a3` | Sync changelog for research and workspace hygiene |
 | `bef1171` | Add JSON output to daemon status |
+| `407b7f9` | Add JSON output to connect command |
+| `cb9772f` | Reduce workspace state churn in init and prototype |
 
 ### Key Design Decisions
 - **Notes Become a Real Extension Surface** — Mémoire now treats Notes as installable skill packs, including workspace `SKILL.md` bundles, built-in notes, and compatibility fixes for activation and copy behavior.
@@ -70,6 +72,8 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - **Research Pipeline Becomes Scriptable** — research import, synthesis, and report commands now expose artifact paths and summaries in JSON, so automation can chain them without terminal scraping.
 - **Workspace State Is Less Noisy** — generated atomic output and preview build artifacts are now treated as workspace state in git ignore rules, reducing irrelevant status noise during agent work.
 - **Daemon Health Becomes Queryable** — `memi daemon status --json` now reports runtime ports, preview URL, uptime, Figma connection state, and stale-cleanup results so agents can check background state without parsing terminal prose.
+- **Connect Setup Becomes Queryable** — `memi connect --json` now reports token/file-key discovery, plugin manifest resolution, bridge startup state, and next steps without dropping into prompts.
+- **Onboarding Stops Rewriting Existing Workspace State** — `init` now preserves existing starter specs, project-context persistence keeps stable timestamps when nothing changed, and prototype output defaults under `.memoire/` instead of tracked source folders.
 - **Runtime and Bridge Hardening** — Preview, the Figma bridge, signal handling, and listener management were tightened so bind failures and cleanup paths surface clearly.
 - **Modern Project Detection and Packaging** — Tailwind v4, shadcn, plugin manifest access, postinstall behavior, and npm packaging were hardened for current app layouts.
 
@@ -91,6 +95,8 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - Ignored generated atomic component folders, `.astro/`, and preview-generated workspace artifacts to reduce git noise during normal operation
 - Synced changelog surfaces for the research and workspace-hygiene changes
 - Added JSON output to `daemon status` with stale-cleanup reporting, uptime, and preview connection metadata
+- Added JSON output to `connect` so automation can inspect setup state and bridge readiness without entering the guided prompt flow
+- Made `init` idempotent for starter specs, kept `.memoire/project.json` stable across unchanged inits, and moved default prototype output under `.memoire/prototype`
 
 ## v0.2.0 — 2026-03-26
 

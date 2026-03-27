@@ -492,7 +492,9 @@ const releases = [
       ["04bd773", "Add JSON output to research commands"],
       ["ed0bd00", "Ignore generated workspace artifacts"],
       ["25e42a3", "Sync changelog for research and workspace hygiene"],
-      ["bef1171", "Add JSON output to daemon status"]
+      ["bef1171", "Add JSON output to daemon status"],
+      ["407b7f9", "Add JSON output to connect command"],
+      ["cb9772f", "Reduce workspace state churn in init and prototype"]
     ],
     decisions: [
       ["Notes become a real extension surface", "M\u00e9moire now treats Notes as installable skill packs, including workspace SKILL.md bundles, built-in notes, and compatibility fixes for activation and copy behavior."],
@@ -503,6 +505,8 @@ const releases = [
       ["Research pipeline becomes scriptable", "Research import, synthesis, and report commands now expose artifact paths and summaries in JSON so automation can chain them without scraping terminal prose."],
       ["Workspace state is less noisy", "Generated atomic output and preview build artifacts are now treated as workspace state in git ignore rules, which reduces irrelevant git status noise during agent work."],
       ["Daemon health becomes queryable", "memi daemon status --json now reports runtime ports, preview URL, uptime, figma connection state, and stale-cleanup results so agents can inspect background state without scraping terminal prose."],
+      ["Connect setup becomes queryable", "memi connect --json now reports token and file-key discovery, plugin manifest resolution, bridge startup state, and next steps without dropping into interactive prompts."],
+      ["Onboarding stops rewriting existing workspace state", "init now preserves existing starter specs, project-context persistence keeps stable timestamps when nothing changed, and prototype output defaults under .memoire instead of tracked source folders."],
       ["Runtime and bridge hardening", "Preview, the Figma bridge, signal handling, and listener management now surface bind failures and cleanup paths clearly."],
       ["Modern project detection and packaging", "Tailwind v4, shadcn, plugin manifest access, postinstall behavior, and npm packaging were hardened for current app layouts."]
     ],
@@ -523,7 +527,9 @@ const releases = [
       "Added JSON output to research from-file, from-stickies, synthesize, and report with artifact metadata and no human preamble noise in JSON mode.",
       "Ignored generated atomic component folders, .astro, and preview-generated workspace artifacts to reduce git noise during normal operation.",
       "Synced changelog surfaces for the research and workspace-hygiene changes.",
-      "Added JSON output to daemon status with stale-cleanup reporting, uptime, and preview connection metadata."
+      "Added JSON output to daemon status with stale-cleanup reporting, uptime, and preview connection metadata.",
+      "Added JSON output to connect so automation can inspect setup state and bridge readiness without entering the guided prompt flow.",
+      "Made init idempotent for starter specs, kept .memoire/project.json stable across unchanged inits, and moved default prototype output under .memoire/prototype."
     ]
   },
   {
