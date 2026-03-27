@@ -20,6 +20,7 @@ import type { AnySpec, ComponentSpec, PageSpec, DataVizSpec } from "../specs/typ
 import { AGENT_PROMPTS } from "./prompts.js";
 import { getAI, type AnthropicClient } from "../ai/index.js";
 import { resolveForIntent, wrapWithNotes, type ResolvedSkill } from "../notes/index.js";
+import { formatAgentBoxLines, formatAgentBoxName, getAgentBoxKey, sortAgentBoxUpdates, type AgentBoxUpdate, type AgentBoxVisualStatus } from "./agent-box.js";
 
 const log = createLogger("agent-orchestrator");
 
@@ -697,6 +698,15 @@ ${existingMappings}
     const mutations: DesignMutation[] = [];
     let completedTasks = 0;
     const completed = new Set<string>();
+    const totalTasks = plan.subTasks.length;
+
+    if (plan.context.figmaConnected) {
+      await Promise.all(
+        sortAgentBoxUpdates(
+          plan.subTasks.map((task, index) => this.makeAgentBoxUpdate(plan, task, index, "idle")),
+        ).map((update) => this.updateAgentBox(update)),
+      );
+    }
 
     // Topological execution — respect dependencies
     while (completed.size < plan.subTasks.length) {
@@ -712,9 +722,14 @@ ${existingMappings}
       // Execute ready tasks in parallel
       await Promise.all(
         ready.map(async (task) => {
+          const taskIndex = plan.subTasks.findIndex((candidate) => candidate.id === task.id);
           task.status = "running";
           task.startedAt = new Date().toISOString();
           this.onUpdate?.(plan);
+
+          if (plan.context.figmaConnected) {
+            await this.updateAgentBox(this.makeAgentBoxUpdate(plan, task, taskIndex, "busy"));
+          }
 
           try {
             const result = await this.executeSubTask(task, plan.context);
@@ -723,6 +738,12 @@ ${existingMappings}
             task.completedAt = new Date().toISOString();
             completedTasks++;
 
+            if (plan.context.figmaConnected) {
+              await this.updateAgentBox(
+                this.makeAgentBoxUpdate(plan, task, taskIndex, "done", result),
+              );
+            }
+
             if (result && typeof result === "object" && "mutations" in result) {
               mutations.push(...(result as { mutations: DesignMutation[] }).mutations);
             }
@@ -730,6 +751,12 @@ ${existingMappings}
             task.status = "failed";
             task.error = (err as Error).message;
             task.completedAt = new Date().toISOString();
+
+            if (plan.context.figmaConnected) {
+              await this.updateAgentBox(
+                this.makeAgentBoxUpdate(plan, task, taskIndex, "error"),
+              );
+            }
           }
 
           completed.add(task.id);
@@ -751,9 +778,9 @@ ${existingMappings}
 
     return {
       planId: plan.id,
-      status: completedTasks === plan.subTasks.length ? "completed" : completedTasks > 0 ? "partial" : "failed",
+      status: completedTasks === totalTasks ? "completed" : completedTasks > 0 ? "partial" : "failed",
       completedTasks,
-      totalTasks: plan.subTasks.length,
+      totalTasks,
       mutations,
       figmaSynced,
     };
@@ -1586,20 +1613,38 @@ ${existingMappings}
   // ── Agent Box Widget ──────────────────────────────────
   // Creates/updates a visible status box in Figma for agent transparency
 
-  async createAgentBox(role: string, task: string, status: "idle" | "busy" | "error" | "done"): Promise<string | null> {
+  async createAgentBox(update: AgentBoxUpdate): Promise<string | null> {
     const statusColors = {
       idle:  "{ r: 0.1, g: 0.1, b: 0.18 }",
       busy:  "{ r: 0.96, g: 0.62, b: 0.04 }",
       error: "{ r: 0.94, g: 0.27, b: 0.27 }",
       done:  "{ r: 0.06, g: 0.73, b: 0.51 }",
     };
+    const backgroundColors = {
+      idle: "{ r: 0.06, g: 0.06, b: 0.12 }",
+      busy: "{ r: 0.21, g: 0.14, b: 0.04 }",
+      error: "{ r: 0.18, g: 0.05, b: 0.06 }",
+      done: "{ r: 0.04, g: 0.2, b: 0.15 }",
+    };
+    const boxKey = getAgentBoxKey(update);
+    const lines = formatAgentBoxLines(update);
+    const boxName = formatAgentBoxName(update);
 
     const code = `
       (async () => {
-        const role = ${JSON.stringify(role)};
-        const task = ${JSON.stringify(task)};
-        const status = ${JSON.stringify(status)};
-        const borderColor = ${statusColors[status]};
+        const runId = ${JSON.stringify(update.runId)};
+        const taskId = ${JSON.stringify(update.taskId)};
+        const role = ${JSON.stringify(update.role)};
+        const task = ${JSON.stringify(update.title)};
+        const status = ${JSON.stringify(update.status)};
+        const taskIndex = ${update.taskIndex};
+        const boxKey = ${JSON.stringify(boxKey)};
+        const borderColor = ${statusColors[update.status]};
+        const backgroundColor = ${backgroundColors[update.status]};
+        const boxName = ${JSON.stringify(boxName)};
+        const titleTextValue = ${JSON.stringify(lines.title)};
+        const metaTextValue = ${JSON.stringify(lines.meta)};
+        const detailTextValue = ${JSON.stringify(lines.detail)};
 
         // Find or create "Active Agents" section
         let section = figma.currentPage.findOne(
@@ -1612,45 +1657,86 @@ ${existingMappings}
           section.y = 0;
         }
 
-        // Find existing box for this role or create new one
-        let box = section.findOne(n => n.name.includes('[' + role + ']'));
+        let runFrame = section.findOne(
+          n => n.type === 'FRAME' && n.getPluginData && n.getPluginData('memoire-run-id') === runId
+        );
+        if (!runFrame || runFrame.type !== 'FRAME') {
+          runFrame = figma.createFrame();
+          runFrame.name = 'Run ' + runId;
+          runFrame.setPluginData('memoire-run-id', runId);
+          runFrame.layoutMode = 'VERTICAL';
+          runFrame.primaryAxisSizingMode = 'AUTO';
+          runFrame.counterAxisSizingMode = 'FIXED';
+          runFrame.resize(320, 1);
+          runFrame.paddingLeft = runFrame.paddingRight = 12;
+          runFrame.paddingTop = runFrame.paddingBottom = 12;
+          runFrame.itemSpacing = 8;
+          runFrame.cornerRadius = 10;
+          runFrame.fills = [{ type: 'SOLID', color: { r: 0.96, g: 0.95, b: 0.92 }, opacity: 0.55 }];
+          runFrame.strokes = [{ type: 'SOLID', color: { r: 0.78, g: 0.74, b: 0.69 }, opacity: 0.35 }];
+          runFrame.x = 24;
+          runFrame.y = 24 + section.findAll(n => n.type === 'FRAME').length * 220;
+          section.appendChild(runFrame);
+        }
+
+        // Find existing box for this run/task identity or create new one
+        let box = runFrame.findOne(
+          n => n.type === 'FRAME' && n.getPluginData && n.getPluginData('memoire-box-key') === boxKey
+        );
 
         if (!box || box.type !== 'FRAME') {
           box = figma.createFrame();
-          section.appendChild(box);
+          box.setPluginData('memoire-box-key', boxKey);
+          box.setPluginData('memoire-task-id', taskId);
+          box.setPluginData('memoire-task-index', String(taskIndex));
+          runFrame.appendChild(box);
         }
 
-        box.name = status === 'done' ? '✓ [' + role + '] Complete' : '[' + role + '] ' + task;
+        box.name = boxName;
         box.layoutMode = 'VERTICAL';
         box.primaryAxisSizingMode = 'AUTO';
         box.counterAxisSizingMode = 'FIXED';
-        box.resize(280, 1);
+        box.resize(296, 1);
         box.paddingLeft = box.paddingRight = 12;
         box.paddingTop = box.paddingBottom = 10;
         box.itemSpacing = 4;
         box.cornerRadius = 8;
-        box.fills = [{ type: 'SOLID', color: { r: 0.06, g: 0.06, b: 0.12 }, opacity: 0.95 }];
+        box.fills = [{ type: 'SOLID', color: backgroundColor, opacity: status === 'done' ? 0.72 : 0.95 }];
         box.strokes = [{ type: 'SOLID', color: borderColor }];
         box.strokeWeight = 1.5;
 
         // Find or create status text
         await figma.loadFontAsync({ family: "Inter", style: "Medium" });
-        let statusText = box.findOne(n => n.name === 'agent-status');
-        if (!statusText || statusText.type !== 'TEXT') {
-          statusText = figma.createText();
-          statusText.name = 'agent-status';
-          box.appendChild(statusText);
-        }
-        statusText.fontName = { family: 'Inter', style: 'Medium' };
-        statusText.fontSize = 11;
-        statusText.fills = [{ type: 'SOLID', color: { r: 0.9, g: 0.9, b: 0.9 } }];
-        statusText.characters = role.toUpperCase() + ' — ' + status + '\\n' + task;
+        const ensureText = (name) => {
+          let textNode = box.findOne(n => n.name === name);
+          if (!textNode || textNode.type !== 'TEXT') {
+            textNode = figma.createText();
+            textNode.name = name;
+            box.appendChild(textNode);
+          }
+          return textNode;
+        };
 
-        // Collapse when done
+        const titleText = ensureText('agent-title');
+        titleText.fontName = { family: 'Inter', style: 'Medium' };
+        titleText.fontSize = 11;
+        titleText.fills = [{ type: 'SOLID', color: { r: 0.94, g: 0.94, b: 0.94 } }];
+        titleText.characters = titleTextValue;
+
+        const metaText = ensureText('agent-meta');
+        metaText.fontName = { family: 'Inter', style: 'Medium' };
+        metaText.fontSize = 10;
+        metaText.fills = [{ type: 'SOLID', color: { r: 0.72, g: 0.72, b: 0.76 } }];
+        metaText.characters = metaTextValue;
+
+        const detailText = ensureText('agent-detail');
+        detailText.fontName = { family: 'Inter', style: 'Medium' };
+        detailText.fontSize = 10;
+        detailText.fills = [{ type: 'SOLID', color: { r: 0.82, g: 0.82, b: 0.86 } }];
+        detailText.characters = detailTextValue;
+
         if (status === 'done') {
-          box.resize(280, 28);
-          box.fills = [{ type: 'SOLID', color: { r: 0.04, g: 0.45, b: 0.34 }, opacity: 0.3 }];
-          statusText.characters = '✓ ' + role + ': complete';
+          detailText.opacity = 0.72;
         }
 
         return { boxId: box.id, status };
@@ -1662,12 +1748,68 @@ ${existingMappings}
       const data = typeof result === "string" ? JSON.parse(result) : result;
       return data?.boxId || null;
     } catch (err) {
-      log.warn({ err, role }, "Failed to create agent box widget");
+      log.warn({ err, update }, "Failed to create agent box widget");
       return null;
     }
   }
 
-  async updateAgentBox(role: string, task: string, status: "idle" | "busy" | "error" | "done"): Promise<void> {
-    await this.createAgentBox(role, task, status);
+  async updateAgentBox(update: AgentBoxUpdate): Promise<void> {
+    await this.createAgentBox(update);
+  }
+
+  private makeAgentBoxUpdate(
+    plan: AgentPlan,
+    task: SubTask,
+    taskIndex: number,
+    status: AgentBoxVisualStatus,
+    result?: unknown,
+  ): AgentBoxUpdate {
+    const startedAt = task.startedAt ? new Date(task.startedAt).getTime() : Date.now();
+    const completedAt = task.completedAt ? new Date(task.completedAt).getTime() : Date.now();
+    const elapsedMs = Math.max(0, (status === "busy" ? Date.now() : completedAt) - startedAt);
+    const healRound = typeof result === "object" && result && "rounds" in (result as Record<string, unknown>)
+      ? Number((result as Record<string, unknown>).rounds)
+      : undefined;
+
+    return {
+      runId: plan.id,
+      taskId: task.id,
+      role: task.agentType,
+      title: task.name,
+      status,
+      taskIndex,
+      totalTasks: plan.subTasks.length,
+      dependencyCount: task.dependencies.length,
+      summary: this.summarizeTaskResult(result),
+      error: status === "error" ? task.error : undefined,
+      healRound,
+      elapsedMs,
+    };
+  }
+
+  private summarizeTaskResult(result: unknown): string | undefined {
+    if (!result || typeof result !== "object") {
+      return undefined;
+    }
+    const record = result as Record<string, unknown>;
+    if (typeof record.action === "string") {
+      return record.action;
+    }
+    if (Array.isArray(record.generated) && record.generated.length > 0) {
+      return `${record.generated.length} file(s) generated`;
+    }
+    if (typeof record.issueCount === "number") {
+      return `${record.issueCount} issue(s) checked`;
+    }
+    if (typeof record.tokens === "number") {
+      return `${record.tokens} token(s) synced`;
+    }
+    if (Array.isArray(record.targetSpecs) && record.targetSpecs.length > 0) {
+      return record.targetSpecs.join(", ");
+    }
+    if (typeof record.status === "string") {
+      return record.status;
+    }
+    return undefined;
   }
 }
