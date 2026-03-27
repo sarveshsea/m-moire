@@ -442,7 +442,7 @@ const releases = [
     version: "v0.2.1",
     date: "2026-03-27",
     tag: "fix",
-    summary: "Notes compatibility, faster build loops, Codex-oriented guidance, compose targeting, preview hardening, project detection, and broader JSON-ready CLI output.",
+    summary: "Notes compatibility, faster build loops, Codex-oriented guidance, compose targeting, preview hardening, project detection, broader JSON-ready CLI output, and a new plugin V2 foundation.",
     commits: [
       ["3b8403e", "Update CHANGELOG - add v0.2.0 Notes ecosystem release"],
       ["a347a33", "Fix Notes audit issues - activation gaps, recursive copy, dead code"],
@@ -494,7 +494,8 @@ const releases = [
       ["25e42a3", "Sync changelog for research and workspace hygiene"],
       ["bef1171", "Add JSON output to daemon status"],
       ["407b7f9", "Add JSON output to connect command"],
-      ["cb9772f", "Reduce workspace state churn in init and prototype"]
+      ["cb9772f", "Reduce workspace state churn in init and prototype"],
+      ["7391502", "Add plugin V2 source architecture"]
     ],
     decisions: [
       ["Notes become a real extension surface", "M\u00e9moire now treats Notes as installable skill packs, including workspace SKILL.md bundles, built-in notes, and compatibility fixes for activation and copy behavior."],
@@ -508,7 +509,8 @@ const releases = [
       ["Connect setup becomes queryable", "memi connect --json now reports token and file-key discovery, plugin manifest resolution, bridge startup state, and next steps without dropping into interactive prompts."],
       ["Onboarding stops rewriting existing workspace state", "init now preserves existing starter specs, project-context persistence keeps stable timestamps when nothing changed, and prototype output defaults under .memoire instead of tracked source folders."],
       ["Runtime and bridge hardening", "Preview, the Figma bridge, signal handling, and listener management now surface bind failures and cleanup paths clearly."],
-      ["Modern project detection and packaging", "Tailwind v4, shadcn, plugin manifest access, postinstall behavior, and npm packaging were hardened for current app layouts."]
+      ["Modern project detection and packaging", "Tailwind v4, shadcn, plugin manifest access, postinstall behavior, and npm packaging were hardened for current app layouts."],
+      ["Plugin bundles become generated artifacts", "The Figma widget source now lives under src/plugin as typed main, UI, and shared modules, while plugin/code.js and plugin/ui.html remain checked-in build outputs for npm packaging and postinstall copy."]
     ],
     changes: [
       "Added the Notes ecosystem release with activation cleanup, recursive-copy handling, and dead-code removal.",
@@ -529,7 +531,9 @@ const releases = [
       "Synced changelog surfaces for the research and workspace-hygiene changes.",
       "Added JSON output to daemon status with stale-cleanup reporting, uptime, and preview connection metadata.",
       "Added JSON output to connect so automation can inspect setup state and bridge readiness without entering the guided prompt flow.",
-      "Made init idempotent for starter specs, kept .memoire/project.json stable across unchanged inits, and moved default prototype output under .memoire/prototype."
+      "Made init idempotent for starter specs, kept .memoire/project.json stable across unchanged inits, and moved default prototype output under .memoire/prototype.",
+      "Added a dedicated src/plugin TypeScript source tree for the Figma widget, with typed contracts, modular main and UI code, and a dedicated plugin build pipeline.",
+      "Rebuilt the shipped plugin bundles from source during npm run build and added regression coverage for generated plugin/code.js and plugin/ui.html."
     ]
   },
   {

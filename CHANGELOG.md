@@ -62,6 +62,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 | `bef1171` | Add JSON output to daemon status |
 | `407b7f9` | Add JSON output to connect command |
 | `cb9772f` | Reduce workspace state churn in init and prototype |
+| `7391502` | Add plugin V2 source architecture |
 
 ### Key Design Decisions
 - **Notes Become a Real Extension Surface** — Mémoire now treats Notes as installable skill packs, including workspace `SKILL.md` bundles, built-in notes, and compatibility fixes for activation and copy behavior.
@@ -76,6 +77,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - **Onboarding Stops Rewriting Existing Workspace State** — `init` now preserves existing starter specs, project-context persistence keeps stable timestamps when nothing changed, and prototype output defaults under `.memoire/` instead of tracked source folders.
 - **Runtime and Bridge Hardening** — Preview, the Figma bridge, signal handling, and listener management were tightened so bind failures and cleanup paths surface clearly.
 - **Modern Project Detection and Packaging** — Tailwind v4, shadcn, plugin manifest access, postinstall behavior, and npm packaging were hardened for current app layouts.
+- **Plugin Bundles Become Generated Artifacts** — The Figma widget source now lives under `src/plugin/` as typed main/UI/shared modules, while `plugin/code.js` and `plugin/ui.html` remain checked-in build outputs for npm packaging and postinstall copy.
 
 ### Changes
 - Added the Notes ecosystem release, including audit fixes, activation cleanup, recursive-copy handling, and dead-code removal
@@ -97,6 +99,8 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - Added JSON output to `daemon status` with stale-cleanup reporting, uptime, and preview connection metadata
 - Added JSON output to `connect` so automation can inspect setup state and bridge readiness without entering the guided prompt flow
 - Made `init` idempotent for starter specs, kept `.memoire/project.json` stable across unchanged inits, and moved default prototype output under `.memoire/prototype`
+- Added a dedicated `src/plugin/` TypeScript source tree for the Figma widget, with typed contracts, modular main/UI code, and a dedicated plugin build pipeline
+- Rebuilt the shipped plugin bundles from source during `npm run build` and added regression coverage for generated `plugin/code.js` and `plugin/ui.html`
 
 ## v0.2.0 — 2026-03-26
 
