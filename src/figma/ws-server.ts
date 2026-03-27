@@ -332,6 +332,10 @@ export class MemoireWsServer extends EventEmitter {
         this.emit("client-disconnected", clientId);
       });
 
+      ws.on("error", (err) => {
+        log.warn({ clientId, err: err.message }, "WebSocket client error");
+      });
+
       ws.on("pong", () => {
         client.lastPing = new Date();
       });

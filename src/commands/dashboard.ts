@@ -35,10 +35,12 @@ export function registerDashboardCommand(program: Command, engine: MemoireEngine
 
         child.on("error", (err) => {
           console.log(`  npx serve failed (${err.message}), falling back to python3...`);
-          spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
+          const fallback = spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
+          fallback.on("error", (e) => console.error(`  Python server also failed: ${e.message}`));
         });
       } catch {
-        spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
+        const fallback = spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
+        fallback.on("error", (e) => console.error(`  Python server failed: ${e.message}`));
       }
     });
 }

@@ -304,7 +304,7 @@ export class FigmaBridge extends EventEmitter {
         const page = doc.children.find(
           p => p.name === ${JSON.stringify(pageNameOrId)} || p.id === ${JSON.stringify(pageNameOrId)}
         );
-        if (!page) throw new Error("Page not found: ${pageNameOrId}");
+        if (!page) throw new Error("Page not found: " + ${JSON.stringify(pageNameOrId)});
         await figma.setCurrentPageAsync(page);
         return { page: page.name, pageId: page.id };
       `,

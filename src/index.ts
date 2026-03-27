@@ -45,6 +45,12 @@ import { registerWatchCommand } from "./commands/watch.js";
 // Prevent MaxListenersExceededWarning — commands attach cleanup handlers to process
 process.setMaxListeners(30);
 
+// Catch unhandled async errors so the CLI doesn't crash silently
+process.on("unhandledRejection", (reason) => {
+  console.error("\n  Unexpected error:", reason instanceof Error ? reason.message : reason);
+  process.exit(1);
+});
+
 const program = new Command();
 
 program
