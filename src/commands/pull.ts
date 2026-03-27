@@ -8,9 +8,12 @@ export function registerPullCommand(program: Command, engine: MemoireEngine) {
     .action(async () => {
       await engine.init();
 
-      if (!engine.figma.isConnected) {
-        console.log("\n  Not connected to Figma. Connecting...\n");
-        await engine.connectFigma();
+      try {
+        await engine.ensureFigmaConnected();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error(`\n  ${msg}\n`);
+        process.exit(1);
       }
 
       console.log("\n  Pulling design system...\n");

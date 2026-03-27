@@ -142,8 +142,8 @@ export class FigmaBridge extends EventEmitter {
    * Start the bridge server and wait for Figma plugins to connect.
    * Returns the port the server is listening on.
    */
-  async connect(): Promise<number> {
-    const port = await this.server.start();
+  async connect(preferPort?: number): Promise<number> {
+    const port = await this.server.start(preferPort);
     this.emitEvent("info", `Waiting for Figma plugin on port ${port}...`);
     return port;
   }

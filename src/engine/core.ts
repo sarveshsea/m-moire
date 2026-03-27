@@ -150,6 +150,26 @@ export class MemoireEngine extends EventEmitter {
   }
 
   async connectFigma(): Promise<number> {
+    // Check if a daemon is already running with a bridge
+    const daemonStatus = await this._readDaemonStatus();
+    if (daemonStatus && daemonStatus.figmaPort > 0) {
+      // Try connecting to the existing daemon's bridge port
+      this.log.info(`Found running daemon on port ${daemonStatus.figmaPort}, reusing...`);
+      try {
+        const port = await this.figma.connect(daemonStatus.figmaPort);
+        this.emit("event", {
+          type: "success",
+          source: "figma",
+          message: `Reusing daemon bridge on port ${port}`,
+          timestamp: new Date(),
+        } satisfies MemoireEvent);
+        return port;
+      } catch {
+        // Daemon port stale, start fresh
+        this.log.info("Daemon port stale, starting fresh bridge...");
+      }
+    }
+
     const port = await this.figma.connect();
     this.emit("event", {
       type: "success",
@@ -160,9 +180,59 @@ export class MemoireEngine extends EventEmitter {
     return port;
   }
 
+  /**
+   * Connect to Figma and wait for a plugin to actually connect.
+   * Used by commands that need an active plugin (pull, sync, etc).
+   */
+  async ensureFigmaConnected(timeoutMs = 30000): Promise<void> {
+    if (this.figma.isConnected) return;
+
+    const port = await this.connectFigma();
+    if (this.figma.isConnected) return;
+
+    // Wait for a plugin to connect
+    console.log(`  · Waiting for Figma plugin on port ${port}...`);
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error(
+          `No Figma plugin connected within ${timeoutMs / 1000}s. ` +
+          `Open the Mémoire plugin in Figma — it auto-discovers port ${port}.`
+        ));
+      }, timeoutMs);
+
+      if (this.figma.isConnected) {
+        clearTimeout(timer);
+        resolve();
+        return;
+      }
+
+      this.figma.once("plugin-connected", () => {
+        clearTimeout(timer);
+        console.log(`  + Figma plugin connected on port ${port}`);
+        resolve();
+      });
+    });
+  }
+
+  /** Read daemon status file if it exists */
+  private async _readDaemonStatus(): Promise<{ figmaPort: number } | null> {
+    try {
+      const statusPath = join(this.config.projectRoot, ".memoire", "daemon.json");
+      const raw = await readFile(statusPath, "utf-8");
+      const status = JSON.parse(raw);
+      // Verify the daemon process is actually alive
+      if (status.pid) {
+        try { process.kill(status.pid, 0); } catch { return null; }
+      }
+      return status;
+    } catch {
+      return null;
+    }
+  }
+
   async pullDesignSystem(): Promise<void> {
     if (!this.figma.isConnected) {
-      throw new Error("Not connected to Figma. Run `memi connect` first.");
+      throw new Error("Not connected to Figma. Run `memi connect` first, or use `memi pull` which waits for the plugin.");
     }
 
     const designSystem = await this.figma.extractDesignSystem();

@@ -11,12 +11,10 @@ export function registerSyncCommand(program: Command, engine: MemoireEngine) {
       console.log("\n  Starting full sync...\n");
 
       // Step 1: Connect to Figma if not connected
-      if (!engine.figma.isConnected) {
-        try {
-          await engine.connectFigma();
-        } catch {
-          console.log("  Figma not available — syncing from cached design system.\n");
-        }
+      try {
+        await engine.ensureFigmaConnected(15000);
+      } catch {
+        console.log("  Figma not available — syncing from cached design system.\n");
       }
 
       // Step 2: Pull design system (if connected)

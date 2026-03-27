@@ -95,8 +95,8 @@ export class MemoireWsServer extends EventEmitter {
   /**
    * Start the WebSocket server, scanning ports 9223-9232 for an available one.
    */
-  async start(): Promise<number> {
-    const startPort = this.config.port ?? 9223;
+  async start(preferPort?: number): Promise<number> {
+    const startPort = preferPort ?? this.config.port ?? 9223;
     const endPort = 9232;
 
     for (let p = startPort; p <= endPort; p++) {
