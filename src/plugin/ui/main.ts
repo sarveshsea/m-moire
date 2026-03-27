@@ -5,10 +5,12 @@ import {
   isWidgetCommandName,
   type WidgetCommandName,
   type WidgetConnectionState,
+  type WidgetHealSummary,
   type WidgetJob,
   type WidgetLogEntry,
   type WidgetSelectionNodeSnapshot,
   type WidgetSelectionSnapshot,
+  type WidgetSyncSummary,
   type WidgetUiEnvelope,
   type WidgetMainEnvelope,
 } from "../shared/contracts.js";
@@ -31,6 +33,7 @@ import {
   type PendingBridgeRequest,
 } from "./bridge-adapter.js";
 import { buildJobsOverview, describeSelectionNode, formatElapsedTime } from "./presenters.js";
+import { disconnectActiveJobs, mergeSyncSummaries, reduceHealEvent, upsertJobState } from "./job-state.js";
 
 interface UiState {
   activeTab: "jobs" | "selection" | "system";
@@ -43,6 +46,9 @@ interface UiState {
   lastPageUpdate: number | null;
   pageTree: unknown | null;
   lastCapture: { nodeId: string; dataUrl: string; format: string } | null;
+  syncSummary: WidgetSyncSummary | null;
+  lastSyncAt: number | null;
+  healSummary: WidgetHealSummary | null;
   bridge: {
     ws: WebSocket | null;
     port: number | null;
@@ -101,6 +107,9 @@ const state: UiState = {
   lastPageUpdate: null,
   pageTree: null,
   lastCapture: null,
+  syncSummary: null,
+  lastSyncAt: null,
+  healSummary: null,
   bridge: {
     ws: null,
     port: null,
@@ -283,6 +292,7 @@ function tryNextPort(port: number): void {
     if (state.bridge.ws === ws) {
       state.bridge.ws = null;
       state.bridge.port = null;
+      state.jobs = disconnectActiveJobs(state.jobs);
       setBridgeStage("reconnecting");
       addLog("warn", "Bridge disconnected");
       render();
@@ -354,6 +364,13 @@ function handleBridgeMessage(payload: any): void {
       break;
     case "event": {
       addLog(message.level, message.message || "Bridge event", message.data || null);
+      state.healSummary = reduceHealEvent(
+        state.healSummary,
+        message.message || "",
+        typeof message.data === "object" && message.data && "source" in (message.data as Record<string, unknown>)
+          ? String((message.data as Record<string, unknown>).source)
+          : undefined,
+      );
       break;
     }
     case "chat":
@@ -394,6 +411,15 @@ function handleCommandResult(message: Extract<WidgetMainEnvelope, { type: "comma
   }
 
   if (message.error) {
+    if (message.command === "getVariables") {
+      recordSyncSummary("tokens", null, message.error);
+    }
+    if (message.command === "getComponents") {
+      recordSyncSummary("components", null, message.error);
+    }
+    if (message.command === "getStyles") {
+      recordSyncSummary("styles", null, message.error);
+    }
     addLog("error", `${message.command} failed`, message.error);
     return;
   }
@@ -416,19 +442,25 @@ function handleCommandResult(message: Extract<WidgetMainEnvelope, { type: "comma
 
   if (message.command === "getVariables") {
     const collections = ((message.result as { collections?: unknown[] })?.collections || []).length;
-    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("tokens", message.result)));
+    const syncMessage = createBridgeSyncResultMessage("tokens", message.result);
+    forwardToBridge(serializeBridgeEnvelope(syncMessage));
+    recordSyncSummary("tokens", message.result);
     addLog("success", `Synced tokens`, { collections });
   }
 
   if (message.command === "getComponents") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
-    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("components", message.result)));
+    const syncMessage = createBridgeSyncResultMessage("components", message.result);
+    forwardToBridge(serializeBridgeEnvelope(syncMessage));
+    recordSyncSummary("components", message.result);
     addLog("success", `Synced components`, { count });
   }
 
   if (message.command === "getStyles") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
-    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("styles", message.result)));
+    const syncMessage = createBridgeSyncResultMessage("styles", message.result);
+    forwardToBridge(serializeBridgeEnvelope(syncMessage));
+    recordSyncSummary("styles", message.result);
     addLog("success", `Synced styles`, { count });
   }
 
@@ -450,20 +482,18 @@ function requestCommand(command: WidgetCommandName, params: Record<string, unkno
   });
 }
 
+function recordSyncSummary(part: "tokens" | "components" | "styles", result: unknown, error?: string): void {
+  const syncMessage = createBridgeSyncResultMessage(part, result, error);
+  state.syncSummary = mergeSyncSummaries(state.syncSummary, syncMessage.summary);
+  state.lastSyncAt = Date.now();
+}
+
 function sendToMain(message: WidgetUiEnvelope): void {
   parent.postMessage({ pluginMessage: message }, "*");
 }
 
 function upsertJob(job: WidgetJob): void {
-  const existing = state.jobs.findIndex((candidate) => candidate.id === job.id);
-  if (existing >= 0) {
-    state.jobs[existing] = job;
-  } else {
-    state.jobs.unshift(job);
-    if (state.jobs.length > MAX_JOBS) {
-      state.jobs = state.jobs.slice(0, MAX_JOBS);
-    }
-  }
+  state.jobs = upsertJobState(state.jobs, job, MAX_JOBS);
 }
 
 function addLog(level: WidgetLogEntry["level"], message: string, detail?: unknown): void {
@@ -676,6 +706,18 @@ function renderJobs(): string {
           <span>${escapeHtml(overview.latestCompleted.label)} · ${escapeHtml(overview.latestCompleted.summary || overview.latestCompleted.command || "Complete")}</span>
         </div>
       ` : ""}
+      ${state.syncSummary ? `
+        <div class="jobs-alert success">
+          <strong>Last sync</strong>
+          <span>${escapeHtml(formatSyncSummary(state.syncSummary))}${state.lastSyncAt ? ` · ${escapeHtml(new Date(state.lastSyncAt).toLocaleTimeString())}` : ""}</span>
+        </div>
+      ` : ""}
+      ${state.healSummary ? `
+        <div class="jobs-alert ${state.healSummary.healed ? "success" : "error"}">
+          <strong>Healer</strong>
+          <span>${escapeHtml(formatHealSummary(state.healSummary))}</span>
+        </div>
+      ` : ""}
     </article>
   `);
 
@@ -866,6 +908,19 @@ function summaryMetric(label: string, value: string, detail: string): string {
       <div class="muted">${escapeHtml(detail)}</div>
     </div>
   `;
+}
+
+function formatSyncSummary(summary: WidgetSyncSummary): string {
+  const parts = [`${summary.tokens} collections`, `${summary.components} components`, `${summary.styles} styles`];
+  if (summary.partialFailures.length) {
+    parts.push(`${summary.partialFailures.length} partial failure(s)`);
+  }
+  return parts.join(" · ");
+}
+
+function formatHealSummary(summary: WidgetHealSummary): string {
+  const status = summary.healed ? "healed" : "needs review";
+  return `round ${summary.round} · ${summary.issueCount} issue(s) · ${status}`;
 }
 
 function emptyCard(title: string, copy: string): string {

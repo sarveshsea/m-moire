@@ -552,6 +552,75 @@ function rgbToHex(color) {
   const values = [color.r, color.g, color.b].map((value) => Math.round(value * 255).toString(16).padStart(2, "0"));
   return `#${values.join("")}`;
 }
+function upsertJobState(jobs, job, maxJobs) {
+  const next = [...jobs];
+  const existing = next.findIndex((candidate) => candidate.id === job.id);
+  if (existing >= 0) {
+    next[existing] = job;
+  } else {
+    next.unshift(job);
+  }
+  return next.sort((left, right) => right.updatedAt - left.updatedAt).slice(0, maxJobs);
+}
+function disconnectActiveJobs(jobs, timestamp = Date.now()) {
+  return jobs.map((job) => {
+    if (job.status !== "running" && job.status !== "queued") {
+      return job;
+    }
+    return {
+      ...job,
+      status: "disconnected",
+      updatedAt: timestamp,
+      progressText: "Bridge disconnected",
+      error: job.error ?? "Bridge disconnected before the job completed"
+    };
+  });
+}
+function mergeSyncSummaries(current, next) {
+  return {
+    tokens: next.tokens || current?.tokens || 0,
+    components: next.components || current?.components || 0,
+    styles: next.styles || current?.styles || 0,
+    partialFailures: unique([...current?.partialFailures || [], ...next.partialFailures])
+  };
+}
+function reduceHealEvent(current, message, source) {
+  if (source !== "canvas-healer") {
+    return current;
+  }
+  if (message.startsWith("Starting self-healing loop")) {
+    return { round: 0, healed: false, issueCount: 0, issues: [] };
+  }
+  const roundMatch = message.match(/Round\s+(\d+):\s+found\s+(\d+)\s+issue/);
+  if (roundMatch) {
+    return {
+      round: Number(roundMatch[1]),
+      healed: false,
+      issueCount: Number(roundMatch[2]),
+      issues: current?.issues || []
+    };
+  }
+  if (message.startsWith("Canvas healed")) {
+    return {
+      round: current?.round || 0,
+      healed: true,
+      issueCount: current?.issueCount || 0,
+      issues: current?.issues || []
+    };
+  }
+  if (message.startsWith("Healing incomplete")) {
+    return {
+      round: current?.round || 0,
+      healed: false,
+      issueCount: current?.issueCount || 0,
+      issues: current?.issues || []
+    };
+  }
+  return current;
+}
+function unique(values) {
+  return Array.from(new Set(values));
+}
 const PORT_START = 9223;
 const PORT_END = 9232;
 const LOG_LIMIT = 80;
@@ -593,6 +662,9 @@ const state = {
   lastPageUpdate: null,
   pageTree: null,
   lastCapture: null,
+  syncSummary: null,
+  lastSyncAt: null,
+  healSummary: null,
   bridge: {
     ws: null,
     port: null,
@@ -758,6 +830,7 @@ function tryNextPort(port) {
     if (state.bridge.ws === ws) {
       state.bridge.ws = null;
       state.bridge.port = null;
+      state.jobs = disconnectActiveJobs(state.jobs);
       setBridgeStage("reconnecting");
       addLog("warn", "Bridge disconnected");
       render();
@@ -823,6 +896,11 @@ function handleBridgeMessage(payload) {
       break;
     case "event": {
       addLog(message.level, message.message || "Bridge event", message.data || null);
+      state.healSummary = reduceHealEvent(
+        state.healSummary,
+        message.message || "",
+        typeof message.data === "object" && message.data && "source" in message.data ? String(message.data.source) : void 0
+      );
       break;
     }
     case "chat":
@@ -857,6 +935,15 @@ function handleCommandResult(message) {
     forwardToBridge(serializeBridgeEnvelope(bridgeResponse));
   }
   if (message.error) {
+    if (message.command === "getVariables") {
+      recordSyncSummary("tokens", null, message.error);
+    }
+    if (message.command === "getComponents") {
+      recordSyncSummary("components", null, message.error);
+    }
+    if (message.command === "getStyles") {
+      recordSyncSummary("styles", null, message.error);
+    }
     addLog("error", `${message.command} failed`, message.error);
     return;
   }
@@ -876,17 +963,23 @@ function handleCommandResult(message) {
   }
   if (message.command === "getVariables") {
     const collections = (message.result?.collections || []).length;
-    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("tokens", message.result)));
+    const syncMessage = createBridgeSyncResultMessage("tokens", message.result);
+    forwardToBridge(serializeBridgeEnvelope(syncMessage));
+    recordSyncSummary("tokens", message.result);
     addLog("success", `Synced tokens`, { collections });
   }
   if (message.command === "getComponents") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
-    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("components", message.result)));
+    const syncMessage = createBridgeSyncResultMessage("components", message.result);
+    forwardToBridge(serializeBridgeEnvelope(syncMessage));
+    recordSyncSummary("components", message.result);
     addLog("success", `Synced components`, { count });
   }
   if (message.command === "getStyles") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
-    forwardToBridge(serializeBridgeEnvelope(createBridgeSyncResultMessage("styles", message.result)));
+    const syncMessage = createBridgeSyncResultMessage("styles", message.result);
+    forwardToBridge(serializeBridgeEnvelope(syncMessage));
+    recordSyncSummary("styles", message.result);
     addLog("success", `Synced styles`, { count });
   }
   if (message.command === "getChanges") {
@@ -905,19 +998,16 @@ function requestCommand(command, params = {}, label = command, kind = "system") 
     action: { kind, label }
   });
 }
+function recordSyncSummary(part, result, error) {
+  const syncMessage = createBridgeSyncResultMessage(part, result, error);
+  state.syncSummary = mergeSyncSummaries(state.syncSummary, syncMessage.summary);
+  state.lastSyncAt = Date.now();
+}
 function sendToMain(message) {
   parent.postMessage({ pluginMessage: message }, "*");
 }
 function upsertJob(job) {
-  const existing = state.jobs.findIndex((candidate) => candidate.id === job.id);
-  if (existing >= 0) {
-    state.jobs[existing] = job;
-  } else {
-    state.jobs.unshift(job);
-    if (state.jobs.length > MAX_JOBS) {
-      state.jobs = state.jobs.slice(0, MAX_JOBS);
-    }
-  }
+  state.jobs = upsertJobState(state.jobs, job, MAX_JOBS);
 }
 function addLog(level, message, detail) {
   state.logs.unshift({
@@ -1115,6 +1205,18 @@ function renderJobs() {
           <span>${escapeHtml(overview.latestCompleted.label)} · ${escapeHtml(overview.latestCompleted.summary || overview.latestCompleted.command || "Complete")}</span>
         </div>
       ` : ""}
+      ${state.syncSummary ? `
+        <div class="jobs-alert success">
+          <strong>Last sync</strong>
+          <span>${escapeHtml(formatSyncSummary(state.syncSummary))}${state.lastSyncAt ? ` · ${escapeHtml(new Date(state.lastSyncAt).toLocaleTimeString())}` : ""}</span>
+        </div>
+      ` : ""}
+      ${state.healSummary ? `
+        <div class="jobs-alert ${state.healSummary.healed ? "success" : "error"}">
+          <strong>Healer</strong>
+          <span>${escapeHtml(formatHealSummary(state.healSummary))}</span>
+        </div>
+      ` : ""}
     </article>
   `);
   cards.push(...state.jobs.map((job) => `
@@ -1286,6 +1388,17 @@ function summaryMetric(label, value, detail) {
       <div class="muted">${escapeHtml(detail)}</div>
     </div>
   `;
+}
+function formatSyncSummary(summary) {
+  const parts = [`${summary.tokens} collections`, `${summary.components} components`, `${summary.styles} styles`];
+  if (summary.partialFailures.length) {
+    parts.push(`${summary.partialFailures.length} partial failure(s)`);
+  }
+  return parts.join(" · ");
+}
+function formatHealSummary(summary) {
+  const status = summary.healed ? "healed" : "needs review";
+  return `round ${summary.round} · ${summary.issueCount} issue(s) · ${status}`;
 }
 function emptyCard(title, copy) {
   return `

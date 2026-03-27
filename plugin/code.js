@@ -10,6 +10,7 @@
   const state = {
     sessionId: createRunId("widget"),
     activeRunId: null,
+    jobs: /* @__PURE__ */ new Map(),
     selectionListenerActive: true,
     lastSelectionUpdate: 0,
     selectionThrottleMs: 180,
@@ -45,7 +46,7 @@
       type: "bootstrap",
       connection: state.connection,
       selection: createSelectionSnapshot(),
-      initialJobs: []
+      initialJobs: snapshotJobs()
     });
     figma.on("selectionchange", () => {
       const now = Date.now();
@@ -186,6 +187,7 @@
       updatedAt: now,
       progressText: "Running"
     };
+    state.jobs.set(job.id, job);
     post({
       channel: WIDGET_V2_CHANNEL,
       source: "main",
@@ -204,12 +206,16 @@
       summary,
       error
     };
+    state.jobs.set(next.id, next);
     post({
       channel: WIDGET_V2_CHANNEL,
       source: "main",
       type: "job",
       job: next
     });
+  }
+  function snapshotJobs() {
+    return Array.from(state.jobs.values()).sort((left, right) => right.updatedAt - left.updatedAt);
   }
   async function handleCommand(command, params) {
     switch (command) {

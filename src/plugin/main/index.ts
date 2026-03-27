@@ -19,6 +19,7 @@ import {
 interface PluginState {
   sessionId: string;
   activeRunId: string | null;
+  jobs: Map<string, WidgetJob>;
   selectionListenerActive: boolean;
   lastSelectionUpdate: number;
   selectionThrottleMs: number;
@@ -42,6 +43,7 @@ const BLOCKED_GLOBALS = [/\bFunction\s*\(/, /\bimport\s*\(/, /\brequire\s*\(/, /
 const state: PluginState = {
   sessionId: createRunId("widget"),
   activeRunId: null,
+  jobs: new Map(),
   selectionListenerActive: true,
   lastSelectionUpdate: 0,
   selectionThrottleMs: 180,
@@ -80,7 +82,7 @@ async function bootstrap(): Promise<void> {
     type: "bootstrap",
     connection: state.connection,
     selection: createSelectionSnapshot(),
-    initialJobs: [],
+    initialJobs: snapshotJobs(),
   });
 
   figma.on("selectionchange", () => {
@@ -233,6 +235,7 @@ function startJob(id: string, command: WidgetCommandName, kind: WidgetJob["kind"
     updatedAt: now,
     progressText: "Running",
   };
+  state.jobs.set(job.id, job);
   post({
     channel: WIDGET_V2_CHANNEL,
     source: "main",
@@ -252,12 +255,17 @@ function finishJob(job: WidgetJob, status: WidgetJobStatus, summary?: string, er
     summary,
     error,
   };
+  state.jobs.set(next.id, next);
   post({
     channel: WIDGET_V2_CHANNEL,
     source: "main",
     type: "job",
     job: next,
   });
+}
+
+function snapshotJobs(): WidgetJob[] {
+  return Array.from(state.jobs.values()).sort((left, right) => right.updatedAt - left.updatedAt);
 }
 
 async function handleCommand(command: WidgetCommandName, params: Record<string, unknown>): Promise<unknown> {
