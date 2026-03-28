@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%230a0a0a'/%3E%3C/svg%3E">
 <title>memoire / systems</title>
-<meta name="description" content="Mémoire — AI-native design intelligence engine">
+<meta name="description" content="Memoire -- AI-native design intelligence engine">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -67,7 +67,7 @@ a:hover { text-decoration: underline; }
 /* -- Color swatches ------------------------------ */
 .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 32px; }
 .swatch { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; backdrop-filter: blur(8px); }
-.swatch-color { height: 64px; }
+.swatch-color { height: 64px; border-radius: var(--radius) var(--radius) 0 0; }
 .swatch-info { padding: 10px 12px; }
 .swatch-name { font-size: 11px; font-weight: 500; margin-bottom: 2px; }
 .swatch-hex { font-size: 10px; color: var(--fg-muted); }
@@ -78,6 +78,30 @@ a:hover { text-decoration: underline; }
 .token-value { color: var(--fg-muted); font-size: 11px; }
 .token-preview { width: 24px; height: 24px; border-radius: var(--radius); border: 1px solid var(--border); margin-right: 10px; flex-shrink: 0; }
 
+/* -- Spacing bars -------------------------------- */
+.spacing-row { display: flex; align-items: center; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.spacing-name { font-size: 11px; font-weight: 500; min-width: 80px; }
+.spacing-bar { height: 20px; background: rgba(0, 0, 0, 0.08); border-radius: var(--radius); min-width: 2px; transition: width 0.3s; }
+.spacing-val { font-size: 10px; color: var(--fg-muted); min-width: 50px; text-align: right; }
+
+/* -- Typography preview -------------------------- */
+.type-row { display: flex; align-items: baseline; gap: 20px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.type-name { font-size: 11px; font-weight: 500; min-width: 100px; color: var(--fg-muted); }
+.type-preview { font-family: var(--mono); color: var(--fg); }
+.type-value { font-size: 10px; color: var(--fg-dim); margin-left: auto; min-width: 80px; text-align: right; }
+
+/* -- Radii preview ------------------------------- */
+.radii-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.radii-box { width: 48px; height: 48px; background: rgba(0, 0, 0, 0.06); border: 1px solid var(--border); flex-shrink: 0; }
+.radii-name { font-size: 11px; font-weight: 500; min-width: 100px; }
+.radii-value { font-size: 10px; color: var(--fg-muted); }
+
+/* -- Shadow preview ------------------------------ */
+.shadow-row { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.shadow-box { width: 64px; height: 48px; background: #fff; border-radius: var(--radius); flex-shrink: 0; }
+.shadow-name { font-size: 11px; font-weight: 500; min-width: 100px; }
+.shadow-value { font-size: 10px; color: var(--fg-muted); }
+
 /* -- Component cards ----------------------------- */
 .comp-section { margin-bottom: 40px; }
 .comp-section-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
@@ -85,29 +109,21 @@ a:hover { text-decoration: underline; }
 .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
 .comp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; backdrop-filter: blur(8px); transition: border-color 0.15s; }
 .comp-card:hover { border-color: rgba(0, 0, 0, 0.15); }
-.comp-preview { height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.02); border-bottom: 1px solid var(--border); padding: 16px; }
+.comp-preview { height: 80px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.02); border-bottom: 1px solid var(--border); padding: 16px; }
 .comp-meta { padding: 14px 16px; }
 .comp-name { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
-.comp-desc { font-size: 11px; color: var(--fg-muted); margin-bottom: 8px; line-height: 1.5; }
+.comp-dims { font-size: 10px; color: var(--fg-muted); margin-bottom: 8px; }
 .comp-footer { display: flex; align-items: center; justify-content: space-between; }
 
 /* -- Badges -------------------------------------- */
 .badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-.badge-atom { background: rgba(37, 99, 235, 0.08); color: var(--blue); }
-.badge-molecule { background: rgba(22, 163, 74, 0.08); color: var(--green); }
-.badge-organism { background: rgba(202, 138, 4, 0.08); color: var(--yellow); }
-.badge-template { background: rgba(220, 38, 38, 0.08); color: var(--red); }
-.badge-variant { background: rgba(0, 0, 0, 0.04); color: var(--fg-muted); font-size: 9px; }
-
-/* -- Preview placeholders ------------------------ */
-.preview-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 18px; border-radius: var(--radius); background: var(--fg); color: var(--bg); font-size: 11px; font-family: var(--mono); border: none; }
-.preview-btn-outline { display: inline-flex; align-items: center; gap: 6px; padding: 7px 18px; border-radius: var(--radius); background: none; color: var(--fg); font-size: 11px; font-family: var(--mono); border: 1px solid var(--border); }
-.preview-input { padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 11px; font-family: var(--mono); background: none; color: var(--fg); width: 140px; }
-.preview-badge-sm { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; background: rgba(0,0,0,0.04); color: var(--fg-muted); }
-.preview-toggle { width: 32px; height: 18px; border-radius: 9px; background: var(--fg); position: relative; display: inline-block; }
-.preview-toggle::after { content: ''; width: 14px; height: 14px; border-radius: 50%; background: white; position: absolute; top: 2px; right: 2px; }
-.preview-bar { height: 6px; border-radius: 3px; background: rgba(0,0,0,0.08); flex: 1; position: relative; overflow: hidden; }
-.preview-bar-fill { height: 100%; border-radius: 3px; background: var(--fg); }
+.badge-button { background: rgba(37, 99, 235, 0.08); color: var(--blue); }
+.badge-navigation { background: rgba(22, 163, 74, 0.08); color: var(--green); }
+.badge-layout { background: rgba(202, 138, 4, 0.08); color: var(--yellow); }
+.badge-data { background: rgba(139, 92, 246, 0.08); color: #8b5cf6; }
+.badge-form { background: rgba(236, 72, 153, 0.08); color: #ec4899; }
+.badge-overlay { background: rgba(220, 38, 38, 0.08); color: var(--red); }
+.badge-feedback { background: rgba(245, 158, 11, 0.08); color: #f59e0b; }
 
 /* -- Layout cards -------------------------------- */
 .layout-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
@@ -125,6 +141,9 @@ a:hover { text-decoration: underline; }
 
 /* -- Footer -------------------------------------- */
 .footer { padding: 24px; text-align: center; color: var(--fg-muted); font-size: 10px; border-top: 1px solid var(--border); margin-top: 48px; }
+
+/* -- File badge ---------------------------------- */
+.file-badge { display: inline-block; padding: 3px 10px; border-radius: var(--radius); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(0, 0, 0, 0.04); color: var(--fg-muted); margin-bottom: 24px; }
 </style>
 </head>
 <body>
@@ -133,7 +152,7 @@ a:hover { text-decoration: underline; }
     <nav class="hdr-nav"><a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-8 9 8M5 11v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8"/></svg>Home</a><a href="research.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Research</a><a href="specs.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Specs</a><a href="design-system.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Systems</a><a href="monitor.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Monitor</a><a href="changelog.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a></nav>
     <div class="hdr-stats">
       <span><span class="n">42</span> tokens</span>
-      <span><span class="n">56</span> components</span>
+      <span><span class="n">26</span> components</span>
       <span><span class="n">6</span> layouts</span>
     </div>
   </header>
@@ -147,7 +166,9 @@ a:hover { text-decoration: underline; }
 
   <div class="main">
 
-    <!-- ═══════════════════════════════════════ TOKENS ═══ -->
+    <div class="file-badge">Labor Budgeting 3.1</div>
+
+    <!-- ======================================= TOKENS === -->
     <div class="tab-panel active" data-panel="tokens">
       <div class="tokens-layout">
         <aside class="tokens-sidebar">
@@ -168,56 +189,145 @@ a:hover { text-decoration: underline; }
         </aside>
 
         <div class="tokens-content">
+
           <!-- Colors group (default) -->
           <div class="token-group active" data-group="colors">
+
             <div class="section-label">Primitives / Gray</div>
             <div class="swatch-grid">
-              <div class="swatch"><div class="swatch-color" style="background:#fafaf9"></div><div class="swatch-info"><div class="swatch-name">gray-50</div><div class="swatch-hex">#fafaf9</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#f5f5f4"></div><div class="swatch-info"><div class="swatch-name">gray-100</div><div class="swatch-hex">#f5f5f4</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#e7e5e4"></div><div class="swatch-info"><div class="swatch-name">gray-200</div><div class="swatch-hex">#e7e5e4</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#d6d3d1"></div><div class="swatch-info"><div class="swatch-name">gray-300</div><div class="swatch-hex">#d6d3d1</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#a8a29e"></div><div class="swatch-info"><div class="swatch-name">gray-400</div><div class="swatch-hex">#a8a29e</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#78716c"></div><div class="swatch-info"><div class="swatch-name">gray-500</div><div class="swatch-hex">#78716c</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#57534e"></div><div class="swatch-info"><div class="swatch-name">gray-600</div><div class="swatch-hex">#57534e</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#44403c"></div><div class="swatch-info"><div class="swatch-name">gray-700</div><div class="swatch-hex">#44403c</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#292524"></div><div class="swatch-info"><div class="swatch-name">gray-800</div><div class="swatch-hex">#292524</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#1c1917"></div><div class="swatch-info"><div class="swatch-name">gray-900</div><div class="swatch-hex">#1c1917</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fcfcfc"></div><div class="swatch-info"><div class="swatch-name">gray-50</div><div class="swatch-hex">#fcfcfc</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#f5f5f5"></div><div class="swatch-info"><div class="swatch-name">gray-100</div><div class="swatch-hex">#f5f5f5</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#eaeaea"></div><div class="swatch-info"><div class="swatch-name">gray-200</div><div class="swatch-hex">#eaeaea</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#d3d3d3"></div><div class="swatch-info"><div class="swatch-name">gray-300</div><div class="swatch-hex">#d3d3d3</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#b3b3b3"></div><div class="swatch-info"><div class="swatch-name">gray-400</div><div class="swatch-hex">#b3b3b3</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#9b9b9b"></div><div class="swatch-info"><div class="swatch-name">gray-500</div><div class="swatch-hex">#9b9b9b</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#848484"></div><div class="swatch-info"><div class="swatch-name">gray-600</div><div class="swatch-hex">#848484</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#6d6d6d"></div><div class="swatch-info"><div class="swatch-name">gray-700</div><div class="swatch-hex">#6d6d6d</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#494949"></div><div class="swatch-info"><div class="swatch-name">gray-800</div><div class="swatch-hex">#494949</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#2f2f2f"></div><div class="swatch-info"><div class="swatch-name">gray-900</div><div class="swatch-hex">#2f2f2f</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#1b1b1b"></div><div class="swatch-info"><div class="swatch-name">gray-950</div><div class="swatch-hex">#1b1b1b</div></div></div>
+            </div>
+
+            <div class="section-label">Primitives / Brand</div>
+            <div class="swatch-grid">
+              <div class="swatch"><div class="swatch-color" style="background:#071e13"></div><div class="swatch-info"><div class="swatch-name">brand-50</div><div class="swatch-hex">#071e13</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#082417"></div><div class="swatch-info"><div class="swatch-name">brand-100</div><div class="swatch-hex">#082417</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#092d1d"></div><div class="swatch-info"><div class="swatch-name">brand-200</div><div class="swatch-hex">#092d1d</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#0d3e2a"></div><div class="swatch-info"><div class="swatch-name">brand-300</div><div class="swatch-hex">#0d3e2a</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#12573b"></div><div class="swatch-info"><div class="swatch-name">brand-400</div><div class="swatch-hex">#12573b</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#0c6c49"></div><div class="swatch-info"><div class="swatch-name">brand-500</div><div class="swatch-hex">#0c6c49</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#288159"></div><div class="swatch-info"><div class="swatch-name">brand-600</div><div class="swatch-hex">#288159</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#45996c"></div><div class="swatch-info"><div class="swatch-name">brand-700</div><div class="swatch-hex">#45996c</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#7dc890"></div><div class="swatch-info"><div class="swatch-name">brand-800</div><div class="swatch-hex">#7dc890</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#afecb3"></div><div class="swatch-info"><div class="swatch-name">brand-900</div><div class="swatch-hex">#afecb3</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#f4fdf1"></div><div class="swatch-info"><div class="swatch-name">brand-950</div><div class="swatch-hex">#f4fdf1</div></div></div>
             </div>
 
             <div class="section-label">Primitives / Blue</div>
             <div class="swatch-grid">
-              <div class="swatch"><div class="swatch-color" style="background:#eff6ff"></div><div class="swatch-info"><div class="swatch-name">blue-50</div><div class="swatch-hex">#eff6ff</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#dbeafe"></div><div class="swatch-info"><div class="swatch-name">blue-100</div><div class="swatch-hex">#dbeafe</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#93c5fd"></div><div class="swatch-info"><div class="swatch-name">blue-300</div><div class="swatch-hex">#93c5fd</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#3b82f6"></div><div class="swatch-info"><div class="swatch-name">blue-500</div><div class="swatch-hex">#3b82f6</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#2563eb"></div><div class="swatch-info"><div class="swatch-name">blue-600</div><div class="swatch-hex">#2563eb</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#1d4ed8"></div><div class="swatch-info"><div class="swatch-name">blue-700</div><div class="swatch-hex">#1d4ed8</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#f8fcff"></div><div class="swatch-info"><div class="swatch-name">blue-50</div><div class="swatch-hex">#f8fcff</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#ebf6ff"></div><div class="swatch-info"><div class="swatch-name">blue-100</div><div class="swatch-hex">#ebf6ff</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#d8edff"></div><div class="swatch-info"><div class="swatch-name">blue-200</div><div class="swatch-hex">#d8edff</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#addafe"></div><div class="swatch-info"><div class="swatch-name">blue-300</div><div class="swatch-hex">#addafe</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#64bafd"></div><div class="swatch-info"><div class="swatch-name">blue-400</div><div class="swatch-hex">#64bafd</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#4ea0ec"></div><div class="swatch-info"><div class="swatch-name">blue-500</div><div class="swatch-hex">#4ea0ec</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#3e86d9"></div><div class="swatch-info"><div class="swatch-name">blue-600</div><div class="swatch-hex">#3e86d9</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#2d6cc5"></div><div class="swatch-info"><div class="swatch-name">blue-700</div><div class="swatch-hex">#2d6cc5</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#1c4888"></div><div class="swatch-info"><div class="swatch-name">blue-800</div><div class="swatch-hex">#1c4888</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#132f5a"></div><div class="swatch-info"><div class="swatch-name">blue-900</div><div class="swatch-hex">#132f5a</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#0b1b33"></div><div class="swatch-info"><div class="swatch-name">blue-950</div><div class="swatch-hex">#0b1b33</div></div></div>
             </div>
 
-            <div class="section-label">Primitives / Green</div>
+            <div class="section-label">Primitives / Lime</div>
             <div class="swatch-grid">
-              <div class="swatch"><div class="swatch-color" style="background:#f0fdf4"></div><div class="swatch-info"><div class="swatch-name">green-50</div><div class="swatch-hex">#f0fdf4</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#bbf7d0"></div><div class="swatch-info"><div class="swatch-name">green-200</div><div class="swatch-hex">#bbf7d0</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#4ade80"></div><div class="swatch-info"><div class="swatch-name">green-400</div><div class="swatch-hex">#4ade80</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#16a34a"></div><div class="swatch-info"><div class="swatch-name">green-600</div><div class="swatch-hex">#16a34a</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#15803d"></div><div class="swatch-info"><div class="swatch-name">green-700</div><div class="swatch-hex">#15803d</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fafdf3"></div><div class="swatch-info"><div class="swatch-name">lime-50</div><div class="swatch-hex">#fafdf3</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#e5fcd0"></div><div class="swatch-info"><div class="swatch-name">lime-100</div><div class="swatch-hex">#e5fcd0</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#cdf99e"></div><div class="swatch-info"><div class="swatch-name">lime-200</div><div class="swatch-hex">#cdf99e</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#9be253"></div><div class="swatch-info"><div class="swatch-name">lime-300</div><div class="swatch-hex">#9be253</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#94db4d"></div><div class="swatch-info"><div class="swatch-name">lime-400</div><div class="swatch-hex">#94db4d</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#70ab35"></div><div class="swatch-info"><div class="swatch-name">lime-500</div><div class="swatch-hex">#70ab35</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#5f912c"></div><div class="swatch-info"><div class="swatch-name">lime-600</div><div class="swatch-hex">#5f912c</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#4e7823"></div><div class="swatch-info"><div class="swatch-name">lime-700</div><div class="swatch-hex">#4e7823</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#325014"></div><div class="swatch-info"><div class="swatch-name">lime-800</div><div class="swatch-hex">#325014</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#22350e"></div><div class="swatch-info"><div class="swatch-name">lime-900</div><div class="swatch-hex">#22350e</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#161d0b"></div><div class="swatch-info"><div class="swatch-name">lime-950</div><div class="swatch-hex">#161d0b</div></div></div>
             </div>
 
-            <div class="section-label">Primitives / Amber</div>
+            <div class="section-label">Primitives / Orange</div>
             <div class="swatch-grid">
-              <div class="swatch"><div class="swatch-color" style="background:#fffbeb"></div><div class="swatch-info"><div class="swatch-name">amber-50</div><div class="swatch-hex">#fffbeb</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#fde68a"></div><div class="swatch-info"><div class="swatch-name">amber-200</div><div class="swatch-hex">#fde68a</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#f59e0b"></div><div class="swatch-info"><div class="swatch-name">amber-500</div><div class="swatch-hex">#f59e0b</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#ca8a04"></div><div class="swatch-info"><div class="swatch-name">amber-600</div><div class="swatch-hex">#ca8a04</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fefbfa"></div><div class="swatch-info"><div class="swatch-name">orange-50</div><div class="swatch-hex">#fefbfa</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fdf3ef"></div><div class="swatch-info"><div class="swatch-name">orange-100</div><div class="swatch-hex">#fdf3ef</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fbe7db"></div><div class="swatch-info"><div class="swatch-name">orange-200</div><div class="swatch-hex">#fbe7db</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fcc9b0"></div><div class="swatch-info"><div class="swatch-name">orange-300</div><div class="swatch-hex">#fcc9b0</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#ff9964"></div><div class="swatch-info"><div class="swatch-name">orange-400</div><div class="swatch-hex">#ff9964</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#ff6400"></div><div class="swatch-info"><div class="swatch-name">orange-500</div><div class="swatch-hex">#ff6400</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#e25700"></div><div class="swatch-info"><div class="swatch-name">orange-600</div><div class="swatch-hex">#e25700</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#bd4700"></div><div class="swatch-info"><div class="swatch-name">orange-700</div><div class="swatch-hex">#bd4700</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#7f2f00"></div><div class="swatch-info"><div class="swatch-name">orange-800</div><div class="swatch-hex">#7f2f00</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#542002"></div><div class="swatch-info"><div class="swatch-name">orange-900</div><div class="swatch-hex">#542002</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#2c1505"></div><div class="swatch-info"><div class="swatch-name">orange-950</div><div class="swatch-hex">#2c1505</div></div></div>
+            </div>
+
+            <div class="section-label">Primitives / Teal</div>
+            <div class="swatch-grid">
+              <div class="swatch"><div class="swatch-color" style="background:#f5fcfd"></div><div class="swatch-info"><div class="swatch-name">teal-50</div><div class="swatch-hex">#f5fcfd</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#e7f8fa"></div><div class="swatch-info"><div class="swatch-name">teal-100</div><div class="swatch-hex">#e7f8fa</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#d1f1f8"></div><div class="swatch-info"><div class="swatch-name">teal-200</div><div class="swatch-hex">#d1f1f8</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#65d9ee"></div><div class="swatch-info"><div class="swatch-name">teal-300</div><div class="swatch-hex">#65d9ee</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#58cbe0"></div><div class="swatch-info"><div class="swatch-name">teal-400</div><div class="swatch-hex">#58cbe0</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#47a8b8"></div><div class="swatch-info"><div class="swatch-name">teal-500</div><div class="swatch-hex">#47a8b8</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#3b8f9d"></div><div class="swatch-info"><div class="swatch-name">teal-600</div><div class="swatch-hex">#3b8f9d</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#307683"></div><div class="swatch-info"><div class="swatch-name">teal-700</div><div class="swatch-hex">#307683</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#1e4f58"></div><div class="swatch-info"><div class="swatch-name">teal-800</div><div class="swatch-hex">#1e4f58</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#13343a"></div><div class="swatch-info"><div class="swatch-name">teal-900</div><div class="swatch-hex">#13343a</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#0a1d21"></div><div class="swatch-info"><div class="swatch-name">teal-950</div><div class="swatch-hex">#0a1d21</div></div></div>
             </div>
 
             <div class="section-label">Primitives / Red</div>
             <div class="swatch-grid">
-              <div class="swatch"><div class="swatch-color" style="background:#fef2f2"></div><div class="swatch-info"><div class="swatch-name">red-50</div><div class="swatch-hex">#fef2f2</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#fecaca"></div><div class="swatch-info"><div class="swatch-name">red-200</div><div class="swatch-hex">#fecaca</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#f87171"></div><div class="swatch-info"><div class="swatch-name">red-400</div><div class="swatch-hex">#f87171</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#dc2626"></div><div class="swatch-info"><div class="swatch-name">red-600</div><div class="swatch-hex">#dc2626</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fefafa"></div><div class="swatch-info"><div class="swatch-name">red-50</div><div class="swatch-hex">#fefafa</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fbf3f2"></div><div class="swatch-info"><div class="swatch-name">red-100</div><div class="swatch-hex">#fbf3f2</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fbe5e5"></div><div class="swatch-info"><div class="swatch-name">red-200</div><div class="swatch-hex">#fbe5e5</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#ffc6c7"></div><div class="swatch-info"><div class="swatch-name">red-300</div><div class="swatch-hex">#ffc6c7</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#ff9594"></div><div class="swatch-info"><div class="swatch-name">red-400</div><div class="swatch-hex">#ff9594</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fc6d6b"></div><div class="swatch-info"><div class="swatch-name">red-500</div><div class="swatch-hex">#fc6d6b</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#e94c49"></div><div class="swatch-info"><div class="swatch-name">red-600</div><div class="swatch-hex">#e94c49</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#cd2f2f"></div><div class="swatch-info"><div class="swatch-name">red-700</div><div class="swatch-hex">#cd2f2f</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#8c1d1c"></div><div class="swatch-info"><div class="swatch-name">red-800</div><div class="swatch-hex">#8c1d1c</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#5b1815"></div><div class="swatch-info"><div class="swatch-name">red-900</div><div class="swatch-hex">#5b1815</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#32100e"></div><div class="swatch-info"><div class="swatch-name">red-950</div><div class="swatch-hex">#32100e</div></div></div>
             </div>
+
+            <div class="section-label">Primitives / Yellow</div>
+            <div class="swatch-grid">
+              <div class="swatch"><div class="swatch-color" style="background:#fffaf0"></div><div class="swatch-info"><div class="swatch-name">yellow-50</div><div class="swatch-hex">#fffaf0</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fef3dd"></div><div class="swatch-info"><div class="swatch-name">yellow-100</div><div class="swatch-hex">#fef3dd</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fbe9bb"></div><div class="swatch-info"><div class="swatch-name">yellow-200</div><div class="swatch-hex">#fbe9bb</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fece59"></div><div class="swatch-info"><div class="swatch-name">yellow-300</div><div class="swatch-hex">#fece59</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#e9a704"></div><div class="swatch-info"><div class="swatch-name">yellow-400</div><div class="swatch-hex">#e9a704</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#d18d00"></div><div class="swatch-info"><div class="swatch-name">yellow-500</div><div class="swatch-hex">#d18d00</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#b67600"></div><div class="swatch-info"><div class="swatch-name">yellow-600</div><div class="swatch-hex">#b67600</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#996100"></div><div class="swatch-info"><div class="swatch-name">yellow-700</div><div class="swatch-hex">#996100</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#65410c"></div><div class="swatch-info"><div class="swatch-name">yellow-800</div><div class="swatch-hex">#65410c</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#412b0e"></div><div class="swatch-info"><div class="swatch-name">yellow-900</div><div class="swatch-hex">#412b0e</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#24190a"></div><div class="swatch-info"><div class="swatch-name">yellow-950</div><div class="swatch-hex">#24190a</div></div></div>
+            </div>
+
+            <div class="section-label">Primitives / Brand - Old</div>
+            <div class="swatch-grid">
+              <div class="swatch"><div class="swatch-color" style="background:#0a1f15"></div><div class="swatch-info"><div class="swatch-name">brand-old-50</div><div class="swatch-hex">#0a1f15</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#0b2418"></div><div class="swatch-info"><div class="swatch-name">brand-old-100</div><div class="swatch-hex">#0b2418</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#0e2c1e"></div><div class="swatch-info"><div class="swatch-name">brand-old-200</div><div class="swatch-hex">#0e2c1e</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#143d2b"></div><div class="swatch-info"><div class="swatch-name">brand-old-300</div><div class="swatch-hex">#143d2b</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#1d563d"></div><div class="swatch-info"><div class="swatch-name">brand-old-400</div><div class="swatch-hex">#1d563d</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#276a4b"></div><div class="swatch-info"><div class="swatch-name">brand-old-500</div><div class="swatch-hex">#276a4b</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#31805c"></div><div class="swatch-info"><div class="swatch-name">brand-old-600</div><div class="swatch-hex">#31805c</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#3b9a70"></div><div class="swatch-info"><div class="swatch-name">brand-old-700</div><div class="swatch-hex">#3b9a70</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#54cd96"></div><div class="swatch-info"><div class="swatch-name">brand-old-800</div><div class="swatch-hex">#54cd96</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#8ef1bf"></div><div class="swatch-info"><div class="swatch-name">brand-old-900</div><div class="swatch-hex">#8ef1bf</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#f2fdf6"></div><div class="swatch-info"><div class="swatch-name">brand-old-950</div><div class="swatch-hex">#f2fdf6</div></div></div>
+            </div>
+
           </div>
 
           <!-- Typography group -->
@@ -228,53 +338,56 @@ a:hover { text-decoration: underline; }
             <div class="token-row"><span class="token-name">font-sans</span><span class="token-value">-apple-system, BlinkMacSystemFont, system-ui</span></div>
 
             <div class="section-label">Font Sizes</div>
-            <div class="token-row"><span class="token-name">text-xs</span><span class="token-value">10px / 0.625rem</span></div>
-            <div class="token-row"><span class="token-name">text-sm</span><span class="token-value">11px / 0.6875rem</span></div>
-            <div class="token-row"><span class="token-name">text-base</span><span class="token-value">12px / 0.75rem</span></div>
-            <div class="token-row"><span class="token-name">text-md</span><span class="token-value">13px / 0.8125rem</span></div>
-            <div class="token-row"><span class="token-name">text-lg</span><span class="token-value">16px / 1rem</span></div>
-            <div class="token-row"><span class="token-name">text-xl</span><span class="token-value">18px / 1.125rem</span></div>
-            <div class="token-row"><span class="token-name">text-2xl</span><span class="token-value">24px / 1.5rem</span></div>
-            <div class="token-row"><span class="token-name">text-3xl</span><span class="token-value">28px / 1.75rem</span></div>
+            <div class="type-row"><span class="type-name">text-xs</span><span class="type-preview" style="font-size:10px">The quick brown fox</span><span class="type-value">10px</span></div>
+            <div class="type-row"><span class="type-name">text-sm</span><span class="type-preview" style="font-size:11px">The quick brown fox</span><span class="type-value">11px</span></div>
+            <div class="type-row"><span class="type-name">text-base</span><span class="type-preview" style="font-size:12px">The quick brown fox</span><span class="type-value">12px</span></div>
+            <div class="type-row"><span class="type-name">text-md</span><span class="type-preview" style="font-size:13px">The quick brown fox</span><span class="type-value">13px</span></div>
+            <div class="type-row"><span class="type-name">text-lg</span><span class="type-preview" style="font-size:16px">The quick brown fox</span><span class="type-value">16px</span></div>
+            <div class="type-row"><span class="type-name">text-xl</span><span class="type-preview" style="font-size:18px">The quick brown fox</span><span class="type-value">18px</span></div>
+            <div class="type-row"><span class="type-name">text-2xl</span><span class="type-preview" style="font-size:24px">The quick brown fox</span><span class="type-value">24px</span></div>
+            <div class="type-row"><span class="type-name">text-3xl</span><span class="type-preview" style="font-size:28px">The quick brown fox</span><span class="type-value">28px</span></div>
 
             <div class="section-label">Font Weights</div>
-            <div class="token-row"><span class="token-name">weight-light</span><span class="token-value">300</span></div>
-            <div class="token-row"><span class="token-name">weight-regular</span><span class="token-value">400</span></div>
-            <div class="token-row"><span class="token-name">weight-medium</span><span class="token-value">500</span></div>
-            <div class="token-row"><span class="token-name">weight-semibold</span><span class="token-value">600</span></div>
+            <div class="token-row"><span class="token-name" style="font-weight:300">weight-light</span><span class="token-value">300</span></div>
+            <div class="token-row"><span class="token-name" style="font-weight:400">weight-regular</span><span class="token-value">400</span></div>
+            <div class="token-row"><span class="token-name" style="font-weight:500">weight-medium</span><span class="token-value">500</span></div>
+            <div class="token-row"><span class="token-name" style="font-weight:600">weight-semibold</span><span class="token-value">600</span></div>
           </div>
 
           <!-- Spacing group -->
           <div class="token-group" data-group="spacing">
             <div class="section-label">Spacing Scale</div>
-            <div class="token-row"><span class="token-name">space-1</span><span class="token-value">2px</span></div>
-            <div class="token-row"><span class="token-name">space-2</span><span class="token-value">4px</span></div>
-            <div class="token-row"><span class="token-name">space-3</span><span class="token-value">8px</span></div>
-            <div class="token-row"><span class="token-name">space-4</span><span class="token-value">12px</span></div>
-            <div class="token-row"><span class="token-name">space-5</span><span class="token-value">16px</span></div>
-            <div class="token-row"><span class="token-name">space-6</span><span class="token-value">20px</span></div>
-            <div class="token-row"><span class="token-name">space-7</span><span class="token-value">24px</span></div>
-            <div class="token-row"><span class="token-name">space-8</span><span class="token-value">32px</span></div>
-            <div class="token-row"><span class="token-name">space-9</span><span class="token-value">40px</span></div>
-            <div class="token-row"><span class="token-name">space-10</span><span class="token-value">48px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-0</span><div class="spacing-bar" style="width:2px"></div><span class="spacing-val">0px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-1</span><div class="spacing-bar" style="width:4px"></div><span class="spacing-val">4px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-2</span><div class="spacing-bar" style="width:8px"></div><span class="spacing-val">8px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-3</span><div class="spacing-bar" style="width:12px"></div><span class="spacing-val">12px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-4</span><div class="spacing-bar" style="width:16px"></div><span class="spacing-val">16px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-5</span><div class="spacing-bar" style="width:20px"></div><span class="spacing-val">20px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-6</span><div class="spacing-bar" style="width:24px"></div><span class="spacing-val">24px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-8</span><div class="spacing-bar" style="width:32px"></div><span class="spacing-val">32px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-10</span><div class="spacing-bar" style="width:40px"></div><span class="spacing-val">40px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-12</span><div class="spacing-bar" style="width:48px"></div><span class="spacing-val">48px</span></div>
+            <div class="spacing-row"><span class="spacing-name">space-16</span><div class="spacing-bar" style="width:64px"></div><span class="spacing-val">64px</span></div>
           </div>
 
           <!-- Radii group -->
           <div class="token-group" data-group="radii">
             <div class="section-label">Border Radius</div>
-            <div class="token-row"><span class="token-name">radius-none</span><span class="token-value">0px</span></div>
-            <div class="token-row"><span class="token-name">radius-sm</span><span class="token-value">2px</span></div>
-            <div class="token-row"><span class="token-name">radius-md</span><span class="token-value">4px</span></div>
-            <div class="token-row"><span class="token-name">radius-lg</span><span class="token-value">8px</span></div>
-            <div class="token-row"><span class="token-name">radius-full</span><span class="token-value">9999px</span></div>
+            <div class="radii-row"><div class="radii-box" style="border-radius:0px"></div><span class="radii-name">radius-none</span><span class="radii-value">0px</span></div>
+            <div class="radii-row"><div class="radii-box" style="border-radius:2px"></div><span class="radii-name">radius-sm</span><span class="radii-value">2px</span></div>
+            <div class="radii-row"><div class="radii-box" style="border-radius:4px"></div><span class="radii-name">radius-md</span><span class="radii-value">4px</span></div>
+            <div class="radii-row"><div class="radii-box" style="border-radius:8px"></div><span class="radii-name">radius-lg</span><span class="radii-value">8px</span></div>
+            <div class="radii-row"><div class="radii-box" style="border-radius:12px"></div><span class="radii-name">radius-xl</span><span class="radii-value">12px</span></div>
+            <div class="radii-row"><div class="radii-box" style="border-radius:9999px"></div><span class="radii-name">radius-full</span><span class="radii-value">9999px</span></div>
           </div>
 
           <!-- Shadows group -->
           <div class="token-group" data-group="shadows">
             <div class="section-label">Box Shadows</div>
-            <div class="token-row"><span class="token-name">shadow-sm</span><span class="token-value">0 1px 2px rgba(0,0,0,0.04)</span></div>
-            <div class="token-row"><span class="token-name">shadow-md</span><span class="token-value">0 2px 8px rgba(0,0,0,0.06)</span></div>
-            <div class="token-row"><span class="token-name">shadow-lg</span><span class="token-value">0 4px 16px rgba(0,0,0,0.08)</span></div>
+            <div class="shadow-row"><div class="shadow-box" style="box-shadow:0 1px 2px rgba(0,0,0,0.04)"></div><span class="shadow-name">shadow-sm</span><span class="shadow-value">0 1px 2px rgba(0,0,0,0.04)</span></div>
+            <div class="shadow-row"><div class="shadow-box" style="box-shadow:0 2px 8px rgba(0,0,0,0.06)"></div><span class="shadow-name">shadow-md</span><span class="shadow-value">0 2px 8px rgba(0,0,0,0.06)</span></div>
+            <div class="shadow-row"><div class="shadow-box" style="box-shadow:0 4px 16px rgba(0,0,0,0.08)"></div><span class="shadow-name">shadow-lg</span><span class="shadow-value">0 4px 16px rgba(0,0,0,0.08)</span></div>
+            <div class="shadow-row"><div class="shadow-box" style="box-shadow:0 8px 32px rgba(0,0,0,0.12)"></div><span class="shadow-name">shadow-xl</span><span class="shadow-value">0 8px 32px rgba(0,0,0,0.12)</span></div>
           </div>
 
           <!-- Surfaces group -->
@@ -290,9 +403,9 @@ a:hover { text-decoration: underline; }
           <!-- Interactive group -->
           <div class="token-group" data-group="interactive">
             <div class="section-label">Interactive States</div>
-            <div class="token-row"><span class="token-name">foreground</span><span class="token-value">#0a0a0a</span></div>
-            <div class="token-row"><span class="token-name">foreground-muted</span><span class="token-value">#8a8a8a</span></div>
-            <div class="token-row"><span class="token-name">foreground-dim</span><span class="token-value">#b0b0b0</span></div>
+            <div class="token-row"><div class="token-preview" style="background:#0a0a0a"></div><span class="token-name">foreground</span><span class="token-value">#0a0a0a</span></div>
+            <div class="token-row"><div class="token-preview" style="background:#8a8a8a"></div><span class="token-name">foreground-muted</span><span class="token-value">#8a8a8a</span></div>
+            <div class="token-row"><div class="token-preview" style="background:#b0b0b0"></div><span class="token-name">foreground-dim</span><span class="token-value">#b0b0b0</span></div>
             <div class="token-row"><span class="token-name">border-default</span><span class="token-value">rgba(0,0,0,0.08)</span></div>
             <div class="token-row"><span class="token-name">border-hover</span><span class="token-value">rgba(0,0,0,0.15)</span></div>
             <div class="token-row"><span class="token-name">focus-ring</span><span class="token-value">0 0 0 2px #2563eb</span></div>
@@ -302,289 +415,190 @@ a:hover { text-decoration: underline; }
           <div class="token-group" data-group="feedback">
             <div class="section-label">Feedback Colors</div>
             <div class="swatch-grid">
-              <div class="swatch"><div class="swatch-color" style="background:#16a34a"></div><div class="swatch-info"><div class="swatch-name">success</div><div class="swatch-hex">#16a34a</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#ca8a04"></div><div class="swatch-info"><div class="swatch-name">warning</div><div class="swatch-hex">#ca8a04</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#dc2626"></div><div class="swatch-info"><div class="swatch-name">error</div><div class="swatch-hex">#dc2626</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:#2563eb"></div><div class="swatch-info"><div class="swatch-name">info</div><div class="swatch-hex">#2563eb</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#0c6c49"></div><div class="swatch-info"><div class="swatch-name">success</div><div class="swatch-hex">#0c6c49 (brand-500)</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#d18d00"></div><div class="swatch-info"><div class="swatch-name">warning</div><div class="swatch-hex">#d18d00 (yellow-500)</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fc6d6b"></div><div class="swatch-info"><div class="swatch-name">error</div><div class="swatch-hex">#fc6d6b (red-500)</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#4ea0ec"></div><div class="swatch-info"><div class="swatch-name">info</div><div class="swatch-hex">#4ea0ec (blue-500)</div></div></div>
             </div>
             <div class="section-label">Feedback Backgrounds</div>
             <div class="swatch-grid">
-              <div class="swatch"><div class="swatch-color" style="background:rgba(22,163,74,0.08)"></div><div class="swatch-info"><div class="swatch-name">success-bg</div><div class="swatch-hex">rgba(22,163,74,0.08)</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:rgba(202,138,4,0.08)"></div><div class="swatch-info"><div class="swatch-name">warning-bg</div><div class="swatch-hex">rgba(202,138,4,0.08)</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:rgba(220,38,38,0.08)"></div><div class="swatch-info"><div class="swatch-name">error-bg</div><div class="swatch-hex">rgba(220,38,38,0.08)</div></div></div>
-              <div class="swatch"><div class="swatch-color" style="background:rgba(37,99,235,0.08)"></div><div class="swatch-info"><div class="swatch-name">info-bg</div><div class="swatch-hex">rgba(37,99,235,0.08)</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#f4fdf1"></div><div class="swatch-info"><div class="swatch-name">success-bg</div><div class="swatch-hex">#f4fdf1 (brand-950)</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fffaf0"></div><div class="swatch-info"><div class="swatch-name">warning-bg</div><div class="swatch-hex">#fffaf0 (yellow-50)</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#fefafa"></div><div class="swatch-info"><div class="swatch-name">error-bg</div><div class="swatch-hex">#fefafa (red-50)</div></div></div>
+              <div class="swatch"><div class="swatch-color" style="background:#f8fcff"></div><div class="swatch-info"><div class="swatch-name">info-bg</div><div class="swatch-hex">#f8fcff (blue-50)</div></div></div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════ COMPONENTS ═══ -->
+    <!-- ======================================= COMPONENTS === -->
     <div class="tab-panel" data-panel="components">
 
-      <!-- Buttons -->
+      <!-- Button (6) -->
       <div class="comp-section">
-        <div class="section-label">Buttons</div>
-        <div class="comp-section-desc">Actions, triggers, and interactive controls.</div>
+        <div class="section-label">Button</div>
+        <div class="comp-section-desc">6 components -- actions, triggers, and interactive controls.</div>
         <div class="comp-grid">
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span class="preview-btn">Submit</span><span class="preview-btn-outline">Cancel</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Button</div><div class="comp-desc">Triggers an action such as submitting a form or showing/hiding an interface component.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">6 variants</span></div></div>
+            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span style="display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:2px;background:#0c6c49;color:#f4fdf1;font-size:11px;font-family:var(--mono)">Primary</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Button / Primary</div><div class="comp-dims">78 x 36</div><div class="comp-footer"><span class="badge badge-button">Button</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span class="preview-btn" style="padding:5px 10px;font-size:10px">Small</span><span class="preview-btn">Default</span><span class="preview-btn" style="padding:9px 24px;font-size:12px">Large</span></div></div>
-            <div class="comp-meta"><div class="comp-name">ButtonGroup</div><div class="comp-desc">A wrapper for multiple, related buttons. <em style="color:var(--fg-dim)">Toolbar</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 variants</span></div></div>
+            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span style="display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:2px;background:none;color:var(--fg);font-size:11px;font-family:var(--mono);border:1px solid var(--border)">Secondary</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Button / Secondary</div><div class="comp-dims">78 x 36</div><div class="comp-footer"><span class="badge badge-button">Button</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span class="preview-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Create</span></div></div>
-            <div class="comp-meta"><div class="comp-name">IconButton</div><div class="comp-desc">A button that displays an icon with optional label text.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 variants</span></div></div>
+            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span style="display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:2px;background:#fc6d6b;color:#fff;font-size:11px;font-family:var(--mono)">Danger</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Button / Danger</div><div class="comp-dims">78 x 36</div><div class="comp-footer"><span class="badge badge-button">Button</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:10px"><span class="preview-toggle"></span><span style="font-size:11px;color:#8a8a8a">Enabled</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Toggle</div><div class="comp-desc">A control used to switch between two states: on or off. <em style="color:var(--fg-dim)">Switch</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 sizes</span></div></div>
+            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span style="display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:2px;background:transparent;color:var(--fg-muted);font-size:11px;font-family:var(--mono)">Ghost</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Button / Ghost</div><div class="comp-dims">78 x 36</div><div class="comp-footer"><span class="badge badge-button">Button</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;border:1px solid var(--border);border-radius:2px;overflow:hidden"><span style="padding:6px 14px;font-size:10px;background:var(--fg);color:var(--bg)">Day</span><span style="padding:6px 14px;font-size:10px;border-left:1px solid var(--border)">Week</span><span style="padding:6px 14px;font-size:10px;border-left:1px solid var(--border)">Month</span></div></div>
-            <div class="comp-meta"><div class="comp-name">SegmentedControl</div><div class="comp-desc">A hybrid between a button group, radio buttons, and tabs for switching views.</div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 variants</span></div></div>
+            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span style="display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:2px;background:transparent;color:#4ea0ec;font-size:11px;font-family:var(--mono);text-decoration:underline;text-underline-offset:3px">Link</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Button / Link</div><div class="comp-dims">78 x 36</div><div class="comp-footer"><span class="badge badge-button">Button</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:2px;overflow:hidden"><span style="padding:6px 10px;font-size:12px;border-right:1px solid var(--border);cursor:pointer">&minus;</span><span style="padding:6px 14px;font-size:11px;min-width:40px;text-align:center">3</span><span style="padding:6px 10px;font-size:12px;border-left:1px solid var(--border);cursor:pointer">+</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Stepper</div><div class="comp-desc">A control for editing a numeric value with increment/decrement buttons. <em style="color:var(--fg-dim)">Nudger, Counter</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 variants</span></div></div>
+            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span style="display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:2px;background:#eaeaea;color:#9b9b9b;font-size:11px;font-family:var(--mono);cursor:not-allowed">Disabled</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Button / Disabled</div><div class="comp-dims">78 x 36</div><div class="comp-footer"><span class="badge badge-button">Button</span></div></div>
           </div>
         </div>
       </div>
 
-      <!-- Inputs -->
-      <div class="comp-section">
-        <div class="section-label">Inputs</div>
-        <div class="comp-section-desc">Form controls for collecting user data.</div>
-        <div class="comp-grid">
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:4px;width:100%;max-width:180px"><span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#8a8a8a">Label</span><input class="preview-input" style="width:100%" placeholder="Enter text..." readonly></div></div>
-            <div class="comp-meta"><div class="comp-name">TextInput</div><div class="comp-desc">A form control that accepts a single line of text.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 states</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="width:100%;max-width:180px;border:1px solid var(--border);border-radius:2px;padding:8px 12px;font-size:11px;color:#b0b0b0;min-height:50px">Multi-line text...</div></div>
-            <div class="comp-meta"><div class="comp-name">Textarea</div><div class="comp-desc">A form control for editing multi-line text. <em style="color:var(--fg-dim)">Textbox</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 states</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:8px;border:1px solid rgba(0,0,0,0.08);border-radius:2px;padding:7px 12px;width:100%;max-width:200px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg><span style="font-size:11px;color:#b0b0b0">Search...</span></div></div>
-            <div class="comp-meta"><div class="comp-name">SearchInput</div><div class="comp-desc">Search inputs allow users to find content by entering a search term.</div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:6px;width:100%;max-width:180px"><span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#8a8a8a">Select</span><div style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(0,0,0,0.08);border-radius:2px;padding:7px 12px"><span style="font-size:11px;color:#8a8a8a">Choose option</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div></div></div>
-            <div class="comp-meta"><div class="comp-name">Select</div><div class="comp-desc">A form input for selecting a value from a scrollable list of options. <em style="color:var(--fg-dim)">Dropdown</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 states</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border:1.5px solid var(--fg);border-radius:2px;display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><span style="font-size:11px">Accept terms</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Checkbox</div><div class="comp-desc">An input for choosing from predefined options: binary when alone, multi-select in groups.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 states</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:center;gap:8px"><div style="width:14px;height:14px;border-radius:50%;border:1.5px solid var(--fg);display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;border-radius:50%;background:var(--fg)"></div></div><span style="font-size:11px">Option A</span></div><div style="display:flex;align-items:center;gap:8px"><div style="width:14px;height:14px;border-radius:50%;border:1.5px solid #b0b0b0"></div><span style="font-size:11px;color:#8a8a8a">Option B</span></div></div></div>
-            <div class="comp-meta"><div class="comp-name">RadioButton</div><div class="comp-desc">Allows a user to select a single option from a list. <em style="color:var(--fg-dim)">Radio group</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">2 states</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="width:100%;max-width:180px"><div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;position:relative"><div style="height:100%;width:60%;background:var(--fg);border-radius:2px"></div><div style="width:12px;height:12px;border-radius:50%;background:var(--fg);position:absolute;top:-4px;left:calc(60% - 6px);border:2px solid var(--bg)"></div></div></div></div>
-            <div class="comp-meta"><div class="comp-name">Slider</div><div class="comp-desc">A form control for choosing a value within a preset range. <em style="color:var(--fg-dim)">Range input</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:2px;padding:7px 12px;width:100%;max-width:180px"><span style="font-size:11px;color:#8a8a8a">Search + filter</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div></div>
-            <div class="comp-meta"><div class="comp-name">Combobox</div><div class="comp-desc">An input with free text filtering over a select list. <em style="color:var(--fg-dim)">Autocomplete</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:2px;padding:7px 12px;width:100%;max-width:180px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span style="font-size:11px;color:#8a8a8a">03 / 26 / 2026</span></div></div>
-            <div class="comp-meta"><div class="comp-name">DateInput</div><div class="comp-desc">A means of inputting a date, often separated into multiple fields.</div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 states</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:9px;text-align:center;width:100%;max-width:160px"><span style="color:#b0b0b0">S</span><span style="color:#b0b0b0">M</span><span style="color:#b0b0b0">T</span><span style="color:#b0b0b0">W</span><span style="color:#b0b0b0">T</span><span style="color:#b0b0b0">F</span><span style="color:#b0b0b0">S</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span style="background:var(--fg);color:var(--bg);border-radius:50%;padding:1px">14</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Datepicker</div><div class="comp-desc">A visual way to choose a date using a calendar view. <em style="color:var(--fg-dim)">Calendar</em></div><div class="comp-footer"><span class="badge badge-organism">organism</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;border:2px dashed var(--border);border-radius:2px;padding:14px;width:100%;max-width:180px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg><span style="font-size:10px;color:#8a8a8a">Drop files here</span></div></div>
-            <div class="comp-meta"><div class="comp-name">FileUpload</div><div class="comp-desc">An input for uploading files from the user's device. <em style="color:var(--fg-dim)">Dropzone</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--fg)">Email</span><span style="font-size:9px;color:#dc2626">*</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Label</div><div class="comp-desc">A text label for form inputs. <em style="color:var(--fg-dim)">Form label</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Data Display -->
-      <div class="comp-section">
-        <div class="section-label">Data Display</div>
-        <div class="comp-section-desc">Components for presenting information and content.</div>
-        <div class="comp-grid">
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="preview-badge-sm">Default</span><span class="preview-badge-sm" style="background:rgba(22,163,74,0.08);color:#16a34a">Success</span><span class="preview-badge-sm" style="background:rgba(37,99,235,0.08);color:#2563eb">Info</span><span class="preview-badge-sm" style="background:rgba(220,38,38,0.08);color:#dc2626">Error</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Badge</div><div class="comp-desc">A small label representing a status, property, or metadata. <em style="color:var(--fg-dim)">Tag, Chip</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">4 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500">SC</div><div style="width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500">JD</div><div style="width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500">AB</div></div></div>
-            <div class="comp-meta"><div class="comp-name">Avatar</div><div class="comp-desc">A graphical representation of a user: photo, illustration, or initial.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 sizes</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="background:var(--bg-card);border:1px solid rgba(0,0,0,0.08);border-radius:2px;padding:14px 16px;width:100%;max-width:180px"><div style="font-size:11px;font-weight:500;margin-bottom:4px">Card Title</div><div style="font-size:10px;color:#8a8a8a;line-height:1.5">Content container for a single entity.</div></div></div>
-            <div class="comp-meta"><div class="comp-name">Card</div><div class="comp-desc">A container for content representing a single entity. <em style="color:var(--fg-dim)">Tile</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">3 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="width:100%;max-width:220px"><div style="display:flex;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.08);justify-content:space-between"><span style="font-size:10px;color:#8a8a8a;text-transform:uppercase;letter-spacing:1px">Name</span><span style="font-size:10px;color:#8a8a8a;text-transform:uppercase;letter-spacing:1px">Status</span></div><div style="display:flex;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.08);justify-content:space-between;font-size:11px"><span>Item one</span><span class="preview-badge-sm" style="font-size:9px;background:rgba(22,163,74,0.08);color:#16a34a">Active</span></div><div style="display:flex;padding:8px 0;justify-content:space-between;font-size:11px"><span>Item two</span><span class="preview-badge-sm" style="font-size:9px">Draft</span></div></div></div>
-            <div class="comp-meta"><div class="comp-name">Table</div><div class="comp-desc">Displays data in rows and columns with optional sorting and filtering. <em style="color:var(--fg-dim)">Data Table</em></div><div class="comp-footer"><span class="badge badge-organism">organism</span><span class="badge badge-variant">3 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:2px;font-size:11px"><div style="display:flex;gap:6px"><span style="color:#8a8a8a">1.</span><span>First item</span></div><div style="display:flex;gap:6px"><span style="color:#8a8a8a">2.</span><span>Second item</span></div><div style="display:flex;gap:6px"><span style="color:#8a8a8a">3.</span><span>Third item</span></div></div></div>
-            <div class="comp-meta"><div class="comp-name">List</div><div class="comp-desc">Groups a collection of related items: unordered, ordered, or description list.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 types</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:6px;width:100%;max-width:180px"><div style="height:10px;background:rgba(0,0,0,0.06);border-radius:2px;width:80%"></div><div style="height:10px;background:rgba(0,0,0,0.06);border-radius:2px;width:100%"></div><div style="height:10px;background:rgba(0,0,0,0.06);border-radius:2px;width:60%"></div></div></div>
-            <div class="comp-meta"><div class="comp-name">Skeleton</div><div class="comp-desc">A placeholder for content that hasn't yet loaded. <em style="color:var(--fg-dim)">Skeleton loader</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 shapes</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="width:100%;max-width:180px"><hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:0"></div></div>
-            <div class="comp-meta"><div class="comp-name">Separator</div><div class="comp-desc">A separator between elements. <em style="color:var(--fg-dim)">Divider, Horizontal rule</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">2 orientations</span></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Feedback -->
-      <div class="comp-section">
-        <div class="section-label">Feedback</div>
-        <div class="comp-section-desc">Status indicators, loading states, and user notifications.</div>
-        <div class="comp-grid">
-          <div class="comp-card">
-            <div class="comp-preview"><div style="padding:10px 14px;border-left:3px solid var(--fg);background:rgba(0,0,0,0.02);border-radius:0 2px 2px 0;width:100%;max-width:200px"><div style="font-size:11px;font-weight:500;margin-bottom:2px">Heads up</div><div style="font-size:10px;color:#8a8a8a">Something important happened.</div></div></div>
-            <div class="comp-meta"><div class="comp-name">Alert</div><div class="comp-desc">Informs the user of important changes in a prominent way. <em style="color:var(--fg-dim)">Banner, Callout</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">5 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="padding:10px 14px;background:var(--fg);color:var(--bg);border-radius:2px;font-size:11px;width:100%;max-width:200px"><div style="font-weight:500;margin-bottom:2px">Changes saved</div><div style="font-size:10px;opacity:0.7">Your edits were applied.</div></div></div>
-            <div class="comp-meta"><div class="comp-name">Toast</div><div class="comp-desc">An alert appearing in a layer above content, like a push notification. <em style="color:var(--fg-dim)">Snackbar</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">3 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="width:100%;max-width:200px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:11px">Uploading</span><span style="font-size:11px;color:#8a8a8a">68%</span></div><div class="preview-bar"><div class="preview-bar-fill" style="width:68%"></div></div></div></div>
-            <div class="comp-meta"><div class="comp-name">ProgressBar</div><div class="comp-desc">A horizontal bar indicating the completion status of a long-running task.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--fg);display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><div style="width:20px;height:2px;background:var(--fg)"></div><div style="width:20px;height:20px;border-radius:50%;background:var(--fg);display:flex;align-items:center;justify-content:center;font-size:9px;color:white">2</div><div style="width:20px;height:2px;background:#b0b0b0"></div><div style="width:20px;height:20px;border-radius:50%;border:1.5px solid #b0b0b0;font-size:9px;display:flex;align-items:center;justify-content:center;color:#b0b0b0">3</div></div></div>
-            <div class="comp-meta"><div class="comp-name">ProgressIndicator</div><div class="comp-desc">User's progress through discrete steps. <em style="color:var(--fg-dim)">Stepper, Timeline</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="width:20px;height:20px;border:2px solid var(--fg);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style></div>
-            <div class="comp-meta"><div class="comp-name">Spinner</div><div class="comp-desc">A visual indicator that a background process is running. <em style="color:var(--fg-dim)">Loader</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 sizes</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="text-align:center;padding:8px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M12 8v8"/></svg><div style="font-size:10px;color:#8a8a8a;margin-top:6px">No items yet</div></div></div>
-            <div class="comp-meta"><div class="comp-name">EmptyState</div><div class="comp-desc">A placeholder shown when a view has no content to display.</div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Navigation -->
+      <!-- Navigation (4) -->
       <div class="comp-section">
         <div class="section-label">Navigation</div>
-        <div class="comp-section-desc">Wayfinding, menus, and page structure.</div>
+        <div class="comp-section-desc">4 components -- wayfinding, menus, and page structure.</div>
         <div class="comp-grid">
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;gap:16px;font-size:11px"><span style="font-weight:500;text-decoration:underline;text-underline-offset:4px">Home</span><span style="color:#8a8a8a">Products</span><span style="color:#8a8a8a">About</span><span style="color:#8a8a8a">Contact</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Navigation</div><div class="comp-desc">A container for navigation links. <em style="color:var(--fg-dim)">Nav, Menu</em></div><div class="comp-footer"><span class="badge badge-organism">organism</span><span class="badge badge-variant">2 layouts</span></div></div>
+            <div class="comp-preview"><div style="display:flex;gap:16px;font-size:11px;background:rgba(0,0,0,0.02);padding:8px 14px;border-radius:2px;width:100%"><span style="font-weight:500">Dashboard</span><span style="color:#8a8a8a">Budgets</span><span style="color:#8a8a8a">Reports</span><span style="color:#8a8a8a">Settings</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Navigation / Top Nav Bar</div><div class="comp-dims">744 x 48</div><div class="comp-footer"><span class="badge badge-navigation">Navigation</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:6px;font-size:11px"><span style="color:#8a8a8a">Home</span><span style="color:#b0b0b0">/</span><span style="color:#8a8a8a">Products</span><span style="color:#b0b0b0">/</span><span>Details</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Breadcrumbs</div><div class="comp-desc">Shows the current page location in the navigational hierarchy.</div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">1 variant</span></div></div>
+            <div class="comp-preview"><div style="display:flex;align-items:center;gap:8px;font-size:11px"><div style="width:20px;height:20px;border-radius:50%;background:#0c6c49;display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f4fdf1" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><div style="width:20px;height:2px;background:var(--fg)"></div><div style="width:20px;height:20px;border-radius:50%;background:var(--fg);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--bg)">2</div><div style="width:20px;height:2px;background:#b0b0b0"></div><div style="width:20px;height:20px;border-radius:50%;border:1.5px solid #b0b0b0;font-size:9px;display:flex;align-items:center;justify-content:center;color:#b0b0b0">3</div></div></div>
+            <div class="comp-meta"><div class="comp-name">Navigation / Stepper</div><div class="comp-dims">100 x 56</div><div class="comp-footer"><span class="badge badge-navigation">Navigation</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;gap:0;border-bottom:1px solid var(--border)"><span style="padding:8px 16px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--fg)">Overview</span><span style="padding:8px 16px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#8a8a8a">Settings</span><span style="padding:8px 16px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#8a8a8a">Logs</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Tabs</div><div class="comp-desc">Navigate between multiple panels, reducing clutter. <em style="color:var(--fg-dim)">Tabbed interface</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">3 styles</span></div></div>
+            <div class="comp-preview"><div style="display:flex;align-items:center;gap:6px;font-size:11px"><span style="color:#8a8a8a">Home</span><span style="color:#b0b0b0">/</span><span style="color:#8a8a8a">Budgets</span><span style="color:#b0b0b0">/</span><span>Labor Q3</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Navigation / Breadcrumb</div><div class="comp-dims">191 x 100</div><div class="comp-footer"><span class="badge badge-navigation">Navigation</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:4px"><span style="padding:4px 8px;font-size:10px;border:1px solid var(--border);border-radius:2px;color:#8a8a8a">&lt;</span><span style="padding:4px 8px;font-size:10px;border:1px solid var(--border);border-radius:2px">1</span><span style="padding:4px 8px;font-size:10px;background:var(--fg);color:var(--bg);border-radius:2px">2</span><span style="padding:4px 8px;font-size:10px;border:1px solid var(--border);border-radius:2px">3</span><span style="padding:4px 8px;font-size:10px;border:1px solid var(--border);border-radius:2px;color:#8a8a8a">&gt;</span></div></div>
-            <div class="comp-meta"><div class="comp-name">Pagination</div><div class="comp-desc">Splits information over multiple pages and provides navigation between them.</div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><span style="font-size:11px;color:var(--blue);text-decoration:underline;text-underline-offset:3px;cursor:pointer">View documentation</span></div>
-            <div class="comp-meta"><div class="comp-name">Link</div><div class="comp-desc">A reference to a resource, external or internal. <em style="color:var(--fg-dim)">Anchor, Hyperlink</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 styles</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:2px;font-size:11px"><div style="display:flex;align-items:center;gap:6px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><span>Documents</span></div><div style="margin-left:16px;display:flex;flex-direction:column;gap:2px"><div style="display:flex;align-items:center;gap:6px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg><span>Specs</span></div><div style="margin-left:16px;font-size:10px;color:#8a8a8a">component.json</div></div></div></div>
-            <div class="comp-meta"><div class="comp-name">TreeView</div><div class="comp-desc">Displays nested hierarchical information like a directory structure.</div><div class="comp-footer"><span class="badge badge-organism">organism</span><span class="badge badge-variant">2 variants</span></div></div>
+            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:4px;width:40px;background:rgba(0,0,0,0.04);padding:8px 6px;border-radius:2px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-8 9 8M5 11v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h8M8 11h8M8 15h4"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06"/></svg></div></div>
+            <div class="comp-meta"><div class="comp-name">Navigation / Sidebar</div><div class="comp-dims">48 x 136</div><div class="comp-footer"><span class="badge badge-navigation">Navigation</span></div></div>
           </div>
         </div>
       </div>
 
-      <!-- Overlays -->
-      <div class="comp-section">
-        <div class="section-label">Overlays</div>
-        <div class="comp-section-desc">Modals, popovers, drawers, and floating content.</div>
-        <div class="comp-grid">
-          <div class="comp-card">
-            <div class="comp-preview"><div style="background:rgba(0,0,0,0.04);border:1px solid var(--border);border-radius:2px;padding:12px;width:100%;max-width:180px"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:11px;font-weight:500">Confirm</span><span style="font-size:11px;color:#8a8a8a;cursor:pointer">&times;</span></div><div style="font-size:10px;color:#8a8a8a;margin-bottom:10px">Are you sure?</div><div style="display:flex;gap:6px;justify-content:flex-end"><span class="preview-btn-outline" style="font-size:10px;padding:4px 10px">Cancel</span><span class="preview-btn" style="font-size:10px;padding:4px 10px">Confirm</span></div></div></div>
-            <div class="comp-meta"><div class="comp-name">Modal</div><div class="comp-desc">Appears over other content, requiring interaction to dismiss. <em style="color:var(--fg-dim)">Dialog, Popup</em></div><div class="comp-footer"><span class="badge badge-organism">organism</span><span class="badge badge-variant">3 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;width:100%;max-width:200px;height:70px"><div style="flex:1;background:rgba(0,0,0,0.02)"></div><div style="width:80px;background:rgba(0,0,0,0.04);border-left:1px solid var(--border);padding:8px;font-size:9px"><div style="font-weight:500;margin-bottom:4px">Panel</div><div style="color:#8a8a8a">Side content</div></div></div></div>
-            <div class="comp-meta"><div class="comp-name">Drawer</div><div class="comp-desc">A panel that slides from the edge of the screen. <em style="color:var(--fg-dim)">Sheet, Flyout</em></div><div class="comp-footer"><span class="badge badge-organism">organism</span><span class="badge badge-variant">4 sides</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="position:relative"><span class="preview-btn-outline" style="font-size:10px;padding:4px 10px">Click me</span><div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--border);border-radius:2px;padding:6px 10px;font-size:10px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.06)">Popover content</div></div></div>
-            <div class="comp-meta"><div class="comp-name">Popover</div><div class="comp-desc">Pops up from another element via click, containing interactive content.</div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">1 variant</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="position:relative"><div style="width:14px;height:14px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:#8a8a8a;cursor:help">?</div><div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);border-radius:2px;padding:4px 8px;font-size:9px;white-space:nowrap">Helpful tip</div></div></div>
-            <div class="comp-meta"><div class="comp-name">Tooltip</div><div class="comp-desc">Shows extra information about an element on hover or focus.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">1 variant</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="position:relative"><span class="preview-btn" style="font-size:10px;padding:4px 10px">Actions <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="vertical-align:middle"><path d="M6 9l6 6 6-6"/></svg></span><div style="position:absolute;top:30px;left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:2px;padding:4px 0;min-width:100px;box-shadow:0 2px 8px rgba(0,0,0,0.06)"><div style="padding:4px 12px;font-size:10px">Edit</div><div style="padding:4px 12px;font-size:10px">Duplicate</div><div style="padding:4px 12px;font-size:10px;color:#dc2626">Delete</div></div></div></div>
-            <div class="comp-meta"><div class="comp-name">DropdownMenu</div><div class="comp-desc">A menu showing actions or navigation options, triggered by button click.</div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">1 variant</span></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Layout -->
+      <!-- Layout (3) -->
       <div class="comp-section">
         <div class="section-label">Layout</div>
-        <div class="comp-section-desc">Structural components for page composition.</div>
+        <div class="comp-section-desc">3 components -- structural components for page composition.</div>
         <div class="comp-grid">
           <div class="comp-card">
-            <div class="comp-preview"><div style="width:100%;max-width:200px"><div style="border:1px solid var(--border);border-radius:2px;overflow:hidden"><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid var(--border);font-size:10px"><span>Section one</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div><div style="padding:6px 10px;font-size:9px;color:#8a8a8a;border-bottom:1px solid var(--border)">Expanded content here.</div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;font-size:10px"><span>Section two</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div></div></div></div>
-            <div class="comp-meta"><div class="comp-name">Accordion</div><div class="comp-desc">A stack of headings that toggle content visibility. <em style="color:var(--fg-dim)">Disclosure, Collapsible</em></div><div class="comp-footer"><span class="badge badge-molecule">molecule</span><span class="badge badge-variant">2 modes</span></div></div>
+            <div class="comp-preview"><div style="width:100%;max-width:200px;background:rgba(0,0,0,0.04);border-radius:2px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:10px;font-weight:500">Page Title</span><div style="display:flex;gap:6px"><span style="font-size:9px;color:#8a8a8a">Action</span></div></div></div>
+            <div class="comp-meta"><div class="comp-name">Layout / Page Header</div><div class="comp-dims">211 x 56</div><div class="comp-footer"><span class="badge badge-layout">Layout</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;align-items:center;gap:8px;width:100%;max-width:180px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.5"><path d="M15 18l-6-6 6-6"/></svg><div style="display:flex;gap:4px;flex:1"><div style="height:40px;flex:1;background:rgba(0,0,0,0.06);border-radius:2px"></div><div style="height:40px;flex:1;background:rgba(0,0,0,0.04);border-radius:2px"></div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.5"><path d="M9 18l6-6-6-6"/></svg></div></div>
-            <div class="comp-meta"><div class="comp-name">Carousel</div><div class="comp-desc">Displays multiple slides of content, navigable via swiping or buttons. <em style="color:var(--fg-dim)">Content slider</em></div><div class="comp-footer"><span class="badge badge-organism">organism</span><span class="badge badge-variant">2 variants</span></div></div>
+            <div class="comp-preview"><div style="width:100%;max-width:200px;border-top:1px solid var(--border);padding:8px 0;display:flex;justify-content:space-between"><span style="font-size:9px;color:#8a8a8a">Labor Budgeting 3.1</span><div style="display:flex;gap:8px"><span style="font-size:9px;color:#8a8a8a">Help</span><span style="font-size:9px;color:#8a8a8a">Terms</span></div></div></div>
+            <div class="comp-meta"><div class="comp-name">Layout / Footer</div><div class="comp-dims">213 x 48</div><div class="comp-footer"><span class="badge badge-layout">Layout</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="width:100%;max-width:200px;background:rgba(0,0,0,0.04);border-radius:2px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:10px;font-weight:500">Brand</span><div style="display:flex;gap:10px"><span style="font-size:9px;color:#8a8a8a">Home</span><span style="font-size:9px;color:#8a8a8a">About</span></div></div></div>
-            <div class="comp-meta"><div class="comp-name">Header</div><div class="comp-desc">Top of all pages, containing site name and main navigation.</div><div class="comp-footer"><span class="badge badge-organism">organism</span><span class="badge badge-variant">3 variants</span></div></div>
-          </div>
-          <div class="comp-card">
-            <div class="comp-preview"><div style="width:100%;max-width:200px;border-top:1px solid var(--border);padding:8px 0;display:flex;justify-content:space-between"><span style="font-size:9px;color:#8a8a8a">&copy; 2026</span><div style="display:flex;gap:8px"><span style="font-size:9px;color:#8a8a8a">Privacy</span><span style="font-size:9px;color:#8a8a8a">Terms</span></div></div></div>
-            <div class="comp-meta"><div class="comp-name">Footer</div><div class="comp-desc">Bottom of a page: copyright, legal information, or links.</div><div class="comp-footer"><span class="badge badge-organism">organism</span><span class="badge badge-variant">2 variants</span></div></div>
+            <div class="comp-preview"><div style="display:flex;gap:8px;align-items:center"><span style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:2px;background:none;color:var(--fg-muted);font-size:10px;font-family:var(--mono);border:1px solid var(--border)">Back</span><span style="flex:1"></span><span style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:2px;background:#0c6c49;color:#f4fdf1;font-size:10px;font-family:var(--mono)">Next</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Layout / Wizard Footer</div><div class="comp-dims">288 x 56</div><div class="comp-footer"><span class="badge badge-layout">Layout</span></div></div>
           </div>
         </div>
       </div>
 
-      <!-- Media & Typography -->
+      <!-- Data Display (5) -->
       <div class="comp-section">
-        <div class="section-label">Media & Typography</div>
-        <div class="comp-section-desc">Images, icons, video, and text elements.</div>
+        <div class="section-label">Data Display</div>
+        <div class="comp-section-desc">5 components -- presenting information and content.</div>
         <div class="comp-grid">
           <div class="comp-card">
-            <div class="comp-preview"><div style="width:60px;height:40px;background:rgba(0,0,0,0.04);border:1px solid var(--border);border-radius:2px;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div></div>
-            <div class="comp-meta"><div class="comp-name">Image</div><div class="comp-desc">An element for embedding images. <em style="color:var(--fg-dim)">Picture</em></div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">3 variants</span></div></div>
+            <div class="comp-preview"><div style="background:var(--bg-card);border:1px solid rgba(0,0,0,0.08);border-radius:2px;padding:14px 16px;width:100%;max-width:180px"><div style="font-size:11px;font-weight:500;margin-bottom:4px">Budget Summary</div><div style="font-size:10px;color:#8a8a8a;line-height:1.5">Q3 labor allocation overview.</div></div></div>
+            <div class="comp-meta"><div class="comp-name">Data Display / Card</div><div class="comp-dims">320 x 75</div><div class="comp-footer"><span class="badge badge-data">Data Display</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="display:flex;gap:10px;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19V6l12-3v13M9 19c0 1.1-1.3 2-3 2s-3-.9-3-2 1.3-2 3-2 3 .9 3 2zM21 16c0 1.1-1.3 2-3 2s-3-.9-3-2 1.3-2 3-2 3 .9 3 2z"/></svg><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></div></div>
-            <div class="comp-meta"><div class="comp-name">Icon</div><div class="comp-desc">A graphic symbol indicating the purpose of an interface element.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">1 variant</span></div></div>
+            <div class="comp-preview"><div style="background:var(--bg-card);border:1px solid rgba(0,0,0,0.08);border-radius:2px;padding:14px 16px;width:100%;max-width:180px"><div style="font-size:10px;color:#8a8a8a;margin-bottom:4px">Total Budget</div><div style="font-size:18px;font-weight:500">$142,500</div><div style="font-size:10px;color:#0c6c49;margin-top:4px">+12.3% from Q2</div></div></div>
+            <div class="comp-meta"><div class="comp-name">Data Display / Stat Card</div><div class="comp-dims">320 x 191</div><div class="comp-footer"><span class="badge badge-data">Data Display</span></div></div>
           </div>
           <div class="comp-card">
-            <div class="comp-preview"><div style="font-family:var(--serif)"><div style="font-size:16px;font-weight:400;margin-bottom:4px">Heading One</div><div style="font-size:13px;font-weight:300;color:#8a8a8a">Heading Two</div></div></div>
-            <div class="comp-meta"><div class="comp-name">Heading</div><div class="comp-desc">A title or caption used to introduce a new section.</div><div class="comp-footer"><span class="badge badge-atom">atom</span><span class="badge badge-variant">6 levels</span></div></div>
+            <div class="comp-preview"><div style="width:100%;max-width:220px"><div style="display:flex;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.08);justify-content:space-between"><span style="font-size:10px;color:#8a8a8a;text-transform:uppercase;letter-spacing:1px">Name</span><span style="font-size:10px;color:#8a8a8a;text-transform:uppercase;letter-spacing:1px">Status</span></div><div style="display:flex;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.08);justify-content:space-between;font-size:11px"><span>Row item</span><span style="font-size:9px;padding:2px 8px;border-radius:999px;background:rgba(12,108,73,0.08);color:#0c6c49">Active</span></div></div></div>
+            <div class="comp-meta"><div class="comp-name">Data Display / Table Row</div><div class="comp-dims">100 x 40</div><div class="comp-footer"><span class="badge badge-data">Data Display</span></div></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-preview"><div style="width:100%;max-width:220px"><div style="display:flex;padding:6px 0;border-bottom:2px solid rgba(0,0,0,0.12);justify-content:space-between"><span style="font-size:10px;color:var(--fg);text-transform:uppercase;letter-spacing:1px;font-weight:500">Department</span><span style="font-size:10px;color:var(--fg);text-transform:uppercase;letter-spacing:1px;font-weight:500">Budget</span></div></div></div>
+            <div class="comp-meta"><div class="comp-name">Data Display / Table Header</div><div class="comp-dims">100 x 40</div><div class="comp-footer"><span class="badge badge-data">Data Display</span></div></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-preview"><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;background:rgba(12,108,73,0.08);color:#0c6c49">Active</span><span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;background:rgba(209,141,0,0.08);color:#d18d00">Pending</span><span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;background:rgba(252,109,107,0.08);color:#fc6d6b">Over</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Data Display / Badge</div><div class="comp-dims">53 x 100</div><div class="comp-footer"><span class="badge badge-data">Data Display</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form (4) -->
+      <div class="comp-section">
+        <div class="section-label">Form</div>
+        <div class="comp-section-desc">4 components -- form controls for collecting user data.</div>
+        <div class="comp-grid">
+          <div class="comp-card">
+            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:4px;width:100%;max-width:180px"><span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#8a8a8a">Department</span><input style="width:100%;padding:7px 12px;border:1px solid var(--border);border-radius:2px;font-size:11px;font-family:var(--mono);background:none;color:var(--fg)" placeholder="Enter department..." readonly></div></div>
+            <div class="comp-meta"><div class="comp-name">Form / Text Input</div><div class="comp-dims">320 x 56</div><div class="comp-footer"><span class="badge badge-form">Form</span></div></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:4px;width:100%;max-width:180px"><span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#8a8a8a">Period</span><div style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(0,0,0,0.08);border-radius:2px;padding:7px 12px"><span style="font-size:11px;color:#8a8a8a">Select quarter</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div></div></div>
+            <div class="comp-meta"><div class="comp-name">Form / Select</div><div class="comp-dims">320 x 56</div><div class="comp-footer"><span class="badge badge-form">Form</span></div></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-preview"><div style="display:flex;align-items:center;gap:8px"><div style="width:16px;height:16px;border:1.5px solid var(--fg);border-radius:2px;display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><span style="font-size:11px">Include overtime</span></div></div>
+            <div class="comp-meta"><div class="comp-name">Form / Checkbox</div><div class="comp-dims">128 x 100</div><div class="comp-footer"><span class="badge badge-form">Form</span></div></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-preview"><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:center;gap:8px"><div style="width:14px;height:14px;border-radius:50%;border:1.5px solid var(--fg);display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;border-radius:50%;background:var(--fg)"></div></div><span style="font-size:11px">Monthly</span></div><div style="display:flex;align-items:center;gap:8px"><div style="width:14px;height:14px;border-radius:50%;border:1.5px solid #b0b0b0"></div><span style="font-size:11px;color:#8a8a8a">Quarterly</span></div></div></div>
+            <div class="comp-meta"><div class="comp-name">Form / Radio</div><div class="comp-dims">99 x 100</div><div class="comp-footer"><span class="badge badge-form">Form</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlay (2) -->
+      <div class="comp-section">
+        <div class="section-label">Overlay</div>
+        <div class="comp-section-desc">2 components -- modals, drawers, and floating content.</div>
+        <div class="comp-grid">
+          <div class="comp-card">
+            <div class="comp-preview"><div style="background:rgba(0,0,0,0.04);border:1px solid var(--border);border-radius:2px;padding:12px;width:100%;max-width:200px"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:11px;font-weight:500">Confirm Delete</span><span style="font-size:11px;color:#8a8a8a;cursor:pointer">&times;</span></div><div style="font-size:10px;color:#8a8a8a;margin-bottom:10px">Remove this budget entry?</div><div style="display:flex;gap:6px;justify-content:flex-end"><span style="display:inline-flex;padding:4px 10px;border-radius:2px;background:none;color:var(--fg);font-size:10px;font-family:var(--mono);border:1px solid var(--border)">Cancel</span><span style="display:inline-flex;padding:4px 10px;border-radius:2px;background:#fc6d6b;color:#fff;font-size:10px;font-family:var(--mono)">Delete</span></div></div></div>
+            <div class="comp-meta"><div class="comp-name">Overlay / Modal</div><div class="comp-dims">640 x 201</div><div class="comp-footer"><span class="badge badge-overlay">Overlay</span></div></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-preview"><div style="display:flex;width:100%;max-width:220px;height:70px"><div style="flex:1;background:rgba(0,0,0,0.02)"></div><div style="width:90px;background:rgba(0,0,0,0.04);border-left:1px solid var(--border);padding:8px;font-size:9px"><div style="font-weight:500;margin-bottom:4px">Details</div><div style="color:#8a8a8a">Budget breakdown</div></div></div></div>
+            <div class="comp-meta"><div class="comp-name">Overlay / Side Drawer</div><div class="comp-dims">480 x 201</div><div class="comp-footer"><span class="badge badge-overlay">Overlay</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback (2) -->
+      <div class="comp-section">
+        <div class="section-label">Feedback</div>
+        <div class="comp-section-desc">2 components -- status indicators and user notifications.</div>
+        <div class="comp-grid">
+          <div class="comp-card">
+            <div class="comp-preview"><div style="text-align:center;padding:8px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M12 8v8"/></svg><div style="font-size:10px;color:#8a8a8a;margin-top:6px">No budget entries yet</div></div></div>
+            <div class="comp-meta"><div class="comp-name">Feedback / Empty State</div><div class="comp-dims">400 x 189</div><div class="comp-footer"><span class="badge badge-feedback">Feedback</span></div></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-preview"><div style="position:relative"><div style="width:14px;height:14px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:#8a8a8a;cursor:help">?</div><div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);border-radius:2px;padding:4px 8px;font-size:9px;white-space:nowrap">Budget allocation tip</div></div></div>
+            <div class="comp-meta"><div class="comp-name">Feedback / Tooltip</div><div class="comp-dims">88 x 100</div><div class="comp-footer"><span class="badge badge-feedback">Feedback</span></div></div>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- ═══════════════════════════════════════ LAYOUT ═══ -->
+    <!-- ======================================= LAYOUT === -->
     <div class="tab-panel" data-panel="layout">
 
       <div class="section-label">Page Structures</div>
@@ -598,8 +612,8 @@ a:hover { text-decoration: underline; }
             </div>
           </div>
           <div class="layout-meta">
-            <div class="layout-name">SidebarLayout</div>
-            <div class="layout-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris.</div>
+            <div class="layout-name">Sidebar + Main</div>
+            <div class="layout-desc">Primary layout pattern in Labor Budgeting. Sidebar navigation with main content area for budget views and data tables.</div>
           </div>
         </div>
         <div class="layout-card">
@@ -609,8 +623,8 @@ a:hover { text-decoration: underline; }
             <div class="wire-block-narrow"></div>
           </div>
           <div class="layout-meta">
-            <div class="layout-name">StackLayout</div>
-            <div class="layout-desc">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.</div>
+            <div class="layout-name">Full Width</div>
+            <div class="layout-desc">Single-column layout used for focused tasks like budget entry wizards and onboarding flows.</div>
           </div>
         </div>
         <div class="layout-card">
@@ -624,8 +638,8 @@ a:hover { text-decoration: underline; }
             <div class="wire-block-wide"></div>
           </div>
           <div class="layout-meta">
-            <div class="layout-name">GridDashboard</div>
-            <div class="layout-desc">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</div>
+            <div class="layout-name">Grid Dashboard</div>
+            <div class="layout-desc">Multi-card grid for dashboard views showing stat cards, charts, and summary data side by side.</div>
           </div>
         </div>
         <div class="layout-card">
@@ -643,8 +657,8 @@ a:hover { text-decoration: underline; }
             </div>
           </div>
           <div class="layout-meta">
-            <div class="layout-name">SplitPanel</div>
-            <div class="layout-desc">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe.</div>
+            <div class="layout-name">Split Panel</div>
+            <div class="layout-desc">Two-panel layout for detail views: primary content area with a secondary info panel for properties and metadata.</div>
           </div>
         </div>
       </div>
@@ -664,8 +678,8 @@ a:hover { text-decoration: underline; }
             <div class="wire-block-narrow"></div>
           </div>
           <div class="layout-meta">
-            <div class="layout-name">CardGrid</div>
-            <div class="layout-desc">Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus.</div>
+            <div class="layout-name">Card Grid</div>
+            <div class="layout-desc">Equal-sized cards in a responsive grid used for department budget summaries and team allocation views.</div>
           </div>
         </div>
         <div class="layout-card">
@@ -675,8 +689,8 @@ a:hover { text-decoration: underline; }
             <div style="display:flex;align-items:center;gap:8px;padding:8px 0"><div style="width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,0.06);flex-shrink:0"></div><div class="wire-block-narrow" style="width:35%"></div><div style="margin-left:auto"><div class="wire-block-narrow" style="width:50px"></div></div></div>
           </div>
           <div class="layout-meta">
-            <div class="layout-name">ListLayout</div>
-            <div class="layout-desc">Nam libero tempore cum soluta nobis est eligendi optio cumque nihil impedit.</div>
+            <div class="layout-name">List Layout</div>
+            <div class="layout-desc">Row-based list for budget line items, employee entries, and approval queues with avatar + metadata pattern.</div>
           </div>
         </div>
       </div>
@@ -685,7 +699,7 @@ a:hover { text-decoration: underline; }
 
   </div>
 
-  <footer class="footer">memoire systems -- generated by memoire engine</footer>
+  <footer class="footer">memoire v0.2.0</footer>
 
 <script>
 function switchTab(tab) {
@@ -699,9 +713,11 @@ function switchTab(tab) {
 
 function showTokenGroup(group) {
   document.querySelectorAll('.sidebar-item').forEach(function(s) { s.classList.remove('active'); });
-  event.currentTarget.classList.add('active');
+  if (event && event.currentTarget) event.currentTarget.classList.add('active');
   document.querySelectorAll('.token-group').forEach(function(g) {
-    g.classList.toggle('active', g.getAttribute('data-group') === group);
+    var match = g.getAttribute('data-group') === group;
+    g.style.display = match ? 'block' : 'none';
+    g.classList.toggle('active', match);
   });
 }
 
@@ -710,20 +726,6 @@ document.querySelectorAll('.token-group').forEach(function(g) {
   if (!g.classList.contains('active')) g.style.display = 'none';
 });
 document.querySelectorAll('.token-group.active').forEach(function(g) { g.style.display = 'block'; });
-
-// Override showTokenGroup to use display
-(function() {
-  var orig = showTokenGroup;
-  showTokenGroup = function(group) {
-    document.querySelectorAll('.sidebar-item').forEach(function(s) { s.classList.remove('active'); });
-    if (event && event.currentTarget) event.currentTarget.classList.add('active');
-    document.querySelectorAll('.token-group').forEach(function(g) {
-      var match = g.getAttribute('data-group') === group;
-      g.style.display = match ? 'block' : 'none';
-      g.classList.toggle('active', match);
-    });
-  };
-})();
 </script>
 </body>
 </html>

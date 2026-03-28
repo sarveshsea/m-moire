@@ -2,6 +2,11 @@
   "name": "MetricCard",
   "type": "component",
   "level": "molecule",
+  "composesSpecs": [],
+  "codeConnect": {
+    "props": {},
+    "mapped": false
+  },
   "purpose": "Display a single KPI metric with title, value, and optional trend indicator",
   "researchBacking": [],
   "designTokens": {
@@ -33,6 +38,6 @@
     "dashboard",
     "kpi"
   ],
-  "createdAt": "2026-03-23T17:52:07.124Z",
-  "updatedAt": "2026-03-23T17:52:07.124Z"
+  "createdAt": "2026-03-27T00:16:33.449Z",
+  "updatedAt": "2026-03-27T00:16:33.449Z"
 }

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <mask id="holes">
+      <rect width="120" height="120" fill="white"/>
+      <!-- 5 oval cutouts between the lobes -->
+      <ellipse cx="60" cy="34" rx="10" ry="15" fill="black"/>
+      <ellipse cx="84" cy="52" rx="10" ry="15" transform="rotate(72 84 52)" fill="black"/>
+      <ellipse cx="75" cy="80" rx="10" ry="15" transform="rotate(144 75 80)" fill="black"/>
+      <ellipse cx="45" cy="80" rx="10" ry="15" transform="rotate(-144 45 80)" fill="black"/>
+      <ellipse cx="36" cy="52" rx="10" ry="15" transform="rotate(-72 36 52)" fill="black"/>
+    </mask>
+  </defs>
+  <!-- 5 overlapping circles forming the blob -->
+  <g mask="url(#holes)">
+    <circle cx="60" cy="28" r="24" fill="#C24B38"/>
+    <circle cx="90" cy="50" r="24" fill="#C24B38"/>
+    <circle cx="78" cy="84" r="24" fill="#C24B38"/>
+    <circle cx="42" cy="84" r="24" fill="#C24B38"/>
+    <circle cx="30" cy="50" r="24" fill="#C24B38"/>
+    <!-- Fill center -->
+    <circle cx="60" cy="58" r="18" fill="#C24B38"/>
+  </g>
+</svg>
