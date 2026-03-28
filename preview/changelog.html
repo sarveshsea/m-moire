@@ -390,7 +390,7 @@ a:hover { text-decoration: underline; }
       <a href="changelog.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a>
     </nav>
     <div class="hdr-stats">
-      <span><span class="n" id="stat-commits">95</span> commits</span>
+      <span><span class="n" id="stat-commits">96</span> commits</span>
       <span><span class="n" id="stat-versions">5</span> versions</span>
       <span><span class="n" id="stat-latest">2026-03-27</span> latest</span>
     </div>
@@ -408,7 +408,7 @@ a:hover { text-decoration: underline; }
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
             <strong class="summary-value">v0.2.1</strong>
-            <div class="summary-caption">67 commits tracked in v0.2.1 from CHANGELOG.md.</div>
+            <div class="summary-caption">68 commits tracked in v0.2.1 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -711,6 +711,10 @@ const releases = [
       [
         "f153ffa",
         "Use local system fonts in widget UI"
+      ],
+      [
+        "fda8782",
+        "Strengthen widget typography hierarchy"
       ]
     ],
     "decisions": [
@@ -809,6 +813,10 @@ const releases = [
       [
         "Widget Typography Uses Local System Stacks",
         "The Figma panel no longer depends on remote Google Fonts, so the embedded webview renders with reliable mono and serif system fonts even when external font loads are blocked."
+      ],
+      [
+        "Widget Typography Now Has Real Hierarchy",
+        "The Control Plane uses sans text for readable body and controls, reserves mono for operational metadata, and keeps serif accents only where they add identity, which makes the panel feel deliberate instead of uniformly thin."
       ]
     ],
     "changes": [
@@ -857,7 +865,8 @@ const releases = [
       "Added scripts/build-changelog-preview.mjs to parse CHANGELOG.md, normalize release data, and regenerate preview/changelog.html from the changelog source of truth",
       "Wired npm run build to refresh the preview changelog automatically and added npm run build:changelog for direct regeneration",
       "Added a regression test that compares the checked-in preview/changelog.html against generated output from CHANGELOG.md, so stale preview changelog data now fails locally",
-      "Removed Google Fonts dependencies from the Figma widget UI, switched the operator console to local system mono/serif stacks, and added a build regression check so blocked web fonts do not silently ship again"
+      "Removed Google Fonts dependencies from the Figma widget UI, switched the operator console to local system mono/serif stacks, and added a build regression check so blocked web fonts do not silently ship again",
+      "Reworked the widget type hierarchy so operator copy and controls use a stronger sans stack, brand and section heads keep serif emphasis, and telemetry labels stay mono instead of flattening the whole panel into one weak font treatment"
     ]
   },
   {

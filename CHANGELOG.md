@@ -78,6 +78,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 | `3ea17d5` | Fix blank widget panel bootstrap |
 | `6818e32` | Generate preview changelog from CHANGELOG.md |
 | `f153ffa` | Use local system fonts in widget UI |
+| `fda8782` | Strengthen widget typography hierarchy |
 
 ### Key Design Decisions
 - **Notes Become a Real Extension Surface** — Mémoire now treats Notes as installable skill packs, including workspace `SKILL.md` bundles, built-in notes, and compatibility fixes for activation and copy behavior.
@@ -104,6 +105,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - **Widget UI Bootstraps Only After the Mount Node Exists** — The operator console now waits for `DOMContentLoaded` before resolving `#app`, which keeps the inlined bundle from crashing when Vite hoists the script into `<head>`.
 - **Preview Changelog Is Now Generated from CHANGELOG.md** — `preview/changelog.html` is no longer hand-synced via an embedded release array; the build regenerates it from `CHANGELOG.md`, and a regression test now fails if the checked-in preview page drifts from the changelog source.
 - **Widget Typography Uses Local System Stacks** — The Figma panel no longer depends on remote Google Fonts, so the embedded webview renders with reliable mono and serif system fonts even when external font loads are blocked.
+- **Widget Typography Now Has Real Hierarchy** — The Control Plane uses sans text for readable body and controls, reserves mono for operational metadata, and keeps serif accents only where they add identity, which makes the panel feel deliberate instead of uniformly thin.
 
 ### Changes
 - Added the Notes ecosystem release, including audit fixes, activation cleanup, recursive-copy handling, and dead-code removal
@@ -152,6 +154,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - Wired `npm run build` to refresh the preview changelog automatically and added `npm run build:changelog` for direct regeneration
 - Added a regression test that compares the checked-in `preview/changelog.html` against generated output from `CHANGELOG.md`, so stale preview changelog data now fails locally
 - Removed Google Fonts dependencies from the Figma widget UI, switched the operator console to local system mono/serif stacks, and added a build regression check so blocked web fonts do not silently ship again
+- Reworked the widget type hierarchy so operator copy and controls use a stronger sans stack, brand and section heads keep serif emphasis, and telemetry labels stay mono instead of flattening the whole panel into one weak font treatment
 
 ## v0.2.0 — 2026-03-26
 
