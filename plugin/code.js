@@ -361,14 +361,14 @@ var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
     };
   }
   function readComponent(node) {
-    var _a;
+    var _a, _b;
     const isVariant = node.type === "COMPONENT" && ((_a = node.parent) == null ? void 0 : _a.type) === "COMPONENT_SET";
-    const variantProperties = typeof node.variantProperties === "object" && node.variantProperties ? Object.fromEntries(
-      Object.entries(node.variantProperties).map(([key, value]) => {
-        var _a2;
-        return [key, String((_a2 = value == null ? void 0 : value.value) != null ? _a2 : value)];
-      })
-    ) : {};
+    const variantProperties = {};
+    if (typeof node.variantProperties === "object" && node.variantProperties) {
+      for (const [key, value] of Object.entries(node.variantProperties)) {
+        variantProperties[key] = String((_b = value == null ? void 0 : value.value) != null ? _b : value);
+      }
+    }
     const componentProperties = "componentPropertyDefinitions" in node && node.componentPropertyDefinitions ? node.componentPropertyDefinitions : {};
     if (!("key" in node) && !("description" in node) && !Object.keys(componentProperties).length && !Object.keys(variantProperties).length) {
       return void 0;

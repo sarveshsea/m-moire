@@ -579,7 +579,7 @@ function render(): void {
           </div>
         </div>
       </div>
-      <div class="content">
+      <div class="content ${state.logs.length ? "has-side-column" : "single-column"}">
         <div class="main-column">
           <section class="panel">
             <div class="metrics">

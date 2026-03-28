@@ -399,11 +399,12 @@ function readLayout(node: any): WidgetSelectionLayout {
 
 function readComponent(node: any): WidgetSelectionComponent | undefined {
   const isVariant = node.type === "COMPONENT" && node.parent?.type === "COMPONENT_SET";
-  const variantProperties = typeof node.variantProperties === "object" && node.variantProperties
-    ? Object.fromEntries(
-        Object.entries(node.variantProperties).map(([key, value]) => [key, String((value as { value?: unknown })?.value ?? value)]),
-      )
-    : {};
+  const variantProperties: Record<string, string> = {};
+  if (typeof node.variantProperties === "object" && node.variantProperties) {
+    for (const [key, value] of Object.entries(node.variantProperties)) {
+      variantProperties[key] = String((value as { value?: unknown })?.value ?? value);
+    }
+  }
 
   const componentProperties = "componentPropertyDefinitions" in node && node.componentPropertyDefinitions
     ? node.componentPropertyDefinitions

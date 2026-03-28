@@ -1144,7 +1144,7 @@ function render() {
           </div>
         </div>
       </div>
-      <div class="content">
+      <div class="content ${state.logs.length ? "has-side-column" : "single-column"}">
         <div class="main-column">
           <section class="panel">
             <div class="metrics">
@@ -1855,6 +1855,10 @@ button {
   grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
   gap: 8px;
   padding: 8px;
+}
+
+.content.single-column {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .main-column,

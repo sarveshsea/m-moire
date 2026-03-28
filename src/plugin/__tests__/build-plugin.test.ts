@@ -44,10 +44,12 @@ describe("plugin build pipeline", () => {
       expect(code).not.toContain(".find(");
       expect(code).not.toContain(".findIndex(");
       expect(code).not.toContain(".padStart(");
+      expect(code).not.toContain("Object.fromEntries(");
       expect(html).not.toContain(".includes(");
       expect(html).not.toContain(".find(");
       expect(html).not.toContain(".findIndex(");
       expect(html).not.toContain(".padStart(");
+      expect(html).toContain('content ${state.logs.length ? "has-side-column" : "single-column"}');
       expect(hasRawObjectSpread(code)).toBe(false);
       expect(hasRawObjectSpread(html)).toBe(false);
       expect(meta).toContain('"widgetVersion": "2"');

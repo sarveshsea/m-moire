@@ -169,6 +169,10 @@ button {
   padding: 8px;
 }
 
+.content.single-column {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .main-column,
 .side-column {
   display: flex;
