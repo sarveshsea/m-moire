@@ -22,7 +22,7 @@ export async function buildPluginBundle(options = {}) {
     root: rootDir,
     publicDir: false,
     build: {
-      target: "es2019",
+      target: "es2017",
       minify: false,
       emptyOutDir: false,
       outDir,
@@ -54,7 +54,7 @@ export async function buildPluginBundle(options = {}) {
     root: uiSourceDir,
     publicDir: false,
     build: {
-      target: "es2019",
+      target: "es2017",
       minify: false,
       emptyOutDir: true,
       outDir: uiOutDir,

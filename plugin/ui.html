@@ -7,7 +7,26 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-  <script>(function polyfill() {
+  <script>var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+(function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
     return;
@@ -573,13 +592,12 @@ function disconnectActiveJobs(jobs, timestamp = Date.now()) {
     if (job.status !== "running" && job.status !== "queued") {
       return job;
     }
-    return {
-      ...job,
+    return __spreadProps(__spreadValues({}, job), {
       status: "disconnected",
       updatedAt: timestamp,
       progressText: "Bridge disconnected",
       error: (_a = job.error) != null ? _a : "Bridge disconnected before the job completed"
-    };
+    });
   });
 }
 function mergeSyncSummaries(current, next) {
@@ -732,11 +750,10 @@ function bindPluginMessages() {
         render();
         break;
       case "page":
-        state.connection = {
-          ...state.connection,
+        state.connection = __spreadProps(__spreadValues({}, state.connection), {
           pageName: message.pageName,
           pageId: message.pageId
-        };
+        });
         state.lastPageUpdate = message.updatedAt;
         forwardToBridge(serializeBridgeEnvelope(createBridgePageChangedMessage(
           message.pageName,
@@ -796,7 +813,7 @@ function tryNextPort(port) {
     settled = true;
     try {
       ws.close();
-    } catch {
+    } catch (e) {
     }
     tryNextPort(port + 1);
   }, 1200);
@@ -807,7 +824,7 @@ function tryNextPort(port) {
     let payload;
     try {
       payload = JSON.parse(event.data);
-    } catch {
+    } catch (e) {
       return;
     }
     if (payload.type === "pong" && state.bridge.lastPingSentAt > 0) {
@@ -875,14 +892,13 @@ function scheduleReconnect() {
 }
 function setBridgeStage(stage) {
   state.bridge.stage = stage;
-  state.connection = {
-    ...state.connection,
+  state.connection = __spreadProps(__spreadValues({}, state.connection), {
     stage: stage === "connected" ? "connected" : stage === "scanning" ? "scanning" : stage === "reconnecting" ? "reconnecting" : "offline",
     port: state.bridge.port,
     name: state.bridge.name || state.connection.name,
     latencyMs: state.bridge.latencyMs,
     reconnectDelayMs: stage === "reconnecting" ? state.bridge.reconnectDelayMs : null
-  };
+  });
 }
 function forwardToBridge(payload) {
   if (!state.bridge.ws || state.bridge.ws.readyState !== WebSocket.OPEN) {
@@ -1170,7 +1186,7 @@ function handleAction(action) {
       if (state.bridge.ws) {
         try {
           state.bridge.ws.close();
-        } catch {
+        } catch (e) {
         }
       }
       state.bridge.ws = null;

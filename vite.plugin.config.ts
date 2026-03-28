@@ -5,7 +5,7 @@ export default defineConfig({
   root: path.resolve(__dirname),
   publicDir: false,
   build: {
-    target: "es2019",
+    target: "es2017",
     minify: false,
   },
 });
