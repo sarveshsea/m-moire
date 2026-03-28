@@ -390,7 +390,7 @@ a:hover { text-decoration: underline; }
       <a href="changelog.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a>
     </nav>
     <div class="hdr-stats">
-      <span><span class="n" id="stat-commits">99</span> commits</span>
+      <span><span class="n" id="stat-commits">100</span> commits</span>
       <span><span class="n" id="stat-versions">5</span> versions</span>
       <span><span class="n" id="stat-latest">2026-03-27</span> latest</span>
     </div>
@@ -408,7 +408,7 @@ a:hover { text-decoration: underline; }
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
             <strong class="summary-value">v0.2.1</strong>
-            <div class="summary-caption">71 commits tracked in v0.2.1 from CHANGELOG.md.</div>
+            <div class="summary-caption">72 commits tracked in v0.2.1 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -725,6 +725,10 @@ const releases = [
         "Compress widget layout and reduce panel height"
       ],
       [
+        "8632933",
+        "Harden widget compatibility and layout state"
+      ],
+      [
         "c589635",
         "Harden widget runtime compatibility"
       ]
@@ -839,6 +843,10 @@ const releases = [
         "The Control Plane opens shorter, collapses internal spacing, and removes artificial empty-state height so the Figma panel shows more state per viewport instead of spending its budget on whitespace."
       ],
       [
+        "Widget Runtime Avoids Unnecessary Modern APIs",
+        "The shipped plugin now avoids Object.fromEntries in the main thread and explicitly switches to a single-column layout when the activity surface is absent, which reduces compatibility risk and prevents hidden-layout width loss."
+      ],
+      [
         "Widget Runtime Now Targets Compatibility-Safe Primitives",
         "The Control Plane replaces fragile find/findIndex/includes/padStart dependencies with shared compatibility helpers, uses a manual DOM-ready listener, and falls back to execCommand(\"copy\") when the clipboard API is unavailable."
       ]
@@ -894,6 +902,7 @@ const releases = [
       "Reworked the widget type hierarchy so operator copy and controls use a stronger sans stack, brand and section heads keep serif emphasis, and telemetry labels stay mono instead of flattening the whole panel into one weak font treatment",
       "Tightened the widget typography pass with a larger base text size, stronger control weights, clearer status pills, and better subtitle/chip readability inside the Figma panel",
       "Reduced the widget height, tightened panel and card spacing, turned the action row into a denser grid, and cut the operator tab panel minimum so the Figma plugin wastes less vertical space",
+      "Replaced the last Object.fromEntries use in the plugin main thread, made the widget content grid collapse to a true single-column layout when logs are hidden, and tightened the build regression test so these compatibility/layout-state regressions fail in CI",
       "Added shared compatibility helpers for array/string lookup and padding, removed the remaining modern runtime helpers from shipped widget code, added a clipboard fallback path, and expanded plugin regression coverage so those APIs do not leak back into the built bundle"
     ]
   },
