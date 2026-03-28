@@ -10,6 +10,8 @@ import type { MemoireEvent } from "../engine/core.js";
 import { parseExcel } from "./excel-parser.js";
 import { clusterStickies, extractThemes, type ParsedResearch } from "../figma/stickies.js";
 import type { StickyNote } from "../figma/bridge.js";
+import type { TranscriptAnalysis } from "./transcript-parser.js";
+import type { WebResearchResult } from "./web-researcher.js";
 
 export interface ResearchConfig {
   outputDir: string;
@@ -33,6 +35,7 @@ export interface ResearchPersona {
   painPoints: string[];
   behaviors: string[];
   source: string;
+  quote?: string;
 }
 
 export interface ResearchTheme {
@@ -301,6 +304,87 @@ export class ResearchEngine {
 
   getStore(): ResearchStore {
     return this.store;
+  }
+
+  /**
+   * Process a transcript file (interview, user test, meeting notes).
+   */
+  async fromTranscript(filePath: string, label?: string): Promise<TranscriptAnalysis> {
+    this.emitEvent("info", `Processing transcript: ${filePath}`);
+
+    const { readFile: readFileAsync } = await import("fs/promises");
+    const text = await readFileAsync(filePath, "utf-8");
+    const { parseTranscript } = await import("./transcript-parser.js");
+    const analysis = parseTranscript(text);
+
+    const sourceName = label ?? filePath;
+
+    // Convert transcript insights to research insights
+    for (const ti of analysis.insights) {
+      this.addInsight({
+        finding: ti.finding,
+        confidence: ti.confidence,
+        source: sourceName,
+        evidence: [ti.quote],
+        tags: ["interview", "qualitative", ti.category, ti.sentiment],
+      });
+    }
+
+    // Add aggregate sentiment as an insight
+    const total = analysis.insights.length;
+    if (total > 0) {
+      const pct = (n: number) => Math.round((n / total) * 100);
+      this.addInsight({
+        finding: `Sentiment analysis: ${pct(analysis.sentiment.positive)}% positive, ${pct(analysis.sentiment.negative)}% negative, ${pct(analysis.sentiment.mixed)}% mixed (${analysis.speakers.length} speakers, ${total} insights)`,
+        confidence: total > 10 ? "high" : "medium",
+        source: sourceName,
+        evidence: [`Total insights: ${total}`, `Speakers: ${analysis.speakers.map(s => s.name).join(", ")}`],
+        tags: ["interview", "quantitative", "sentiment"],
+      });
+    }
+
+    this.store.sources.push({
+      name: sourceName,
+      type: "transcript",
+      processedAt: new Date().toISOString(),
+    });
+
+    await this.save();
+    this.emitEvent("success", analysis.summary);
+
+    return analysis;
+  }
+
+  /**
+   * Research a topic from provided web URLs.
+   */
+  async fromUrls(topic: string, urls: string[]): Promise<WebResearchResult> {
+    this.emitEvent("info", `Web research: "${topic}" from ${urls.length} URLs`);
+
+    const { executeWebResearch } = await import("./web-researcher.js");
+    const result = await executeWebResearch(topic, urls);
+
+    // Convert web findings to research insights
+    for (const finding of result.findings) {
+      this.addInsight({
+        finding: finding.text.length > 200 ? finding.text.slice(0, 197) + "..." : finding.text,
+        confidence: finding.confidence,
+        source: `web:${finding.sourceUrls[0] ?? topic}`,
+        evidence: finding.sourceUrls,
+        tags: ["web-research", finding.category, ...finding.entities.slice(0, 5)],
+      });
+    }
+
+    this.store.sources.push({
+      name: `web-research:${topic}`,
+      type: "web",
+      processedAt: new Date().toISOString(),
+    });
+
+    await this.save();
+    this.emitEvent("success", result.summary);
+
+    return result;
   }
 
   // ── Private ──────────────────────────────────────────────

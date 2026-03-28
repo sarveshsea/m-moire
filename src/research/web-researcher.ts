@@ -395,6 +395,140 @@ function extractDomain(url: string): string {
 
 // ── Gap Analysis ─────────────────────────────────────────
 
+// ── HTML Stripping ──────────────────────────────────────
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+    .replace(/<header[\s\S]*?<\/header>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// ── URL Fetcher ─────────────────────────────────────────
+
+/**
+ * Fetch a URL and return its text content (HTML stripped).
+ */
+export async function fetchUrl(url: string, options?: { timeoutMs?: number }): Promise<{
+  url: string;
+  title: string;
+  content: string;
+  ok: boolean;
+  error?: string;
+}> {
+  const timeoutMs = options?.timeoutMs ?? 15000;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "Memoire-Research/1.0",
+        "Accept": "text/html,application/xhtml+xml,text/plain,*/*",
+      },
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      return { url, title: "", content: "", ok: false, error: `HTTP ${response.status}` };
+    }
+
+    const html = await response.text();
+    const content = stripHtml(html);
+
+    // Extract title from HTML
+    const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    const title = titleMatch ? titleMatch[1].replace(/\s+/g, " ").trim() : url;
+
+    return { url, title, content, ok: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    log.warn({ url, error: message }, "Fetch failed");
+    return { url, title: "", content: "", ok: false, error: message };
+  }
+}
+
+// ── Execute Web Research (URL-based) ────────────────────
+
+/**
+ * Research a topic by fetching explicit URLs, stripping HTML,
+ * and producing structured findings via processWebContent().
+ */
+export async function executeWebResearch(
+  topic: string,
+  urls: string[],
+  options?: { timeoutMs?: number; concurrency?: number }
+): Promise<WebResearchResult> {
+  const concurrency = options?.concurrency ?? 5;
+  const timeoutMs = options?.timeoutMs ?? 15000;
+
+  log.info({ topic, urlCount: urls.length, concurrency }, "Starting web research");
+
+  // Fetch URLs with concurrency control
+  const pages: FetchedPage[] = [];
+  for (let i = 0; i < urls.length; i += concurrency) {
+    const batch = urls.slice(i, i + concurrency);
+    const results = await Promise.allSettled(
+      batch.map(url => fetchUrl(url, { timeoutMs }))
+    );
+
+    for (const result of results) {
+      if (result.status === "fulfilled" && result.value.ok) {
+        pages.push({
+          url: result.value.url,
+          title: result.value.title,
+          content: result.value.content,
+        });
+      }
+    }
+  }
+
+  log.info({ topic, fetched: pages.length, total: urls.length }, "URLs fetched");
+
+  return processWebContent(topic, pages);
+}
+
+// ── Execute Web Research with Plan ──────────────────────
+
+export interface WebResearchPlanResult {
+  plan: ResearchPlan;
+  /** Call with fetched page data to produce findings. */
+  processResults: (pages: FetchedPage[]) => WebResearchResult;
+}
+
+/**
+ * Build a research plan and return it along with a callback
+ * to process results. This allows MCP hosts or Claude agents
+ * to perform the actual fetching.
+ */
+export function executeWebResearchWithPlan(
+  topic: string,
+  options?: { depth?: "quick" | "standard" | "deep"; focus?: FindingCategory[] }
+): WebResearchPlanResult {
+  const plan = buildResearchPlan(topic, options);
+
+  return {
+    plan,
+    processResults: (pages: FetchedPage[]) => processWebContent(topic, pages),
+  };
+}
+
+// ── Gap Analysis ─────────────────────────────────────────
+
 function identifyResearchGaps(findings: WebFinding[], topic: string): string[] {
   const gaps: string[] = [];
   const categories = new Set(findings.map(f => f.category));

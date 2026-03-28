@@ -1,0 +1,16 @@
+{
+  "name": "web-research",
+  "version": "1.0.0",
+  "description": "Structured web research — topic exploration, content fetching, finding extraction, cross-source validation, and gap analysis for design research",
+  "category": "research",
+  "tags": ["web-research", "content-analysis", "competitive", "market-research", "trends"],
+  "skills": [{
+    "file": "web-research.md",
+    "name": "Web Research",
+    "activateOn": "research-to-dashboard",
+    "freedomLevel": "high"
+  }],
+  "dependencies": [],
+  "createdAt": "2026-03-28T00:00:00.000Z",
+  "updatedAt": "2026-03-28T00:00:00.000Z"
+}

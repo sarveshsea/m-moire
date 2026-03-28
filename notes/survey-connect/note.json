@@ -1,0 +1,16 @@
+{
+  "name": "survey-connect",
+  "version": "1.0.0",
+  "description": "Survey platform integration — import responses from Typeform, Google Forms, SurveyMonkey, Airtable, and CSV exports into Mémoire's research pipeline",
+  "category": "connect",
+  "tags": ["survey", "typeform", "google-forms", "airtable", "csv", "import"],
+  "skills": [{
+    "file": "survey-connect.md",
+    "name": "Survey Connect",
+    "activateOn": "research-to-dashboard",
+    "freedomLevel": "high"
+  }],
+  "dependencies": [],
+  "createdAt": "2026-03-28T00:00:00.000Z",
+  "updatedAt": "2026-03-28T00:00:00.000Z"
+}
