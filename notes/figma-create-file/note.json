@@ -1,0 +1,18 @@
+{
+  "name": "figma-create-file",
+  "version": "1.0.0",
+  "description": "Create new Figma design or FigJam files via MCP — resolve plans, scaffold files, prepare for canvas operations",
+  "author": "Figma (adapted for Memoire)",
+  "category": "craft",
+  "tags": ["figma", "file-creation", "figjam", "scaffold"],
+  "skills": [{
+    "file": "figma-create-file.md",
+    "name": "Figma Create File",
+    "activateOn": "figma-canvas-operation",
+    "freedomLevel": "high"
+  }],
+  "dependencies": [],
+  "engines": { "memoire": ">=1.0.0" },
+  "createdAt": "2026-03-28T00:00:00.000Z",
+  "updatedAt": "2026-03-28T00:00:00.000Z"
+}

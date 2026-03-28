@@ -1,0 +1,18 @@
+{
+  "name": "figma-plugin-api",
+  "version": "1.0.0",
+  "description": "Figma Plugin API reference — gotchas, patterns, variables, components, text/effect styles, validation and error recovery",
+  "author": "Figma (adapted for Memoire)",
+  "category": "craft",
+  "tags": ["figma", "plugin-api", "reference", "patterns", "gotchas"],
+  "skills": [{
+    "file": "figma-plugin-api.md",
+    "name": "Figma Plugin API Reference",
+    "activateOn": "figma-canvas-operation",
+    "freedomLevel": "reference"
+  }],
+  "dependencies": [],
+  "engines": { "memoire": ">=1.0.0" },
+  "createdAt": "2026-03-28T00:00:00.000Z",
+  "updatedAt": "2026-03-28T00:00:00.000Z"
+}

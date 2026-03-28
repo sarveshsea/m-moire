@@ -1,0 +1,18 @@
+{
+  "name": "figma-ds-rules",
+  "version": "1.0.0",
+  "description": "Generate design system rules for AI agents — encode codebase conventions, token usage, component patterns into CLAUDE.md/AGENTS.md/.cursor rules",
+  "author": "Figma (adapted for Memoire)",
+  "category": "craft",
+  "tags": ["figma", "design-system", "agent-rules", "conventions", "codegen"],
+  "skills": [{
+    "file": "figma-ds-rules.md",
+    "name": "Figma Design System Rules",
+    "activateOn": "design-creation",
+    "freedomLevel": "high"
+  }],
+  "dependencies": [],
+  "engines": { "memoire": ">=1.0.0" },
+  "createdAt": "2026-03-28T00:00:00.000Z",
+  "updatedAt": "2026-03-28T00:00:00.000Z"
+}
