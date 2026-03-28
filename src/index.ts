@@ -44,6 +44,7 @@ import { registerGoCommand } from "./commands/go.js";
 import { registerExportCommand } from "./commands/export.js";
 import { registerNotesCommand } from "./commands/notes.js";
 import { registerWatchCommand } from "./commands/watch.js";
+import { registerListCommand } from "./commands/list.js";
 
 // Prevent MaxListenersExceededWarning — commands attach cleanup handlers to process
 process.setMaxListeners(30);
@@ -101,6 +102,7 @@ registerGoCommand(program, engine);
 registerExportCommand(program, engine);
 registerNotesCommand(program, engine);
 registerWatchCommand(program, engine);
+registerListCommand(program, engine);
 
 // Parse and execute
 program.parse();
