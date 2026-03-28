@@ -24,6 +24,10 @@ describe("plugin build pipeline", () => {
       expect(html).toContain("System");
       expect(html).not.toContain('src="/assets/');
       expect(html).not.toContain('href="/assets/');
+      expect(code).not.toContain("??");
+      expect(code).not.toContain("?.");
+      expect(html).not.toContain("??");
+      expect(html).not.toContain("?.");
       expect(meta).toContain('"widgetVersion": "2"');
       expect(meta).toContain('"packageVersion": "0.2.1"');
     } finally {

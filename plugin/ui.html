@@ -102,6 +102,7 @@ function createBridgeResponseEnvelope(id, result, error) {
   };
 }
 function normalizeBridgeMessage(value) {
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
   if (isBridgeEnvelope(value)) {
     return value;
   }
@@ -147,9 +148,9 @@ function normalizeBridgeMessage(value) {
         channel: BRIDGE_V2_CHANNEL,
         source: "plugin",
         type,
-        file: asString(message.file) ?? "unknown",
-        fileKey: asString(message.fileKey) ?? "",
-        editor: asString(message.editor) ?? "figma"
+        file: (_a = asString(message.file)) != null ? _a : "unknown",
+        fileKey: (_b = asString(message.fileKey)) != null ? _b : "",
+        editor: (_c = asString(message.editor)) != null ? _c : "figma"
       };
     case "event":
       if (typeof message.message === "string") {
@@ -170,7 +171,7 @@ function normalizeBridgeMessage(value) {
           source: "server",
           type,
           text: message.text,
-          from: asString(message.from) ?? "memoire-terminal"
+          from: (_d = asString(message.from)) != null ? _d : "memoire-terminal"
         };
       }
       return null;
@@ -199,8 +200,8 @@ function normalizeBridgeMessage(value) {
         type,
         data: {
           page: asRecord(message.data).page,
-          pageId: asString(asRecord(message.data).pageId) ?? null,
-          updatedAt: asNumber(asRecord(message.data).updatedAt) ?? Date.now()
+          pageId: (_e = asString(asRecord(message.data).pageId)) != null ? _e : null,
+          updatedAt: (_f = asNumber(asRecord(message.data).updatedAt)) != null ? _f : Date.now()
         }
       };
     case "document-changed":
@@ -209,11 +210,11 @@ function normalizeBridgeMessage(value) {
         source: "plugin",
         type,
         data: {
-          changes: asNumber(asRecord(message.data).changes) ?? 0,
-          buffered: asNumber(asRecord(message.data).buffered) ?? 0,
-          sessionId: asString(asRecord(message.data).sessionId) ?? "unknown",
-          runId: asString(asRecord(message.data).runId) ?? null,
-          updatedAt: asNumber(asRecord(message.data).updatedAt) ?? Date.now()
+          changes: (_g = asNumber(asRecord(message.data).changes)) != null ? _g : 0,
+          buffered: (_h = asNumber(asRecord(message.data).buffered)) != null ? _h : 0,
+          sessionId: (_i = asString(asRecord(message.data).sessionId)) != null ? _i : "unknown",
+          runId: (_j = asString(asRecord(message.data).runId)) != null ? _j : null,
+          updatedAt: (_k = asNumber(asRecord(message.data).updatedAt)) != null ? _k : Date.now()
         }
       };
     case "action-result":
@@ -221,7 +222,7 @@ function normalizeBridgeMessage(value) {
         channel: BRIDGE_V2_CHANNEL,
         source: "plugin",
         type,
-        action: asString(message.action) ?? "unknown",
+        action: (_l = asString(message.action)) != null ? _l : "unknown",
         result: message.result,
         error: asString(message.error)
       };
@@ -231,7 +232,7 @@ function normalizeBridgeMessage(value) {
         source: "plugin",
         type: "sync-result",
         part: normalizeSyncPart(message.part),
-        summary: message.summary ?? emptySyncSummary(),
+        summary: (_m = message.summary) != null ? _m : emptySyncSummary(),
         result: message.result,
         error: asString(message.error)
       };
@@ -471,7 +472,7 @@ function summarizeSyncResult(part, result, error) {
     partialFailures: error ? [error] : []
   };
   if (part === "tokens") {
-    const collections = result?.collections || [];
+    const collections = (result == null ? void 0 : result.collections) || [];
     summary.tokens = Array.isArray(collections) ? collections.length : 0;
   }
   if (part === "components") {
@@ -483,9 +484,10 @@ function summarizeSyncResult(part, result, error) {
   return summary;
 }
 function buildJobsOverview(jobs) {
+  var _a, _b;
   const active = jobs.filter((job) => job.status === "running" || job.status === "queued");
-  const latestFailure = jobs.find((job) => job.status === "failed") ?? null;
-  const latestCompleted = jobs.find((job) => job.status === "completed") ?? null;
+  const latestFailure = (_a = jobs.find((job) => job.status === "failed")) != null ? _a : null;
+  const latestCompleted = (_b = jobs.find((job) => job.status === "completed")) != null ? _b : null;
   return {
     active,
     completedCount: jobs.filter((job) => job.status === "completed").length,
@@ -497,24 +499,26 @@ function buildJobsOverview(jobs) {
   };
 }
 function describeSelectionNode(node) {
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
   const chips = [
     node.type,
-    node.component?.isVariant ? "variant" : "",
-    node.layout?.layoutMode && node.layout.layoutMode !== "NONE" ? node.layout.layoutMode.toLowerCase() : ""
+    ((_a = node.component) == null ? void 0 : _a.isVariant) ? "variant" : "",
+    ((_b = node.layout) == null ? void 0 : _b.layoutMode) && node.layout.layoutMode !== "NONE" ? node.layout.layoutMode.toLowerCase() : ""
   ].filter(Boolean);
-  const variantPairs = node.component?.variantProperties ? Object.entries(node.component.variantProperties).map(([key, value]) => `${key}: ${value}`) : [];
+  const variantPairs = ((_c = node.component) == null ? void 0 : _c.variantProperties) ? Object.entries(node.component.variantProperties).map(([key, value]) => `${key}: ${value}`) : [];
   const styleIds = [node.fillStyleId, node.strokeStyleId, node.textStyleId].filter(Boolean);
   const variableBindings = Object.keys(node.boundVariables || {});
   const layoutFacts = [
-    node.layout?.itemSpacing !== null && node.layout?.itemSpacing !== void 0 ? `gap ${Math.round(node.layout.itemSpacing)}` : "",
-    node.layout?.paddingTop !== null && node.layout?.paddingTop !== void 0 ? `pt ${Math.round(node.layout.paddingTop)}` : "",
-    node.layout?.paddingRight !== null && node.layout?.paddingRight !== void 0 ? `pr ${Math.round(node.layout.paddingRight)}` : "",
-    node.layout?.paddingBottom !== null && node.layout?.paddingBottom !== void 0 ? `pb ${Math.round(node.layout.paddingBottom)}` : "",
-    node.layout?.paddingLeft !== null && node.layout?.paddingLeft !== void 0 ? `pl ${Math.round(node.layout.paddingLeft)}` : ""
+    ((_d = node.layout) == null ? void 0 : _d.itemSpacing) !== null && ((_e = node.layout) == null ? void 0 : _e.itemSpacing) !== void 0 ? `gap ${Math.round(node.layout.itemSpacing)}` : "",
+    ((_f = node.layout) == null ? void 0 : _f.paddingTop) !== null && ((_g = node.layout) == null ? void 0 : _g.paddingTop) !== void 0 ? `pt ${Math.round(node.layout.paddingTop)}` : "",
+    ((_h = node.layout) == null ? void 0 : _h.paddingRight) !== null && ((_i = node.layout) == null ? void 0 : _i.paddingRight) !== void 0 ? `pr ${Math.round(node.layout.paddingRight)}` : "",
+    ((_j = node.layout) == null ? void 0 : _j.paddingBottom) !== null && ((_k = node.layout) == null ? void 0 : _k.paddingBottom) !== void 0 ? `pb ${Math.round(node.layout.paddingBottom)}` : "",
+    ((_l = node.layout) == null ? void 0 : _l.paddingLeft) !== null && ((_m = node.layout) == null ? void 0 : _m.paddingLeft) !== void 0 ? `pl ${Math.round(node.layout.paddingLeft)}` : ""
   ].filter(Boolean);
-  const propertyFacts = Object.keys(node.component?.componentProperties || {}).map((key) => {
-    const property = node.component?.componentProperties?.[key];
-    return `${key}: ${property?.type || "unknown"}`;
+  const propertyFacts = Object.keys(((_n = node.component) == null ? void 0 : _n.componentProperties) || {}).map((key) => {
+    var _a2, _b2;
+    const property = (_b2 = (_a2 = node.component) == null ? void 0 : _a2.componentProperties) == null ? void 0 : _b2[key];
+    return `${key}: ${(property == null ? void 0 : property.type) || "unknown"}`;
   });
   const stateFacts = [
     node.visible ? "visible" : "hidden",
@@ -525,7 +529,7 @@ function describeSelectionNode(node) {
   ].filter(Boolean);
   return {
     chips,
-    fillHex: node.fills?.[0]?.color ? rgbToHex(node.fills[0].color) : null,
+    fillHex: ((_p = (_o = node.fills) == null ? void 0 : _o[0]) == null ? void 0 : _p.color) ? rgbToHex(node.fills[0].color) : null,
     variantPairs,
     styleIds,
     variableBindings,
@@ -535,7 +539,8 @@ function describeSelectionNode(node) {
   };
 }
 function formatElapsedTime(job, now = Date.now()) {
-  const end = job.finishedAt ?? now;
+  var _a;
+  const end = (_a = job.finishedAt) != null ? _a : now;
   const durationMs = Math.max(0, end - job.startedAt);
   if (durationMs < 1e3) {
     return `${durationMs}ms`;
@@ -564,6 +569,7 @@ function upsertJobState(jobs, job, maxJobs) {
 }
 function disconnectActiveJobs(jobs, timestamp = Date.now()) {
   return jobs.map((job) => {
+    var _a;
     if (job.status !== "running" && job.status !== "queued") {
       return job;
     }
@@ -572,16 +578,16 @@ function disconnectActiveJobs(jobs, timestamp = Date.now()) {
       status: "disconnected",
       updatedAt: timestamp,
       progressText: "Bridge disconnected",
-      error: job.error ?? "Bridge disconnected before the job completed"
+      error: (_a = job.error) != null ? _a : "Bridge disconnected before the job completed"
     };
   });
 }
 function mergeSyncSummaries(current, next) {
   return {
-    tokens: next.tokens || current?.tokens || 0,
-    components: next.components || current?.components || 0,
-    styles: next.styles || current?.styles || 0,
-    partialFailures: unique([...current?.partialFailures || [], ...next.partialFailures])
+    tokens: next.tokens || (current == null ? void 0 : current.tokens) || 0,
+    components: next.components || (current == null ? void 0 : current.components) || 0,
+    styles: next.styles || (current == null ? void 0 : current.styles) || 0,
+    partialFailures: unique([...(current == null ? void 0 : current.partialFailures) || [], ...next.partialFailures])
   };
 }
 function reduceHealEvent(current, message, source) {
@@ -597,23 +603,23 @@ function reduceHealEvent(current, message, source) {
       round: Number(roundMatch[1]),
       healed: false,
       issueCount: Number(roundMatch[2]),
-      issues: current?.issues || []
+      issues: (current == null ? void 0 : current.issues) || []
     };
   }
   if (message.startsWith("Canvas healed")) {
     return {
-      round: current?.round || 0,
+      round: (current == null ? void 0 : current.round) || 0,
       healed: true,
-      issueCount: current?.issueCount || 0,
-      issues: current?.issues || []
+      issueCount: (current == null ? void 0 : current.issueCount) || 0,
+      issues: (current == null ? void 0 : current.issues) || []
     };
   }
   if (message.startsWith("Healing incomplete")) {
     return {
-      round: current?.round || 0,
+      round: (current == null ? void 0 : current.round) || 0,
       healed: false,
-      issueCount: current?.issueCount || 0,
-      issues: current?.issues || []
+      issueCount: (current == null ? void 0 : current.issueCount) || 0,
+      issues: (current == null ? void 0 : current.issues) || []
     };
   }
   return current;
@@ -692,7 +698,8 @@ window.setInterval(() => {
 }, 1e4);
 function bindPluginMessages() {
   window.onmessage = (event) => {
-    const message = event.data?.pluginMessage;
+    var _a, _b;
+    const message = (_a = event.data) == null ? void 0 : _a.pluginMessage;
     if (!message || !isWidgetV2Envelope(message)) {
       return;
     }
@@ -745,7 +752,7 @@ function bindPluginMessages() {
           message.count,
           message.buffered,
           message.sessionId,
-          message.runId ?? null,
+          (_b = message.runId) != null ? _b : null,
           message.updatedAt
         )));
         render();
@@ -944,6 +951,7 @@ function handleBridgeCommand(message) {
   });
 }
 function handleCommandResult(message) {
+  var _a, _b, _c;
   const bridgeResponse = resolveBridgeResponse(pendingBridgeRequests, message);
   if (bridgeResponse) {
     forwardToBridge(serializeBridgeEnvelope(bridgeResponse));
@@ -965,18 +973,18 @@ function handleCommandResult(message) {
     state.pageTree = message.result || null;
   }
   if (message.command === "captureScreenshot") {
-    const image = message.result?.image;
-    if (image?.base64) {
+    const image = (_a = message.result) == null ? void 0 : _a.image;
+    if (image == null ? void 0 : image.base64) {
       const mime = String(image.format || "PNG").toLowerCase() === "svg" ? "image/svg+xml" : "image/png";
       state.lastCapture = {
-        nodeId: image.node?.id || "",
+        nodeId: ((_b = image.node) == null ? void 0 : _b.id) || "",
         format: String(image.format || "PNG"),
         dataUrl: `data:${mime};base64,${image.base64}`
       };
     }
   }
   if (message.command === "getVariables") {
-    const collections = (message.result?.collections || []).length;
+    const collections = (((_c = message.result) == null ? void 0 : _c.collections) || []).length;
     const syncMessage = createBridgeSyncResultMessage("tokens", message.result);
     forwardToBridge(serializeBridgeEnvelope(syncMessage));
     recordSyncSummary("tokens", message.result);
@@ -1173,6 +1181,7 @@ function handleAction(action) {
   }
 }
 function handleNodeAction(action, nodeId) {
+  var _a;
   const node = state.selection.nodes.find((candidate) => candidate.id === nodeId);
   if (!node) {
     addLog("warn", "Selection node is no longer available", { nodeId });
@@ -1184,7 +1193,7 @@ function handleNodeAction(action, nodeId) {
       void copyToClipboard(node.id, "Copied node id", { nodeId: node.id });
       break;
     case "copy-key":
-      if (!node.component?.key) {
+      if (!((_a = node.component) == null ? void 0 : _a.key)) {
         addLog("warn", "Selection does not have a component key", { nodeId: node.id });
         render();
         return;
@@ -1322,6 +1331,7 @@ function renderSelection() {
   return cards.join("");
 }
 function renderSelectionNode(node) {
+  var _a, _b, _c;
   const facts = describeSelectionNode(node);
   return `
     <article class="selection-card">
@@ -1333,7 +1343,7 @@ function renderSelectionNode(node) {
         <button class="tool-btn" data-node-action="copy-id" data-node-id="${escapeHtml(node.id)}">Copy ID</button>
         <button class="tool-btn" data-node-action="jump" data-node-id="${escapeHtml(node.id)}">Jump to node</button>
         <button class="tool-btn" data-node-action="capture-node" data-node-id="${escapeHtml(node.id)}">Capture</button>
-        ${node.component?.key ? `<button class="tool-btn" data-node-action="copy-key" data-node-id="${escapeHtml(node.id)}">Copy key</button>` : ""}
+        ${((_a = node.component) == null ? void 0 : _a.key) ? `<button class="tool-btn" data-node-action="copy-key" data-node-id="${escapeHtml(node.id)}">Copy key</button>` : ""}
       </div>
       <div class="kv-grid">
         <span class="kv-key">Node</span><span class="mono">${escapeHtml(node.id)}</span>
@@ -1342,7 +1352,7 @@ function renderSelectionNode(node) {
         <span class="kv-key">Fill</span><span>${facts.fillHex ? `<span class="mono">${facts.fillHex}</span>` : "—"}</span>
         <span class="kv-key">Styles</span><span>${escapeHtml(facts.styleIds.join(" / ") || "—")}</span>
         <span class="kv-key">State</span><span>${escapeHtml(facts.stateFacts.join(", ") || "—")}</span>
-        <span class="kv-key">Component</span><span>${escapeHtml(node.component?.key || node.component?.description || "—")}</span>
+        <span class="kv-key">Component</span><span>${escapeHtml(((_b = node.component) == null ? void 0 : _b.key) || ((_c = node.component) == null ? void 0 : _c.description) || "—")}</span>
         <span class="kv-key">Variant</span><span>${escapeHtml(facts.variantPairs.join(", ") || "—")}</span>
         <span class="kv-key">Variables</span><span>${escapeHtml(facts.variableBindings.join(", ") || "—")}</span>
         <span class="kv-key">Layout</span><span>${escapeHtml(facts.layoutFacts.join(", ") || "—")}</span>
@@ -1478,6 +1488,7 @@ function getAgentStatusKey(agent) {
   return `${agent.runId}:${agent.taskId}:${agent.role}`;
 }
 function compareAgentStatuses(left, right) {
+  var _a, _b;
   const priority = (status) => {
     switch (status) {
       case "busy":
@@ -1496,7 +1507,7 @@ function compareAgentStatuses(left, right) {
   if (priorityDiff !== 0) {
     return priorityDiff;
   }
-  const elapsedDiff = (right.elapsedMs ?? 0) - (left.elapsedMs ?? 0);
+  const elapsedDiff = ((_a = right.elapsedMs) != null ? _a : 0) - ((_b = left.elapsedMs) != null ? _b : 0);
   if (elapsedDiff !== 0) {
     return elapsedDiff;
   }

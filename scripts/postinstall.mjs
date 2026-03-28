@@ -5,7 +5,7 @@
  * location and prints PATH guidance if the `memi` binary isn't reachable.
  */
 
-import { existsSync, mkdirSync, cpSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, cpSync, rmSync, writeFileSync, realpathSync } from "fs";
 import { join, dirname, resolve } from "path";
 import { execSync } from "child_process";
 import { fileURLToPath } from "url";
@@ -22,8 +22,10 @@ const pluginDest = join(home, ".memoire", "plugin");
 
 if (existsSync(pluginSrc) && home) {
   try {
-    mkdirSync(pluginDest, { recursive: true });
-    cpSync(pluginSrc, pluginDest, { recursive: true });
+    const resolvedPluginSrc = realpathSync.native(pluginSrc);
+    mkdirSync(dirname(pluginDest), { recursive: true });
+    rmSync(pluginDest, { recursive: true, force: true });
+    cpSync(resolvedPluginSrc, pluginDest, { recursive: true, dereference: true, force: true });
     const widgetMetaPath = join(pluginDest, "widget-meta.json");
     let widgetMeta = null;
     try {
@@ -38,7 +40,7 @@ if (existsSync(pluginSrc) && home) {
         sourcePackageVersion: widgetMeta?.packageVersion ?? null,
         widgetVersion: widgetMeta?.widgetVersion ?? null,
         bundleHash: widgetMeta?.bundleHash ?? null,
-        sourcePath: pluginSrc,
+        sourcePath: resolvedPluginSrc,
       }, null, 2) + "\n",
       "utf-8",
     );
@@ -49,8 +51,10 @@ if (existsSync(pluginSrc) && home) {
       );
     }
     console.log(`    Use this path when importing the plugin manifest in Figma.`);
-  } catch {
-    // Non-fatal — user can still import from the package directory
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.warn(`  ! Could not copy the Figma plugin to ${pluginDest}: ${detail}`);
+    console.warn(`    Import ${join(pluginSrc, "manifest.json")} manually if needed.`);
   }
 }
 

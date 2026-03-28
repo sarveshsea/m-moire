@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, lstatSync } from "node:fs";
+import { existsSync, lstatSync, realpathSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
@@ -126,7 +126,12 @@ export async function resolvePluginHealth(projectRoot: string): Promise<PluginIn
       : await inspectWidgetBundle(localRoot);
 
   const manifestPath = source === "home" ? homeManifestPath : localManifestPath;
-  const symlinked = existsSync(manifestPath) ? safeIsSymlink(manifestPath) : false;
+  const symlinked = [
+    installPath,
+    manifestPath,
+    bundle.codePath,
+    bundle.uiPath,
+  ].some((path) => existsSync(path) && safeHasSymlinkRisk(path));
   const current = Boolean(
     source === "home" &&
       bundle.ready &&
@@ -141,12 +146,12 @@ export async function resolvePluginHealth(projectRoot: string): Promise<PluginIn
     health = "missing";
   } else if (!bundle.ready || !localBundle.ready) {
     health = "missing-assets";
+  } else if (symlinked) {
+    health = "symlink-risk";
   } else if (source === "home" && current) {
     health = "current";
   } else if (source === "home") {
     health = "stale-home-copy";
-  } else if (symlinked) {
-    health = "symlink-risk";
   } else {
     health = "local-only";
   }
@@ -179,6 +184,25 @@ function safeIsSymlink(path: string): boolean {
   } catch {
     return false;
   }
+}
+
+function safeHasSymlinkRisk(path: string): boolean {
+  try {
+    return safeIsSymlink(path) || !pathsEquivalent(path, realpathSync.native(path));
+  } catch {
+    return false;
+  }
+}
+
+function pathsEquivalent(left: string, right: string): boolean {
+  const normalizedLeft = normalizePathAlias(left);
+  const normalizedRight = normalizePathAlias(right);
+  return normalizedLeft === normalizedRight;
+}
+
+function normalizePathAlias(path: string): string {
+  const resolved = resolve(path);
+  return resolved.startsWith("/private/") ? resolved.slice("/private".length) : resolved;
 }
 
 async function createAsset(path: string): Promise<WidgetFileAsset> {

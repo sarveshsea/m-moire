@@ -77,15 +77,16 @@
       });
     });
     figma.on("documentchange", (event) => {
+      var _a, _b, _c, _d, _e;
       const now = Date.now();
       for (const change of event.documentChanges || []) {
         state.changeBuffer.push({
           type: change.type,
           id: change.id,
-          origin: change.origin ?? null,
+          origin: (_a = change.origin) != null ? _a : null,
           sessionId: state.sessionId,
           runId: state.activeRunId,
-          pageId: figma.currentPage?.id ?? null,
+          pageId: (_c = (_b = figma.currentPage) == null ? void 0 : _b.id) != null ? _c : null,
           timestamp: now
         });
       }
@@ -96,7 +97,7 @@
         channel: WIDGET_V2_CHANNEL,
         source: "main",
         type: "changes",
-        count: event.documentChanges?.length ?? 0,
+        count: (_e = (_d = event.documentChanges) == null ? void 0 : _d.length) != null ? _e : 0,
         buffered: state.changeBuffer.length,
         sessionId: state.sessionId,
         runId: state.activeRunId,
@@ -105,6 +106,7 @@
     });
   }
   figma.ui.onmessage = async (message) => {
+    var _a, _b, _c, _d;
     if (!message || message.channel !== WIDGET_V2_CHANNEL) {
       return;
     }
@@ -123,8 +125,8 @@
     }
     const job = message.action ? startJob(message.requestId, message.command, message.action.kind, message.action.label) : null;
     try {
-      state.activeRunId = job?.runId ?? null;
-      const result = await handleCommand(message.command, message.params ?? {});
+      state.activeRunId = (_a = job == null ? void 0 : job.runId) != null ? _a : null;
+      const result = await handleCommand(message.command, (_b = message.params) != null ? _b : {});
       if (job) {
         finishJob(job, "completed", summarizeCommandResult(message.command, result));
       }
@@ -136,7 +138,7 @@
         command: message.command,
         ok: true,
         sessionId: state.sessionId,
-        runId: job?.runId ?? null,
+        runId: (_c = job == null ? void 0 : job.runId) != null ? _c : null,
         result
       });
     } catch (error) {
@@ -152,7 +154,7 @@
         command: message.command,
         ok: false,
         sessionId: state.sessionId,
-        runId: job?.runId ?? null,
+        runId: (_d = job == null ? void 0 : job.runId) != null ? _d : null,
         error: messageText
       });
     } finally {
@@ -160,15 +162,16 @@
     }
   };
   function refreshConnectionState() {
+    var _a, _b, _c;
     state.connection = {
       ...state.connection,
       stage: "connected",
       fileName: figma.root.name || "",
       fileKey: figma.fileKey || null,
-      pageName: figma.currentPage?.name || "",
-      pageId: figma.currentPage?.id || null,
+      pageName: ((_a = figma.currentPage) == null ? void 0 : _a.name) || "",
+      pageId: ((_b = figma.currentPage) == null ? void 0 : _b.id) || null,
       editorType: figma.editorType || "figma",
-      connectedAt: state.connection.connectedAt ?? Date.now()
+      connectedAt: (_c = state.connection.connectedAt) != null ? _c : Date.now()
     };
   }
   function post(message) {
@@ -218,13 +221,14 @@
     return Array.from(state.jobs.values()).sort((left, right) => right.updatedAt - left.updatedAt);
   }
   async function handleCommand(command, params) {
+    var _a, _b, _c, _d, _e, _f, _g;
     switch (command) {
       case "execute":
-        return executeCode(String(params.code ?? ""));
+        return executeCode(String((_a = params.code) != null ? _a : ""));
       case "getSelection":
         return createSelectionSnapshot();
       case "getFileData":
-        return getFileData(Number(params.depth ?? 3));
+        return getFileData(Number((_b = params.depth) != null ? _b : 3));
       case "getVariables":
         return getVariables();
       case "getComponents":
@@ -239,21 +243,21 @@
         return changes;
       }
       case "getComponentImage":
-        return getComponentImage(String(params.nodeId ?? ""), String(params.format ?? "png"));
+        return getComponentImage(String((_c = params.nodeId) != null ? _c : ""), String((_d = params.format) != null ? _d : "png"));
       case "createNode":
         return createNode(params);
       case "updateNode":
         return updateNode(params);
       case "deleteNode":
-        return deleteNode(String(params.nodeId ?? ""));
+        return deleteNode(String((_e = params.nodeId) != null ? _e : ""));
       case "setSelection":
         return setSelection(Array.isArray(params.nodeIds) ? params.nodeIds.map(String) : []);
       case "navigateTo":
-        return navigateTo(String(params.nodeId ?? ""));
+        return navigateTo(String((_f = params.nodeId) != null ? _f : ""));
       case "getPageList":
         return figma.root.children.map((page) => ({ id: page.id, name: page.name }));
       case "getPageTree":
-        return getPageTree(Number(params.depth ?? 2));
+        return getPageTree(Number((_g = params.depth) != null ? _g : 2));
       case "captureScreenshot":
         return captureScreenshot(params);
       default:
@@ -326,19 +330,24 @@
     return snapshot;
   }
   function readLayout(node) {
+    var _a, _b, _c, _d, _e;
     return {
       layoutMode: "layoutMode" in node ? node.layoutMode || null : null,
-      itemSpacing: "itemSpacing" in node ? node.itemSpacing ?? null : null,
-      paddingLeft: "paddingLeft" in node ? node.paddingLeft ?? null : null,
-      paddingRight: "paddingRight" in node ? node.paddingRight ?? null : null,
-      paddingTop: "paddingTop" in node ? node.paddingTop ?? null : null,
-      paddingBottom: "paddingBottom" in node ? node.paddingBottom ?? null : null
+      itemSpacing: "itemSpacing" in node ? (_a = node.itemSpacing) != null ? _a : null : null,
+      paddingLeft: "paddingLeft" in node ? (_b = node.paddingLeft) != null ? _b : null : null,
+      paddingRight: "paddingRight" in node ? (_c = node.paddingRight) != null ? _c : null : null,
+      paddingTop: "paddingTop" in node ? (_d = node.paddingTop) != null ? _d : null : null,
+      paddingBottom: "paddingBottom" in node ? (_e = node.paddingBottom) != null ? _e : null : null
     };
   }
   function readComponent(node) {
-    const isVariant = node.type === "COMPONENT" && node.parent?.type === "COMPONENT_SET";
+    var _a;
+    const isVariant = node.type === "COMPONENT" && ((_a = node.parent) == null ? void 0 : _a.type) === "COMPONENT_SET";
     const variantProperties = typeof node.variantProperties === "object" && node.variantProperties ? Object.fromEntries(
-      Object.entries(node.variantProperties).map(([key, value]) => [key, String(value?.value ?? value)])
+      Object.entries(node.variantProperties).map(([key, value]) => {
+        var _a2;
+        return [key, String((_a2 = value == null ? void 0 : value.value) != null ? _a2 : value)];
+      })
     ) : {};
     const componentProperties = "componentPropertyDefinitions" in node && node.componentPropertyDefinitions ? node.componentPropertyDefinitions : {};
     if (!("key" in node) && !("description" in node) && !Object.keys(componentProperties).length && !Object.keys(variantProperties).length) {

@@ -118,6 +118,7 @@ The Figma plugin auto-discovers Memoire on ports 9223-9232.
 1. Open Figma Desktop
 2. Go to **Plugins > Development > Import plugin from manifest**
 3. Select `~/.memoire/plugin/manifest.json`
+4. If Figma says the `main` file must not be a symlink, remove the old import and re-import from that copied path, not from a linked `node_modules` path
 
 ### Figma Operator Console
 

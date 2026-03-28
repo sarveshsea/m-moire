@@ -353,7 +353,8 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
         console.log("    2. Go to Plugins -> Development -> Import plugin from manifest");
         console.log(`    3. Select: ${plugin.manifestPath}`);
         console.log("       (In macOS file picker: Cmd+Shift+G, then paste the path)");
-        console.log("    4. The plugin will appear under Plugins -> Development -> Memoire\n");
+        console.log("    4. If Figma reports that the main file must not be a symlink, re-import from ~/.memoire/plugin/manifest.json");
+        console.log("    5. The plugin will appear under Plugins -> Development -> Memoire\n");
 
         const ready = await ask("Press Enter when ready to connect...");
         void ready;
