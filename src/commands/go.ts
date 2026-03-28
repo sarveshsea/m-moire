@@ -14,6 +14,7 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
     .description("Run the full pipeline: connect → pull → generate → preview")
     .option("--no-preview", "Skip starting the preview server")
     .option("--no-generate", "Skip code generation (pull and auto-spec only)")
+    .option("--no-figma", "Skip Figma connection (offline mode — generate from existing specs)")
     .option("-p, --port <port>", "Preview server port", "3333")
     .action(async (opts) => {
       console.log("\n  Mémoire — starting full pipeline\n");
@@ -22,8 +23,10 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
       await engine.init();
       console.log("");
 
-      // 2. Connect to Figma
-      if (!engine.figma.isConnected) {
+      // 2. Connect to Figma (skip if --no-figma)
+      if (opts.figma === false) {
+        console.log("  · Skipping Figma connection (offline mode)\n");
+      } else if (!engine.figma.isConnected) {
         const port = await engine.connectFigma();
         console.log(`\n  Waiting for Figma plugin to connect on port ${port}...`);
         console.log("  Open the Mémoire plugin in Figma Desktop.\n");
@@ -32,9 +35,11 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
         await waitForConnection(engine, 120000);
       }
 
-      // 3. Pull design system (auto-spec happens inside pull)
-      console.log("");
-      await engine.pullDesignSystem();
+      // 3. Pull design system (only if Figma connected)
+      if (opts.figma !== false && engine.figma.isConnected) {
+        console.log("");
+        await engine.pullDesignSystem();
+      }
 
       // 4. Generate code from all specs
       if (opts.generate !== false) {
@@ -70,7 +75,9 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
         const cleanup = () => {
           console.log("\n  Shutting down...");
           preview.stop();
-          engine.figma.disconnect();
+          if (opts.figma !== false) {
+            engine.figma.disconnect();
+          }
           process.exit(0);
         };
         process.once("SIGINT", cleanup);

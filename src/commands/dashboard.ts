@@ -1,8 +1,8 @@
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { join } from "path";
-import { spawn } from "child_process";
 import { existsSync } from "fs";
+import { PreviewApiServer } from "../preview/api-server.js";
 
 export function registerDashboardCommand(program: Command, engine: MemoireEngine) {
   program
@@ -27,20 +27,20 @@ export function registerDashboardCommand(program: Command, engine: MemoireEngine
 
       console.log(`\n  Starting Mémoire Dashboard on http://localhost:${port}\n`);
 
-      try {
-        const child = spawn("npx", ["-y", "serve", previewDir, "-l", String(port), "-s", "--no-clipboard"], {
-          stdio: "inherit",
-          shell: true,
-        });
+      const server = new PreviewApiServer(engine, previewDir, port);
+      const actualPort = await server.start();
 
-        child.on("error", (err) => {
-          console.log(`  npx serve failed (${err.message}), falling back to python3...`);
-          const fallback = spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
-          fallback.on("error", (e) => console.error(`  Python server also failed: ${e.message}`));
-        });
-      } catch {
-        const fallback = spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
-        fallback.on("error", (e) => console.error(`  Python server failed: ${e.message}`));
-      }
+      console.log(`  Dashboard running at http://localhost:${actualPort}`);
+      console.log(`  API endpoints:       http://localhost:${actualPort}/api/`);
+      console.log(`  WebSocket:           ws://localhost:${actualPort}\n`);
+
+      const cleanup = () => {
+        console.log("\n  Shutting down dashboard...");
+        server.stop();
+        process.exit(0);
+      };
+
+      process.once("SIGINT", cleanup);
+      process.once("SIGTERM", cleanup);
     });
 }
