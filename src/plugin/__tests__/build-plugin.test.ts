@@ -18,7 +18,7 @@ describe("plugin build pipeline", () => {
 
       expect(code).toContain("figma.showUI");
       expect(code).toContain("height: 600");
-      expect(html).toContain("Operator");
+      expect(html).toContain("tab-panel");
       expect(html).toContain("<script>");
       expect(html).toContain("Jobs");
       expect(html).toContain("Selection");
@@ -26,7 +26,7 @@ describe("plugin build pipeline", () => {
       expect(html).toContain('document.addEventListener("DOMContentLoaded", bootstrapOnReady);');
       expect(html).toContain('document.removeEventListener("DOMContentLoaded", bootstrapOnReady);');
       expect(html).not.toContain("min-height: 100vh");
-      expect(html).toContain("min-height: 160px");
+      expect(html).toContain("min-height: 120px");
       expect(html).not.toContain("fonts.googleapis.com");
       expect(html).not.toContain("fonts.gstatic.com");
       expect(html).not.toContain("JetBrains Mono");

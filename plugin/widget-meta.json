@@ -1,8 +1,8 @@
 {
   "widgetVersion": "2",
   "packageVersion": "0.2.1",
-  "builtAt": "2026-03-28T06:43:45.458Z",
-  "bundleHash": "f63dbf1ec8c75193f3f9fb9973aed7b8ba2e38e5276f8c428cfb9ce72e6afdcc",
+  "builtAt": "2026-03-28T06:50:39.501Z",
+  "bundleHash": "68294e56976dc268588e6deadd33bcbbb5dbf792067ac910a06990fe954f8a34",
   "manifest": {
     "path": "/Users/sarveshchidambaram/Desktop/ark/plugin/manifest.json",
     "exists": true,
@@ -18,7 +18,7 @@
   "ui": {
     "path": "/Users/sarveshchidambaram/Desktop/ark/plugin/ui.html",
     "exists": true,
-    "bytes": 71530,
-    "sha256": "665147a7f4d0d50f51e9359eea38adb277bb75d78b41d74b596cd912466e9441"
+    "bytes": 72416,
+    "sha256": "fd0237e0dac24fe26ce0c719b73556f840cda271c72fe7d666263229d6752f65"
   }
 }

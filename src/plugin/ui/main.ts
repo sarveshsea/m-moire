@@ -176,25 +176,25 @@ function bindPluginMessages(): void {
         state.connection = message.connection;
         state.selection = message.selection;
         state.jobs = message.initialJobs;
-        addLog("success", "Plugin bootstrap complete", {
+        addLog("success", "Plugin ready", {
           file: message.connection.fileName,
           page: message.connection.pageName,
         });
-        render();
+        scheduleRender();
         break;
       case "pong":
         state.connection = message.connection;
-        render();
+        scheduleRender();
         break;
       case "connection":
         state.connection = message.connection;
         forwardToBridge(serializeBridgeEnvelope(createBridgeConnectionStateMessage(message.connection)));
-        render();
+        scheduleRender();
         break;
       case "selection":
         state.selection = message.selection;
         forwardToBridge(serializeBridgeEnvelope(createBridgeSelectionMessage(message.selection)));
-        render();
+        scheduleRender();
         break;
       case "page":
         state.connection = {
@@ -208,7 +208,7 @@ function bindPluginMessages(): void {
           message.pageId,
           message.updatedAt,
         )));
-        render();
+        scheduleRender();
         break;
       case "changes":
         state.changeCount = message.count;
@@ -220,20 +220,20 @@ function bindPluginMessages(): void {
           message.runId ?? null,
           message.updatedAt,
         )));
-        render();
+        scheduleRender();
         break;
       case "job":
         upsertJob(message.job);
         forwardToBridge(serializeBridgeEnvelope(createBridgeJobStatusMessage(message.job)));
-        render();
+        scheduleRender();
         break;
       case "command-result":
         handleCommandResult(message);
-        render();
+        scheduleRender();
         break;
       case "log":
         addLog(message.entry.level, message.entry.message, message.entry.detail);
-        render();
+        scheduleRender();
         break;
       default:
         break;
@@ -247,7 +247,7 @@ function scanBridge(): void {
   }
   setBridgeStage("scanning");
   state.bridge.portsTried = [];
-  render();
+  scheduleRender();
   tryNextPort(PORT_START);
 }
 
@@ -276,7 +276,7 @@ function tryNextPort(port: number): void {
 
   ws.onopen = () => {
     opened = true;
-    render();
+    scheduleRender();
   };
 
   ws.onmessage = (event) => {
@@ -328,8 +328,8 @@ function tryNextPort(port: number): void {
       state.bridge.port = null;
       state.jobs = disconnectActiveJobs(state.jobs);
       setBridgeStage("reconnecting");
-      addLog("warn", "Bridge disconnected — reconnecting");
-      render();
+      addLog("warn", "Bridge disconnected");
+      scheduleRender();
       scheduleReconnect();
     }
   };
@@ -341,14 +341,18 @@ function adoptBridge(ws: WebSocket, port: number, payload: { name?: string }): v
   state.bridge.name = payload.name || "Mémoire";
   state.bridge.reconnectDelayMs = 2000;
   setBridgeStage("connected");
-  addLog("success", `Bridge connected on :${port}`);
+  addLog("success", `Connected :${port}`);
   forwardToBridge({
     type: "bridge-hello",
     file: state.connection.fileName || "unknown",
     fileKey: state.connection.fileKey || "",
     editor: state.connection.editorType || "figma",
   });
-  render();
+  scheduleRender();
+  // Auto-sync on connect — pull selection immediately
+  window.setTimeout(() => {
+    requestCommand("getSelection", {}, "Auto-inspect", "selection");
+  }, 300);
 }
 
 function scheduleReconnect(): void {
@@ -421,7 +425,7 @@ function handleBridgeMessage(payload: any): void {
           error: message.data.error,
         });
       }
-      render();
+      scheduleRender();
       break;
     case "error":
       addLog("error", message.message || "Bridge error", message.details || null);
@@ -567,70 +571,114 @@ function addLog(level: WidgetLogEntry["level"], message: string, detail?: unknow
   }
 }
 
+let renderScheduled = false;
+let lastRenderTime = 0;
+const RENDER_THROTTLE_MS = 80;
+
+function scheduleRender(): void {
+  if (renderScheduled) return;
+  const elapsed = Date.now() - lastRenderTime;
+  if (elapsed >= RENDER_THROTTLE_MS) {
+    render();
+    return;
+  }
+  renderScheduled = true;
+  window.setTimeout(() => {
+    renderScheduled = false;
+    render();
+  }, RENDER_THROTTLE_MS - elapsed);
+}
+
 function render(): void {
   if (!app) {
     return;
   }
+  lastRenderTime = Date.now();
 
   const hasSelection = state.selection.nodes.length > 0;
+  const selNode = state.selection.nodes[0];
+  const latestLog = state.logs[0];
+  const isConnected = state.connection.stage === "connected";
+  const portLabel = state.connection.port ? `:${state.connection.port}` : "";
+  const latencyLabel = state.connection.latencyMs ? `${state.connection.latencyMs}ms` : "";
+  const connMeta = [portLabel, latencyLabel].filter(Boolean).join(" / ");
 
   app.innerHTML = `
     <div class="shell">
       <div class="topbar">
         <div class="brand-wrap">
-          <div class="brand-mark"></div>
-          <div class="brand-copy">
-            <div class="brand-name">memoire</div>
-            <div class="brand-sub">control plane</div>
-          </div>
+          <svg class="brand-flower" viewBox="0 0 120 120" width="22" height="22">
+            <defs><mask id="h"><rect width="120" height="120" fill="white"/><ellipse cx="60" cy="34" rx="10" ry="15" fill="black"/><ellipse cx="84" cy="52" rx="10" ry="15" transform="rotate(72 84 52)" fill="black"/><ellipse cx="75" cy="80" rx="10" ry="15" transform="rotate(144 75 80)" fill="black"/><ellipse cx="45" cy="80" rx="10" ry="15" transform="rotate(-144 45 80)" fill="black"/><ellipse cx="36" cy="52" rx="10" ry="15" transform="rotate(-72 36 52)" fill="black"/></mask></defs>
+            <g mask="url(#h)"><circle cx="60" cy="28" r="24" fill="#C24B38"/><circle cx="90" cy="50" r="24" fill="#C24B38"/><circle cx="78" cy="84" r="24" fill="#C24B38"/><circle cx="42" cy="84" r="24" fill="#C24B38"/><circle cx="30" cy="50" r="24" fill="#C24B38"/><circle cx="60" cy="58" r="18" fill="#C24B38"/></g>
+          </svg>
         </div>
         <div class="status-cluster">
+          ${connMeta ? `<span class="conn-meta">${escapeHtml(connMeta)}</span>` : ""}
           <div class="status-pill ${state.connection.stage}">
             ${escapeHtml(connectionLabel())}
           </div>
         </div>
       </div>
-      <div class="content">
-        <div class="main-column">
-          <section class="panel">
-            <div class="metrics">
-              ${metric("File", state.connection.fileName || "--")}
-              ${metric("Page", state.connection.pageName || "--")}
-              ${metric("Port", state.connection.port ? `:${state.connection.port}` : "--")}
-              ${metric("Latency", state.connection.latencyMs ? `${state.connection.latencyMs}ms` : "--")}
-            </div>
-            <div class="toolbar">
-              <button class="tool-btn primary" data-action="sync">sync</button>
-              <button class="tool-btn" data-action="inspect">inspect</button>
-              <button class="tool-btn" data-action="capture" ${hasSelection ? "" : "disabled"}>capture</button>
-              <button class="tool-btn" data-action="changes">changes</button>
-              <button class="tool-btn" data-action="page-tree">tree</button>
-              <button class="tool-btn" data-action="retry">reconnect</button>
-            </div>
-          </section>
 
-          <section class="panel">
-            <div class="panel-header">
-              <div class="panel-title">Operator</div>
-              <div class="muted mono">${escapeHtml(new Date().toLocaleTimeString())}</div>
-            </div>
-            <div class="tabstrip">
-              <button class="tab ${state.activeTab === "jobs" ? "active" : ""}" data-tab="jobs">Jobs</button>
-              <button class="tab ${state.activeTab === "selection" ? "active" : ""}" data-tab="selection">Selection</button>
-              <button class="tab ${state.activeTab === "system" ? "active" : ""}" data-tab="system">System</button>
-            </div>
-            <div class="tab-panel ${state.activeTab === "jobs" ? "active" : ""}">
-              <div class="jobs-list">${renderJobs()}</div>
-            </div>
-            <div class="tab-panel ${state.activeTab === "selection" ? "active" : ""}">
-              <div class="selection-list">${renderSelection()}</div>
-            </div>
-            <div class="tab-panel ${state.activeTab === "system" ? "active" : ""}">
-              <div class="system-list">${renderSystem()}</div>
-            </div>
-          </section>
+      <div class="context-bar">
+        <div class="ctx-item">
+          <span class="ctx-label">file</span>
+          <span class="ctx-value">${escapeHtml(state.connection.fileName || "--")}</span>
+        </div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item">
+          <span class="ctx-label">page</span>
+          <span class="ctx-value">${escapeHtml(state.connection.pageName || "--")}</span>
+        </div>
+        ${hasSelection ? `
+          <div class="ctx-sep"></div>
+          <div class="ctx-item">
+            <span class="ctx-label">sel</span>
+            <span class="ctx-value">${escapeHtml(selNode ? selNode.name : `${state.selection.count}`)}${state.selection.count > 1 ? ` +${state.selection.count - 1}` : ""}</span>
+          </div>
+        ` : ""}
+        ${state.bufferedChanges > 0 ? `
+          <div class="ctx-sep"></div>
+          <div class="ctx-item">
+            <span class="ctx-label">buf</span>
+            <span class="ctx-value">${state.bufferedChanges}</span>
+          </div>
+        ` : ""}
+      </div>
+
+      <div class="toolbar">
+        <button class="tool-btn primary" data-action="sync" ${isConnected ? "" : "disabled"}>sync</button>
+        <button class="tool-btn" data-action="inspect" ${isConnected ? "" : "disabled"}>inspect</button>
+        <button class="tool-btn" data-action="capture" ${hasSelection && isConnected ? "" : "disabled"}>capture</button>
+        <button class="tool-btn" data-action="changes" ${isConnected ? "" : "disabled"}>changes</button>
+        <button class="tool-btn" data-action="page-tree" ${isConnected ? "" : "disabled"}>tree</button>
+        <button class="tool-btn" data-action="retry">reconnect</button>
+      </div>
+
+      <div class="content">
+        <div class="tabstrip">
+          <button class="tab ${state.activeTab === "jobs" ? "active" : ""}" data-tab="jobs">Jobs${state.jobs.length ? ` (${state.jobs.length})` : ""}</button>
+          <button class="tab ${state.activeTab === "selection" ? "active" : ""}" data-tab="selection">Selection${hasSelection ? ` (${state.selection.count})` : ""}</button>
+          <button class="tab ${state.activeTab === "system" ? "active" : ""}" data-tab="system">System</button>
+        </div>
+        <div class="tab-panel ${state.activeTab === "jobs" ? "active" : ""}">
+          <div class="jobs-list">${renderJobs()}</div>
+        </div>
+        <div class="tab-panel ${state.activeTab === "selection" ? "active" : ""}">
+          <div class="selection-list">${renderSelection()}</div>
+        </div>
+        <div class="tab-panel ${state.activeTab === "system" ? "active" : ""}">
+          <div class="system-list">${renderSystem()}</div>
         </div>
       </div>
+
+      ${latestLog ? `
+        <div class="ticker ${latestLog.level}">
+          <span class="ticker-dot"></span>
+          <span class="ticker-text">${escapeHtml(latestLog.message)}</span>
+          <span class="ticker-time">${escapeHtml(new Date(latestLog.timestamp).toLocaleTimeString())}</span>
+        </div>
+      ` : ""}
     </div>
   `;
 
@@ -664,7 +712,7 @@ function handleAction(action: string): void {
       const node = state.selection.nodes[0];
       if (!node) {
         addLog("warn", "Select a node before capturing");
-        render();
+        scheduleRender();
         return;
       }
       requestCommand("captureScreenshot", { nodeId: node.id, format: "PNG", scale: 2 }, "Capture node", "capture");
@@ -702,7 +750,7 @@ function handleNodeAction(action: string, nodeId: string): void {
   const node = findFirst(state.selection.nodes, (candidate) => candidate.id === nodeId);
   if (!node) {
     addLog("warn", "Selection node is no longer available", { nodeId });
-    render();
+    scheduleRender();
     return;
   }
 
@@ -712,8 +760,8 @@ function handleNodeAction(action: string, nodeId: string): void {
       break;
     case "copy-key":
       if (!node.component?.key) {
-        addLog("warn", "Selection does not have a component key", { nodeId: node.id });
-        render();
+        addLog("warn", "No component key on selection", { nodeId: node.id });
+        scheduleRender();
         return;
       }
       void copyToClipboard(node.component.key, "Copied component key", { nodeId: node.id, key: node.component.key });
@@ -1148,7 +1196,7 @@ async function copyToClipboard(value: string, successMessage: string, detail: Re
   } catch (error) {
     addLog("warn", "Clipboard write failed", error instanceof Error ? error.message : String(error));
   }
-  render();
+  scheduleRender();
 }
 
 function copyToClipboardFallback(value: string): boolean {
