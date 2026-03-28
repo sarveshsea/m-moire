@@ -74,6 +74,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 | `d64527d` | Add preview control-plane endpoints and agent visibility |
 | `0f02bcd` | Add widget bundle metadata and health checks |
 | `aedf43a` | Fix plugin bundle compatibility and symlink-safe installs |
+| `430ec6e` | Downlevel plugin bundle to remove object spread |
 
 ### Key Design Decisions
 - **Notes Become a Real Extension Surface** — Mémoire now treats Notes as installable skill packs, including workspace `SKILL.md` bundles, built-in notes, and compatibility fixes for activation and copy behavior.
@@ -96,6 +97,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - **Preview Gains Widget-Grade State** — The preview API now keeps a live cache of bridge, selection, job, sync, healer, and agent status so dashboards can query the same operational state the Figma widget sees.
 - **Widget Bundle Health Becomes Explicit** — The build now emits widget metadata, postinstall records install state, and `connect` / `doctor` report whether the installed Control Plane bundle is built, current, and operator-ready.
 - **Figma Imports Must Use a Copied, Runtime-Compatible Bundle** — The shipped widget now targets ES2019, build tests fail on leaked `??` / `?.`, postinstall dereferences the copied plugin bundle, and install health treats symlink-resolved imports as unsafe before Figma rejects them.
+- **Figma Runtime Compatibility Is Enforced at an ES2017 Syntax Floor** — The shipped widget bundle now targets ES2017 so raw object spread is compiled away before import, and the build regression test now checks for parser-breaking object spread instead of relying on a broad regex.
 
 ### Changes
 - Added the Notes ecosystem release, including audit fixes, activation cleanup, recursive-copy handling, and dead-code removal
@@ -134,6 +136,9 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - Downleveled the shipped Figma widget bundle to ES2019, rebuilt `plugin/code.js` and `plugin/ui.html`, and added regression tests that fail if modern syntax leaks into checked-in plugin assets
 - Hardened postinstall to replace `~/.memoire/plugin` with a dereferenced copy, persist resolved install metadata, and warn when the safe copied import path cannot be created
 - Expanded symlink-risk detection to catch imports resolved through linked paths, then updated connect and README guidance so users re-import from `~/.memoire/plugin/manifest.json` when Figma rejects a linked manifest
+- Lowered the plugin bundle target from ES2019 to ES2017 so Vite compiles raw object spread out of both `plugin/code.js` and `plugin/ui.html`, which fixes the Figma parser failure at `...state.connection`
+- Rebuilt the shipped widget artifacts and updated widget metadata after the ES2017 compatibility pass
+- Tightened the plugin build regression test so it catches actual object spread in built artifacts without false-flagging safe array spread
 
 ## v0.2.0 — 2026-03-26
 

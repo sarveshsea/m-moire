@@ -442,7 +442,7 @@ const releases = [
     version: "v0.2.1",
     date: "2026-03-27",
     tag: "fix",
-    summary: "Notes compatibility, faster build loops, Codex-oriented guidance, compose targeting, preview hardening, project detection, broader JSON-ready CLI output, a new plugin V2 foundation, a normalized widget-bridge protocol, stronger operator workflows, persistent widget job state, stable canvas agent widgets, a widget-grade preview control plane, explicit widget bundle health checks, and runtime-compatible plugin installs for Figma.",
+    summary: "Notes compatibility, faster build loops, Codex-oriented guidance, compose targeting, preview hardening, project detection, broader JSON-ready CLI output, a new plugin V2 foundation, a normalized widget-bridge protocol, stronger operator workflows, persistent widget job state, stable canvas agent widgets, a widget-grade preview control plane, explicit widget bundle health checks, runtime-compatible plugin installs for Figma, and an ES2017 parser-safe widget bundle.",
     commits: [
       ["3b8403e", "Update CHANGELOG - add v0.2.0 Notes ecosystem release"],
       ["a347a33", "Fix Notes audit issues - activation gaps, recursive copy, dead code"],
@@ -506,7 +506,8 @@ const releases = [
       ["5d13713", "Rewrite canvas agent box lifecycle"],
       ["d64527d", "Add preview control-plane endpoints and agent visibility"],
       ["0f02bcd", "Add widget bundle metadata and health checks"],
-      ["aedf43a", "Fix plugin bundle compatibility and symlink-safe installs"]
+      ["aedf43a", "Fix plugin bundle compatibility and symlink-safe installs"],
+      ["430ec6e", "Downlevel plugin bundle to remove object spread"]
     ],
     decisions: [
       ["Notes become a real extension surface", "M\u00e9moire now treats Notes as installable skill packs, including workspace SKILL.md bundles, built-in notes, and compatibility fixes for activation and copy behavior."],
@@ -528,7 +529,8 @@ const releases = [
       ["Canvas agent widgets gain stable identity", "On-canvas agent boxes are now keyed by runId, taskId, and role, seeded per plan, and updated through real idle, busy, done, and error lifecycle transitions instead of overwriting a single role-based box."],
       ["Preview gains widget-grade state", "The preview API now keeps a live cache of bridge, selection, job, sync, healer, and agent status so dashboards can query the same operational state the Figma widget sees."],
       ["Widget bundle health becomes explicit", "The build now emits widget metadata, postinstall records install state, and connect and doctor report whether the installed Control Plane bundle is built, current, and operator-ready."],
-      ["Figma imports must use a copied, runtime-compatible bundle", "The shipped widget now targets ES2019, build tests fail on leaked ?? and ?., postinstall dereferences the copied plugin bundle, and install health treats symlink-resolved imports as unsafe before Figma rejects them."]
+      ["Figma imports must use a copied, runtime-compatible bundle", "The shipped widget now targets ES2019, build tests fail on leaked ?? and ?., postinstall dereferences the copied plugin bundle, and install health treats symlink-resolved imports as unsafe before Figma rejects them."],
+      ["Figma runtime compatibility is enforced at an ES2017 syntax floor", "The shipped widget bundle now targets ES2017 so raw object spread is compiled away before import, and the build regression test now checks for parser-breaking object spread instead of relying on a broad regex."]
     ],
     changes: [
       "Added the Notes ecosystem release with activation cleanup, recursive-copy handling, and dead-code removal.",
@@ -566,7 +568,10 @@ const releases = [
       "Upgraded connect and doctor to report widget version, bundle readiness, install freshness, and plugin health in both JSON and human-readable output, then aligned README, notes, and multi-agent guidance with the shipped Widget V2 behavior.",
       "Downleveled the shipped Figma widget bundle to ES2019, rebuilt plugin/code.js and plugin/ui.html, and added regression tests that fail if modern syntax leaks into checked-in plugin assets.",
       "Hardened postinstall to replace ~/.memoire/plugin with a dereferenced copy, persist resolved install metadata, and warn when the safe copied import path cannot be created.",
-      "Expanded symlink-risk detection to catch imports resolved through linked paths, then updated connect and README guidance so users re-import from ~/.memoire/plugin/manifest.json when Figma rejects a linked manifest."
+      "Expanded symlink-risk detection to catch imports resolved through linked paths, then updated connect and README guidance so users re-import from ~/.memoire/plugin/manifest.json when Figma rejects a linked manifest.",
+      "Lowered the plugin bundle target from ES2019 to ES2017 so Vite compiles raw object spread out of both plugin/code.js and plugin/ui.html, which fixes the Figma parser failure at ...state.connection.",
+      "Rebuilt the shipped widget artifacts and updated widget metadata after the ES2017 compatibility pass.",
+      "Tightened the plugin build regression test so it catches actual object spread in built artifacts without false-flagging safe array spread."
     ]
   },
   {
