@@ -78,7 +78,7 @@ const pendingRequestTimers = new Map<string, number>();
 
 let app: HTMLDivElement | null = null;
 let bootstrapped = false;
-let keepaliveInterval: ReturnType<typeof setInterval> | null = null;
+let keepaliveInterval: number | null = null;
 const bootstrapOnReady = () => {
   document.removeEventListener("DOMContentLoaded", bootstrapOnReady);
   bootstrap();
