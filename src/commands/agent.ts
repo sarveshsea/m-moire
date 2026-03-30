@@ -36,8 +36,10 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
     .command("spawn <role>")
     .description("Spawn a new agent worker with a specific role")
     .option("-n, --name <name>", "Agent display name")
+    .option("--remote", "Connect to a remote daemon via WebSocket (scans ports 9223-9232)")
+    .option("--host <host>", "Daemon host for remote mode", "localhost")
     .option("--json", "Output agent info as JSON")
-    .action(async (role: string, opts: { name?: string; json?: boolean }) => {
+    .action(async (role: string, opts: { name?: string; remote?: boolean; host?: string; json?: boolean }) => {
       await engine.init();
 
       if (!VALID_ROLES.includes(role as AgentRole)) {
@@ -57,6 +59,8 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
       const worker = new AgentWorker({
         role: role as AgentRole,
         name: opts.name,
+        mode: opts.remote ? "remote" : "in-process",
+        daemonHost: opts.host,
       });
 
       const entry = worker.toRegistryEntry();
