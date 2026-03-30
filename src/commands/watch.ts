@@ -17,7 +17,8 @@ export function registerWatchCommand(program: Command, engine: MemoireEngine) {
     .command("watch")
     .description("Watch specs for changes and auto-regenerate code")
     .option("-d, --debounce <ms>", "Debounce interval in milliseconds", "500")
-    .action(async (opts: { debounce: string }) => {
+    .option("--code", "Also watch generated/ for code changes and sync back to specs")
+    .action(async (opts: { debounce: string; code?: boolean }) => {
       await engine.init();
 
       const debounceMs = parseInt(opts.debounce, 10) || 500;
@@ -99,13 +100,25 @@ export function registerWatchCommand(program: Command, engine: MemoireEngine) {
         watchers.push(watcher);
       }
 
-      console.log(`\n  Watching ${specDirs.length} spec director${specDirs.length === 1 ? "y" : "ies"}. Press Ctrl+C to stop.\n`);
+      console.log(`\n  Watching ${specDirs.length} spec director${specDirs.length === 1 ? "y" : "ies"}.`);
+
+      // Optionally watch generated/ for code changes
+      if (opts.code) {
+        engine.codeWatcher.on("code-changed", (change: { specName: string; changeType: string; file: string }) => {
+          console.log(`  ~ Code ${change.changeType}: ${change.specName} (${change.file.split("/").pop()})`);
+        });
+        await engine.codeWatcher.start();
+        console.log(`  Also watching generated/ for code changes.`);
+      }
+
+      console.log(`  Press Ctrl+C to stop.\n`);
 
       // Graceful shutdown
       const cleanup = () => {
         console.log("\n  Stopping file watcher...\n");
         for (const w of watchers) w.close();
         for (const t of pending.values()) clearTimeout(t);
+        if (opts.code) engine.codeWatcher.stop();
         process.exit(0);
       };
 

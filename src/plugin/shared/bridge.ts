@@ -147,6 +147,40 @@ export interface BridgeAgentStatusEnvelope {
   data: AgentBoxState;
 }
 
+export interface BridgeTokenPushEnvelope {
+  channel: typeof BRIDGE_V2_CHANNEL;
+  source: "server";
+  type: "token-push";
+  data: {
+    tokens: { name: string; values: Record<string, string | number> }[];
+    source: "code" | "manual";
+  };
+}
+
+export interface BridgeVariableChangedEnvelope {
+  channel: typeof BRIDGE_V2_CHANNEL;
+  source: "plugin";
+  type: "variable-changed";
+  data: {
+    name: string;
+    collection: string;
+    values: Record<string, string | number>;
+    updatedAt: number;
+  };
+}
+
+export interface BridgeComponentChangedEnvelope {
+  channel: typeof BRIDGE_V2_CHANNEL;
+  source: "plugin";
+  type: "component-changed";
+  data: {
+    name: string;
+    key: string;
+    figmaNodeId: string;
+    updatedAt: number;
+  };
+}
+
 export type BridgeEnvelope =
   | BridgeCommandEnvelope
   | BridgeResponseEnvelope
@@ -164,7 +198,10 @@ export type BridgeEnvelope =
   | BridgeConnectionStateEnvelope
   | BridgeJobStatusEnvelope
   | BridgeHealResultEnvelope
-  | BridgeAgentStatusEnvelope;
+  | BridgeAgentStatusEnvelope
+  | BridgeTokenPushEnvelope
+  | BridgeVariableChangedEnvelope
+  | BridgeComponentChangedEnvelope;
 
 export function isBridgeEnvelope(value: unknown): value is BridgeEnvelope {
   return Boolean(
@@ -371,6 +408,27 @@ export function normalizeBridgeMessage(value: unknown): BridgeEnvelope | null {
         type,
         data: message.data as AgentBoxState,
       };
+    case "token-push":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "server",
+        type,
+        data: message.data as BridgeTokenPushEnvelope["data"],
+      };
+    case "variable-changed":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: message.data as BridgeVariableChangedEnvelope["data"],
+      };
+    case "component-changed":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: message.data as BridgeComponentChangedEnvelope["data"],
+      };
     default:
       return null;
   }
@@ -459,6 +517,9 @@ export function serializeBridgeEnvelope(
     case "job-status":
     case "heal-result":
     case "agent-status":
+    case "token-push":
+    case "variable-changed":
+    case "component-changed":
       return {
         type: envelope.type,
         data: envelope.data,

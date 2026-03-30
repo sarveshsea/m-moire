@@ -144,6 +144,8 @@ export class FigmaBridge extends EventEmitter {
     this.server.on("agent-status", (data) => this.emit("agent-status", data));
     this.server.on("sync-result", (data) => this.emit("sync-result", data));
     this.server.on("sync-data", (data) => this.emit("sync-data", data));
+    this.server.on("variable-changed", (data) => this.emit("variable-changed", data));
+    this.server.on("component-changed", (data) => this.emit("component-changed", data));
   }
 
   /** Check connection state directly from server — no stale cache. */
@@ -359,6 +361,18 @@ export class FigmaBridge extends EventEmitter {
     ) as { base64: string; format: string };
 
     return Buffer.from(result.base64, "base64");
+  }
+
+  /**
+   * Push token values to Figma (code → Figma direction).
+   * Sends a token-push message to the connected plugin.
+   */
+  async pushTokens(tokens: { name: string; values: Record<string, string | number> }[], source: "code" | "manual" = "code"): Promise<void> {
+    if (!this.isConnected) {
+      throw new Error("Not connected to Figma — cannot push tokens");
+    }
+    await this.server.sendCommand("pushTokens", { tokens, source }, 30000);
+    this.emitEvent("success", `Pushed ${tokens.length} token${tokens.length !== 1 ? "s" : ""} to Figma`);
   }
 
   // ── Parsers ──────────────────────────────────────────

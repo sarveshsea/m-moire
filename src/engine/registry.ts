@@ -3,6 +3,7 @@
  * Persists to .memoire/ directory for cross-session continuity.
  */
 
+import { EventEmitter } from "events";
 import { readFile, writeFile, readdir, mkdir, rename } from "fs/promises";
 import { join, resolve } from "path";
 import { createLogger } from "./logger.js";
@@ -78,7 +79,7 @@ function specTypeDir(type: string): string {
   }
 }
 
-export class Registry {
+export class Registry extends EventEmitter {
   private arkDir: string;
   private specs = new Map<string, AnySpec>();
   private generations = new Map<string, GenerationState>();
@@ -90,6 +91,8 @@ export class Registry {
   };
 
   constructor(arkDir: string) {
+    super();
+    this.setMaxListeners(20);
     this.arkDir = arkDir;
   }
 
@@ -148,6 +151,7 @@ export class Registry {
 
   async saveSpec(spec: AnySpec): Promise<void> {
     assertSafeName(spec.name);
+    const previous = this.specs.get(spec.name) ?? null;
     this.specs.set(spec.name, spec);
 
     const typeDir = specTypeDir(spec.type);
@@ -160,31 +164,37 @@ export class Registry {
     assertWithinDir(filePath, dir);
     await writeFile(tmpPath, JSON.stringify(spec, null, 2));
     await rename(tmpPath, filePath);
+    this.emit("spec-changed", { name: spec.name, type: spec.type, previous, current: spec });
   }
 
   addToken(token: DesignToken): void {
-    // Replace if exists, otherwise append
     const idx = this._designSystem.tokens.findIndex(t => t.name === token.name);
+    const previous = idx >= 0 ? this._designSystem.tokens[idx] : null;
     if (idx >= 0) {
       this._designSystem.tokens[idx] = token;
     } else {
       this._designSystem.tokens.push(token);
     }
+    this.emit("token-changed", { name: token.name, action: previous ? "updated" : "added", previous, current: token });
   }
 
   updateToken(name: string, token: DesignToken): void {
     const idx = this._designSystem.tokens.findIndex(t => t.name === name);
+    const previous = idx >= 0 ? this._designSystem.tokens[idx] : null;
     if (idx >= 0) {
       this._designSystem.tokens[idx] = token;
     } else {
       this._designSystem.tokens.push(token);
     }
+    this.emit("token-changed", { name, action: previous ? "updated" : "added", previous, current: token });
   }
 
   removeToken(name: string): boolean {
     const idx = this._designSystem.tokens.findIndex(t => t.name === name);
     if (idx >= 0) {
+      const removed = this._designSystem.tokens[idx];
       this._designSystem.tokens.splice(idx, 1);
+      this.emit("token-changed", { name, action: "removed", previous: removed, current: null });
       return true;
     }
     return false;
@@ -195,11 +205,13 @@ export class Registry {
   }
 
   async updateDesignSystem(ds: DesignSystem): Promise<void> {
+    const previous = this._designSystem;
     this._designSystem = ds;
     const path = join(this.arkDir, "design-system.json");
     const tmpPath = join(this.arkDir, ".design-system.json.tmp");
     await writeFile(tmpPath, JSON.stringify(ds, null, 2));
     await rename(tmpPath, path);
+    this.emit("design-system-changed", { previous, current: ds });
   }
 
   async recordGeneration(state: GenerationState): Promise<void> {

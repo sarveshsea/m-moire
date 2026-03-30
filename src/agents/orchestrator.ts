@@ -1464,8 +1464,14 @@ ${existingMappings}
   // ── Figma Push Helpers ─────────────────────────────────
 
   private async pushTokenToFigma(token: DesignToken): Promise<void> {
+    // Enable sync guard to prevent echo loops
+    this.engine.sync.enableGuard();
+
     const value = Object.values(token.values)[0];
-    if (!value) return;
+    if (!value) {
+      this.engine.sync.disableGuard();
+      return;
+    }
 
     // Validate token name to prevent code injection
     if (!/^[A-Za-z0-9/_\- .]+$/.test(token.name)) {
@@ -1509,7 +1515,11 @@ ${existingMappings}
       })()
     `;
 
-    await this.engine.figma.execute(code);
+    try {
+      await this.engine.figma.execute(code);
+    } finally {
+      this.engine.sync.disableGuard();
+    }
   }
 
   private async syncMutationsToFigma(mutations: DesignMutation[]): Promise<void> {

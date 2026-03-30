@@ -9,6 +9,8 @@ import { FigmaBridge } from "../figma/bridge.js";
 import { ResearchEngine } from "../research/engine.js";
 import { CodeGenerator } from "../codegen/generator.js";
 import { autoSpecFromDesignSystem } from "./auto-spec.js";
+import { BidirectionalSync, type SyncDirection } from "./sync.js";
+import { CodeWatcher } from "./code-watcher.js";
 import { createLogger } from "./logger.js";
 import { EventEmitter } from "events";
 import { readFile, writeFile, mkdir } from "fs/promises";
@@ -47,6 +49,8 @@ export class MemoireEngine extends EventEmitter {
   readonly codegen: CodeGenerator;
   readonly notes: NoteLoader;
   readonly healer: CanvasHealer;
+  readonly sync: BidirectionalSync;
+  readonly codeWatcher: CodeWatcher;
 
   private _project: ProjectContext | null = null;
   private _initialized = false;
@@ -81,9 +85,23 @@ export class MemoireEngine extends EventEmitter {
       this.figma,
       (evt) => this.emit("event", evt),
     );
+    this.sync = new BidirectionalSync(this);
+    this.codeWatcher = new CodeWatcher(join(config.projectRoot, "generated"));
 
     // Auto-pull design system when Figma document changes (debounced)
     this.figma.on("document-changed", () => this._onDocumentChanged());
+
+    // Route granular Figma change events through sync
+    this.figma.on("variable-changed", (data: { name: string; collection: string; values: Record<string, string | number>; updatedAt: number }) => {
+      this.sync.onVariableChanged(data);
+    });
+
+    // Route registry token changes through sync (code side)
+    this.registry.on("token-changed", (data: { name: string; current: unknown }) => {
+      if (data.current && !this.sync.isGuarded) {
+        this.sync.onCodeTokenChanged(data.current as import("./registry.js").DesignToken);
+      }
+    });
   }
 
   private _onDocumentChanged(): void {
@@ -146,6 +164,9 @@ export class MemoireEngine extends EventEmitter {
 
     // Load design soul for agent context
     this._soul = await readSoul(memoireDir);
+
+    // Load sync state
+    await this.sync.loadState();
 
     // Load Mémoire Notes
     await this.notes.loadAll();

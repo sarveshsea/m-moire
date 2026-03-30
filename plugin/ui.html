@@ -322,6 +322,27 @@ function normalizeBridgeMessage(value) {
         type,
         data: message.data
       };
+    case "token-push":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "server",
+        type,
+        data: message.data
+      };
+    case "variable-changed":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: message.data
+      };
+    case "component-changed":
+      return {
+        channel: BRIDGE_V2_CHANNEL,
+        source: "plugin",
+        type,
+        data: message.data
+      };
     default:
       return null;
   }
@@ -405,6 +426,9 @@ function serializeBridgeEnvelope(envelope, mode = "legacy") {
     case "job-status":
     case "heal-result":
     case "agent-status":
+    case "token-push":
+    case "variable-changed":
+    case "component-changed":
       return {
         type: envelope.type,
         data: envelope.data
