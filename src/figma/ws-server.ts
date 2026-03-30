@@ -426,6 +426,7 @@ export class MemoireWsServer extends EventEmitter {
           // Clean up stale connections
           this.clients.delete(clientId);
           this.rateLimits.delete(clientId);
+          this.emit("client-disconnected", clientId);
           continue;
         }
         // Drop clients that haven't responded to a ping in over 45s
@@ -488,12 +489,15 @@ export class MemoireWsServer extends EventEmitter {
         break;
 
       case "response": {
+        if (typeof msg.id !== "string") break;
         // Response to a command we sent — verify it came from the same client
         const pending = this.pendingCommands.get(msg.id);
         if (pending && pending.clientId === clientId) {
           clearTimeout(pending.timeout);
           this.pendingCommands.delete(msg.id);
-          this.inFlightMethods.delete(msg.id);
+          for (const [method, cmdId] of this.inFlightMethods.entries()) {
+            if (cmdId === msg.id) this.inFlightMethods.delete(method);
+          }
           if (msg.error) {
             pending.reject(new Error(msg.error));
           } else {

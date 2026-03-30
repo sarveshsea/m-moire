@@ -296,7 +296,7 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
         }
 
         // Validate token format
-        if (!inputToken.startsWith("figd_") && inputToken.length < 10) {
+        if (!inputToken.startsWith("figd_") || inputToken.length < 10) {
           console.log();
           console.log(ui.warn("Token doesn't look like a Figma token (usually starts with figd_)"));
           const proceed = await ask("Continue anyway? (y/n)", "y");
@@ -433,7 +433,7 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
         });
 
         engine.figma.on("plugin-disconnected", () => {
-          const remaining = engine.figma.wsServer.connectedClients.length;
+          const remaining = engine.figma.wsServer?.connectedClients?.length ?? 0;
           console.log(ui.warn(`Plugin disconnected (${remaining} remaining)`));
         });
 

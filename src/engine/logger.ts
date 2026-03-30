@@ -16,7 +16,7 @@ export function shouldUsePrettyTransport(): boolean {
 export function createLogger(name: string) {
   return pino({
     name,
-    level: process.env.NOCHE_LOG_LEVEL ?? "warn",
+    level: process.env.MEMOIRE_LOG_LEVEL ?? process.env.NOCHE_LOG_LEVEL ?? "warn",
     transport: shouldUsePrettyTransport()
       ? {
           target: "pino-pretty",

@@ -76,6 +76,7 @@ const pendingRequestTimers = new Map<string, number>();
 
 let app: HTMLDivElement | null = null;
 let bootstrapped = false;
+let keepaliveInterval: ReturnType<typeof setInterval> | null = null;
 const bootstrapOnReady = () => {
   document.removeEventListener("DOMContentLoaded", bootstrapOnReady);
   bootstrap();
@@ -154,7 +155,7 @@ function bootstrap(): void {
   bindPluginMessages();
   sendToMain({ channel: WIDGET_V2_CHANNEL, source: "ui", type: "ping" });
   window.setTimeout(scanBridge, 200);
-  window.setInterval(function keepalive() {
+  keepaliveInterval = window.setInterval(function keepalive() {
     sendToMain({ channel: WIDGET_V2_CHANNEL, source: "ui", type: "ping" });
     if (state.bridge.ws && state.bridge.ws.readyState === WebSocket.OPEN) {
       state.bridge.lastPingSentAt = Date.now();
@@ -294,7 +295,6 @@ function tryNextPort(port: number): void {
     return;
   }
   let settled = false;
-  let opened = false;
 
   const timeout = window.setTimeout(function onScanTimeout() {
     if (settled) return;
@@ -302,10 +302,6 @@ function tryNextPort(port: number): void {
     try { ws.close(); } catch { /* ignore */ }
     tryNextPort(nextScanPort(port));
   }, 2500);
-
-  ws.onopen = function onScanOpen() {
-    opened = true;
-  };
 
   ws.onmessage = function onScanMessage(event) {
     var payload;
@@ -430,7 +426,7 @@ function cleanupPendingRequests(): void {
   pendingRequestTimers.clear();
 }
 
-function handleBridgeMessage(payload: any): void {
+function handleBridgeMessage(payload: unknown): void {
   const message = normalizeBridgeMessage(payload);
   if (!message) {
     return;
@@ -467,6 +463,10 @@ function handleBridgeMessage(payload: any): void {
           error: message.data.error,
         });
       }
+      scheduleRender();
+      break;
+    case "heal-result":
+      state.healSummary = message.data ?? null;
       scheduleRender();
       break;
     case "error":
@@ -955,7 +955,7 @@ function renderSelection(): string {
           <span class="chip">${escapeHtml(state.lastCapture.format)}</span>
         </div>
         <div class="selection-preview">
-          <img src="${state.lastCapture.dataUrl}" alt="Selection preview">
+          <img src="${escapeHtml(state.lastCapture.dataUrl)}" alt="Selection preview">
         </div>
       </article>
     `);

@@ -96,6 +96,7 @@ export class FigmaBridge extends EventEmitter {
   private log = createLogger("figma-bridge");
   private config: FigmaBridgeConfig;
   private server: MemoireWsServer;
+  private resyncTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(config: FigmaBridgeConfig) {
     super();
@@ -115,10 +116,13 @@ export class FigmaBridge extends EventEmitter {
     this.server.on("client-connected", (client) => {
       this.emit("plugin-connected", client);
       // Auto-resync selection after reconnect so caches are repopulated
-      setTimeout(() => {
+      this.resyncTimer = setTimeout(() => {
+        this.resyncTimer = undefined;
         this.server.sendCommand("getSelection", {}, 10000)
           .then((sel) => this.emit("selection", sel))
-          .catch(() => { /* plugin may not be ready yet — ignore */ });
+          .catch((err) => {
+            this.log.warn({ err }, "Selection resync failed after reconnect");
+          });
       }, 500);
     });
 
@@ -162,6 +166,10 @@ export class FigmaBridge extends EventEmitter {
   }
 
   async disconnect(): Promise<void> {
+    if (this.resyncTimer) {
+      clearTimeout(this.resyncTimer);
+      this.resyncTimer = undefined;
+    }
     this.server.stop();
   }
 

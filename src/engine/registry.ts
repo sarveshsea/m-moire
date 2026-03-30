@@ -4,8 +4,7 @@
  */
 
 import { readFile, writeFile, readdir, mkdir, rename } from "fs/promises";
-import { join, resolve, relative } from "path";
-import { tmpdir } from "os";
+import { join, resolve } from "path";
 import { createLogger } from "./logger.js";
 import { ComponentSpec, PageSpec, DataVizSpec, DesignSpec, IASpec, AnySpec } from "../specs/types.js";
 
@@ -229,6 +228,7 @@ export class Registry {
             log.warn({ subdir, file }, "Spec missing valid name, using filename");
             spec.name = file.replace(/\.json$/, "");
           }
+          assertSafeName(spec.name);
           this.specs.set(spec.name, spec);
         } catch (err) {
           if (err instanceof Error) {

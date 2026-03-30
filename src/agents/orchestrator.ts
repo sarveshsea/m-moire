@@ -760,7 +760,7 @@ ${existingMappings}
             }
           } catch (err) {
             task.status = "failed";
-            task.error = (err as Error).message;
+            task.error = err instanceof Error ? err.message : String(err);
             task.completedAt = new Date().toISOString();
 
             await this.updateAgentBox(
@@ -827,7 +827,7 @@ ${existingMappings}
         }
       }
     }
-    throw lastError;
+    throw lastError ?? new Error("Sub-task failed with no error captured");
   }
 
   private async executeSubTask(task: SubTask, ctx: AgentContext): Promise<unknown> {
@@ -1078,7 +1078,7 @@ ${existingMappings}
     kind: "component" | "page" | "dataviz",
     ctx: AgentContext,
   ): string {
-    const exactExisting = ctx.specs.find((spec) => new RegExp(`\\b${spec.name}\\b`, "i").test(intent));
+    const exactExisting = ctx.specs.find((spec) => new RegExp(`\\b${spec.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(intent));
     if (exactExisting) {
       return exactExisting.name;
     }
@@ -1328,9 +1328,9 @@ ${existingMappings}
     const issues: string[] = [];
 
     for (const page of pageSpecs) {
-      if (!page.responsive.mobile) issues.push(`Page "${page.name}" missing mobile layout`);
-      if (!page.responsive.tablet) issues.push(`Page "${page.name}" missing tablet layout`);
-      if (!page.responsive.desktop) issues.push(`Page "${page.name}" missing desktop layout`);
+      if (!page.responsive?.mobile) issues.push(`Page "${page.name}" missing mobile layout`);
+      if (!page.responsive?.tablet) issues.push(`Page "${page.name}" missing tablet layout`);
+      if (!page.responsive?.desktop) issues.push(`Page "${page.name}" missing desktop layout`);
     }
 
     return { status: "completed", issues, pageCount: pageSpecs.length };
@@ -1634,7 +1634,7 @@ ${existingMappings}
 
         await this.engine.figma.execute(fixCode);
       } catch (err) {
-        allIssues.push(`Round ${round}: execution error — ${(err as Error).message}`);
+        allIssues.push(`Round ${round}: execution error — ${err instanceof Error ? err.message : String(err)}`);
         break;
       }
     }
@@ -1790,7 +1790,11 @@ ${existingMappings}
     if (!this.engine.figma.isConnected) {
       return;
     }
-    await this.createAgentBox(update);
+    try {
+      await this.createAgentBox(update);
+    } catch (err) {
+      log.warn({ err, update: update.taskId }, "Failed to update agent box on canvas");
+    }
   }
 
   private makeAgentBoxUpdate(
