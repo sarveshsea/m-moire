@@ -2676,6 +2676,18 @@ body {
 </div>
 <button id="conflicts-toggle" class="conflicts-toggle hidden" onclick="toggleConflictsPanel()">&#9670; CONFLICTS (<span id="conflicts-count">0</span>)</button>
 
+<!-- ── Research Panel ────────────────────────── -->
+<div id="research-panel" class="research-panel hidden">
+  <div class="research-panel-header">
+    <span>RESEARCH</span>
+    <button onclick="toggleResearchPanel()" style="background:none;border:none;color:var(--fg-muted);cursor:pointer;font-family:var(--mono)">&times;</button>
+  </div>
+  <div id="research-panel-body" class="research-panel-body">
+    <div class="research-empty">No research data loaded</div>
+  </div>
+</div>
+<button id="research-toggle" class="research-toggle" onclick="toggleResearchPanel()">&#9670; RESEARCH</button>
+
 <style>
 .conflicts-panel { position:fixed; bottom:48px; left:16px; right:16px; max-height:280px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; overflow:hidden; z-index:50; box-shadow:0 -4px 20px rgba(0,0,0,0.15); }
 .conflicts-panel.hidden { display:none; }
@@ -2684,6 +2696,19 @@ body {
 .conflicts-empty { padding:16px; text-align:center; color:var(--fg-muted); font-size:11px; }
 .conflicts-toggle { position:fixed; bottom:12px; left:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:4px; padding:4px 12px; font-size:10px; font-family:var(--mono); color:var(--yellow); cursor:pointer; z-index:49; }
 .conflicts-toggle.hidden { display:none; }
+.research-panel { position:fixed; bottom:48px; left:16px; right:16px; max-height:340px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; overflow:hidden; z-index:48; box-shadow:0 -4px 20px rgba(0,0,0,0.15); }
+.research-panel.hidden { display:none; }
+.research-panel-header { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border); font-size:10px; letter-spacing:1.5px; color:var(--fg-muted); }
+.research-panel-body { max-height:280px; overflow-y:auto; padding:8px; }
+.research-empty { padding:16px; text-align:center; color:var(--fg-muted); font-size:11px; }
+.research-toggle { position:fixed; bottom:12px; right:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:4px; padding:4px 12px; font-size:10px; font-family:var(--mono); color:var(--fg-muted); cursor:pointer; z-index:47; }
+.research-coverage { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--border); font-size:11px; font-family:var(--mono); }
+.research-bar { flex:1; height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+.research-bar-fill { height:100%; background:var(--green,#1f7a46); border-radius:2px; }
+.research-section { padding:6px 10px; font-size:9px; letter-spacing:1.5px; color:var(--fg-muted); border-bottom:1px solid var(--border); }
+.research-item { padding:6px 10px; border-bottom:1px solid var(--border); font-size:11px; font-family:var(--mono); }
+.research-item:last-child { border-bottom:none; }
+.research-tag { display:inline-block; padding:1px 6px; font-size:9px; border:1px solid var(--border); border-radius:2px; margin-right:4px; }
 .conflict-row { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-bottom:1px solid var(--border); font-size:11px; font-family:var(--mono); }
 .conflict-row:last-child { border-bottom:none; }
 .conflict-name { color:var(--fg); font-weight:500; }
@@ -3232,6 +3257,86 @@ async function resolveConflict(name, resolution) {
 
 function escapeHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+var researchPanelVisible = false;
+
+function toggleResearchPanel() {
+  var panel = document.getElementById('research-panel');
+  var btn = document.getElementById('research-toggle');
+  researchPanelVisible = !researchPanelVisible;
+  panel.classList.toggle('hidden', !researchPanelVisible);
+  btn.style.display = researchPanelVisible ? 'none' : '';
+  if (researchPanelVisible) fetchResearch();
+}
+
+async function fetchResearch() {
+  try {
+    var res = await fetch(API_BASE + '/api/research');
+    if (!res.ok) return;
+    var data = await res.json();
+    renderResearchPanel(data);
+  } catch {
+    // silent
+  }
+}
+
+function renderResearchPanel(data) {
+  var body = document.getElementById('research-panel-body');
+  if (!data || (!data.insights?.length && !data.personas?.length && !data.themes?.length)) {
+    body.innerHTML = '<div class="research-empty">No research data. Run: memi research from-file &lt;file&gt;</div>';
+    return;
+  }
+
+  var html = '';
+
+  // Coverage bar
+  if (data.coverage) {
+    var pct = Math.round(data.coverage.ratio * 100);
+    html += '<div class="research-coverage">' +
+      '<span>Coverage: ' + data.coverage.covered + '/' + data.coverage.total + ' specs (' + pct + '%)</span>' +
+      '<div class="research-bar"><div class="research-bar-fill" style="width:' + pct + '%"></div></div>' +
+    '</div>';
+  }
+
+  // Insights
+  if (data.insights?.length) {
+    html += '<div class="research-section">INSIGHTS (' + data.insights.length + ')</div>';
+    for (var i = 0; i < Math.min(data.insights.length, 10); i++) {
+      var ins = data.insights[i];
+      var tags = (ins.tags || []).slice(0, 3).map(function(t) { return '<span class="research-tag">' + escapeHtml(t) + '</span>'; }).join('');
+      html += '<div class="research-item">' +
+        '<div style="color:var(--fg)">' + escapeHtml(ins.finding) + '</div>' +
+        '<div style="margin-top:2px">' + tags + ' <span style="color:var(--fg-dim)">' + ins.confidence + '</span></div>' +
+      '</div>';
+    }
+    if (data.insights.length > 10) {
+      html += '<div class="research-item" style="color:var(--fg-dim)">... and ' + (data.insights.length - 10) + ' more</div>';
+    }
+  }
+
+  // Personas
+  if (data.personas?.length) {
+    html += '<div class="research-section">PERSONAS (' + data.personas.length + ')</div>';
+    for (var p = 0; p < data.personas.length; p++) {
+      var persona = data.personas[p];
+      html += '<div class="research-item">' +
+        '<div style="color:var(--fg);font-weight:500">' + escapeHtml(persona.name) + ' <span style="font-weight:400;color:var(--fg-dim)">' + escapeHtml(persona.role || '') + '</span></div>' +
+        '<div style="color:var(--fg-dim);margin-top:2px">Goals: ' + (persona.goals || []).join(', ') + '</div>' +
+      '</div>';
+    }
+  }
+
+  // Themes
+  if (data.themes?.length) {
+    html += '<div class="research-section">THEMES (' + data.themes.length + ')</div>';
+    for (var t = 0; t < Math.min(data.themes.length, 8); t++) {
+      var theme = data.themes[t];
+      html += '<div class="research-item">' + escapeHtml(theme.name) + ' <span style="color:var(--fg-dim)">(' + (theme.insightIds?.length || 0) + ' insights)</span></div>';
+    }
+  }
+
+  body.innerHTML = html;
 }
 
 function updateAgentLog(task) {

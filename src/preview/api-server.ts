@@ -183,10 +183,26 @@ export class PreviewApiServer {
             try {
               await this.engine.research.load();
               const store = this.engine.research.getStore();
-              res.end(JSON.stringify(store));
+              const specs = await this.engine.registry.getAllSpecs();
+              const specNames = specs.map((s) => s.name);
+
+              // Compute coverage
+              const backedSpecs = specs.filter((s) => {
+                const backing = "researchBacking" in s ? (s as { researchBacking: string[] }).researchBacking : [];
+                return Array.isArray(backing) && backing.length > 0;
+              });
+
+              res.end(JSON.stringify({
+                ...store,
+                coverage: {
+                  covered: backedSpecs.length,
+                  total: specs.length,
+                  ratio: specs.length > 0 ? backedSpecs.length / specs.length : 1,
+                },
+              }));
             } catch (err) {
               log.warn({ err }, "Failed to load research data");
-              res.end(JSON.stringify({ insights: [], personas: [], themes: [], sources: [] }));
+              res.end(JSON.stringify({ insights: [], personas: [], themes: [], sources: [], coverage: { covered: 0, total: 0, ratio: 1 } }));
             }
             return;
           }
