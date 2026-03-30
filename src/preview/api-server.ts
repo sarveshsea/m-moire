@@ -11,7 +11,10 @@ import { join, extname } from "path";
 import { WebSocketServer, WebSocket } from "ws";
 import type { MemoireEngine } from "../engine/core.js";
 import type { MemoireEvent } from "../engine/core.js";
+import { createLogger } from "../engine/logger.js";
 import { PreviewWidgetStateCache } from "./widget-state-cache.js";
+
+const log = createLogger("preview-api");
 
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html",
@@ -81,7 +84,8 @@ export class PreviewApiServer {
             try {
               const specs = await this.engine.registry.getAllSpecs();
               res.end(JSON.stringify(specs));
-            } catch {
+            } catch (err) {
+              log.warn({ err }, "Failed to load specs");
               res.end(JSON.stringify([]));
             }
             return;
@@ -137,7 +141,8 @@ export class PreviewApiServer {
               await this.engine.research.load();
               const store = this.engine.research.getStore();
               res.end(JSON.stringify(store));
-            } catch {
+            } catch (err) {
+              log.warn({ err }, "Failed to load research data");
               res.end(JSON.stringify({ insights: [], personas: [], themes: [], sources: [] }));
             }
             return;

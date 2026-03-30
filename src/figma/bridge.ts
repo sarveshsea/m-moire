@@ -288,14 +288,14 @@ export class FigmaBridge extends EventEmitter {
   async extractIA(name: string, depth = 2): Promise<IASpec> {
     const tree = await this.getPageTree(depth);
 
-    const convertNode = (raw: RawPageTreeNode, parentType: string): IANode => {
-      const nodeType = figmaTypeToIAType(raw.type, parentType);
+    const convertNode = (raw: RawPageTreeNode): IANode => {
+      const nodeType = figmaTypeToIAType(raw.type);
       return {
         id: raw.id,
         label: raw.name,
         type: nodeType,
         figmaNodeId: raw.id,
-        children: (raw.children || []).map((c) => convertNode(c, raw.type)),
+        children: (raw.children || []).map((c) => convertNode(c)),
       };
     };
 
@@ -304,7 +304,7 @@ export class FigmaBridge extends EventEmitter {
       label: page.name,
       type: "page" as const,
       figmaNodeId: page.id,
-      children: page.children.map((c) => convertNode(c, "PAGE")),
+      children: page.children.map((c) => convertNode(c)),
     }));
 
     const root: IANode = {
@@ -467,7 +467,7 @@ function formatTokenValue(value: unknown, type: string): string | number {
 }
 
 /** Map Figma node types to IA node types */
-function figmaTypeToIAType(figmaType: string, _parentType: string): IANode["type"] {
+function figmaTypeToIAType(figmaType: string): IANode["type"] {
   switch (figmaType) {
     case "PAGE": return "page";
     case "SECTION": return "section";

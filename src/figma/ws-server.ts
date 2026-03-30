@@ -382,8 +382,8 @@ export class MemoireWsServer extends EventEmitter {
             return;
           }
           this.handleMessage(clientId, msg);
-        } catch {
-          log.warn({ clientId }, "Invalid JSON message");
+        } catch (err) {
+          log.warn({ clientId, err: (err as Error).message }, "Invalid JSON message");
         }
       });
 
