@@ -1,6 +1,8 @@
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { checkCapabilities, formatCapabilityError } from "../engine/capabilities.js";
+import { diffDesignSystem } from "../engine/token-differ.js";
+import { ui } from "../tui/format.js";
 
 export interface PullPayload {
   status: "completed" | "failed";
@@ -64,6 +66,9 @@ export function registerPullCommand(program: Command, engine: MemoireEngine) {
         }
       }
 
+      // Snapshot before pull for diff
+      const before = engine.snapshotDesignSystem?.() ?? { tokens: [], components: [], styles: [], lastSync: "" };
+
       if (!opts.json) console.log("\n  Pulling design system...\n");
       await engine.pullDesignSystem();
 
@@ -86,12 +91,55 @@ export function registerPullCommand(program: Command, engine: MemoireEngine) {
         elapsedMs: Date.now() - start,
       };
 
+      // Compute diff
+      const after = engine.snapshotDesignSystem?.() ?? engine.registry.designSystem;
+      const diff = diffDesignSystem(before, after);
+
       if (opts.json) {
+        (payload as unknown as Record<string, unknown>).diff = {
+          hasChanges: diff.hasChanges,
+          summary: diff.summary,
+          tokens: diff.tokens.length,
+          components: diff.components.length,
+          styles: diff.styles.length,
+        };
         console.log(JSON.stringify(payload, null, 2));
         return;
       }
 
       console.log(`\n  Done. Design system saved to .memoire/design-system.json`);
+
+      // Show diff
+      if (diff.hasChanges) {
+        console.log();
+        if (diff.tokens.length > 0) {
+          console.log("  TOKENS");
+          for (const c of diff.tokens.slice(0, 20)) {
+            const icon = c.type === "added" ? ui.green("+") : c.type === "removed" ? ui.red("-") : ui.dim("~");
+            console.log(`    ${icon} ${c.name}  ${ui.dim(c.type)}`);
+          }
+          if (diff.tokens.length > 20) console.log(`    ${ui.dim(`... and ${diff.tokens.length - 20} more`)}`);
+        }
+        if (diff.components.length > 0) {
+          console.log("  COMPONENTS");
+          for (const c of diff.components.slice(0, 10)) {
+            const icon = c.type === "added" ? ui.green("+") : c.type === "removed" ? ui.red("-") : ui.dim("~");
+            console.log(`    ${icon} ${c.name}  ${ui.dim(c.type)}`);
+          }
+        }
+        if (diff.styles.length > 0) {
+          console.log("  STYLES");
+          for (const c of diff.styles.slice(0, 10)) {
+            const icon = c.type === "added" ? ui.green("+") : c.type === "removed" ? ui.red("-") : ui.dim("~");
+            console.log(`    ${icon} ${c.name}  ${ui.dim(c.type)}`);
+          }
+        }
+        console.log();
+        console.log(`  ${diff.summary}`);
+      } else {
+        console.log("  No changes detected.");
+      }
+
       if (autoSpecs.length > 0) {
         console.log(`  Auto-generated ${autoSpecs.length} component specs — run \`memi generate\` to create code`);
       }
