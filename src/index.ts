@@ -47,6 +47,7 @@ import { registerWatchCommand } from "./commands/watch.js";
 import { registerListCommand } from "./commands/list.js";
 import { registerMcpCommand } from "./commands/mcp.js";
 import { registerAgentCommand } from "./commands/agent.js";
+import { registerValidateCommand } from "./commands/validate.js";
 
 // Prevent MaxListenersExceededWarning — commands attach cleanup handlers to process
 process.setMaxListeners(30);
@@ -112,6 +113,7 @@ registerWatchCommand(program, engine);
 registerListCommand(program, engine);
 registerMcpCommand(program, engine);
 registerAgentCommand(program, engine);
+registerValidateCommand(program, engine);
 
 // Parse and execute
 program.parse();
