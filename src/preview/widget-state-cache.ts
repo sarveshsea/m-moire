@@ -81,9 +81,9 @@ export class PreviewWidgetStateCache {
   mergeSync(sync: WidgetSyncSummary): void {
     if (!sync) return;
     this.sync = {
-      tokens: sync.tokens || this.sync?.tokens || 0,
-      components: sync.components || this.sync?.components || 0,
-      styles: sync.styles || this.sync?.styles || 0,
+      tokens: sync.tokens ?? this.sync?.tokens ?? 0,
+      components: sync.components ?? this.sync?.components ?? 0,
+      styles: sync.styles ?? this.sync?.styles ?? 0,
       partialFailures: unique([...(this.sync?.partialFailures || []), ...(sync.partialFailures || [])]),
     };
     this.touch();
