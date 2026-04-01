@@ -7,12 +7,20 @@ import { readFile, writeFile, unlink, mkdir } from "fs/promises";
 import { join, basename } from "path";
 import { ui } from "../tui/format.js";
 
+interface DaemonPhaseTimings {
+  init: number;
+  figmaConnect: number;
+  previewStart: number;
+  ready: number;
+}
+
 interface DaemonStatus {
   pid: number;
   port: number;
   figmaPort: number;
   dashboardPort: number;
   startedAt: string;
+  phases?: DaemonPhaseTimings;
   pipeline?: {
     enabled: boolean;
     autoPull: boolean;
@@ -36,6 +44,7 @@ interface DaemonStatusPayload {
     alive: boolean;
     figmaConnected: boolean;
     previewUrl: string;
+    phases: DaemonPhaseTimings | null;
   } | null;
   cleanup: {
     performed: boolean;
@@ -125,8 +134,12 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
         return;
       }
 
+      // Phase timing instrumentation
+      const t0 = Date.now();
+
       // Initialize engine
       await engine.init();
+      const tInitDone = Date.now();
 
       const previewPort = parseInt(opts.port, 10);
 
@@ -139,6 +152,7 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
         console.error(`\n  Failed to start Figma bridge: ${msg}\n`);
         process.exit(1);
       }
+      const tFigmaDone = Date.now();
 
       // 2. Start preview server
       const previewDir = join(engine.config.projectRoot, "preview");
@@ -152,6 +166,7 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
         console.error(`\n  Failed to start preview server: ${msg}\n`);
         process.exit(1);
       }
+      const tPreviewDone = Date.now();
 
       // 2.5. Start event pipeline
       const pipeline = new EventPipeline(engine, {
@@ -175,6 +190,14 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
       });
 
       // 3. Write PID file and status JSON
+      const tReady = Date.now();
+      const phases: DaemonPhaseTimings = {
+        init: tInitDone - t0,
+        figmaConnect: tFigmaDone - tInitDone,
+        previewStart: tPreviewDone - tFigmaDone,
+        ready: tReady - t0,
+      };
+
       const dir = memoireDir(engine);
       await mkdir(dir, { recursive: true });
 
@@ -184,6 +207,7 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
         figmaPort,
         dashboardPort: 0,
         startedAt: new Date().toISOString(),
+        phases,
         pipeline: {
           enabled: true,
           autoPull: opts.autoPull !== false,
@@ -196,6 +220,8 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
       await writeFile(statusPath(engine), JSON.stringify(status, null, 2));
 
       // 4. Log running state
+      console.log();
+      console.log(`  Daemon ready in ${phases.ready}ms (init: ${phases.init}ms, figma: ${phases.figmaConnect}ms, preview: ${phases.previewStart}ms)`);
       console.log();
       console.log(ui.box(`DAEMON — PID ${process.pid}`, [
         "",
@@ -359,6 +385,9 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
       console.log(ui.dots("Preview", `http://localhost:${status.port}`));
       console.log(ui.dots("Figma", `port ${status.figmaPort}`));
       console.log(ui.dots("Figma link", figmaConnected ? ui.green("connected") : ui.dim("waiting")));
+      if (status.phases) {
+        console.log(ui.dots("Startup", `${status.phases.ready}ms (init: ${status.phases.init}ms, figma: ${status.phases.figmaConnect}ms, preview: ${status.phases.previewStart}ms)`));
+      }
       console.log();
     });
 
@@ -417,5 +446,6 @@ function serializeDaemonStatus(
     alive,
     figmaConnected,
     previewUrl: `http://localhost:${status.port}`,
+    phases: status.phases ?? null,
   };
 }
