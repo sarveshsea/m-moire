@@ -87,16 +87,27 @@ export class BidirectionalSync extends EventEmitter {
     try {
       const raw = await readFile(join(this.stateDir, "sync-state.json"), "utf-8");
       const parsed = JSON.parse(raw);
-      this.state.figma = new Map(Object.entries(parsed.figma ?? {}));
-      this.state.code = new Map(Object.entries(parsed.code ?? {}));
-      this.state.lastSyncAt = parsed.lastSyncAt ?? null;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        if (parsed.figma && typeof parsed.figma === "object" && !Array.isArray(parsed.figma)) {
+          this.state.figma = new Map(Object.entries(parsed.figma));
+        }
+        if (parsed.code && typeof parsed.code === "object" && !Array.isArray(parsed.code)) {
+          this.state.code = new Map(Object.entries(parsed.code));
+        }
+        if (typeof parsed.lastSyncAt === "string") {
+          this.state.lastSyncAt = parsed.lastSyncAt;
+        }
+      }
     } catch {
       // No existing state — fresh start
     }
 
     try {
       const raw = await readFile(join(this.stateDir, "sync-conflicts.json"), "utf-8");
-      this.state.conflicts = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        this.state.conflicts = parsed;
+      }
     } catch {
       // No existing conflicts
     }
