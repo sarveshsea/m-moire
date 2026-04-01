@@ -343,6 +343,71 @@ export function registerTools(server: McpServer, engine: MemoireEngine): void {
     },
   );
 
+  // ── sync_design_tokens ─────────────────────────────────
+  server.tool(
+    "sync_design_tokens",
+    "Map design system tokens to a Tailwind config patch object. Groups tokens by type (color, spacing, typography, radius, shadow) and returns a ready-to-merge Tailwind theme extension.",
+    {},
+    async () => {
+      const tokens = engine.registry.designSystem.tokens;
+      const patch: Record<string, Record<string, string>> = {
+        colors: {},
+        spacing: {},
+        fontSize: {},
+        borderRadius: {},
+        boxShadow: {},
+      };
+
+      for (const token of tokens) {
+        // Derive a Tailwind-friendly key from the token name
+        // e.g. "Colors/Primary" → "primary", "Spacing/XS" → "xs"
+        const parts = token.name.split("/");
+        const key = (parts[parts.length - 1] ?? token.name)
+          .replace(/\s+/g, "-")
+          .toLowerCase();
+
+        // Pick first mode value as the default, or use the CSS variable
+        const firstValue = Object.values(token.values)[0];
+        const value = token.cssVariable
+          ? `var(${token.cssVariable})`
+          : String(firstValue ?? "");
+
+        switch (token.type) {
+          case "color":
+            patch.colors[key] = value;
+            break;
+          case "spacing":
+            patch.spacing[key] = value;
+            break;
+          case "typography":
+            patch.fontSize[key] = value;
+            break;
+          case "radius":
+            patch.borderRadius[key] = value;
+            break;
+          case "shadow":
+            patch.boxShadow[key] = value;
+            break;
+          // "other" tokens are skipped — no standard Tailwind mapping
+        }
+      }
+
+      // Remove empty groups
+      for (const group of Object.keys(patch)) {
+        if (Object.keys(patch[group]).length === 0) {
+          delete patch[group];
+        }
+      }
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify(patch, null, 2),
+        }],
+      };
+    },
+  );
+
   // ── get_ai_usage ──────────────────────────────────────
   server.tool(
     "get_ai_usage",
