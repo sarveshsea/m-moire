@@ -137,6 +137,7 @@ export class MemoireEngine extends EventEmitter {
         } satisfies MemoireEvent);
       } finally {
         this._docChangePulling = false;
+        this._docChangeTimer = null;
       }
     }, MemoireEngine.DOC_CHANGE_DEBOUNCE_MS);
   }
