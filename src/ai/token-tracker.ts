@@ -60,7 +60,8 @@ export class TokenTracker {
 
     let existing: UsageEntry[] = [];
     try {
-      const raw = await import("fs").then(fs => fs.readFileSync(path, "utf-8"));
+      const { readFileSync } = await import("fs");
+      const raw = readFileSync(path, "utf-8");
       existing = JSON.parse(raw);
     } catch {
       // No existing file
