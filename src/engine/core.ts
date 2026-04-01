@@ -202,7 +202,7 @@ export class MemoireEngine extends EventEmitter {
     await this.sync.loadState();
     await this.agentRegistry.load();
     this.agentRegistry.startHealthCheck();
-    this.taskQueue.start();
+    await this.taskQueue.start();
 
     // Load Mémoire Notes
     await this.notes.loadAll();

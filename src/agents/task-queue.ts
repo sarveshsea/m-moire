@@ -6,6 +6,8 @@
  */
 
 import { EventEmitter } from "events";
+import { readFile, writeFile, mkdir } from "fs/promises";
+import { dirname } from "path";
 import { createLogger } from "../engine/logger.js";
 import type { AgentRole } from "../plugin/shared/contracts.js";
 
@@ -49,14 +51,20 @@ export class TaskQueue extends EventEmitter {
   private tasks = new Map<string, QueueTask>();
   private taskCounter = 0;
   private reclaimTimer: ReturnType<typeof setInterval> | null = null;
+  private persistPath: string | undefined;
+  private persistTimer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor() {
+  constructor(persistPath?: string) {
     super();
+    this.persistPath = persistPath;
   }
 
-  /** Start the reclaim timer for timed-out tasks. */
-  start(): void {
+  /** Start the reclaim timer for timed-out tasks. Loads persisted tasks if persistPath is set. */
+  async start(): Promise<void> {
     if (this.reclaimTimer) return;
+    if (this.persistPath) {
+      await this.loadPersisted();
+    }
     this.reclaimTimer = setInterval(() => {
       this.reclaimTimedOut();
       // Auto-prune completed tasks older than 5 minutes every cycle
@@ -91,6 +99,7 @@ export class TaskQueue extends EventEmitter {
     this.tasks.set(id, queueTask);
     this.emit("task-enqueued", queueTask);
     log.info({ id, role: task.role, name: task.name }, "Task enqueued");
+    this.deferPersist();
     return id;
   }
 
@@ -141,6 +150,7 @@ export class TaskQueue extends EventEmitter {
     task.completedAt = Date.now();
     this.emit("task-completed", { taskId, agentId, result });
     log.info({ taskId, agentId }, "Task completed");
+    this.deferPersist();
     // Eagerly prune finished tasks to prevent unbounded growth
     if (this.tasks.size > 200) this.prune(300_000);
     return true;
@@ -156,6 +166,7 @@ export class TaskQueue extends EventEmitter {
     task.completedAt = Date.now();
     this.emit("task-failed", { taskId, agentId, error });
     log.warn({ taskId, agentId, error }, "Task failed");
+    this.deferPersist();
     return true;
   }
 
@@ -243,6 +254,61 @@ export class TaskQueue extends EventEmitter {
       }
     }
     return pruned;
+  }
+
+  // ── Persistence ─────────────────────────────────────────
+
+  /** Write pending + claimed tasks to disk (debounced). */
+  private deferPersist(): void {
+    if (!this.persistPath) return;
+    if (this.persistTimer) return;
+    this.persistTimer = setTimeout(() => {
+      this.persistTimer = null;
+      this.persist().catch((err) => {
+        log.warn({ err: (err as Error).message }, "Task queue persist failed");
+      });
+    }, 500);
+  }
+
+  /** Persist active tasks (pending, claimed, running) to disk. */
+  async persist(): Promise<void> {
+    if (!this.persistPath) return;
+    const active = Array.from(this.tasks.values()).filter(
+      (t) => t.status === "pending" || t.status === "claimed" || t.status === "running",
+    );
+    await mkdir(dirname(this.persistPath), { recursive: true });
+    await writeFile(this.persistPath, JSON.stringify(active, null, 2));
+  }
+
+  /** Load persisted tasks from disk. Pending tasks are re-enqueued; claimed/running are marked as timeout. */
+  async loadPersisted(): Promise<void> {
+    if (!this.persistPath) return;
+    let raw: string;
+    try {
+      raw = await readFile(this.persistPath, "utf-8");
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === "ENOENT") return;
+      throw err;
+    }
+
+    const tasks: QueueTask[] = JSON.parse(raw);
+    const now = Date.now();
+    for (const task of tasks) {
+      if (this.tasks.has(task.id)) continue;
+
+      if (task.status === "pending") {
+        // Re-enqueue as-is
+        this.tasks.set(task.id, task);
+        log.info({ taskId: task.id, name: task.name }, "Recovered pending task from disk");
+      } else if (task.status === "claimed" || task.status === "running") {
+        // Mark as timed out so they can be reclaimed
+        task.status = "timeout";
+        task.error = `Reclaimed after daemon restart: ${task.name}`;
+        task.completedAt = now;
+        this.tasks.set(task.id, task);
+        log.warn({ taskId: task.id, name: task.name }, "Recovered claimed task as timeout");
+      }
+    }
   }
 
   // ── Private ──────────────────────────────────────────────
