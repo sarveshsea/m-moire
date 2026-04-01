@@ -115,9 +115,15 @@ export class EventPipeline extends EventEmitter {
     this.engineEventHandler = (evt) => this.onEngineEvent(evt);
     this.engine.on("event", this.engineEventHandler);
 
-    // Watch spec directories for file changes
-    if (this.config.autoGenerate) {
-      this.startSpecWatchers();
+    // Watch spec directories for file changes — clean up listener if watcher setup fails
+    try {
+      if (this.config.autoGenerate) {
+        this.startSpecWatchers();
+      }
+    } catch (err) {
+      this.engine.off("event", this.engineEventHandler);
+      this.engineEventHandler = null;
+      throw err;
     }
 
     log.info(this.config, "Pipeline started");
