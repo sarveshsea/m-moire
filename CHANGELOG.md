@@ -6,6 +6,25 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
+## v0.7.0 — 2026-03-31
+
+### Commits
+| Hash | Message |
+|------|---------|
+| `1cb0ae9` | Bump to v0.7.0 — the compression release |
+
+### Key Design Decisions
+
+- **Template Extraction** — HTML/CSS/JS content extracted from TypeScript template literals into static asset files. Gallery page (3,762→2,044 lines) and research page (730→208 lines) now load CSS and client JS via `readFileSync` at module init. Build pipeline updated to copy assets to `dist/`.
+
+- **Data-Driven Components** — shadcn-library.ts reduced from 1,540 to 850 lines by deleting 20 dead `My*()` functions and replacing verbose object literals with a `comp()` factory + compact variant tuples. Component catalog reduced from 723 to 114 lines by moving data to JSON.
+
+- **Orchestrator Decomposition** — The 2,208-line monolithic orchestrator split into four focused modules: `intent-classifier.ts` (pattern matching), `plan-builder.ts` (task decomposition), `sub-agents.ts` (heuristic execution), and a thin `orchestrator.ts` coordinator (535 lines). Each module is independently testable.
+
+- **Test Deduplication** — Shared `test-helpers.ts` module eliminates `captureLogs`/`lastLog`/`writePluginBundle` duplication across 14 test files.
+
+---
+
 ## v0.6.0 — 2026-03-30
 
 ### Commits
