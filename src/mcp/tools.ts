@@ -408,6 +408,22 @@ export function registerTools(server: McpServer, engine: MemoireEngine): void {
     },
   );
 
+  // ── check_bridge_health ────────────────────────────────
+  server.tool(
+    "check_bridge_health",
+    "Check the Figma bridge health — connection status, client count, round-trip latency, and server uptime. Works even when no plugin is connected.",
+    {},
+    async () => {
+      const health = await engine.figma.wsServer.checkHealth();
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify(health, null, 2),
+        }],
+      };
+    },
+  );
+
   // ── get_ai_usage ──────────────────────────────────────
   server.tool(
     "get_ai_usage",

@@ -303,6 +303,38 @@ export class MemoireWsServer extends EventEmitter {
     };
   }
 
+  /**
+   * Check bridge health — pings the active plugin and measures round-trip latency.
+   * Returns gracefully even when no plugin is connected.
+   */
+  async checkHealth(): Promise<{
+    connected: boolean;
+    clientCount: number;
+    latencyMs: number | null;
+    uptime: number;
+  }> {
+    const clientCount = this.clients.size;
+    const connected = clientCount > 0 && this._running;
+    const uptime = this._running ? process.uptime() : 0;
+
+    if (!connected) {
+      return { connected: false, clientCount: 0, latencyMs: null, uptime };
+    }
+
+    // Measure round-trip latency via a ping command
+    let latencyMs: number | null = null;
+    try {
+      const start = performance.now();
+      await this.sendCommand("ping", {}, 5000);
+      latencyMs = Math.round(performance.now() - start);
+    } catch {
+      // Plugin may not support ping command — still report connected
+      latencyMs = null;
+    }
+
+    return { connected, clientCount, latencyMs, uptime };
+  }
+
   // ── Private ──────────────────────────────────────────
 
   private startOnPort(port: number): Promise<void> {
