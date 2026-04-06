@@ -13,7 +13,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { writeFile, mkdir } from "fs/promises";
 import { join, dirname, isAbsolute } from "path";
-import { fetchPageAssets, parseCSSTokens, type RawDesignTokens } from "../research/css-extractor.js";
+import { fetchPageAssets, parseCSSTokens, type RawDesignTokens, type ContrastPair } from "../research/css-extractor.js";
 import { getAI, hasAI } from "../ai/client.js";
 
 export interface DesignDocPayload {
@@ -23,6 +23,7 @@ export interface DesignDocPayload {
   spec?: string;
   cssVarCount: number;
   colorCount: number;
+  contrastFailCount: number;
   elapsedMs: number;
   error?: string;
 }
@@ -34,7 +35,8 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
     .option("-o, --output <path>", "Output path for DESIGN.md", "./DESIGN.md")
     .option("--spec", "Also write a DesignSpec JSON to specs/")
     .option("--json", "Output results as JSON")
-    .action(async (url: string, opts: { output: string; spec?: boolean; json?: boolean }) => {
+    .option("--wcag", "Include full contrast table for all extracted color pairs")
+    .action(async (url: string, opts: { output: string; spec?: boolean; json?: boolean; wcag?: boolean }) => {
       const start = Date.now();
       await engine.init();
 
@@ -67,6 +69,9 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
             tokens.radii.length > 0 ? `${tokens.radii.length} radii` : null,
           ].filter(Boolean).join(", ");
           console.log(`  · ${summary || "no tokens extracted"}`);
+
+          // Contrast summary
+          printContrastSummary(tokens.contrastPairs, !!opts.wcag);
         }
 
         // 3. Generate DESIGN.md via Claude (or fallback to raw extraction)
@@ -79,6 +84,9 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
           if (!opts.json) console.log("  · No ANTHROPIC_API_KEY — generating from raw extraction...");
           content = generateFromRaw(url, assets.title, tokens);
         }
+
+        // Append contrast section to DESIGN.md
+        content += buildContrastSection(tokens.contrastPairs, !!opts.wcag);
 
         // 4. Write DESIGN.md
         const outputPath = isAbsolute(opts.output)
@@ -108,6 +116,7 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
             ...(specPath ? { spec: specPath } : {}),
             cssVarCount: Object.keys(tokens.cssVars).length,
             colorCount: tokens.colors.length,
+            contrastFailCount: tokens.contrastPairs.filter((p) => p.level === "fail").length,
             elapsedMs: elapsed,
           };
           console.log(JSON.stringify(payload, null, 2));
@@ -127,6 +136,7 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
             output: opts.output,
             cssVarCount: 0,
             colorCount: 0,
+            contrastFailCount: 0,
             elapsedMs: Date.now() - start,
             error: msg,
           };
@@ -284,6 +294,77 @@ ${tokens.shadows.length > 0 ? `**Shadows:**\n${tokens.shadows.slice(0, 4).map((s
 ## Notes
 - Run \`memi design-doc ${url}\` with ANTHROPIC_API_KEY set for full AI analysis
 - See raw data above to manually build your Tailwind config
+`;
+}
+
+// ── Contrast helpers ──────────────────────────────────────
+
+/**
+ * Print a contrast summary to the console.
+ * When wcag=true, shows all pairs. Otherwise only failures.
+ */
+function printContrastSummary(pairs: ContrastPair[], wcag: boolean): void {
+  if (pairs.length === 0) return;
+
+  const counts = { AAA: 0, AA: 0, "AA-large": 0, fail: 0 };
+  for (const p of pairs) counts[p.level]++;
+
+  console.log(
+    `  contrast  ${counts.AAA} AAA / ${counts.AA} AA / ${counts["AA-large"]} AA-large / ${counts.fail} FAIL`,
+  );
+
+  if (wcag) {
+    // Full table
+    for (const p of pairs) {
+      console.log(`  [${p.level}]  ${p.fg} on ${p.bg} — ratio ${p.ratio.toFixed(2)}`);
+    }
+  } else {
+    // Only failures
+    for (const p of pairs.filter((p) => p.level === "fail")) {
+      console.log(`  [FAIL]  ${p.fg} on ${p.bg} — ratio ${p.ratio.toFixed(2)} (needs 4.5 for AA)`);
+    }
+  }
+}
+
+/**
+ * Build a "## Contrast" section for the DESIGN.md.
+ * When wcag=true, emits a full markdown table of all pairs.
+ * Otherwise emits a summary and failure list.
+ */
+function buildContrastSection(pairs: ContrastPair[], wcag: boolean): string {
+  if (pairs.length === 0) return "";
+
+  const counts = { AAA: 0, AA: 0, "AA-large": 0, fail: 0 };
+  for (const p of pairs) counts[p.level]++;
+
+  const summary = `${counts.AAA} AAA / ${counts.AA} AA / ${counts["AA-large"]} AA-large / ${counts.fail} FAIL`;
+
+  if (wcag) {
+    const rows = pairs
+      .map((p) => `| \`${p.fg}\` | \`${p.bg}\` | ${p.ratio.toFixed(2)} | ${p.level} |`)
+      .join("\n");
+    return `
+## Contrast
+
+> ${summary}
+
+| Foreground | Background | Ratio | Level |
+|------------|------------|-------|-------|
+${rows}
+`;
+  }
+
+  // Summary + failures only
+  const failLines = pairs
+    .filter((p) => p.level === "fail")
+    .map((p) => `- \`${p.fg}\` on \`${p.bg}\` — ratio ${p.ratio.toFixed(2)} (needs 4.5 for AA)`)
+    .join("\n");
+
+  return `
+## Contrast
+
+> ${summary}
+${failLines ? `\n**Failures:**\n${failLines}` : ""}
 `;
 }
 

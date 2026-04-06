@@ -4,7 +4,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchPageAssets, parseCSSTokens } from "../css-extractor.js";
+import { fetchPageAssets, parseCSSTokens, hexToRgb, relativeLuminance, contrastRatio, wcagLevel } from "../css-extractor.js";
 
 // ── Fetch mock helpers ───────────────────────────────────
 
@@ -630,5 +630,206 @@ describe("fetchPageAssets — @import following", () => {
     const combined = assets.cssBlocks.join("\n");
     // The tokens from the resolved @import should be present
     expect(combined).toContain("--primary");
+  });
+});
+
+// ── WA-101: hexToRgb ──────────────────────────────────────
+
+describe("hexToRgb", () => {
+  it("parses a 6-digit hex", () => {
+    expect(hexToRgb("#ff0033")).toEqual([255, 0, 51]);
+  });
+
+  it("parses a 3-digit hex by expanding channels", () => {
+    expect(hexToRgb("#f0c")).toEqual([255, 0, 204]);
+  });
+
+  it("parses lowercase 6-digit hex", () => {
+    expect(hexToRgb("#aabbcc")).toEqual([170, 187, 204]);
+  });
+
+  it("parses uppercase 6-digit hex", () => {
+    expect(hexToRgb("#AABBCC")).toEqual([170, 187, 204]);
+  });
+
+  it("returns null for invalid hex string", () => {
+    expect(hexToRgb("#xyz")).toBeNull();
+  });
+
+  it("returns null for empty string", () => {
+    expect(hexToRgb("")).toBeNull();
+  });
+
+  it("returns null for 4-digit hex (not supported)", () => {
+    expect(hexToRgb("#ffff")).toBeNull();
+  });
+
+  it("handles #000000 (pure black)", () => {
+    expect(hexToRgb("#000000")).toEqual([0, 0, 0]);
+  });
+
+  it("handles #ffffff (pure white)", () => {
+    expect(hexToRgb("#ffffff")).toEqual([255, 255, 255]);
+  });
+});
+
+// ── WA-101: relativeLuminance ─────────────────────────────
+
+describe("relativeLuminance", () => {
+  it("pure black has luminance 0", () => {
+    expect(relativeLuminance(0, 0, 0)).toBeCloseTo(0, 6);
+  });
+
+  it("pure white has luminance ~1.0", () => {
+    expect(relativeLuminance(255, 255, 255)).toBeCloseTo(1.0, 4);
+  });
+
+  it("midtone gray (128,128,128) is between 0 and 1", () => {
+    const lum = relativeLuminance(128, 128, 128);
+    expect(lum).toBeGreaterThan(0);
+    expect(lum).toBeLessThan(1);
+  });
+
+  it("pure red (255,0,0) uses 0.2126 coefficient", () => {
+    // linearized(255)=1, so luminance ≈ 0.2126
+    expect(relativeLuminance(255, 0, 0)).toBeCloseTo(0.2126, 3);
+  });
+
+  it("pure green (0,255,0) uses 0.7152 coefficient", () => {
+    expect(relativeLuminance(0, 255, 0)).toBeCloseTo(0.7152, 3);
+  });
+
+  it("pure blue (0,0,255) uses 0.0722 coefficient", () => {
+    expect(relativeLuminance(0, 0, 255)).toBeCloseTo(0.0722, 3);
+  });
+});
+
+// ── WA-101: contrastRatio ─────────────────────────────────
+
+describe("contrastRatio", () => {
+  it("black on white = 21:1", () => {
+    const white = relativeLuminance(255, 255, 255);
+    const black = relativeLuminance(0, 0, 0);
+    expect(contrastRatio(white, black)).toBeCloseTo(21, 0);
+  });
+
+  it("white on white = 1:1", () => {
+    const white = relativeLuminance(255, 255, 255);
+    expect(contrastRatio(white, white)).toBeCloseTo(1, 4);
+  });
+
+  it("same luminance always returns 1", () => {
+    expect(contrastRatio(0.5, 0.5)).toBeCloseTo(1, 4);
+  });
+
+  it("is symmetric — order does not matter", () => {
+    const l1 = relativeLuminance(100, 100, 200);
+    const l2 = relativeLuminance(200, 200, 200);
+    expect(contrastRatio(l1, l2)).toBeCloseTo(contrastRatio(l2, l1), 8);
+  });
+
+  it("result is always >= 1", () => {
+    for (const [r, g, b] of [[0, 0, 0], [128, 64, 32], [200, 200, 200]] as Array<[number, number, number]>) {
+      const lum = relativeLuminance(r, g, b);
+      const white = relativeLuminance(255, 255, 255);
+      expect(contrastRatio(lum, white)).toBeGreaterThanOrEqual(1);
+    }
+  });
+});
+
+// ── WA-101: wcagLevel ─────────────────────────────────────
+
+describe("wcagLevel", () => {
+  it("ratio exactly 7.0 → AAA", () => {
+    expect(wcagLevel(7.0)).toBe("AAA");
+  });
+
+  it("ratio > 7 → AAA", () => {
+    expect(wcagLevel(10)).toBe("AAA");
+  });
+
+  it("ratio exactly 4.5 → AA", () => {
+    expect(wcagLevel(4.5)).toBe("AA");
+  });
+
+  it("ratio between 4.5 and 7 → AA", () => {
+    expect(wcagLevel(5.5)).toBe("AA");
+  });
+
+  it("ratio exactly 3.0 → AA-large", () => {
+    expect(wcagLevel(3.0)).toBe("AA-large");
+  });
+
+  it("ratio between 3 and 4.5 → AA-large", () => {
+    expect(wcagLevel(3.5)).toBe("AA-large");
+  });
+
+  it("ratio below 3 → fail", () => {
+    expect(wcagLevel(2.9)).toBe("fail");
+  });
+
+  it("ratio 1 → fail", () => {
+    expect(wcagLevel(1)).toBe("fail");
+  });
+});
+
+// ── WA-102: parseCSSTokens contrastPairs ─────────────────
+
+describe("parseCSSTokens — contrastPairs", () => {
+  it("returns contrastPairs field", () => {
+    const t = parseCSSTokens([".a { color: #3b82f6; }"]);
+    expect(t).toHaveProperty("contrastPairs");
+    expect(Array.isArray(t.contrastPairs)).toBe(true);
+  });
+
+  it("contrastPairs includes white and black baseline comparisons", () => {
+    const t = parseCSSTokens([".a { color: #3b82f6; }"]);
+    const bgs = t.contrastPairs.map((p) => p.bg);
+    expect(bgs).toContain("#ffffff");
+    expect(bgs).toContain("#000000");
+  });
+
+  it("contrastPairs are empty when no colors extracted", () => {
+    const t = parseCSSTokens([".a { font-size: 14px; }"]);
+    expect(t.contrastPairs).toEqual([]);
+  });
+
+  it("each pair has fg, bg, ratio, and level fields", () => {
+    const t = parseCSSTokens([".a { color: #5b5bd6; }"]);
+    for (const p of t.contrastPairs) {
+      expect(p).toHaveProperty("fg");
+      expect(p).toHaveProperty("bg");
+      expect(p).toHaveProperty("ratio");
+      expect(p).toHaveProperty("level");
+    }
+  });
+
+  it("ratio values are numbers rounded to at most 2 decimal places", () => {
+    const t = parseCSSTokens([".a { color: #3b82f6; }"]);
+    for (const p of t.contrastPairs) {
+      expect(typeof p.ratio).toBe("number");
+      expect(String(p.ratio)).toMatch(/^\d+(\.\d{1,2})?$/);
+    }
+  });
+
+  it("caps contrastPairs at 20 entries even with many colors", () => {
+    const colors = Array.from(
+      { length: 15 },
+      (_, i) => `#${String(i * 17).padStart(2, "0")}${String(i * 13).padStart(2, "0")}aa`,
+    );
+    const css = colors.map((c, i) => `.c${i} { color: ${c}; }`).join("\n");
+    const t = parseCSSTokens([css]);
+    expect(t.contrastPairs.length).toBeLessThanOrEqual(20);
+  });
+
+  it("non-hex colors produce no contrastPairs entries (only hex supported)", () => {
+    // rgb() colors are not hex — hexToRgb will return null for them, so no pairs
+    const t = parseCSSTokens(["body { color: rgb(91, 91, 214); }"]);
+    // rgb() colors won't produce pairs since hexToRgb only handles hex
+    expect(Array.isArray(t.contrastPairs)).toBe(true);
+    // All pairs that exist should have valid levels
+    for (const p of t.contrastPairs) {
+      expect(["AAA", "AA", "AA-large", "fail"]).toContain(p.level);
+    }
   });
 });

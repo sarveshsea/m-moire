@@ -16,6 +16,15 @@ const MAX_COLORS = 50;        // cap to avoid noise from icon-heavy sites
 
 // ── Types ─────────────────────────────────────────────────
 
+export type WcagLevel = 'AAA' | 'AA' | 'AA-large' | 'fail';
+
+export interface ContrastPair {
+  fg: string;
+  bg: string;
+  ratio: number;
+  level: WcagLevel;
+}
+
 export interface RawDesignTokens {
   colors: string[];
   fonts: string[];
@@ -24,6 +33,7 @@ export interface RawDesignTokens {
   radii: string[];
   shadows: string[];
   cssVars: Record<string, string>;
+  contrastPairs: ContrastPair[];
 }
 
 export interface PageAssets {
@@ -260,6 +270,106 @@ function extractCssVars(css: string): Record<string, string> {
   return vars;
 }
 
+// ── WCAG Contrast Utilities ───────────────────────────────
+
+/**
+ * Convert a 3-digit or 6-digit hex color to [r, g, b] tuple (0–255 each).
+ * Returns null for invalid input.
+ */
+export function hexToRgb(hex: string): [number, number, number] | null {
+  const cleaned = hex.trim().replace(/^#/, "");
+  if (cleaned.length === 3) {
+    const r = parseInt(cleaned[0] + cleaned[0], 16);
+    const g = parseInt(cleaned[1] + cleaned[1], 16);
+    const b = parseInt(cleaned[2] + cleaned[2], 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return null;
+    return [r, g, b];
+  }
+  if (cleaned.length === 6) {
+    const r = parseInt(cleaned.slice(0, 2), 16);
+    const g = parseInt(cleaned.slice(2, 4), 16);
+    const b = parseInt(cleaned.slice(4, 6), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return null;
+    return [r, g, b];
+  }
+  return null;
+}
+
+/**
+ * Compute WCAG relative luminance for a linearized RGB channel value (0–255).
+ * Formula: 0.2126R + 0.7152G + 0.0722B with sRGB linearization.
+ */
+export function relativeLuminance(r: number, g: number, b: number): number {
+  const linearize = (c: number): number => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * linearize(r) + 0.7152 * linearize(g) + 0.0722 * linearize(b);
+}
+
+/**
+ * Compute WCAG contrast ratio between two relative luminance values.
+ * Returns a value like 4.52 (range 1–21).
+ */
+export function contrastRatio(l1: number, l2: number): number {
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/**
+ * Map a contrast ratio to a WCAG level.
+ * AAA ≥ 7, AA ≥ 4.5, AA-large ≥ 3, else fail.
+ */
+export function wcagLevel(ratio: number): WcagLevel {
+  if (ratio >= 7) return 'AAA';
+  if (ratio >= 4.5) return 'AA';
+  if (ratio >= 3) return 'AA-large';
+  return 'fail';
+}
+
+const MAX_CONTRAST_PAIRS = 20;
+
+/**
+ * Build contrast pairs from a list of hex colors.
+ * Tests each color against #ffffff and #000000 as common fg/bg pairs.
+ * Caps at MAX_CONTRAST_PAIRS entries.
+ */
+function buildContrastPairs(colors: string[]): ContrastPair[] {
+  const pairs: ContrastPair[] = [];
+  const whites = relativeLuminance(255, 255, 255); // 1.0
+  const blacks = relativeLuminance(0, 0, 0);       // 0.0
+
+  for (const color of colors) {
+    if (pairs.length >= MAX_CONTRAST_PAIRS) break;
+    const rgb = hexToRgb(color);
+    if (!rgb) continue;
+    const lum = relativeLuminance(rgb[0], rgb[1], rgb[2]);
+
+    // color on white background
+    const ratioOnWhite = contrastRatio(lum, whites);
+    pairs.push({
+      fg: color,
+      bg: "#ffffff",
+      ratio: Math.round(ratioOnWhite * 100) / 100,
+      level: wcagLevel(ratioOnWhite),
+    });
+
+    if (pairs.length >= MAX_CONTRAST_PAIRS) break;
+
+    // color on black background
+    const ratioOnBlack = contrastRatio(lum, blacks);
+    pairs.push({
+      fg: color,
+      bg: "#000000",
+      ratio: Math.round(ratioOnBlack * 100) / 100,
+      level: wcagLevel(ratioOnBlack),
+    });
+  }
+
+  return pairs;
+}
+
 /**
  * Parse CSS blocks into raw design tokens.
  */
@@ -274,10 +384,12 @@ export function parseCSSTokens(cssBlocks: string[]): RawDesignTokens {
   const radii = extractRadii(combined);
   const shadows = extractShadows(combined);
 
+  const contrastPairs = buildContrastPairs(colors);
+
   log.info(
-    { colors: colors.length, fonts: fonts.length, fontSizes: fontSizes.length, cssVars: Object.keys(cssVars).length },
+    { colors: colors.length, fonts: fonts.length, fontSizes: fontSizes.length, cssVars: Object.keys(cssVars).length, contrastPairs: contrastPairs.length },
     "CSS tokens parsed",
   );
 
-  return { colors, fonts, fontSizes, spacing, radii, shadows, cssVars };
+  return { colors, fonts, fontSizes, spacing, radii, shadows, cssVars, contrastPairs };
 }
