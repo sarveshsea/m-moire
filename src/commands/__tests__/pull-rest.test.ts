@@ -236,3 +236,77 @@ describe("pull (plugin mode) — unaffected by --rest changes", () => {
     expect(connectSpy).toHaveBeenCalled();
   });
 });
+
+// ── --rest --force ────────────────────────────────────────
+
+describe("pull --rest --force", () => {
+  it("passes force=true to pullDesignSystemREST", async () => {
+    let capturedForce: boolean | undefined;
+    const engine = {
+      async init() {},
+      figma: { isConnected: false },
+      async pullDesignSystemREST(force?: boolean) { capturedForce = force; },
+      async pullDesignSystem() {},
+      async ensureFigmaConnected() {},
+      registry: {
+        designSystem: {
+          tokens: [{ name: "t1" }],
+          components: [],
+          styles: [],
+          lastSync: new Date().toISOString(),
+        },
+        async getAllSpecs() { return []; },
+      },
+      snapshotDesignSystem() { return { tokens: [], components: [], styles: [], lastSync: "" }; },
+    };
+    captureLogs();
+    const program = new Command();
+    registerPullCommand(program, engine as never);
+    await program.parseAsync(["pull", "--rest", "--force", "--json"], { from: "user" });
+    expect(capturedForce).toBe(true);
+    expect(process.exitCode).toBeFalsy();
+  });
+
+  it("passes force=false to pullDesignSystemREST when --force not set", async () => {
+    let capturedForce: boolean | undefined;
+    const engine = {
+      async init() {},
+      figma: { isConnected: false },
+      async pullDesignSystemREST(force?: boolean) { capturedForce = force; },
+      async pullDesignSystem() {},
+      async ensureFigmaConnected() {},
+      registry: {
+        designSystem: { tokens: [], components: [], styles: [], lastSync: "" },
+        async getAllSpecs() { return []; },
+      },
+      snapshotDesignSystem() { return { tokens: [], components: [], styles: [], lastSync: "" }; },
+    };
+    captureLogs();
+    const program = new Command();
+    registerPullCommand(program, engine as never);
+    await program.parseAsync(["pull", "--rest", "--json"], { from: "user" });
+    expect(capturedForce).toBe(false);
+  });
+
+  it("JSON output includes status:completed after forced REST pull", async () => {
+    const logs = captureLogs();
+    const engine = {
+      async init() {},
+      figma: { isConnected: false },
+      async pullDesignSystemREST(_force?: boolean) {},
+      async pullDesignSystem() {},
+      async ensureFigmaConnected() {},
+      registry: {
+        designSystem: { tokens: [{ name: "tok" }], components: [], styles: [], lastSync: "" },
+        async getAllSpecs() { return []; },
+      },
+      snapshotDesignSystem() { return { tokens: [], components: [], styles: [], lastSync: "" }; },
+    };
+    const program = new Command();
+    registerPullCommand(program, engine as never);
+    await program.parseAsync(["pull", "--rest", "--force", "--json"], { from: "user" });
+    const payload = JSON.parse(logs.join(""));
+    expect(payload.status).toBe("completed");
+    expect(payload.designSystem.tokens).toBe(1);
+  });
+});
