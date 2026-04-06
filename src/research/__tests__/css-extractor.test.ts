@@ -556,3 +556,79 @@ describe("parseCSSTokens — combined edge cases", () => {
     expect(t.shadows.length).toBeGreaterThan(0);
   });
 });
+
+// ── @import following ────────────────────────────────────
+
+describe("fetchPageAssets — @import following", () => {
+  beforeEach(() => { vi.restoreAllMocks(); });
+
+  it("follows @import url() in linked stylesheet", async () => {
+    const html = `<html><link rel="stylesheet" href="/main.css"></html>`;
+    const mainCss = `@import url("/tokens.css"); body { color: #111; }`;
+    const tokensCss = `:root { --color-bg: #fafafa; }`;
+
+    // Fetch sequence: HTML → main.css → tokens.css (from @import)
+    mockFetchSequence([
+      { ok: true, body: html },
+      { ok: true, body: mainCss },
+      { ok: true, body: tokensCss },
+    ]);
+
+    const assets = await fetchPageAssets("https://example.com");
+    const allCss = assets.cssBlocks.join("\n");
+    // Both main.css body color and @import tokens.css variable should be present
+    expect(allCss).toContain("#111");
+    expect(allCss).toContain("--color-bg");
+  });
+
+  it("follows @import with quoted syntax", async () => {
+    const html = `<html><link rel="stylesheet" href="/base.css"></html>`;
+    const baseCss = `@import "fonts.css"; h1 { font-size: 2rem; }`;
+    const fontsCss = `@font-face { font-family: "Inter"; src: url("/inter.woff2"); }`;
+
+    mockFetchSequence([
+      { ok: true, body: html },
+      { ok: true, body: baseCss },
+      { ok: true, body: fontsCss },
+    ]);
+
+    const assets = await fetchPageAssets("https://example.com");
+    const combined = assets.cssBlocks.join("\n");
+    expect(combined).toContain("font-family");
+    expect(combined).toContain("2rem");
+  });
+
+  it("does not crash when @import fetch fails", async () => {
+    const html = `<html><link rel="stylesheet" href="/main.css"></html>`;
+    const mainCss = `@import url("/missing.css"); body { background: #fff; }`;
+
+    mockFetchSequence([
+      { ok: true, body: html },
+      { ok: true, body: mainCss },
+      { ok: false, status: 404, body: "" }, // @import target 404s
+    ]);
+
+    const assets = await fetchPageAssets("https://example.com");
+    // Should still return the main CSS content without crashing
+    expect(assets.cssBlocks.length).toBeGreaterThan(0);
+    const combined = assets.cssBlocks.join("\n");
+    expect(combined).toContain("#fff");
+  });
+
+  it("resolves relative @import paths against the stylesheet URL", async () => {
+    const html = `<html><link rel="stylesheet" href="https://cdn.example.com/styles/main.css"></html>`;
+    const mainCss = `@import "vars/tokens.css"; .btn { padding: 8px 16px; }`;
+    const tokensCss = `:root { --primary: #3b82f6; }`;
+
+    mockFetchSequence([
+      { ok: true, body: html },
+      { ok: true, body: mainCss },
+      { ok: true, body: tokensCss },
+    ]);
+
+    const assets = await fetchPageAssets("https://example.com");
+    const combined = assets.cssBlocks.join("\n");
+    // The tokens from the resolved @import should be present
+    expect(combined).toContain("--primary");
+  });
+});
