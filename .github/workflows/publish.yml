@@ -16,7 +16,20 @@ jobs:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
-      - run: npm ci --omit=optional
+      - name: Remove macOS-only lockfile entries
+        run: |
+          node -e "
+            const fs = require('fs');
+            const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+            for (const key of Object.keys(lock.packages || {})) {
+              const pkg = lock.packages[key];
+              if (Array.isArray(pkg.os) && !pkg.os.includes(process.platform)) {
+                delete lock.packages[key];
+              }
+            }
+            fs.writeFileSync('package-lock.json', JSON.stringify(lock));
+          "
+      - run: npm ci
       - run: npm run build
       - run: npm publish --provenance --access public
         env:
