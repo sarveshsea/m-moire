@@ -6,6 +6,76 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
+## v0.8.0 — 2026-04-06
+
+### Commits
+| Hash | Message |
+|------|---------|
+| `fe3ec2c` | feat(rest-client): export FigmaConfigError for external instanceof checks |
+| `c0c7c70` | docs(readme): correct MCP tool count to 20 |
+| `cb37979` | test(mcp): add tools registration smoke test for design_doc and tool count |
+| `ad37cbb` | test(pull): add --rest --force tests covering force propagation and JSON output |
+| `9007f06` | test(css-extractor): add 4 @import following integration tests |
+| `42bb878` | test(cli): extend registration smoke test for design-doc and pull flags |
+| `6d3c8a1` | docs(readme): bump MCP tool count, add design_doc entry |
+| `0d92c15` | docs(readme): add pull --rest and design-doc to command reference |
+| `53db613` | fix(rest-client): log partial recovery summary when endpoints fail |
+| `b0eabc5` | fix(go): show REST mode in pipeline header |
+| `629c10a` | feat(design-doc): show extracted page title and token summary in output |
+| `a896485` | feat(doctor): check FIGMA_FILE_KEY and FIGMA_TOKEN for REST mode |
+| `6810acc` | feat(pull): add --force flag to bypass 5-minute pull cache |
+| `2966146` | feat(mcp): add design_doc tool |
+| `786a063` | feat(css-extractor): cap color extraction at 50 to reduce noise |
+| `c4dc4f3` | feat(css-extractor): follow CSS @import rules one level deep |
+| `c5b1946` | chore: bump version to 0.8.0 |
+| `30958d8` | fix(index): add pull --rest and design-doc to CLI header comment |
+| `7c21664` | test: add 178 stress tests for v0.8.0 features, fix 2 bugs found |
+| `5c3c23b` | feat: add REST pull + design-doc command (v0.8.0 features) |
+
+### New Features
+
+**`memi pull --rest` — Plugin-free Figma pull**
+
+Pulls your design system directly from the Figma REST API. No Figma Desktop, no WebSocket plugin, no bridge. Set `FIGMA_TOKEN` and `FIGMA_FILE_KEY` in `.env.local` and run:
+
+```bash
+memi pull --rest
+memi pull --rest --force   # bypass 5-minute cache
+memi go --rest             # full pipeline in REST mode
+```
+
+Calls `/v1/files/:key/variables/local`, `/components`, and `/styles` in parallel. Partial failures (one endpoint down) log a warning and continue — the pull recovers whatever data it can. `FigmaConfigError` (403/404) always propagates so you get a clear error instead of silent empty data.
+
+**`memi design-doc <url>` — Extract design system from any URL**
+
+Fetches any public URL, parses all linked CSS (following one level of `@import`), and produces a `DESIGN.md` ready to use as AI prompt context:
+
+```bash
+memi design-doc https://linear.app
+memi design-doc https://vercel.com --output VERCEL_DESIGN.md
+memi design-doc https://stripe.com --spec   # also writes specs/design-stripe-com.json
+```
+
+Extracts: CSS custom properties, color palette (capped at 50 to filter noise), font families, font sizes, spacing values, border radii, box shadows. With `ANTHROPIC_API_KEY` set, Claude synthesizes a structured `DESIGN.md` with semantic token naming, Tailwind config sketch, and Do/Don't rules. Without it, generates a raw extraction table.
+
+Also available as MCP tool `design_doc` for Claude Code / Cursor integration.
+
+### Key Design Decisions
+
+- **REST Pull Architecture** — `src/figma/rest-client.ts` mirrors `bridge.extractDesignSystem()` exactly, returning the same `DesignSystem` interface. Zero changes to registry, autoSpec, or codegen — they consume REST-pulled data identically to plugin-pulled data.
+
+- **FigmaConfigError propagation** — 403/404/5xx from Figma REST are re-thrown as `FigmaConfigError` (now exported). Network failures and timeouts are absorbed (warn-logged, partial recovery). This makes config problems loud and transient problems silent.
+
+- **CSS @import following** — `fetchPageAssets()` follows one level of `@import url()` and `@import "..."` in linked stylesheets, then stops. Prevents infinite loops on circular imports while capturing the token layer most design systems put in a separate file.
+
+- **Color noise cap** — `MAX_COLORS = 50` prevents icon-heavy sites (hundreds of inline SVG colors) from drowning out the actual palette. Applied after deduplication.
+
+- **Doctor REST check** — `memi doctor` now verifies `FIGMA_TOKEN` + `FIGMA_FILE_KEY` presence and reports three states: both set (pass), token only (warn), neither (warn). The check code is `rest.credentials`.
+
+- **Test-driven bug discovery** — 178 new tests across 4 files found 2 real bugs before release: (1) `FigmaConfigError` was silently absorbed instead of propagating, making 403/404 indistinguishable from success; (2) `design-doc --output /absolute/path` double-prefixed the path with `projectRoot`. Both fixed before tagging.
+
+---
+
 ## v0.7.0 — 2026-03-31
 
 ### Commits
