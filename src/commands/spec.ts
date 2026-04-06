@@ -3,6 +3,43 @@ import type { MemoireEngine } from "../engine/core.js";
 import type { AnySpec, ComponentSpec, PageSpec, DataVizSpec, DesignSpec } from "../specs/types.js";
 import { validateSpec } from "../specs/validator.js";
 
+// ── WA-204: Validation error formatter ──────────────────────────
+
+interface FormattedValidationError {
+  field: string;
+  message: string;
+}
+
+/**
+ * Format a validation result for terminal output or JSON.
+ * On failure prints structured, human-readable errors that surface WCAG
+ * criterion references rather than raw Zod path dumps.
+ */
+function handleValidationFailure(
+  validation: ReturnType<typeof validateSpec>,
+  opts: { json?: boolean }
+): void {
+  if (validation.valid) return;
+
+  const formatted: FormattedValidationError[] = validation.errors.map((err) => ({
+    field: err.path || "spec",
+    message: err.message,
+  }));
+
+  if (opts.json) {
+    console.error(JSON.stringify({ status: "error", errors: formatted }, null, 2));
+  } else {
+    console.error("\n  spec validation failed:");
+    for (const e of formatted) {
+      // Align field labels to a consistent width for readability
+      const label = `[${e.field}]`.padEnd(20);
+      console.error(`    ${label} ${e.message}`);
+    }
+    console.error();
+  }
+  process.exit(1);
+}
+
 type SpecListStatus = "generated" | "pending";
 
 interface SpecListEntry {
@@ -55,7 +92,8 @@ export function registerSpecCommand(program: Command, engine: MemoireEngine) {
     .description("Create a new component spec")
     .option("-b, --base <components...>", "shadcn base components", ["Card"])
     .option("-p, --purpose <text>", "Component purpose")
-    .action(async (name: string, opts) => {
+    .option("--json", "Output errors as JSON")
+    .action(async (name: string, opts: { base: string[]; purpose?: string; json?: boolean }) => {
       validateName(name);
       await engine.init();
 
@@ -71,7 +109,7 @@ export function registerSpecCommand(program: Command, engine: MemoireEngine) {
         variants: ["default"],
         props: {},
         shadcnBase: opts.base,
-        accessibility: { ariaLabel: "optional", keyboardNav: false, focusStyle: "outline", touchTarget: "default", reducedMotion: false, liveRegion: "off", colorIndependent: true },
+        accessibility: { ariaLabel: "optional", keyboardNav: false, focusStyle: "outline", focusWidth: "2px", touchTarget: "default", reducedMotion: false, liveRegion: "off", colorIndependent: true },
         dataviz: null,
         tags: [],
         createdAt: new Date().toISOString(),
@@ -79,17 +117,12 @@ export function registerSpecCommand(program: Command, engine: MemoireEngine) {
       };
 
       const validation = validateSpec(newSpec);
-      if (!validation.valid) {
-        console.error("\n  Spec validation failed:");
-        for (const err of validation.errors) {
-          console.error(`    - ${err.path}: ${err.message}`);
-        }
-        process.exit(1);
-      }
+      // WA-204: use structured formatter
+      handleValidationFailure(validation, opts);
 
       for (const warn of validation.warnings) {
-        console.log(`  ⚠ ${warn.path}: ${warn.message}`);
-        if (warn.suggestion) console.log(`    → ${warn.suggestion}`);
+        console.log(`  [warn] ${warn.path}: ${warn.message}`);
+        if (warn.suggestion) console.log(`    -> ${warn.suggestion}`);
       }
 
       await engine.registry.saveSpec(newSpec);
@@ -163,7 +196,8 @@ export function registerSpecCommand(program: Command, engine: MemoireEngine) {
     .description("Create a new design spec with pixel-level annotations")
     .option("-p, --purpose <text>", "Design spec purpose")
     .option("-n, --node <nodeId>", "Figma node ID to link")
-    .action(async (name: string, opts) => {
+    .option("--json", "Output errors as JSON")
+    .action(async (name: string, opts: { purpose?: string; node?: string; json?: boolean }) => {
       validateName(name);
       await engine.init();
 
@@ -186,17 +220,12 @@ export function registerSpecCommand(program: Command, engine: MemoireEngine) {
       };
 
       const validation = validateSpec(newSpec);
-      if (!validation.valid) {
-        console.error("\n  Spec validation failed:");
-        for (const err of validation.errors) {
-          console.error(`    - ${err.path}: ${err.message}`);
-        }
-        process.exit(1);
-      }
+      // WA-204: use structured formatter
+      handleValidationFailure(validation, opts);
 
       for (const warn of validation.warnings) {
-        console.log(`  ⚠ ${warn.path}: ${warn.message}`);
-        if (warn.suggestion) console.log(`    → ${warn.suggestion}`);
+        console.log(`  [warn] ${warn.path}: ${warn.message}`);
+        if (warn.suggestion) console.log(`    -> ${warn.suggestion}`);
       }
 
       await engine.registry.saveSpec(newSpec);

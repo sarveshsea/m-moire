@@ -5,6 +5,117 @@
 
 import { z } from "zod";
 
+// ── WCAG Helpers ────────────────────────────────────────────────
+
+/**
+ * Parse a CSS length string to a px number.
+ * Supports: "16px", "1rem", "0.125rem". Returns NaN for unrecognised units.
+ */
+function parsePxValue(val: string): number {
+  const trimmed = val.trim().toLowerCase();
+  const remMatch = trimmed.match(/^([\d.]+)rem$/);
+  if (remMatch) return parseFloat(remMatch[1]) * 16;
+  const pxMatch = trimmed.match(/^([\d.]+)px$/);
+  if (pxMatch) return parseFloat(pxMatch[1]);
+  return NaN;
+}
+
+/**
+ * Parse a pixel dimension string like "24x24" or "44x44".
+ * Returns null when the format is unrecognised.
+ */
+function parsePixelDimension(val: string): { w: number; h: number } | null {
+  const m = val.trim().toLowerCase().match(/^(\d+)x(\d+)$/);
+  if (!m) return null;
+  return { w: parseInt(m[1], 10), h: parseInt(m[2], 10) };
+}
+
+/**
+ * WA-201 helper — parse any valid touchTarget value into pixel dimensions
+ * and WCAG compliance booleans.
+ *
+ * @param value - "default" | "min-24" | "min-44" | "WxH" (e.g. "32x32")
+ */
+export function parseTouchTarget(value: string): {
+  w: number;
+  h: number;
+  meetsAA: boolean;
+  meetsAAA: boolean;
+} {
+  // Named aliases
+  if (value === "default" || value === "min-24") {
+    return { w: 24, h: 24, meetsAA: true, meetsAAA: false };
+  }
+  if (value === "min-44") {
+    return { w: 44, h: 44, meetsAA: true, meetsAAA: true };
+  }
+  // Pixel dimension strings like "32x32"
+  const dims = parsePixelDimension(value);
+  if (dims) {
+    const meetsAA = dims.w >= 24 && dims.h >= 24;
+    const meetsAAA = dims.w >= 44 && dims.h >= 44;
+    return { ...dims, meetsAA, meetsAAA };
+  }
+  // Fallback — unknown format treated as non-compliant
+  return { w: 0, h: 0, meetsAA: false, meetsAAA: false };
+}
+
+/**
+ * WA-201 — touchTarget Zod schema.
+ * Accepts named aliases ("default", "min-24", "min-44") and pixel strings
+ * ("24x24", "44x44", "32x32"). Rejects any dimension below 24px.
+ */
+const TouchTargetSchema = z
+  .union([
+    // Named aliases — always valid
+    z.enum(["default", "min-24", "min-44"]),
+    // Pixel dimension strings — validated against WCAG 2.5.8 AA (24px minimum)
+    z.string().refine(
+      (val) => {
+        const dims = parsePixelDimension(val);
+        if (!dims) return false; // must match WxH format to be accepted here
+        return dims.w >= 24 && dims.h >= 24;
+      },
+      {
+        message: "touchTarget must be at least 24\u00d724px to meet WCAG 2.5.8 AA",
+      }
+    ),
+  ])
+  .describe(
+    "WCAG 2.5.8 AA requires \u226524\u00d724px; WCAG 2.5.5 AAA requires \u226544\u00d744px. " +
+    "Accepts: \"default\", \"min-24\", \"min-44\", or pixel strings like \"32x32\"."
+  );
+
+/**
+ * WA-202 — focusStyle values (unchanged enum members) plus sibling fields.
+ * focusWidth: CSS length \u22652px per WCAG 2.4.11.
+ * focusContrastRatio: min 3:1 per WCAG 2.4.11.
+ */
+const FocusWidthSchema = z
+  .string()
+  .refine(
+    (val) => {
+      const px = parsePxValue(val);
+      return !isNaN(px) && px >= 2;
+    },
+    { message: "Focus indicator must be at least 2px wide to meet WCAG 2.4.11" }
+  )
+  .describe("CSS length for focus ring width — min 2px per WCAG 2.4.11 (e.g. \"2px\", \"0.125rem\")");
+
+/**
+ * WA-203 — colorContrast assertion block.
+ * Declarative intent field; the audit command verifies the actual ratio.
+ */
+const ColorContrastSchema = z
+  .object({
+    foreground: z.string().optional().describe("Foreground colour (hex or CSS variable)"),
+    background: z.string().optional().describe("Background colour (hex or CSS variable)"),
+    minimumLevel: z.enum(["AA", "AAA"]).default("AA").describe("Required WCAG contrast level"),
+    assertedRatio: z.number().optional().describe("Documented contrast ratio — verified by audit command"),
+  })
+  .optional()
+  .describe("WCAG 1.4.3/1.4.6 colour-contrast assertion — for documentation; verified at audit time");
+
 // ── Component Spec ──────────────────────────────────────────────
 
 export const AtomicLevelSchema = z.enum(["atom", "molecule", "organism", "template"]).describe(
@@ -39,11 +150,17 @@ export const ComponentSpecSchema = z.object({
     role: z.string().optional().describe("ARIA role (e.g. 'button', 'dialog', 'tablist')"),
     ariaLabel: z.enum(["required", "optional", "none"]).default("optional").describe("Whether aria-label is required for this component"),
     keyboardNav: z.boolean().default(false).describe("Whether component needs keyboard navigation beyond Tab"),
+    // WA-202: focusStyle keeps the same enum values; focusWidth and focusContrastRatio are new
     focusStyle: z.enum(["outline", "ring", "custom", "none"]).default("outline").describe("Focus indicator style — must meet WCAG 2.4.11"),
-    touchTarget: z.enum(["default", "min-24", "min-44"]).default("default").describe("Minimum touch target size — 24px for AA (2.5.8), 44px for AAA (2.5.5)"),
+    focusWidth: FocusWidthSchema.default("2px").describe("Focus ring width — min 2px per WCAG 2.4.11"),
+    focusContrastRatio: z.number().min(3, "Focus indicator contrast ratio must be at least 3:1 to meet WCAG 2.4.11").optional().describe("Contrast ratio of focus indicator against adjacent background — min 3:1 per WCAG 2.4.11"),
+    // WA-201: touchTarget replaced with rich union validator
+    touchTarget: TouchTargetSchema.default("default").describe("Minimum touch target size — 24px for AA (WCAG 2.5.8), 44px for AAA (WCAG 2.5.5)"),
     reducedMotion: z.boolean().default(false).describe("Whether component has animations that need prefers-reduced-motion handling"),
     liveRegion: z.enum(["off", "polite", "assertive"]).default("off").describe("aria-live behavior for dynamic content updates"),
     colorIndependent: z.boolean().default(true).describe("Whether info is conveyed without relying solely on color (WCAG 1.4.1)"),
+    // WA-203: declarative colour-contrast assertion
+    colorContrast: ColorContrastSchema,
   }).default({}),
   dataviz: z.string().nullable().default(null).describe("Linked dataviz spec name if this is a chart wrapper"),
   tags: z.array(z.string()).default([]),
