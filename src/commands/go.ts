@@ -30,6 +30,7 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
     .option("--no-preview", "Skip starting the preview server")
     .option("--no-generate", "Skip code generation (pull and auto-spec only)")
     .option("--no-figma", "Skip Figma connection (offline mode — generate from existing specs)")
+    .option("--rest", "Pull via Figma REST API instead of plugin (skips connect step)")
     .option("-p, --port <port>", "Preview server port", "3333")
     .option("--json", "Output pipeline results as JSON")
     .action(async (opts) => {
@@ -52,10 +53,14 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
       initSpinner?.stop();
       if (!json) console.log(ui.ok("Project initialized"));
 
-      // 2. Connect to Figma (skip if --no-figma)
+      // 2. Connect to Figma (skip if --no-figma or --rest)
       if (opts.figma === false) {
         steps.figma.skipped = true;
         if (!json) console.log(ui.skip("Figma connection (offline mode)"));
+      } else if (opts.rest) {
+        // REST mode — skip WebSocket connection entirely
+        steps.figma.skipped = true;
+        if (!json) console.log(ui.skip("Figma plugin (REST mode)"));
       } else if (!engine.figma.isConnected) {
         try {
           const port = await engine.connectFigma();
@@ -75,8 +80,22 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
         if (!json) console.log(ui.ok("Figma already connected"));
       }
 
-      // 3. Pull design system (only if Figma connected)
-      if (opts.figma !== false && engine.figma.isConnected) {
+      // 3. Pull design system
+      if (opts.rest && opts.figma !== false) {
+        // REST pull — no plugin needed
+        const pullSpinner = !json ? ora({ text: "Pulling design system via REST API...", indent: 2, color: "cyan" }).start() : null;
+        try {
+          await engine.pullDesignSystemREST();
+          const ds = engine.registry.designSystem;
+          steps.pull = { completed: true, tokens: ds.tokens.length, components: ds.components.length };
+          pullSpinner?.stop();
+          if (!json) console.log(ui.ok(`Pulled ${ds.tokens.length} tokens, ${ds.components.length} components (REST)`));
+        } catch (err) {
+          pullSpinner?.stop();
+          steps.figma.error = err instanceof Error ? err.message : String(err);
+          if (!json) console.log(ui.warn("REST pull failed: " + steps.figma.error));
+        }
+      } else if (opts.figma !== false && engine.figma.isConnected) {
         const pullSpinner = !json ? ora({ text: "Pulling design system...", indent: 2, color: "cyan" }).start() : null;
         await engine.pullDesignSystem();
         const ds = engine.registry.designSystem;

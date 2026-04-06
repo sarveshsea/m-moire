@@ -21,6 +21,7 @@ import { join } from "path";
 import { initWorkspace, readSoul } from "./workspace-init.js";
 import { NoteLoader } from "../notes/loader.js";
 import { CanvasHealer } from "../figma/canvas-healer.js";
+import { extractDesignSystemREST } from "../figma/rest-client.js";
 
 export interface MemoireConfig {
   projectRoot: string;
@@ -332,6 +333,49 @@ export class MemoireEngine extends EventEmitter {
     } satisfies MemoireEvent);
 
     // Auto-generate specs from pulled components
+    const autoResult = await this.autoSpec();
+    if (autoResult > 0) {
+      this.emit("event", {
+        type: "success",
+        source: "auto-spec",
+        message: `Auto-created ${autoResult} component specs from Figma`,
+        timestamp: new Date(),
+      } satisfies MemoireEvent);
+    }
+  }
+
+  /**
+   * Pull design system via Figma REST API — no plugin or WebSocket required.
+   * Requires FIGMA_TOKEN and FIGMA_FILE_KEY in config/env.
+   */
+  async pullDesignSystemREST(force = false): Promise<void> {
+    const token = this.config.figmaToken || process.env.FIGMA_TOKEN;
+    const fileKey = this.config.figmaFileKey || process.env.FIGMA_FILE_KEY;
+
+    if (!token) throw new Error("FIGMA_TOKEN required for REST pull. Add it to .env.local");
+    if (!fileKey) throw new Error("FIGMA_FILE_KEY required for REST pull. Add it to .env.local");
+
+    // Share the same cache as plugin pull
+    const now = Date.now();
+    if (!force && this.pullCache && now - this.pullCache.pulledAt < MemoireEngine.PULL_CACHE_TTL_MS) {
+      this.log.info({ cachedAgoMs: now - this.pullCache.pulledAt }, "Design system pull skipped — cache still fresh");
+      return;
+    }
+
+    const designSystem = await extractDesignSystemREST(fileKey, token);
+    await this.registry.updateDesignSystem(designSystem);
+
+    const hash = `${designSystem.tokens.length}-${designSystem.components.length}-${designSystem.styles.length}`;
+    this.pullCache = { hash, pulledAt: now };
+
+    this.emit("event", {
+      type: "success",
+      source: "figma-rest",
+      message: `Design system pulled via REST — ${designSystem.tokens.length} tokens, ${designSystem.components.length} components`,
+      timestamp: new Date(),
+      data: designSystem,
+    } satisfies MemoireEvent);
+
     const autoResult = await this.autoSpec();
     if (autoResult > 0) {
       this.emit("event", {
