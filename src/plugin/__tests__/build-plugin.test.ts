@@ -51,7 +51,7 @@ describe("plugin build pipeline", () => {
       expect(hasRawObjectSpread(code)).toBe(false);
       expect(hasRawObjectSpread(html)).toBe(false);
       expect(meta).toContain('"widgetVersion": "2"');
-      expect(meta).toContain('"packageVersion": "0.8.0"');
+      expect(meta).toContain('"packageVersion": "0.9.0"');
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
