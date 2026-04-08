@@ -203,7 +203,7 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
           process.exitCode = 1;
           return;
         }
-        console.error(`  x ${msg}\n`);
+        console.log(ui.fail(msg));
         process.exitCode = 1;
       }
     });
@@ -297,7 +297,7 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
       const note = engine.notes.getNote(name);
 
       if (!note) {
-        console.error(`\n  x Note "${name}" not found.\n`);
+        console.log(ui.fail(`Note "${name}" not found.`));
         process.exitCode = 1;
         return;
       }
