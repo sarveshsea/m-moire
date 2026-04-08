@@ -36,14 +36,26 @@
   "author": "Sarvesh Chidambaram",
   "license": "MIT",
   "keywords": [
-    "design-system",
+    "mcp",
+    "mcp-server",
     "figma",
+    "figma-plugin",
+    "design-system",
+    "design-tokens",
     "ai",
+    "ai-agent",
     "code-generation",
+    "component-generator",
     "shadcn",
+    "shadcn-ui",
+    "tailwind",
     "atomic-design",
     "claude",
-    "design-intelligence"
+    "typescript",
+    "cli",
+    "wcag",
+    "design-intelligence",
+    "cursor"
   ],
   "engines": {
     "node": ">=20.0.0"
