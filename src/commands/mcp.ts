@@ -142,7 +142,7 @@ export function registerMcpCommand(program: Command, engine: MemoireEngine): voi
         }
       }
 
-      console.log(ui.section("AVAILABLE TOOLS (14)"));
+      console.log(ui.section("AVAILABLE TOOLS (20)"));
       console.log();
       const tools = [
         ["pull_design_system", "Pull tokens, components, styles from Figma"],
@@ -150,13 +150,19 @@ export function registerMcpCommand(program: Command, engine: MemoireEngine): voi
         ["create_spec", "Create or update a spec (JSON)"],
         ["generate_code", "Generate code from a spec"],
         ["get_tokens / update_token", "Read or modify design tokens"],
+        ["sync_design_tokens", "Map Figma tokens → Tailwind config"],
         ["capture_screenshot", "Screenshot a Figma node (PNG/SVG)"],
         ["get_selection", "Current Figma selection with properties"],
+        ["get_page_tree", "Figma page structure (pages, frames)"],
         ["compose", "Natural language design intent orchestration"],
         ["run_audit", "Design system quality audit"],
         ["get_research", "Research store (insights, personas)"],
         ["figma_execute", "Run Plugin API code in Figma sandbox"],
-        ["get_page_tree", "Figma page structure (pages, frames)"],
+        ["analyze_design", "AI vision analysis of Figma screenshots"],
+        ["measure_text", "Server-side text measurement"],
+        ["get_ai_usage", "Session token usage and cost"],
+        ["check_bridge_health", "Bridge latency diagnostics"],
+        ["design_doc", "Extract design system from any URL → DESIGN.md"],
       ];
       for (const [name, desc] of tools) {
         console.log(`  ${name.padEnd(28)} ${ui.dim(desc)}`);
