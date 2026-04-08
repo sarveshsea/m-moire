@@ -12,8 +12,8 @@
     }
   },
   "bin": {
-    "memoire": "./dist/index.js",
-    "memi": "./dist/index.js"
+    "memoire": "dist/index.js",
+    "memi": "dist/index.js"
   },
   "scripts": {
     "build": "node scripts/build.mjs",
