@@ -12,6 +12,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import type { IASpec, IANode } from "../specs/types.js";
 import { validateSpec, validateCrossRefs } from "../specs/validator.js";
+import { ui } from "../tui/format.js";
 
 type IAJsonStatus = "completed" | "empty" | "missing";
 
@@ -97,11 +98,11 @@ export interface IAValidateEntry {
 /** Validate spec name is a valid identifier */
 function validateName(name: string): void {
   if (!name || name.length === 0) {
-    console.error("\n  IA spec name cannot be empty.\n");
+    console.log(ui.fail("IA spec name cannot be empty."));
     process.exit(1);
   }
   if (!/^[A-Za-z][A-Za-z0-9_-]*$/.test(name)) {
-    console.error("\n  IA spec name must start with a letter and contain only letters, numbers, hyphens, or underscores.\n");
+    console.log(ui.fail("IA spec name must start with a letter and contain only letters, numbers, hyphens, or underscores."));
     process.exit(1);
   }
 }
@@ -141,13 +142,13 @@ export function registerIACommand(program: Command, engine: MemoireEngine) {
       await engine.init();
 
       if (!engine.figma.isConnected) {
-        console.error("\n  Not connected to Figma. Run `memi connect` first.\n");
+        console.log(ui.fail("Not connected to Figma. Run `memi connect` first."));
         process.exit(1);
       }
 
       const depth = parseInt(opts.depth, 10);
       if (isNaN(depth) || depth < 1 || depth > 10) {
-        console.error("\n  Depth must be 1-10.\n");
+        console.log(ui.fail("Depth must be 1-10."));
         process.exit(1);
       }
 
@@ -157,9 +158,9 @@ export function registerIACommand(program: Command, engine: MemoireEngine) {
 
       const validation = validateSpec(iaSpec);
       if (!validation.valid) {
-        console.error("\n  IA spec validation failed:");
+        console.log(ui.fail("IA spec validation failed:"));
         for (const err of validation.errors) {
-          console.error(`    - ${err.path}: ${err.message}`);
+          console.log(`    - ${err.path}: ${err.message}`);
         }
         process.exit(1);
       }
@@ -255,7 +256,7 @@ export function registerIACommand(program: Command, engine: MemoireEngine) {
           return;
         }
 
-        console.error(`\n  IA spec "${name}" not found.\n`);
+        console.log(ui.fail(`IA spec "${name}" not found.`));
         process.exit(1);
       }
 
@@ -368,7 +369,7 @@ export function registerIACommand(program: Command, engine: MemoireEngine) {
 
         if (!validation.valid) {
           for (const err of validation.errors) {
-            console.error(`    ✗ ${err.path}: ${err.message}`);
+            console.log(`    x ${err.path}: ${err.message}`);
           }
         }
 

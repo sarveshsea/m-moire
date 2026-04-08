@@ -3,6 +3,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import type { AnySpec, ComponentSpec, PageSpec, DataVizSpec, DesignSpec } from "../specs/types.js";
 import { validateSpec } from "../specs/validator.js";
 import { inferAtomicLevel } from "../utils/naming.js";
+import { ui } from "../tui/format.js";
 
 // ── WA-204: Validation error formatter ──────────────────────────
 
@@ -28,15 +29,15 @@ function handleValidationFailure(
   }));
 
   if (opts.json) {
-    console.error(JSON.stringify({ status: "error", errors: formatted }, null, 2));
+    console.log(JSON.stringify({ status: "error", errors: formatted }, null, 2));
   } else {
-    console.error("\n  spec validation failed:");
+    console.log(ui.fail("spec validation failed:"));
     for (const e of formatted) {
       // Align field labels to a consistent width for readability
       const label = `[${e.field}]`.padEnd(20);
-      console.error(`    ${label} ${e.message}`);
+      console.log(`    ${label} ${e.message}`);
     }
-    console.error();
+    console.log();
   }
   process.exit(1);
 }
@@ -74,11 +75,11 @@ interface SpecListPayload {
 /** Validate spec name is a valid identifier */
 function validateName(name: string): void {
   if (!name || name.length === 0) {
-    console.error("\n  Spec name cannot be empty.\n");
+    console.log(ui.fail("Spec name cannot be empty."));
     process.exit(1);
   }
   if (!/^[A-Za-z][A-Za-z0-9_-]*$/.test(name)) {
-    console.error("\n  Spec name must start with a letter and contain only letters, numbers, hyphens, or underscores.\n");
+    console.log(ui.fail("Spec name must start with a letter and contain only letters, numbers, hyphens, or underscores."));
     process.exit(1);
   }
 }

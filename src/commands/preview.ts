@@ -15,6 +15,7 @@ import type { PreviewData } from "../preview/templates/types.js";
 import { writeFile, mkdir, readFile } from "fs/promises";
 import { join, basename } from "path";
 import { spawn } from "child_process";
+import { ui } from "../tui/format.js";
 
 function isBindError(err: Error & { code?: string }): boolean {
   return err.code === "EADDRINUSE" || err.code === "EACCES" || err.code === "EPERM";
@@ -29,7 +30,7 @@ export function registerPreviewCommand(program: Command, engine: MemoireEngine) 
     .action(async (opts) => {
       const port = parseInt(opts.port, 10);
       if (isNaN(port) || port < 1024 || port > 65535) {
-        console.error("\n  Invalid port. Must be 1024-65535.\n");
+        console.log(ui.fail("Invalid port. Must be 1024-65535."));
         process.exit(1);
       }
 
@@ -106,10 +107,10 @@ export function registerPreviewCommand(program: Command, engine: MemoireEngine) 
         });
       } catch (err) {
         const error = err as Error & { code?: string };
-        console.error(`\n  Failed to start API server: ${error.message}`);
+        console.log(ui.fail(`Failed to start API server: ${error.message}`));
 
         if (isBindError(error)) {
-          console.error("  Resolve the port issue and retry with --port if needed.\n");
+          console.log(ui.warn("Resolve the port issue and retry with --port if needed."));
           process.exitCode = 1;
           return;
         }
@@ -124,7 +125,7 @@ export function registerPreviewCommand(program: Command, engine: MemoireEngine) 
           child.on("error", (serveErr) => {
             console.log(`  npx serve failed (${serveErr.message}), falling back to python3...`);
             const fb = spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });
-            fb.on("error", (e) => console.error(`  Python server failed: ${e.message}`));
+            fb.on("error", (e) => console.log(ui.fail(`Python server failed: ${e.message}`)));
           });
         } catch {
           const fb = spawn("python3", ["-m", "http.server", String(port)], { cwd: previewDir, stdio: "inherit" });

@@ -7,6 +7,7 @@
  */
 
 import * as net from "net";
+import { spawnSync } from "child_process";
 
 /** Default port range for Mémoire bridge instances. */
 export const BRIDGE_PORT_START = 9223;
@@ -57,4 +58,71 @@ export async function findAvailablePort(
   throw new Error(
     `No available ports (${start}-${end}). Close other Mémoire instances first.`,
   );
+}
+
+/**
+ * Try to find the PID that is currently listening on `port`.
+ *
+ * Uses `lsof` on macOS/Linux and `netstat` on Windows. Returns `null`
+ * when the PID cannot be determined (missing tool, permission error,
+ * or no listener found). Never throws — failures are silently swallowed
+ * so callers can always fall back to a generic "port in use" message.
+ */
+export function getPortOwnerPid(port: number): number | null {
+  try {
+    if (process.platform === "win32") {
+      // netstat -ano lists PID for each TCP listener
+      const result = spawnSync("netstat", ["-ano"], {
+        stdio: ["ignore", "pipe", "ignore"],
+        encoding: "utf-8",
+      });
+      if (result.status !== 0 || !result.stdout) return null;
+      const re = new RegExp(`0\\.0\\.0\\.0:${port}\\s+.*\\s+(\\d+)`, "m");
+      const match = result.stdout.match(re);
+      return match ? parseInt(match[1], 10) : null;
+    } else {
+      // lsof -iTCP:<port> -sTCP:LISTEN -n -P -t → just the PID
+      const result = spawnSync(
+        "lsof",
+        ["-nP", `-iTCP:${port}`, "-sTCP:LISTEN", "-t"],
+        { stdio: ["ignore", "pipe", "ignore"], encoding: "utf-8" },
+      );
+      if (result.status !== 0 || !result.stdout?.trim()) return null;
+      const pid = parseInt(result.stdout.trim().split("\n")[0], 10);
+      return isNaN(pid) ? null : pid;
+    }
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Returns `true` when `pid` belongs to a known Mémoire / Node.js process
+ * that is likely part of the same npm package.
+ *
+ * Heuristic: checks whether the process command line contains the string
+ * "memoire" or "memi" (the CLI binary name). This is not foolproof but is
+ * sufficient to distinguish a stale Mémoire instance from a genuinely
+ * foreign process.
+ */
+export function isMemoireProcess(pid: number): boolean {
+  try {
+    if (process.platform === "win32") {
+      const result = spawnSync("wmic", ["process", "where", `ProcessId=${pid}`, "get", "CommandLine"], {
+        stdio: ["ignore", "pipe", "ignore"],
+        encoding: "utf-8",
+      });
+      const cmd = result.stdout?.toLowerCase() ?? "";
+      return cmd.includes("memoire") || cmd.includes("memi");
+    } else {
+      const result = spawnSync("ps", ["-p", String(pid), "-o", "command="], {
+        stdio: ["ignore", "pipe", "ignore"],
+        encoding: "utf-8",
+      });
+      const cmd = result.stdout?.toLowerCase() ?? "";
+      return cmd.includes("memoire") || cmd.includes("memi");
+    }
+  } catch {
+    return false;
+  }
 }

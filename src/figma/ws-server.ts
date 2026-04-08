@@ -17,7 +17,7 @@ import {
   type BridgeEnvelope,
 } from "../plugin/shared/bridge.js";
 import type { AgentBoxState, WidgetCommandName } from "../plugin/shared/contracts.js";
-import { BRIDGE_PORT_START, BRIDGE_PORT_END, isPortInUse } from "./port-scanner.js";
+import { BRIDGE_PORT_START, BRIDGE_PORT_END, isPortInUse, getPortOwnerPid, isMemoireProcess } from "./port-scanner.js";
 
 const log = createLogger("ws-server");
 
@@ -159,8 +159,18 @@ export class MemoireWsServer extends EventEmitter {
       try {
         const inUse = await isPortInUse(p);
         if (inUse) {
-          // Port is occupied — log a warning and skip
-          log.warn(`Port ${p} in use — skipping (another Mémoire instance or foreign process)`);
+          // Try to identify the owning process for a more actionable warning
+          const pid = getPortOwnerPid(p);
+          if (pid !== null) {
+            const isMemi = isMemoireProcess(pid);
+            if (isMemi) {
+              log.warn(`Port ${p} in use by PID ${pid} (Mémoire instance) — skipping`);
+            } else {
+              log.warn(`Port ${p} in use by PID ${pid} (not Mémoire) — skipping`);
+            }
+          } else {
+            log.warn(`Port ${p} in use — skipping (could not identify owning process)`);
+          }
           continue;
         }
       } catch {
