@@ -20,6 +20,7 @@ import {
   type NoteCategory,
 } from "../notes/index.js";
 import type { InstalledNote, NoteManifest } from "../notes/index.js";
+import { ui } from "../tui/format.js";
 
 type NoteMutationAction = "install" | "create" | "remove";
 type NoteMutationStatus = "completed" | "failed";
@@ -96,7 +97,7 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
           process.exitCode = 1;
           return;
         }
-        console.error(`  x Failed to install: ${msg}\n`);
+        console.log(ui.fail(`Failed to install: ${msg}`));
         process.exitCode = 1;
       }
     });
@@ -235,7 +236,7 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
           process.exitCode = 1;
           return;
         }
-        console.error(`  x Invalid category "${category}". Use: ${validCategories.join(", ")}\n`);
+        console.log(ui.fail(`Invalid category "${category}". Use: ${validCategories.join(", ")}`));
         process.exitCode = 1;
         return;
       }
@@ -280,7 +281,7 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
           process.exitCode = 1;
           return;
         }
-        console.error(`  x ${msg}\n`);
+        console.log(ui.fail(msg));
         process.exitCode = 1;
       }
     });

@@ -3,6 +3,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import { join } from "path";
 import { existsSync } from "fs";
 import { PreviewApiServer } from "../preview/api-server.js";
+import { ui } from "../tui/format.js";
 
 export function registerDashboardCommand(program: Command, engine: MemoireEngine) {
   program
@@ -13,7 +14,7 @@ export function registerDashboardCommand(program: Command, engine: MemoireEngine
     .action(async (opts) => {
       const port = parseInt(opts.port, 10);
       if (isNaN(port) || port < 1024 || port > 65535) {
-        console.error("\n  Invalid port. Must be 1024-65535.\n");
+        console.log(ui.fail("Invalid port. Must be 1024-65535."));
         process.exit(1);
       }
 
@@ -21,7 +22,7 @@ export function registerDashboardCommand(program: Command, engine: MemoireEngine
 
       const previewDir = join(engine.config.projectRoot, "preview");
       if (!existsSync(previewDir)) {
-        console.error("\n  No preview/ directory found. Run `memi init` first.\n");
+        console.log(ui.fail("No preview/ directory found. Run `memi init` first."));
         process.exit(1);
       }
 

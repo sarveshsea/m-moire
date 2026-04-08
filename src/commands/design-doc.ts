@@ -15,6 +15,8 @@ import { writeFile, mkdir } from "fs/promises";
 import { join, dirname, isAbsolute } from "path";
 import { fetchPageAssets, parseCSSTokens, type RawDesignTokens, type ContrastPair } from "../research/css-extractor.js";
 import { getAI, hasAI } from "../ai/client.js";
+import { formatElapsed } from "../utils/format.js";
+import { ui } from "../tui/format.js";
 
 export interface DesignDocPayload {
   status: "completed" | "failed";
@@ -125,7 +127,7 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
 
         console.log(`\n  Written: ${outputPath}`);
         if (specPath) console.log(`  Spec:    ${specPath}`);
-        console.log(`\n  ${(elapsed / 1000).toFixed(1)}s\n`);
+        console.log(`\n  ${formatElapsed(elapsed)}\n`);
 
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -144,7 +146,8 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
           process.exitCode = 1;
           return;
         }
-        console.error(`\n  Error: ${msg}\n`);
+        console.log(ui.fail(`Error: ${msg}`));
+        console.log();
         process.exitCode = 1;
       }
     });

@@ -149,7 +149,7 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
         figmaPort = await engine.connectFigma();
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        console.error(`\n  Failed to start Figma bridge: ${msg}\n`);
+        console.log(ui.fail(`Failed to start Figma bridge: ${msg}`));
         process.exit(1);
       }
       const tFigmaDone = Date.now();
@@ -163,7 +163,7 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
         actualPreviewPort = await previewServer.start();
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        console.error(`\n  Failed to start preview server: ${msg}\n`);
+        console.log(ui.fail(`Failed to start preview server: ${msg}`));
         process.exit(1);
       }
       const tPreviewDone = Date.now();
@@ -301,7 +301,7 @@ export function registerDaemonCommand(program: Command, engine: MemoireEngine): 
         console.log(`\n  Sent SIGTERM to daemon (PID ${pid}).`);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        console.error(`\n  Failed to stop daemon: ${msg}\n`);
+        console.log(ui.fail(`Failed to stop daemon: ${msg}`));
         return;
       }
 

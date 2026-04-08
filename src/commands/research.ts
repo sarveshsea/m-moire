@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { join } from "path";
 import { existsSync } from "fs";
+import { ui } from "../tui/format.js";
 
 type ResearchAction = "from-file" | "from-stickies" | "from-transcript" | "web" | "synthesize" | "report";
 
@@ -62,7 +63,7 @@ export function registerResearchCommand(program: Command, engine: MemoireEngine)
     .action(async (filePath: string, opts: { json?: boolean }) => {
       const json = Boolean(opts.json);
       if (!existsSync(filePath)) {
-        console.error(`\n  File not found: ${filePath}\n`);
+        console.log(ui.fail(`File not found: ${filePath}`));
         process.exitCode = 1;
         return;
       }
@@ -165,7 +166,7 @@ export function registerResearchCommand(program: Command, engine: MemoireEngine)
     .action(async (filePath: string, opts: { label?: string; json?: boolean }) => {
       const json = Boolean(opts.json);
       if (!existsSync(filePath)) {
-        console.error(`\n  File not found: ${filePath}\n`);
+        console.log(ui.fail(`File not found: ${filePath}`));
         process.exitCode = 1;
         return;
       }

@@ -9,6 +9,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import { access, readdir, constants } from "fs/promises";
 import { join } from "path";
 import { resolvePluginHealth } from "../plugin/install-info.js";
+import { formatElapsed } from "../utils/format.js";
 
 type CheckStatus = "pass" | "warn" | "fail";
 type CheckCategory = "project" | "design" | "plugin" | "bridge" | "runtime" | "workspace";
@@ -44,6 +45,7 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
     .description("Run self-diagnostic checks on the Memoire engine")
     .option("--json", "Output doctor results as JSON")
     .action(async (opts: { json?: boolean }) => {
+      const start = Date.now();
       const results: CheckResult[] = [];
       const push = (
         code: string,
@@ -347,7 +349,7 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
       const payload = buildDoctorPayload(results);
 
       if (opts.json) {
-        console.log(JSON.stringify(payload, null, 2));
+        console.log(JSON.stringify({ ok: payload.summary.fail === 0, elapsed: formatElapsed(Date.now() - start), data: payload }, null, 2));
         return;
       }
 

@@ -28,6 +28,7 @@ import {
 } from "../figma/rest-client.js";
 import { resolvePluginHealth } from "../plugin/install-info.js";
 import { ui } from "../tui/format.js";
+import { readEnvValueRaw } from "../utils/env.js";
 
 // ── Helpers ───────────────────────────────────────────────
 
@@ -42,16 +43,9 @@ function ask(question: string, defaultVal?: string): Promise<string> {
   });
 }
 
+/** Read a config value from env/files — delegates to shared utility. */
 async function readEnvValue(root: string, key: string): Promise<string | null> {
-  if (process.env[key]?.trim()) return process.env[key]!.trim();
-  for (const file of [".env.local", ".env"]) {
-    try {
-      const content = await readFile(join(root, file), "utf-8");
-      const match = content.match(new RegExp(`^${key}\\s*=\\s*"?([^"\\n]+)"?`, "m"));
-      if (match) return match[1].trim();
-    } catch { /* file doesn't exist */ }
-  }
-  return null;
+  return readEnvValueRaw(root, key);
 }
 
 async function writeEnvVar(root: string, key: string, value: string): Promise<void> {

@@ -11,6 +11,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import { watch } from "fs";
 import { readdir, stat } from "fs/promises";
 import { join, basename } from "path";
+import { ui } from "../tui/format.js";
 
 export function registerWatchCommand(program: Command, engine: MemoireEngine) {
   program
@@ -28,7 +29,7 @@ export function registerWatchCommand(program: Command, engine: MemoireEngine) {
       try {
         await stat(specsRoot);
       } catch {
-        console.error("\n  x No specs/ directory found. Create specs first with: memi spec <type> <name>\n");
+        console.log(ui.fail("No specs/ directory found. Create specs first with: memi spec <type> <name>"));
         process.exitCode = 1;
         return;
       }
@@ -67,7 +68,7 @@ export function registerWatchCommand(program: Command, engine: MemoireEngine) {
           console.log(`  + ${specName} -> ${entryFile}`);
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
-          console.error(`  x Failed to regenerate ${specName}: ${msg}`);
+          console.log(ui.fail(`Failed to regenerate ${specName}: ${msg}`));
         } finally {
           generating = false;
         }

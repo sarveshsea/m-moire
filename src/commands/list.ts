@@ -1,5 +1,6 @@
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
+import { formatElapsed } from "../utils/format.js";
 
 export interface ListPayload {
   type: string;
@@ -13,12 +14,13 @@ export function registerListCommand(program: Command, engine: MemoireEngine) {
     .description("List specs, tokens, components, or styles (default: specs)")
     .option("--json", "Output as JSON")
     .action(async (type: string | undefined, opts: { json?: boolean }) => {
+      const start = Date.now();
       await engine.init();
       const target = type ?? "specs";
       const payload = await collectList(engine, target);
 
       if (opts.json) {
-        console.log(JSON.stringify(payload, null, 2));
+        console.log(JSON.stringify({ ok: true, elapsed: formatElapsed(Date.now() - start), data: payload }, null, 2));
         return;
       }
 

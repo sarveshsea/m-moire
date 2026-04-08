@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { hasAI, getTracker } from "../ai/index.js";
 import { ui } from "../tui/format.js";
+import { formatElapsed } from "../utils/format.js";
 
 export interface StatusPayload {
   project: {
@@ -51,10 +52,11 @@ export function registerStatusCommand(program: Command, engine: MemoireEngine) {
     .description("Show project status")
     .option("--json", "Output status as JSON")
     .action(async (opts: { json?: boolean }) => {
+      const start = Date.now();
       const payload = await collectStatus(engine);
 
       if (opts.json) {
-        console.log(JSON.stringify(payload, null, 2));
+        console.log(JSON.stringify({ ok: true, elapsed: formatElapsed(Date.now() - start), data: payload }, null, 2));
         return;
       }
 

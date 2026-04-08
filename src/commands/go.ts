@@ -9,6 +9,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import ora from "ora";
 import { ui } from "../tui/format.js";
+import { formatElapsed } from "../utils/format.js";
 
 export interface GoPayload {
   status: "completed" | "partial" | "failed";
@@ -174,8 +175,7 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
       console.log();
       console.log(ui.rule());
       console.log();
-      const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-      console.log(ui.ready("LIVE") + ui.dim(`  ${elapsed}s`));
+      console.log(ui.ready("LIVE") + ui.dim(`  ${formatElapsed(Date.now() - start)}`));
       console.log();
     });
 }

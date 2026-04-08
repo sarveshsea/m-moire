@@ -2,7 +2,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import type { BridgeClient } from "../figma/ws-server.js";
 
-import { readFile, writeFile, unlink } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { join, dirname } from "path";
 import { spawn } from "child_process";
 import { fileURLToPath } from "url";
@@ -11,13 +11,12 @@ import chalk from "chalk";
 import { resolvePluginHealth, type PluginInstallHealth } from "../plugin/install-info.js";
 import { validateFigmaToken } from "../figma/rest-client.js";
 import { ui } from "../tui/format.js";
+import { readEnvValue, type EnvValue, type EnvSource } from "../utils/env.js";
+import { readBridgeLock, writeBridgeLock, clearBridgeLock } from "../figma/bridge-lock.js";
 
-type ConfigSource = "process" | ".env.local" | ".env" | "missing";
-
-interface ExistingConfigValue {
-  value: string | null;
-  source: ConfigSource;
-}
+// Alias shared type so ConnectJsonPayload signatures remain readable
+type ConfigSource = EnvSource;
+type ExistingConfigValue = EnvValue;
 
 interface ConnectJsonPayload {
   status: "needs-setup" | "connected" | "failed";
@@ -91,34 +90,9 @@ function ask(question: string, defaultVal?: string): Promise<string> {
   });
 }
 
-/** Check process env, .env.local, and .env for a config value */
+/** Check process env, .env.local, and .env for a config value — delegates to shared util. */
 async function findExistingEnvValue(root: string, key: string): Promise<ExistingConfigValue> {
-  if (process.env[key]?.trim()) {
-    return {
-      value: process.env[key]!.trim(),
-      source: "process",
-    };
-  }
-
-  for (const file of [".env.local", ".env"] as const) {
-    try {
-      const content = await readFile(join(root, file), "utf-8");
-      const match = content.match(new RegExp(`^${key}\\s*=\\s*"?([^"\\n]+)"?`, "m"));
-      if (match) {
-        return {
-          value: match[1].trim(),
-          source: file,
-        };
-      }
-    } catch {
-      // file doesn't exist
-    }
-  }
-
-  return {
-    value: null,
-    source: "missing",
-  };
+  return readEnvValue(root, key);
 }
 
 function buildSetupPayload(
@@ -275,19 +249,16 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
 
         // Poll bridge.json for up to 8 seconds to confirm the child started
         const root = engine.config.projectRoot;
-        const bridgeLockPath = join(root, ".memoire", "bridge.json");
         const pollStart = Date.now();
         let port: number | null = null;
 
         while (Date.now() - pollStart < 8000) {
           await new Promise((r) => setTimeout(r, 400));
-          try {
-            const raw = await readFile(bridgeLockPath, "utf-8");
-            const lock = JSON.parse(raw) as { port: number; pid: number };
-            if (lock.port && lock.pid) {
-              try { process.kill(lock.pid, 0); port = lock.port; break; } catch { /* stale */ }
-            }
-          } catch { /* not written yet */ }
+          const lock = await readBridgeLock(root).catch(() => null);
+          if (lock?.port) {
+            port = lock.port;
+            break;
+          }
         }
 
         if (opts.json) {
@@ -507,9 +478,8 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
         console.log(ui.dots("Manifest", plugin.manifestPath));
 
         // ── Write bridge lock so `memi pull` can reuse this bridge ──
-        const bridgeLockPath = join(root, ".memoire", "bridge.json");
-        await writeFile(bridgeLockPath, JSON.stringify({ pid: process.pid, port, startedAt: new Date().toISOString() }));
-        const cleanupBridgeLock = () => unlink(bridgeLockPath).catch(() => {});
+        await writeBridgeLock(root, port);
+        const cleanupBridgeLock = () => clearBridgeLock(root).catch(() => {});
         process.once("exit", cleanupBridgeLock);
         process.once("SIGTERM", () => { cleanupBridgeLock(); process.exit(0); });
         process.once("SIGHUP", () => { cleanupBridgeLock(); process.exit(0); });
