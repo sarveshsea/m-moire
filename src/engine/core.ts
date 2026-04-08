@@ -16,7 +16,7 @@ import { TaskQueue } from "../agents/task-queue.js";
 import { AgentBridge } from "../agents/agent-bridge.js";
 import { createLogger } from "./logger.js";
 import { EventEmitter } from "events";
-import { readFile, writeFile, mkdir } from "fs/promises";
+import { readFile, writeFile, mkdir, access } from "fs/promises";
 import { join } from "path";
 import { initWorkspace, readSoul } from "./workspace-init.js";
 import { NoteLoader } from "../notes/loader.js";
@@ -195,6 +195,13 @@ export class MemoireEngine extends EventEmitter {
 
     this.log.info("Initializing Mémoire engine...");
 
+    // Load .env.local / .env so FIGMA_TOKEN etc. are available without shell export
+    await this._loadEnvFile(".env.local");
+    await this._loadEnvFile(".env");
+    if (!this.config.figmaToken && process.env.FIGMA_TOKEN) this.config.figmaToken = process.env.FIGMA_TOKEN;
+    if (!this.config.figmaFileKey && process.env.FIGMA_FILE_KEY) this.config.figmaFileKey = process.env.FIGMA_FILE_KEY;
+    if (!this.config.anthropicApiKey && process.env.ANTHROPIC_API_KEY) this.config.anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+
     // Ensure .memoire directory exists and initialize workspace
     const memoireDir = join(this.config.projectRoot, ".memoire");
     await mkdir(memoireDir, { recursive: true });
@@ -315,6 +322,24 @@ export class MemoireEngine extends EventEmitter {
         resolve();
       }
     });
+  }
+
+  /** Parse and inject a .env file into process.env (no-op if file absent) */
+  private async _loadEnvFile(filename: string): Promise<void> {
+    const envPath = join(this.config.projectRoot, filename);
+    try {
+      await access(envPath);
+      const raw = await readFile(envPath, "utf-8");
+      for (const line of raw.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const eq = trimmed.indexOf("=");
+        if (eq < 1) continue;
+        const key = trimmed.slice(0, eq).trim();
+        const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
+        if (key && !(key in process.env)) process.env[key] = val;
+      }
+    } catch { /* file doesn't exist — skip */ }
   }
 
   /** Read bridge lock written by `memi connect` — lets pull/sync reuse an existing bridge */
