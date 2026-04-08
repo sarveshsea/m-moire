@@ -610,7 +610,7 @@ async function getVariables(): Promise<unknown> {
 }
 
 function getComponents(): unknown[] {
-  const components = figma.currentPage.findAll((node: any) => node.type === "COMPONENT" || node.type === "COMPONENT_SET");
+  const components = figma.root.findAll((node: any) => node.type === "COMPONENT" || node.type === "COMPONENT_SET");
   return components.map((component: any) => ({
     id: component.id,
     name: component.name,
