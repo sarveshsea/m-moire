@@ -32,30 +32,46 @@ async function collectList(engine: MemoireEngine, type: string): Promise<ListPay
   switch (type) {
     case "specs": {
       const specs = await engine.registry.getAllSpecs();
+      const sorted = [...specs].sort((a, b) => {
+        const typeCmp = (a.type ?? "").localeCompare(b.type ?? "");
+        return typeCmp !== 0 ? typeCmp : a.name.localeCompare(b.name);
+      });
       return {
         type: "specs",
-        items: specs.map((s) => ({ name: s.name, type: s.type, level: "level" in s ? s.level : undefined })),
-        count: specs.length,
+        items: sorted.map((s) => ({ name: s.name, type: s.type, level: "level" in s ? s.level : undefined })),
+        count: sorted.length,
       };
     }
-    case "tokens":
+    case "tokens": {
+      const sorted = [...ds.tokens].sort((a, b) => {
+        const typeCmp = (a.type ?? "").localeCompare(b.type ?? "");
+        return typeCmp !== 0 ? typeCmp : a.name.localeCompare(b.name);
+      });
       return {
         type: "tokens",
-        items: ds.tokens.map((t) => ({ name: t.name, type: t.type })),
-        count: ds.tokens.length,
+        items: sorted.map((t) => ({ name: t.name, type: t.type })),
+        count: sorted.length,
       };
-    case "components":
+    }
+    case "components": {
+      const sorted = [...ds.components].sort((a, b) => a.name.localeCompare(b.name));
       return {
         type: "components",
-        items: ds.components.map((c) => ({ name: c.name, key: c.key })),
-        count: ds.components.length,
+        items: sorted.map((c) => ({ name: c.name, key: c.key })),
+        count: sorted.length,
       };
-    case "styles":
+    }
+    case "styles": {
+      const sorted = [...ds.styles].sort((a, b) => {
+        const typeCmp = (a.type ?? "").localeCompare(b.type ?? "");
+        return typeCmp !== 0 ? typeCmp : a.name.localeCompare(b.name);
+      });
       return {
         type: "styles",
-        items: ds.styles.map((s) => ({ name: s.name, type: s.type })),
-        count: ds.styles.length,
+        items: sorted.map((s) => ({ name: s.name, type: s.type })),
+        count: sorted.length,
       };
+    }
     default:
       return { type, items: [], count: 0 };
   }
@@ -71,6 +87,20 @@ function printList(payload: ListPayload): void {
   for (const item of payload.items) {
     const suffix = item.type ? ` [${item.type}]` : "";
     console.log(`    ${item.name}${suffix}`);
+  }
+
+  // Summary line for specs
+  if (payload.type === "specs") {
+    const counts: Record<string, number> = {};
+    for (const item of payload.items) {
+      const t = (item.type as string) ?? "unknown";
+      counts[t] = (counts[t] ?? 0) + 1;
+    }
+    const componentCount = counts["component"] ?? 0;
+    const pageCount = counts["page"] ?? 0;
+    const datavizCount = counts["dataviz"] ?? 0;
+    console.log();
+    console.log(`  ${componentCount} component${componentCount !== 1 ? "s" : ""}, ${pageCount} page${pageCount !== 1 ? "s" : ""}, ${datavizCount} dataviz spec${datavizCount !== 1 ? "s" : ""}`);
   }
   console.log();
 }

@@ -73,6 +73,8 @@ export function registerResearchCommand(program: Command, engine: MemoireEngine)
       }
       await engine.research.fromFile(filePath);
 
+      const fileSummary = buildResearchSummary(engine);
+
       if (json) {
         console.log(JSON.stringify({
           action: "from-file",
@@ -82,15 +84,22 @@ export function registerResearchCommand(program: Command, engine: MemoireEngine)
             type: "file",
             path: filePath,
           },
-          summary: buildResearchSummary(engine),
+          summary: fileSummary,
           artifacts: buildResearchArtifacts(engine),
         } satisfies ResearchCommandPayload, null, 2));
         return;
       }
 
-      console.log("\n  Done. Insights saved to research/insights.json");
-      console.log("  Markdown notes written to research/notes/");
-      console.log("  Run `memi preview` to view the research dashboard\n");
+      if (fileSummary.insights === 0) {
+        console.log("\n  Warning: No insights extracted — check your file format");
+        console.log("  Supported formats: Excel (.xlsx), CSV (.csv)");
+        console.log("  Expected columns: response/answer/feedback, rating/score, user/participant\n");
+      } else {
+        console.log(`\n  Extracted ${fileSummary.insights} insight${fileSummary.insights === 1 ? "" : "s"}, ${fileSummary.themes} theme${fileSummary.themes === 1 ? "" : "s"}, ${fileSummary.personas} persona${fileSummary.personas === 1 ? "" : "s"}`);
+        console.log("  Insights saved to research/insights.json");
+        console.log("  Markdown notes written to research/notes/");
+        console.log("  Run `memi preview` to view the research dashboard\n");
+      }
     });
 
   research
@@ -117,12 +126,14 @@ export function registerResearchCommand(program: Command, engine: MemoireEngine)
       const stickies = await engine.figma.extractStickies();
       const result = await engine.research.fromStickies(stickies);
 
+      const stickiesSummary = buildResearchSummary(engine);
+
       if (json) {
         console.log(JSON.stringify({
           action: "from-stickies",
           status: "completed",
           options: { json: true },
-          summary: buildResearchSummary(engine),
+          summary: stickiesSummary,
           artifacts: buildResearchArtifacts(engine),
           stickies: {
             total: result.totalStickies,
@@ -136,9 +147,14 @@ export function registerResearchCommand(program: Command, engine: MemoireEngine)
       }
 
       console.log(`\n  ${result.summary}`);
-      console.log("  Insights saved to research/insights.json");
-      console.log("  Markdown notes written to research/notes/");
-      console.log("  Run `memi preview` to view the research dashboard\n");
+      if (stickiesSummary.insights === 0) {
+        console.log("  Warning: No insights extracted — check your file format");
+      } else {
+        console.log(`  Extracted ${stickiesSummary.insights} insight${stickiesSummary.insights === 1 ? "" : "s"}, ${stickiesSummary.themes} theme${stickiesSummary.themes === 1 ? "" : "s"}, ${stickiesSummary.personas} persona${stickiesSummary.personas === 1 ? "" : "s"}`);
+        console.log("  Insights saved to research/insights.json");
+        console.log("  Markdown notes written to research/notes/");
+        console.log("  Run `memi preview` to view the research dashboard\n");
+      }
     });
 
   research

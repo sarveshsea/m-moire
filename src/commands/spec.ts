@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import type { AnySpec, ComponentSpec, PageSpec, DataVizSpec, DesignSpec } from "../specs/types.js";
 import { validateSpec } from "../specs/validator.js";
+import { inferAtomicLevel } from "../utils/naming.js";
 
 // ── WA-204: Validation error formatter ──────────────────────────
 
@@ -92,15 +93,22 @@ export function registerSpecCommand(program: Command, engine: MemoireEngine) {
     .description("Create a new component spec")
     .option("-b, --base <components...>", "shadcn base components", ["Card"])
     .option("-p, --purpose <text>", "Component purpose")
+    .option("-l, --level <level>", "Atomic design level (atom|molecule|organism|template)")
     .option("--json", "Output errors as JSON")
-    .action(async (name: string, opts: { base: string[]; purpose?: string; json?: boolean }) => {
+    .action(async (name: string, opts: { base: string[]; purpose?: string; level?: string; json?: boolean }) => {
       validateName(name);
       await engine.init();
+
+      // Auto-infer atomic level when --level is not provided
+      const resolvedLevel = (opts.level as ComponentSpec["level"]) ?? inferAtomicLevel(name);
+      if (!opts.level) {
+        console.log(`  Inferred level: ${resolvedLevel} — use --level to override`);
+      }
 
       const newSpec: ComponentSpec = {
         name,
         type: "component",
-        level: "atom",
+        level: resolvedLevel,
         composesSpecs: [],
         codeConnect: { props: {}, mapped: false },
         purpose: opts.purpose ?? `${name} component`,

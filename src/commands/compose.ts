@@ -116,15 +116,18 @@ export function registerComposeCommand(program: Command, engine: MemoireEngine) 
         const orchestrator = new AgentOrchestrator(engine, (plan: AgentPlan) => {
           capturedPlan = serializePlan(plan);
 
-          if (opts.json || !opts.verbose) return;
+          if (opts.json) return;
 
-          console.log(`\n  Plan: ${plan.id} (${plan.subTasks.length} tasks)`);
-          for (const task of plan.subTasks) {
-            const deps = task.dependencies.length > 0
-              ? ` [after: ${task.dependencies.join(", ")}]`
-              : "";
-            console.log(`    ${statusIcon(task.status)} ${task.name} (${task.agentType})${deps}`);
+          // Always print the execution plan before running (or for dry-run)
+          console.log(`\n  Plan (${plan.subTasks.length} step${plan.subTasks.length === 1 ? "" : "s"}):`);
+          for (let i = 0; i < plan.subTasks.length; i++) {
+            const task = plan.subTasks[i];
+            console.log(`    ${i + 1}. ${task.name}`);
           }
+
+          if (opts.dryRun) return; // dry-run stops here — no "Executing..." line
+
+          console.log("  Executing...\n");
         });
 
         const result = await orchestrator.execute(intent, {

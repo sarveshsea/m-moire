@@ -33,7 +33,8 @@ export function registerWatchCommand(program: Command, engine: MemoireEngine) {
         return;
       }
 
-      console.log("\n  Watching specs/ for changes...");
+      console.log("\n  Watching specs/ for changes — will regenerate on save");
+      console.log(`  Trigger: any .json file change inside specs/`);
       console.log(`  Debounce: ${debounceMs}ms\n`);
 
       // Collect all spec subdirectories

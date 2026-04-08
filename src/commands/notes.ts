@@ -153,7 +153,8 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
           console.log(`    ${note.manifest.name}@${note.manifest.version}  [${badge}] [${status}]`);
           console.log(`      ${note.manifest.description}`);
           for (const skill of note.manifest.skills) {
-            console.log(`      skill: ${skill.name} (activates on: ${skill.activateOn})`);
+            const nameCol = skill.name.padEnd(32, " ");
+            console.log(`      skill:      ${nameCol}  activateOn: ${skill.activateOn}`);
           }
         }
         console.log();

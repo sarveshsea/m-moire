@@ -61,9 +61,10 @@ async function executeRestPull(
     if (wcagReport.hasFailures) process.exitCode = 2;
   }
 
+  const after = engine.snapshotDesignSystem?.() ?? ds;
+  const diff = diffDesignSystem(before, after);
+
   if (opts.json) {
-    const after = engine.snapshotDesignSystem?.() ?? ds;
-    const diff = diffDesignSystem(before, after);
     (payload as unknown as Record<string, unknown>).diff = {
       hasChanges: diff.hasChanges,
       summary: diff.summary,
@@ -75,8 +76,24 @@ async function executeRestPull(
     return;
   }
 
-  console.log(`  Done. ${ds.tokens.length} tokens, ${ds.components.length} components, ${ds.styles.length} styles`);
-  console.log(`  Design system saved to .memoire/design-system.json`);
+  console.log(`  Done. Design system saved to .memoire/design-system.json`);
+
+  // Diff summary
+  if (diff.hasChanges) {
+    const tokenAdded = diff.tokens.filter((c) => c.type === "added").length;
+    const tokenRemoved = diff.tokens.filter((c) => c.type === "removed").length;
+    const compAdded = diff.components.filter((c) => c.type === "added").length;
+    const compRemoved = diff.components.filter((c) => c.type === "removed").length;
+    const stylesAdded = diff.styles.filter((c) => c.type === "added").length;
+    const stylesRemoved = diff.styles.filter((c) => c.type === "removed").length;
+    const tokenDiff = tokenAdded > 0 ? `+${tokenAdded}` : tokenRemoved > 0 ? `-${tokenRemoved}` : "0";
+    const compDiff = compAdded > 0 ? `+${compAdded}` : compRemoved > 0 ? `-${compRemoved}` : "0";
+    const stylesDiff = stylesAdded > 0 ? `+${stylesAdded}` : stylesRemoved > 0 ? `-${stylesRemoved}` : "0";
+    console.log(`  ${tokenDiff} tokens, ${compDiff} components, ${stylesDiff} styles changed`);
+  } else {
+    console.log("  Design system up to date");
+  }
+
   if (autoSpecs.length > 0) {
     console.log(`  Auto-generated ${autoSpecs.length} component specs — run \`memi generate\` to create code`);
   }
@@ -236,6 +253,16 @@ export function registerPullCommand(program: Command, engine: MemoireEngine) {
 
       // Show diff
       if (diff.hasChanges) {
+        const tokenAdded = diff.tokens.filter((c) => c.type === "added").length;
+        const tokenRemoved = diff.tokens.filter((c) => c.type === "removed").length;
+        const compAdded = diff.components.filter((c) => c.type === "added").length;
+        const compRemoved = diff.components.filter((c) => c.type === "removed").length;
+        const stylesAdded = diff.styles.filter((c) => c.type === "added").length;
+        const stylesRemoved = diff.styles.filter((c) => c.type === "removed").length;
+        const tokenDiff = tokenAdded > 0 ? `+${tokenAdded}` : tokenRemoved > 0 ? `-${tokenRemoved}` : "0";
+        const compDiff = compAdded > 0 ? `+${compAdded}` : compRemoved > 0 ? `-${compRemoved}` : "0";
+        const stylesDiff = stylesAdded > 0 ? `+${stylesAdded}` : stylesRemoved > 0 ? `-${stylesRemoved}` : "0";
+        console.log(`  ${tokenDiff} tokens, ${compDiff} components, ${stylesDiff} styles changed`);
         console.log();
         if (diff.tokens.length > 0) {
           console.log("  TOKENS");
@@ -260,9 +287,8 @@ export function registerPullCommand(program: Command, engine: MemoireEngine) {
           }
         }
         console.log();
-        console.log(`  ${diff.summary}`);
       } else {
-        console.log("  No changes detected.");
+        console.log("  Design system up to date");
       }
 
       if (autoSpecs.length > 0) {

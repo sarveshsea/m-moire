@@ -177,4 +177,30 @@ function printStatus(p: StatusPayload): void {
   console.log(ui.dots("Installed", String(p.notes.installed)));
   console.log(ui.dots("Total", String(p.notes.total)));
   console.log();
+
+  // ── Next step ─────────────────────────────────────
+  const next = deriveNextStep(p);
+  console.log("  " + ui.dim("Next step:") + "  " + next);
+  console.log();
+}
+
+function deriveNextStep(p: StatusPayload): string {
+  const hasToken = p.ai.apiKey || p.figma.tokens > 0 || p.figma.connected;
+  const hasSpecs = p.specs.total > 0;
+  const hasGenerated = p.specs.generated > 0;
+  const allGenerated = hasSpecs && p.specs.generated >= p.specs.total;
+
+  if (!hasToken && p.figma.tokens === 0 && !p.figma.connected) {
+    return "Run: memi setup";
+  }
+  if (!hasSpecs) {
+    return "Run: memi pull, then memi spec component <Name>";
+  }
+  if (!hasGenerated) {
+    return "Run: memi generate";
+  }
+  if (allGenerated) {
+    return "Run: memi sync --live to keep in sync";
+  }
+  return "Run: memi preview to view";
 }

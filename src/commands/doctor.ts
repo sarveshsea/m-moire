@@ -303,7 +303,28 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
         push("runtime.dependencies", "runtime", "fail", "Dependencies", "node_modules not found");
       }
 
-      // 10. REST credentials (optional — enables plugin-free pull)
+      // 10. .env.local and FIGMA_TOKEN presence
+      {
+        const envLocalPath = join(engine.config.projectRoot, ".env.local");
+        let envLocalExists = false;
+        try {
+          await access(envLocalPath, constants.R_OK);
+          envLocalExists = true;
+        } catch {
+          envLocalExists = false;
+        }
+        const tokenInEnv = !!process.env.FIGMA_TOKEN;
+
+        if (envLocalExists) {
+          push("env.local", "runtime", "pass", ".env.local", "found");
+        } else if (tokenInEnv) {
+          push("env.local", "runtime", "warn", ".env.local", "FIGMA_TOKEN found in shell env — consider adding to .env.local for persistence");
+        } else {
+          push("env.local", "runtime", "warn", ".env.local", "FIGMA_TOKEN not set — run: memi setup");
+        }
+      }
+
+      // 11. REST credentials (optional — enables plugin-free pull)
       const figmaToken = engine.config.figmaToken || process.env.FIGMA_TOKEN;
       const figmaFileKey = engine.config.figmaFileKey || process.env.FIGMA_FILE_KEY;
       if (figmaToken && figmaFileKey) {
@@ -314,7 +335,7 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
         push("rest.credentials", "bridge", "warn", "REST credentials", "Not configured — add FIGMA_TOKEN + FIGMA_FILE_KEY to .env.local for plugin-free pulls");
       }
 
-      // 11. Workspace
+      // 12. Workspace
       try {
         const memoireDir = join(engine.config.projectRoot, ".memoire");
         await access(memoireDir, constants.R_OK | constants.W_OK);
