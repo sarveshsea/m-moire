@@ -127,9 +127,19 @@ function formatTokenValue(value: unknown, type: string): string | number {
 // ── Config errors (not retried, always propagated) ───────
 
 export class FigmaConfigError extends Error {
-  constructor(msg: string) {
+  readonly status?: number;
+  constructor(msg: string, status?: number) {
     super(msg);
     this.name = "FigmaConfigError";
+    this.status = status;
+  }
+}
+
+/** 403 on plan-gated endpoints (e.g. variables on Free plan) — absorbed, not fatal. */
+export class FigmaPlanError extends FigmaConfigError {
+  constructor(endpoint: string) {
+    super(`Figma plan limitation: ${endpoint} requires a paid Figma plan (variables need Professional+)`, 403);
+    this.name = "FigmaPlanError";
   }
 }
 
@@ -145,13 +155,20 @@ async function figmaGet<T>(path: string, token: string): Promise<T> {
   });
 
   if (response.status === 403) {
-    throw new FigmaConfigError("Invalid FIGMA_TOKEN or insufficient file permissions");
+    // Variables endpoint returns 403 on Free/Starter plans — not a token error.
+    // Components/styles on a file you can't access also return 403 — that IS a token error.
+    // We tag by path so callers can decide how to handle it.
+    const isVariables = path.includes("/variables/");
+    if (isVariables) {
+      throw new FigmaPlanError(path);
+    }
+    throw new FigmaConfigError("Invalid FIGMA_TOKEN or insufficient file permissions", 403);
   }
   if (response.status === 404) {
-    throw new FigmaConfigError("File not found. Check FIGMA_FILE_KEY");
+    throw new FigmaConfigError("File not found. Check FIGMA_FILE_KEY", 404);
   }
   if (!response.ok) {
-    throw new FigmaConfigError(`Figma API error ${response.status}: ${response.statusText}`);
+    throw new FigmaConfigError(`Figma API error ${response.status}: ${response.statusText}`, response.status);
   }
 
   return response.json() as Promise<T>;
@@ -241,6 +258,12 @@ export async function extractDesignSystemREST(
   const [variablesData, componentsData, stylesData] = await Promise.all([
     figmaGet<RestVariablesResponse>(`/files/${fileKey}/variables/local`, token)
       .catch((err) => {
+        // FigmaPlanError = Free plan limitation — absorb, continue without tokens
+        if (err instanceof FigmaPlanError) {
+          log.warn("Variables endpoint unavailable (Free plan — upgrade to Figma Professional for token sync)");
+          return null;
+        }
+        // Real auth error — propagate to surface to user
         if (err instanceof FigmaConfigError) throw err;
         log.warn({ err: err.message }, "Variables fetch failed");
         return null;
