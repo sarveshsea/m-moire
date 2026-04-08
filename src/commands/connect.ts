@@ -2,7 +2,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import type { BridgeClient } from "../figma/ws-server.js";
 
-import { readFile, writeFile } from "fs/promises";
+import { readFile, writeFile, unlink } from "fs/promises";
 import { join } from "path";
 import { createInterface } from "readline";
 import chalk from "chalk";
@@ -424,6 +424,13 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
         console.log(ui.dots("Widget", `v${plugin.widgetVersion ?? "?"} / ${plugin.packageVersion ?? "?"}`));
         console.log(ui.dots("Source", `${plugin.source} (${describePluginHealth(plugin)})`));
         console.log(ui.dots("Manifest", plugin.manifestPath));
+
+        // ── Write bridge lock so `memi pull` can reuse this bridge ──
+        const bridgeLockPath = join(root, ".memoire", "bridge.json");
+        await writeFile(bridgeLockPath, JSON.stringify({ pid: process.pid, port, startedAt: new Date().toISOString() }));
+        const cleanupBridgeLock = () => unlink(bridgeLockPath).catch(() => {});
+        process.once("exit", cleanupBridgeLock);
+        process.once("SIGTERM", () => { cleanupBridgeLock(); process.exit(0); });
 
         // ── Event handlers ──────────────────────────────
         engine.figma.on("plugin-connected", (client: BridgeClient) => {

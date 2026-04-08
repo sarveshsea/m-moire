@@ -230,6 +230,24 @@ export class MemoireEngine extends EventEmitter {
   }
 
   async connectFigma(): Promise<number> {
+    // Check if a standalone `memi connect` bridge is already running
+    const bridgeLock = await this._readBridgeLock();
+    if (bridgeLock && bridgeLock.port > 0) {
+      this.log.info(`Found running bridge on port ${bridgeLock.port}, reusing...`);
+      try {
+        const port = await this.figma.connect(bridgeLock.port);
+        this.emit("event", {
+          type: "success",
+          source: "figma",
+          message: `Reusing bridge on port ${port}`,
+          timestamp: new Date(),
+        } satisfies MemoireEvent);
+        return port;
+      } catch {
+        this.log.info("Bridge lock stale, starting fresh bridge...");
+      }
+    }
+
     // Check if a daemon is already running with a bridge
     const daemonStatus = await this._readDaemonStatus();
     if (daemonStatus && daemonStatus.figmaPort > 0) {
@@ -297,6 +315,21 @@ export class MemoireEngine extends EventEmitter {
         resolve();
       }
     });
+  }
+
+  /** Read bridge lock written by `memi connect` — lets pull/sync reuse an existing bridge */
+  private async _readBridgeLock(): Promise<{ port: number; pid: number } | null> {
+    try {
+      const lockPath = join(this.config.projectRoot, ".memoire", "bridge.json");
+      const raw = await readFile(lockPath, "utf-8");
+      const lock = JSON.parse(raw) as { pid: number; port: number };
+      if (lock.pid) {
+        try { process.kill(lock.pid, 0); } catch { return null; } // stale
+      }
+      return lock;
+    } catch {
+      return null;
+    }
   }
 
   /** Read daemon status file if it exists */
