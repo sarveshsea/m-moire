@@ -3,6 +3,8 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildPluginBundle } from "../../../scripts/build-plugin.mjs";
+import { createRequire } from "node:module";
+const { version } = createRequire(import.meta.url)("../../../package.json") as { version: string };
 
 describe("plugin build pipeline", () => {
   it("emits plugin code.js and ui.html", async () => {
@@ -51,7 +53,7 @@ describe("plugin build pipeline", () => {
       expect(hasRawObjectSpread(code)).toBe(false);
       expect(hasRawObjectSpread(html)).toBe(false);
       expect(meta).toContain('"widgetVersion": "2"');
-      expect(meta).toContain('"packageVersion": "0.9.0"');
+      expect(meta).toContain(`"packageVersion": "${version}"`);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

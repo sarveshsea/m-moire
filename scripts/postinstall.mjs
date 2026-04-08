@@ -5,11 +5,9 @@
  * location and prints PATH guidance if the `memi` binary isn't reachable.
  */
 
-import { existsSync, mkdirSync, cpSync, rmSync, writeFileSync, realpathSync } from "fs";
+import { existsSync, mkdirSync, cpSync, rmSync, writeFileSync, realpathSync, readFileSync } from "fs";
 import { join, dirname, resolve } from "path";
-import { execSync } from "child_process";
 import { fileURLToPath } from "url";
-import { readFileSync } from "fs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
@@ -59,14 +57,16 @@ if (existsSync(pluginSrc) && home) {
 }
 
 // ── 2. Check if memi is reachable via PATH ──────────────────────
+// npm sets npm_config_prefix during install — no shell spawning needed.
 
-try {
-  execSync("which memi", { stdio: "ignore" });
-} catch {
-  // memi not in PATH — detect npm global bin and suggest fix
-  try {
-    const npmBin = execSync("npm config get prefix", { encoding: "utf-8" }).trim();
-    const binDir = join(npmBin, "bin");
+const pathDirs = (process.env.PATH || "").split(":");
+const memiReachable = pathDirs.some((dir) => existsSync(join(dir, "memi")));
+
+if (!memiReachable) {
+  // npm_config_prefix is set by npm during install (no execSync needed)
+  const npmPrefix = process.env.npm_config_prefix || process.env.NPM_CONFIG_PREFIX || "";
+  if (npmPrefix) {
+    const binDir = join(npmPrefix, "bin");
     const shell = process.env.SHELL || "/bin/zsh";
     const rcFile = shell.includes("zsh") ? "~/.zshrc" : "~/.bashrc";
 
@@ -78,7 +78,5 @@ try {
 
     Then restart your terminal or run: source ${rcFile}
 `);
-  } catch {
-    // Can't determine — skip silently
   }
 }
