@@ -17,6 +17,7 @@ import {
   type BridgeEnvelope,
 } from "../plugin/shared/bridge.js";
 import type { AgentBoxState, WidgetCommandName } from "../plugin/shared/contracts.js";
+import { BRIDGE_PORT_START, BRIDGE_PORT_END, isPortInUse } from "./port-scanner.js";
 
 const log = createLogger("ws-server");
 
@@ -65,6 +66,13 @@ function createWsBindError(port: number, err: Error & { code?: string }): Error 
   return wrapped;
 }
 
+/** Connection state from the server's perspective. */
+export type ConnectionState = "connected" | "reconnecting" | "disconnected";
+
+/** Backoff schedule for reconnect warnings (milliseconds). */
+const RECONNECT_DELAYS_MS = [1000, 2000, 4000, 8000, 16000, 30000];
+const RECONNECT_MAX_ATTEMPTS = 5;
+
 export class MemoireWsServer extends EventEmitter {
   private config: MemoireWsServerConfig;
   private wss: WebSocketServer | null = null;
@@ -84,6 +92,13 @@ export class MemoireWsServer extends EventEmitter {
   private inFlightMethods = new Map<string, string>();
   private commandId = 0;
 
+  // ── Connection state tracking ──────────────────────────
+  private _reconnectAttempts = 0;
+  private _isReconnecting = false;
+  private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private _lastConnectedAt: Date | null = null;
+  private _lastDisconnectedAt: Date | null = null;
+
   constructor(config: MemoireWsServerConfig = {}) {
     super();
     this.setMaxListeners(30);
@@ -102,14 +117,56 @@ export class MemoireWsServer extends EventEmitter {
     return Array.from(this.clients.values());
   }
 
+  /** Number of consecutive reconnect attempts since last successful connection. */
+  get reconnectAttempts(): number {
+    return this._reconnectAttempts;
+  }
+
+  /** Whether the server is in the reconnect-wait state. */
+  get isReconnecting(): boolean {
+    return this._isReconnecting;
+  }
+
+  /** ISO timestamp of the last time a plugin connected successfully. */
+  get lastConnectedAt(): Date | null {
+    return this._lastConnectedAt;
+  }
+
+  /** ISO timestamp of the last time all plugins disconnected. */
+  get lastDisconnectedAt(): Date | null {
+    return this._lastDisconnectedAt;
+  }
+
   /**
-   * Start the WebSocket server, scanning ports 9223-9232 for an available one.
+   * Current logical connection state based on client count and reconnect status.
+   */
+  getConnectionState(): ConnectionState {
+    if (this.clients.size > 0) return "connected";
+    if (this._isReconnecting) return "reconnecting";
+    return "disconnected";
+  }
+
+  /**
+   * Start the WebSocket server, scanning ports BRIDGE_PORT_START-BRIDGE_PORT_END
+   * for an available one. Warns if a port in the range is bound by a foreign process.
    */
   async start(preferPort?: number): Promise<number> {
-    const startPort = preferPort ?? this.config.port ?? 9223;
-    const endPort = 9232;
+    const startPort = preferPort ?? this.config.port ?? BRIDGE_PORT_START;
+    const endPort = BRIDGE_PORT_END;
 
     for (let p = startPort; p <= endPort; p++) {
+      // Pre-check: is the port in use before we try to bind?
+      try {
+        const inUse = await isPortInUse(p);
+        if (inUse) {
+          // Port is occupied — log a warning and skip
+          log.warn(`Port ${p} in use — skipping (another Mémoire instance or foreign process)`);
+          continue;
+        }
+      } catch {
+        // isPortInUse probe failed; attempt bind anyway
+      }
+
       try {
         await this.startOnPort(p);
         this.port = p;
@@ -125,7 +182,7 @@ export class MemoireWsServer extends EventEmitter {
       }
     }
 
-    throw new Error("No available ports (9223-9232). Close other Mémoire instances first.");
+    throw new Error(`No available ports (${BRIDGE_PORT_START}-${BRIDGE_PORT_END}). Close other Mémoire instances first.`);
   }
 
   /**
@@ -135,6 +192,11 @@ export class MemoireWsServer extends EventEmitter {
     if (this.healthInterval) {
       clearInterval(this.healthInterval);
       this.healthInterval = null;
+    }
+
+    if (this._reconnectTimer) {
+      clearTimeout(this._reconnectTimer);
+      this._reconnectTimer = null;
     }
 
     // Reject all pending commands
@@ -152,6 +214,7 @@ export class MemoireWsServer extends EventEmitter {
       this.wss.close();
       this.wss = null;
       this._running = false;
+      this._isReconnecting = false;
       this.port = 0;
       log.info("WS server stopped");
     }
@@ -290,6 +353,10 @@ export class MemoireWsServer extends EventEmitter {
     running: boolean;
     port: number;
     clients: { id: string; file: string; editor: string; connectedAt: string }[];
+    connectionState: ConnectionState;
+    reconnectAttempts: number;
+    lastConnectedAt: string | null;
+    lastDisconnectedAt: string | null;
   } {
     return {
       running: this._running,
@@ -300,6 +367,10 @@ export class MemoireWsServer extends EventEmitter {
         editor: c.editor,
         connectedAt: c.connectedAt.toISOString(),
       })),
+      connectionState: this.getConnectionState(),
+      reconnectAttempts: this._reconnectAttempts,
+      lastConnectedAt: this._lastConnectedAt?.toISOString() ?? null,
+      lastDisconnectedAt: this._lastDisconnectedAt?.toISOString() ?? null,
     };
   }
 
@@ -371,6 +442,13 @@ export class MemoireWsServer extends EventEmitter {
       };
 
       this.clients.set(clientId, client);
+      this._lastConnectedAt = new Date();
+      this._reconnectAttempts = 0;
+      this._isReconnecting = false;
+      if (this._reconnectTimer) {
+        clearTimeout(this._reconnectTimer);
+        this._reconnectTimer = null;
+      }
       log.info(`Plugin connected: ${clientId}`);
       this.emitEvent("success", "Figma plugin connected");
       this.emit("client-connected", client);
@@ -439,6 +517,12 @@ export class MemoireWsServer extends EventEmitter {
         log.info(`Plugin disconnected: ${clientId}`);
         this.emitEvent("warn", "Figma plugin disconnected");
         this.emit("client-disconnected", clientId);
+
+        // Only start backoff when the last client disconnects
+        if (this.clients.size === 0 && this._running) {
+          this._lastDisconnectedAt = new Date();
+          this._scheduleReconnectWarn();
+        }
       });
 
       ws.on("error", (err) => {
@@ -654,6 +738,53 @@ export class MemoireWsServer extends EventEmitter {
       }
     }
     return null;
+  }
+
+  /**
+   * Exponential backoff reconnect-wait loop.
+   *
+   * The server itself remains open and accepting connections — this just emits
+   * diagnostic events at increasing intervals so operators can observe the
+   * "waiting for plugin to come back" state without log spam.
+   *
+   * After RECONNECT_MAX_ATTEMPTS it emits an error event and stops the loop.
+   */
+  private _scheduleReconnectWarn(): void {
+    if (!this._running || this.clients.size > 0) return;
+
+    if (this._reconnectAttempts >= RECONNECT_MAX_ATTEMPTS) {
+      this._isReconnecting = false;
+      this.emitEvent(
+        "error",
+        `No Figma plugin reconnected after ${RECONNECT_MAX_ATTEMPTS} attempts — ` +
+          `open the Mémoire plugin in Figma to resume`,
+      );
+      this.emit("reconnect-failed", { attempts: this._reconnectAttempts });
+      return;
+    }
+
+    this._isReconnecting = true;
+    const delayMs = RECONNECT_DELAYS_MS[Math.min(this._reconnectAttempts, RECONNECT_DELAYS_MS.length - 1)];
+    const attempt = this._reconnectAttempts + 1;
+
+    this._reconnectTimer = setTimeout(() => {
+      this._reconnectTimer = null;
+
+      // Plugin may have re-connected during the wait — abort if so
+      if (this.clients.size > 0 || !this._running) {
+        this._isReconnecting = false;
+        return;
+      }
+
+      this._reconnectAttempts = attempt;
+      this.emitEvent(
+        "warn",
+        `Waiting for Figma plugin (attempt ${attempt}/${RECONNECT_MAX_ATTEMPTS}) — ` +
+          `next check in ${RECONNECT_DELAYS_MS[Math.min(attempt, RECONNECT_DELAYS_MS.length - 1)] / 1000}s`,
+      );
+      this.emit("reconnecting", { attempts: attempt });
+      this._scheduleReconnectWarn();
+    }, delayMs);
   }
 
   private emitEvent(type: MemoireEvent["type"], message: string): void {
