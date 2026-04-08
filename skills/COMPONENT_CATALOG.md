@@ -1,107 +1,170 @@
 # Component Catalog — Universal UI Registry
 
-## Purpose
-Memoire ships with a pre-loaded catalog of 56 universal UI components derived from industry convention (component.gallery taxonomy). Every component is classified by Atomic Design level, mapped to shadcn/ui primitives where available, and grouped into categories. This catalog serves as the foundation for spec generation, code scaffolding, and design system audits.
-
 ## When to Load
-- Creating new component specs (use catalog as starting point)
+- Creating component specs → use catalog as starting point
 - Auditing a design system for completeness
 - Mapping Figma components to code
 - Generating a component library from scratch
-- Answering "what components should we have?"
+- Answering "what components should this project have?"
 
 ## Catalog Location
-`src/specs/catalog.ts` — exports `COMPONENT_CATALOG`, category definitions, and helper functions.
+`src/specs/catalog.ts` — exports `COMPONENT_CATALOG`, category definitions, helper functions.
 
-## Categories (9)
+## Quick Reference
 
-| Category | Components | Purpose |
-|----------|-----------|---------|
-| **Buttons** | Button, ButtonGroup, IconButton, Toggle, SegmentedControl, Stepper | Actions and interactive controls |
-| **Inputs** | TextInput, Textarea, SearchInput, Select, Combobox, Checkbox, RadioButton, Slider, DateInput, Datepicker, ColorPicker, FileUpload, Label, Fieldset, Form, Rating, RichTextEditor | Form controls |
-| **Data Display** | Badge, Avatar, Card, Table, List, File, Skeleton, Separator, Quote | Presenting information |
-| **Feedback** | Alert, Toast, ProgressBar, ProgressIndicator, Spinner, EmptyState | Status and notifications |
-| **Navigation** | Navigation, Breadcrumbs, Tabs, Pagination, Link, SkipLink, TreeView | Wayfinding |
-| **Overlays** | Modal, Drawer, Popover, Tooltip, DropdownMenu | Floating content |
-| **Layout** | Accordion, Carousel, Header, Footer, Hero, Stack, VisuallyHidden | Page structure |
-| **Media** | Image, Icon, Video | Rich content |
-| **Typography** | Heading | Text elements |
+```typescript
+import { findCatalogComponent } from "../specs/catalog.js";
+const entry = findCatalogComponent("datepicker");
+// Returns: { name, level, shadcnBase, category, purpose, props, variants, accessibility }
+```
+
+---
+
+## Registry (56 components)
+
+### Buttons
+
+| Name | Level | shadcnBase | Purpose |
+|------|-------|------------|---------|
+| Button | atom | Button | Primary action trigger |
+| IconButton | atom | Button | Action with icon only, no label |
+| ButtonGroup | molecule | Button | 2+ related buttons grouped |
+| Toggle | atom | Switch | Binary on/off control |
+| SegmentedControl | molecule | Tabs | Mutually exclusive option selector |
+| Stepper | molecule | Button + Input | Increment/decrement numeric value |
+
+### Inputs
+
+| Name | Level | shadcnBase | Purpose |
+|------|-------|------------|---------|
+| TextInput | atom | Input | Single-line text entry |
+| Textarea | atom | Textarea | Multi-line text entry |
+| SearchInput | atom | Input | Text entry with search affordance |
+| Select | atom | Select | Single-choice dropdown |
+| Combobox | molecule | Input + Select | Searchable select with free-text |
+| Checkbox | atom | Checkbox | Multi-select boolean control |
+| RadioButton | atom | — | Single-select within a group |
+| Slider | atom | Slider | Range or value picker |
+| DateInput | atom | Input | Date entry via text |
+| Datepicker | organism | — | Calendar-based date selection |
+| ColorPicker | organism | — | Color selection with preview |
+| FileUpload | molecule | — | File selection and upload |
+| Label | atom | Label | Accessible form field label |
+| Fieldset | molecule | — | Groups related form controls |
+| Form | organism | — | Full form with validation state |
+| Rating | molecule | — | Star or numeric rating input |
+| RichTextEditor | organism | — | WYSIWYG text editor |
+
+### Data Display
+
+| Name | Level | shadcnBase | Purpose |
+|------|-------|------------|---------|
+| Badge | atom | Badge | Short status or count label |
+| Avatar | atom | Avatar | User or entity image/initials |
+| Card | molecule | Card | Contained content surface |
+| Table | organism | Table | Tabular data with rows/columns |
+| List | molecule | — | Vertical sequence of items |
+| File | molecule | Card | File metadata with icon |
+| Skeleton | atom | Skeleton | Loading placeholder |
+| Separator | atom | Separator | Visual divider |
+| Quote | molecule | — | Blockquote with attribution |
+
+### Feedback
+
+| Name | Level | shadcnBase | Purpose |
+|------|-------|------------|---------|
+| Alert | molecule | — | Inline status message |
+| Toast | molecule | — | Transient notification |
+| ProgressBar | atom | Progress | Linear completion indicator |
+| ProgressIndicator | molecule | Progress | Step-based progress display |
+| Spinner | atom | — | Indeterminate loading indicator |
+| EmptyState | molecule | Card | Zero-data placeholder with action |
+
+### Navigation
+
+| Name | Level | shadcnBase | Purpose |
+|------|-------|------------|---------|
+| Navigation | organism | — | Primary site/app nav |
+| Breadcrumbs | molecule | — | Hierarchical location trail |
+| Tabs | molecule | Tabs | Content panel switcher |
+| Pagination | molecule | Button | Multi-page navigation controls |
+| Link | atom | — | Navigational anchor |
+| SkipLink | atom | — | Keyboard accessibility bypass |
+| TreeView | organism | — | Hierarchical expandable list |
+
+### Overlays
+
+| Name | Level | shadcnBase | Purpose |
+|------|-------|------------|---------|
+| Modal | organism | Dialog | Blocking overlay with content |
+| Drawer | organism | Sheet | Sliding panel overlay |
+| Popover | molecule | Popover | Anchored floating content |
+| Tooltip | atom | Tooltip | Hover/focus label for an element |
+| DropdownMenu | molecule | DropdownMenu | Contextual action list |
+
+### Layout
+
+| Name | Level | shadcnBase | Purpose |
+|------|-------|------------|---------|
+| Accordion | molecule | — | Expandable content sections |
+| Carousel | organism | — | Scrollable item sequence |
+| Header | organism | — | App/page top bar |
+| Footer | organism | — | App/page bottom bar |
+| Hero | molecule | Card | Full-width feature section |
+| Stack | atom | — | Linear layout primitive |
+| VisuallyHidden | atom | — | Screen-reader-only wrapper |
+
+### Media
+
+| Name | Level | shadcnBase | Purpose |
+|------|-------|------------|---------|
+| Image | atom | — | Responsive image with alt |
+| Icon | atom | — | SVG icon wrapper |
+| Video | molecule | — | Video player with controls |
+
+### Typography
+
+| Name | Level | shadcnBase | Purpose |
+|------|-------|------------|---------|
+| Heading | atom | — | H1–H6 with variant control |
+
+---
 
 ## Atomic Distribution
 
-| Level | Count | Rule |
-|-------|-------|------|
-| Atom | ~22 | Standalone primitives. `composesSpecs` must be empty. |
-| Molecule | ~22 | Composes 2-5 atoms. |
-| Organism | ~12 | Composes molecules + atoms, manages state. |
+| Level | Count | Composition Rule |
+|-------|-------|-----------------|
+| Atom | ~22 | Standalone. `composesSpecs` must be empty. |
+| Molecule | ~22 | Composes 2–5 atoms. No data fetching. |
+| Organism | ~12 | Composes molecules + atoms. May fetch data. |
 
-## shadcn/ui Mapping
+---
 
-The following catalog components have direct shadcn/ui mappings:
+## Rules
 
-| Catalog | shadcn/ui |
-|---------|-----------|
-| Button, IconButton, ButtonGroup | Button |
-| Toggle | Switch |
-| SegmentedControl, Tabs | Tabs |
-| TextInput, SearchInput, DateInput | Input |
-| Textarea | Textarea |
-| Select | Select |
-| Checkbox | Checkbox |
-| Label | Label |
-| Badge | Badge |
-| Avatar | Avatar |
-| Card, File, EmptyState, Hero | Card |
-| Table | Table |
-| Skeleton | Skeleton |
-| Separator | Separator |
-| Tooltip | Tooltip |
-| DropdownMenu | DropdownMenu |
-| Modal | Dialog |
-| Drawer | Sheet |
-| ProgressBar | Progress |
-| Stepper | Button + Input |
-| Combobox | Input + Select |
-| Pagination | Button |
+1. **shadcn first** — if a catalog component has a `shadcnBase`, use it. Don't build custom.
+2. **Prevalence = priority** — higher prevalence = implement first.
+3. **Catalog is the baseline** — every project should eventually spec all 56 components.
+4. **Aliases resolve** — `findCatalogComponent("Dialog")` finds Modal; `"Switch"` finds Toggle.
+5. **Extend, don't fork** — add project-specific components alongside catalog components, never replace them.
 
-Components without shadcn mapping (Accordion, Carousel, Navigation, etc.) generate custom implementations using Tailwind.
+---
 
-## How to Use the Catalog
+## Scaffold a Spec from Catalog
 
-### 1. Scaffold a spec from catalog
 ```typescript
 import { findCatalogComponent } from "../specs/catalog.js";
 
 const entry = findCatalogComponent("datepicker");
-// Returns full CatalogComponent with level, props, variants, shadcnBase
-// Use as starting point for ComponentSpec
+// Pre-fill spec with: entry.level, entry.shadcnBase, entry.variants,
+// entry.props, entry.accessibility
 ```
 
-### 2. Audit completeness
-```typescript
-import { COMPONENT_CATALOG, getCatalogByCategory } from "../specs/catalog.js";
+## Audit Completeness
 
-const missing = COMPONENT_CATALOG.filter(c =>
-  !registry.hasSpec(c.name)
-);
+```typescript
+import { COMPONENT_CATALOG } from "../specs/catalog.js";
+
+const missing = COMPONENT_CATALOG.filter(c => !registry.hasSpec(c.name));
 // Shows which catalog components are not yet specced
 ```
-
-### 3. Generate from catalog entry
-When creating a spec, pre-fill from the catalog:
-- `level` — use catalog's atomic level
-- `shadcnBase` — use catalog's mapping
-- `variants` — use catalog's defaults
-- `props` — use catalog's prop definitions
-- `accessibility` — use catalog's a11y defaults
-
-### 4. Dashboard display
-The design-system.html COMPONENTS tab renders all catalog entries grouped by category, with live previews, atomic badges, and variant counts.
-
-## Rules
-
-1. **Catalog is the baseline** — every project should eventually spec all 56 components
-2. **Aliases resolve** — `findCatalogComponent("Dialog")` finds Modal, `"Switch"` finds Toggle
-3. **Prevalence = priority** — higher prevalence = more design systems use it = implement first
-4. **shadcn first** — if a catalog component has a shadcn mapping, use it. Don't build custom.
-5. **Extend, don't fork** — add project-specific components alongside catalog components, never replace them

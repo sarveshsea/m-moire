@@ -159,7 +159,7 @@ CREATE → SCREENSHOT → ANALYZE → FIX → VERIFY (max 3 rounds)
 ### Figma API Gotchas
 - `counterAxisSizingMode` only accepts `"FIXED"` or `"AUTO"` (not `"FILL"`)
 - `DROP_SHADOW` effects require `blendMode: "NORMAL"`
-- `figma.currentPage` cannot be set via MCP — work on current page
+- `figma.currentPage` — set it on a page node, not the global: `figma.currentPage = figma.root.children.find(p => p.name === "Dashboard")`. This works correctly inside `figma_execute`.
 - `layoutGrow` only works inside Auto Layout parents
 - Always `await figma.loadFontAsync()` before setting text
 

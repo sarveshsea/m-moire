@@ -1,129 +1,86 @@
 ---
 name: atomic-design
-description: Atomic Design methodology reference — atoms, molecules, organisms, templates, pages, tokens, accessibility
+description: Atomic Design quick reference — levels, composition rules, tokens, naming
 user-invocable: false
 ---
 
-# Atomic Design Systems — Reference
+# Atomic Design — Quick Reference
 
-Brad Frost's methodology: five levels that compose into coherent, pattern-driven UIs.
+## Level Decision Table
 
-## The Five Levels
+| Level | Folder | Composes | Has State | Fetches Data | Real Content |
+|-------|--------|----------|-----------|--------------|-------------|
+| Atom | `components/ui/` | Nothing | No | No | No |
+| Molecule | `components/molecules/` | 2–5 atoms | Maybe | No | No |
+| Organism | `components/organisms/` | Molecules + atoms | Yes | Yes | No |
+| Template | `components/templates/` | Organisms | No | No | Placeholder |
+| Page | (route file) | Templates | No | Yes | Real |
 
-### 1. Atoms
-Smallest functional units. Single responsibility, context-free, well-defined prop interfaces.
+**If you can't decide:** IF it composes nothing → atom. IF it composes ≤5 atoms → molecule. IF it manages state or fetches data → organism. IF it's a full layout skeleton → template.
 
-**shadcn atoms:** Button, Input, Label, Badge, Avatar, Separator, Switch, Checkbox, Skeleton, Progress, Slider, Toggle
+## Composition Rules
 
-**Rules:** Atoms must not import other atoms. Must be accessible (ARIA, keyboard). Must use design tokens, never hardcoded values.
+- Atoms: no `composesSpecs`, no imports of other atoms
+- Molecules: 2–5 atom imports, no data fetching, may have internal open/closed state
+- Organisms: own breakpoints, document composition in spec
+- Templates: CSS Grid or Flexbox only, must match Figma page spec
+- Pages: handle all data states — loading, empty, error, populated
 
-### 2. Molecules
-Simple groups of 2-5 atoms functioning as a unit (e.g., SearchField = Label + Input + Button).
+## File Structure
 
-**Rules:** Compose existing atoms, not new primitives. Presentation-only (no data fetching). May have internal state (open/closed, focused).
-
-### 3. Organisms
-Complex UI sections made of molecules and/or atoms (e.g., DataTable, Sidebar, NavigationBar).
-
-**Rules:** Can manage data fetching. Must be responsive (own breakpoints). Should document composition in a spec.
-
-### 4. Templates
-Page-level layouts defining structure and organism placement. Use placeholder content, not real data.
-
-**Rules:** Must be responsive across all breakpoints. Use CSS Grid or Flexbox. Match Figma page specs exactly.
-
-### 5. Pages
-Templates filled with real content and live data. The ultimate test of the design system.
-
-**Rules:** Handle all data states (loading, empty, error, populated). Full WCAG 2.1 AA compliance. E2E tests on critical paths.
-
----
+```
+components/
+  ui/            # atoms (shadcn primitives)
+  molecules/
+  organisms/
+  templates/
+```
 
 ## Design Tokens
 
 ```
-Global Tokens (primitives: --blue-500, --space-4)
-  → Alias Tokens (semantic: --color-primary, --spacing-component)
-    → Component Tokens (scoped: --button-bg, --card-radius)
+Global tokens  (--blue-500, --space-4)
+  → Alias tokens  (--color-primary, --spacing-component)
+    → Component tokens  (--button-bg, --card-radius)
 ```
 
-Multi-theme: override alias tokens per theme (`:root`, `.dark`, `.brand-b`).
+Override alias tokens per theme: `:root`, `.dark`, `.brand-b`.
 
----
+## Accessibility by Level
 
-## Component API Principles
-
-- **Composition over configuration** — use composable children, not monolithic props
-- **String unions for variants** (`variant?: "default" | "destructive" | "outline"`) not booleans
-- **`className` + `asChild`** — standard shadcn/Radix patterns
-
-### Accessibility by Level
-| Level | Requirements |
-|-------|-------------|
+| Level | Required |
+|-------|---------|
 | Atom | ARIA role, keyboard focus, contrast, label |
-| Molecule | Focus management within group, error announcements |
+| Molecule | Focus management, error announcements |
 | Organism | Landmark roles, skip links, focus trapping |
 | Template | Page title, heading hierarchy, main landmark |
 | Page | Full WCAG 2.1 AA |
 
-### Responsive by Level
-| Level | Approach |
-|-------|---------|
-| Atom | Inherits from context |
-| Molecule | Container queries |
-| Organism | Own breakpoints, reflow |
-| Template | Grid breakpoints |
-| Page | Orchestrates everything |
-
----
-
-## Naming Conventions
+## Naming
 
 | Element | Convention | Example |
 |---------|-----------|---------|
-| Components | PascalCase | `MetricCard`, `LoginForm` |
-| Props | camelCase | `isLoading`, `onSubmit` |
+| Components | PascalCase | `MetricCard` |
+| Props | camelCase | `isLoading` |
 | CSS classes | kebab-case | `text-muted-foreground` |
 | Constants | UPPER_SNAKE | `MAX_RETRY_COUNT` |
 | Tokens | path/style | `color/primary/500` |
 
-### File Structure
-```
-components/
-  ui/            # atoms (shadcn primitives)
-  molecules/     # molecule compositions
-  organisms/     # complex sections
-  templates/     # page layouts
-```
-
----
-
-## DataViz Hierarchy
-
-```
-ChartContainer (atom) → LineChart/BarChart (molecule) → DashboardChartSection (organism)
-```
-
-Every chart: `aria-label`, `<details>` data table fallback, keyboard navigation, color + pattern (not color alone).
-
----
-
-## Figma ↔ Code Mapping
+## Figma ↔ Code
 
 | Figma | Code |
 |-------|------|
 | Component | React component |
 | Component Set | Variant type union |
 | Component Property | React prop |
-| Auto Layout | Flexbox/Grid |
+| Auto Layout | Flexbox / Grid |
 | Design Token | CSS Variable → Tailwind class |
 | Section | Organism |
 
----
-
 ## Anti-Patterns
+
 1. **Premature abstraction** — wait for 3+ use cases before extracting
-2. **Prop explosion** — 15+ props means decompose into smaller pieces
-3. **CSS override chains** — 5+ overrides means create a variant
+2. **Prop explosion** — 15+ props → decompose into smaller pieces
+3. **CSS override chains** — 5+ overrides → create a variant
 4. **Token drift** — hardcoded values that should be tokens
-5. **Ignoring states** — every interactive component needs: default, hover, focus, active, disabled, loading, error
+5. **Missing states** — every interactive component needs: default, hover, focus, active, disabled, loading, error
