@@ -16,13 +16,15 @@ import { TaskQueue } from "../agents/task-queue.js";
 import { AgentBridge } from "../agents/agent-bridge.js";
 import { createLogger } from "./logger.js";
 import { EventEmitter } from "events";
-import { readFile, writeFile, mkdir, access } from "fs/promises";
+import { readFile, writeFile, mkdir } from "fs/promises";
+import { loadEnvFile } from "../utils/env.js";
 import { join } from "path";
 import { initWorkspace, readSoul } from "./workspace-init.js";
 import { NoteLoader } from "../notes/loader.js";
 import { CanvasHealer } from "../figma/canvas-healer.js";
 import { extractDesignSystemREST } from "../figma/rest-client.js";
 import { auditTokensForWcag, type WcagTokenReport } from "../figma/wcag-token-checker.js";
+import { readBridgeLock } from "../figma/bridge-lock.js";
 
 export interface MemoireConfig {
   projectRoot: string;
@@ -238,8 +240,8 @@ export class MemoireEngine extends EventEmitter {
     this.log.info("Initializing Mémoire engine...");
 
     // Load .env.local / .env so FIGMA_TOKEN etc. are available without shell export
-    await this._loadEnvFile(".env.local");
-    await this._loadEnvFile(".env");
+    await loadEnvFile(this.config.projectRoot, ".env.local");
+    await loadEnvFile(this.config.projectRoot, ".env");
     if (!this.config.figmaToken && process.env.FIGMA_TOKEN) this.config.figmaToken = process.env.FIGMA_TOKEN;
     if (!this.config.figmaFileKey && process.env.FIGMA_FILE_KEY) this.config.figmaFileKey = process.env.FIGMA_FILE_KEY;
     if (!this.config.anthropicApiKey && process.env.ANTHROPIC_API_KEY) this.config.anthropicApiKey = process.env.ANTHROPIC_API_KEY;
@@ -388,44 +390,9 @@ export class MemoireEngine extends EventEmitter {
     });
   }
 
-  /** Reads `filename` from the project root and merges KEY=VALUE pairs into `process.env` — existing keys are never overwritten, absent files are silently skipped. */
-  private async _loadEnvFile(filename: string): Promise<void> {
-    const envPath = join(this.config.projectRoot, filename);
-    try {
-      await access(envPath);
-      const raw = await readFile(envPath, "utf-8");
-      for (const line of raw.split("\n")) {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith("#")) continue;
-        const eq = trimmed.indexOf("=");
-        if (eq < 1) continue;
-        const key = trimmed.slice(0, eq).trim();
-        const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
-        if (key && !(key in process.env)) process.env[key] = val;
-      }
-    } catch { /* file doesn't exist — skip */ }
-  }
-
-  /** Reads `.memoire/bridge.json` written by `memi connect` and returns `{ port, pid }` if the process is still alive, or `null` if the file is absent or the PID is stale. Deletes stale lock files automatically. */
+  /** Reads `.memoire/bridge.json` and returns the lock if the process is alive, or `null`. Delegates to the shared bridge-lock module which auto-deletes stale locks. */
   private async _readBridgeLock(): Promise<{ port: number; pid: number } | null> {
-    const { unlink } = await import("fs/promises");
-    const lockPath = join(this.config.projectRoot, ".memoire", "bridge.json");
-    try {
-      const raw = await readFile(lockPath, "utf-8");
-      const lock = JSON.parse(raw) as { pid: number; port: number };
-      if (lock.pid) {
-        try {
-          process.kill(lock.pid, 0);
-        } catch {
-          // PID is dead — remove the stale lock before returning null
-          await unlink(lockPath).catch(() => { /* already gone */ });
-          return null;
-        }
-      }
-      return lock;
-    } catch {
-      return null;
-    }
+    return readBridgeLock(this.config.projectRoot);
   }
 
   /**
