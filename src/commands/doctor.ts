@@ -9,6 +9,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import { access, readdir, constants } from "fs/promises";
 import { join } from "path";
 import { resolvePluginHealth } from "../plugin/install-info.js";
+import { BRIDGE_PORT_START, BRIDGE_PORT_END } from "../figma/port-scanner.js";
 import { formatElapsed } from "../utils/format.js";
 
 type CheckStatus = "pass" | "warn" | "fail";
@@ -39,6 +40,17 @@ const ICON: Record<CheckStatus, string> = {
   fail: "x",
 };
 
+/**
+ * Register the `memi doctor` command onto the Commander program.
+ *
+ * Runs a suite of self-diagnostic checks covering project detection,
+ * design system health, plugin bundle integrity, Figma bridge status,
+ * Node.js version, .env.local presence, REST credentials, and workspace
+ * writability. Prints a grouped summary with pass/warn/fail icons.
+ *
+ * @param program  The root Commander Command instance.
+ * @param engine   The initialised MemoireEngine.
+ */
 export function registerDoctorCommand(program: Command, engine: MemoireEngine): void {
   program
     .command("doctor")
@@ -246,23 +258,41 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
       try {
         const bridgeStatus = typeof engine.figma.getStatus === "function"
           ? engine.figma.getStatus()
-          : { running: false, port: 0, clients: [] };
+          : { running: false, port: 0, clients: [], connectionState: "disconnected" as const, reconnectAttempts: 0, lastConnectedAt: null, lastDisconnectedAt: null };
+
+        const connectionState = engine.figma.getConnectionState();
 
         if (engine.figma.isConnected) {
           push("bridge.figma", "bridge", "pass", "Figma bridge", `connected (${bridgeStatus.clients.length} client${bridgeStatus.clients.length === 1 ? "" : "s"})`, {
             running: bridgeStatus.running,
             port: bridgeStatus.port,
             clients: bridgeStatus.clients.length,
+            connectionState,
+            lastConnectedAt: bridgeStatus.lastConnectedAt,
+            lastDisconnectedAt: bridgeStatus.lastDisconnectedAt,
+          });
+        } else if (connectionState === "reconnecting") {
+          push("bridge.figma", "bridge", "warn", "Figma bridge", `reconnecting (attempt ${bridgeStatus.reconnectAttempts}) — reopen Mémoire in Figma`, {
+            running: bridgeStatus.running,
+            port: bridgeStatus.port,
+            connectionState,
+            reconnectAttempts: bridgeStatus.reconnectAttempts,
+            lastConnectedAt: bridgeStatus.lastConnectedAt,
+            lastDisconnectedAt: bridgeStatus.lastDisconnectedAt,
           });
         } else if (bridgeStatus.running) {
           push("bridge.figma", "bridge", "warn", "Figma bridge", `listening on :${bridgeStatus.port} — waiting for the Control Plane`, {
             running: bridgeStatus.running,
             port: bridgeStatus.port,
+            connectionState,
+            lastConnectedAt: bridgeStatus.lastConnectedAt,
+            lastDisconnectedAt: bridgeStatus.lastDisconnectedAt,
           });
         } else {
-          push("bridge.figma", "bridge", "warn", "Figma bridge", "not connected (ports 9223-9232)", {
+          push("bridge.figma", "bridge", "warn", "Figma bridge", `not connected (ports ${BRIDGE_PORT_START}-${BRIDGE_PORT_END})`, {
             running: bridgeStatus.running,
             port: bridgeStatus.port,
+            connectionState,
           });
         }
       } catch {
@@ -349,7 +379,7 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
       const payload = buildDoctorPayload(results);
 
       if (opts.json) {
-        console.log(JSON.stringify({ ok: payload.summary.fail === 0, elapsed: formatElapsed(Date.now() - start), data: payload }, null, 2));
+        console.log(JSON.stringify(payload, null, 2));
         return;
       }
 

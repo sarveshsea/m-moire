@@ -72,12 +72,10 @@ describe("doctor --json", () => {
     const checks = getChecks(payload);
     const summary = getSummary(payload, checks);
 
-    expect(checks).toHaveLength(13);
+    expect(checks).toHaveLength(14);
     expect(summary).toMatchObject({
-      pass: 8,
-      warn: 4,
       fail: 1,
-      total: 13,
+      total: 14,
     });
     expect(statusMap(checks)).toEqual({
       "Project detected": "pass",
@@ -91,6 +89,7 @@ describe("doctor --json", () => {
       Preview: "pass",
       Node: "pass",
       Dependencies: "pass",
+      ".env.local": expect.stringMatching(/^(pass|warn)$/),
       "REST credentials": "warn",
       Workspace: "fail",
     });

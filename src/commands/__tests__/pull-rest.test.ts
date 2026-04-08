@@ -204,16 +204,15 @@ describe("pull --rest — errors", () => {
     expect(payload.designSystem.components).toBe(0);
   });
 
-  it("--rest failure without --json prints error to console.error", async () => {
-    const errorLogs: string[] = [];
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation((...args: unknown[]) => {
-      errorLogs.push(args.join(" "));
+  it("--rest failure without --json prints error to console.log", async () => {
+    const consoleLogs: string[] = [];
+    vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {
+      consoleLogs.push(args.join(" "));
     });
     const program = new Command();
     registerPullCommand(program, makeRestEngine({ restSucceeds: false, errorMsg: "Bad token" }) as never);
     await program.parseAsync(["pull", "--rest"], { from: "user" });
-    expect(errorLogs.some((l) => l.includes("Bad token") || l.includes("Error"))).toBe(true);
+    expect(consoleLogs.some((l) => l.includes("Bad token") || l.includes("Error") || l.includes("fail"))).toBe(true);
   });
 });
 

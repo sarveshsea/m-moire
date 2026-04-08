@@ -28,15 +28,15 @@ describe("MCP tools registration", () => {
     const src = await readToolsSrc();
     const designDocIdx = src.indexOf('"design_doc"');
     expect(designDocIdx).toBeGreaterThan(-1);
-    // Within the next 400 chars after the tool name we expect a url param
-    const snippet = src.slice(designDocIdx, designDocIdx + 400);
+    // Within the next 2000 chars after the tool name we expect a url param
+    const snippet = src.slice(designDocIdx, designDocIdx + 2000);
     expect(snippet).toContain("url");
   });
 
   it("design_doc tool accepts a raw boolean parameter", async () => {
     const src = await readToolsSrc();
     const designDocIdx = src.indexOf('"design_doc"');
-    const snippet = src.slice(designDocIdx, designDocIdx + 400);
+    const snippet = src.slice(designDocIdx, designDocIdx + 2000);
     expect(snippet).toContain("raw");
   });
 

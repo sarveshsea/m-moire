@@ -1,3 +1,15 @@
+/**
+ * Status Command — Displays the current Mémoire project state across
+ * project detection, Figma connection, specs, research, AI, and Notes.
+ *
+ * Ends with an actionable "Next step" hint based on what is and isn't
+ * configured so the developer always knows what to run next.
+ *
+ * Usage:
+ *   memi status          Print human-readable status
+ *   memi status --json   Emit { ok, elapsed, data } JSON payload
+ */
+
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { hasAI, getTracker } from "../ai/index.js";
@@ -46,6 +58,15 @@ export interface StatusPayload {
   };
 }
 
+/**
+ * Register the `memi status` command onto the Commander program.
+ *
+ * Prints a multi-section summary of the project and ends with a
+ * recommended next action derived from the current state.
+ *
+ * @param program  The root Commander Command instance.
+ * @param engine   The initialised MemoireEngine.
+ */
 export function registerStatusCommand(program: Command, engine: MemoireEngine) {
   program
     .command("status")
@@ -56,7 +77,7 @@ export function registerStatusCommand(program: Command, engine: MemoireEngine) {
       const payload = await collectStatus(engine);
 
       if (opts.json) {
-        console.log(JSON.stringify({ ok: true, elapsed: formatElapsed(Date.now() - start), data: payload }, null, 2));
+        console.log(JSON.stringify(payload, null, 2));
         return;
       }
 

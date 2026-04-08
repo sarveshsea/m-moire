@@ -186,6 +186,10 @@ function makeConnectEngine(
       },
       on() {},
       disconnect() {},
+      getConnectionState() { return options.connectedClients ? "connected" : "disconnected"; },
+      get reconnectAttempts() { return 0; },
+      get lastConnectedAt() { return null; },
+      get lastDisconnectedAt() { return null; },
     },
   };
 }
