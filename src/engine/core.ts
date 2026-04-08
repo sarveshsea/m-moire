@@ -357,6 +357,18 @@ export class MemoireEngine extends EventEmitter {
     }
   }
 
+  /**
+   * Returns true if a live bridge or daemon is already running.
+   * Used by pull to decide whether to wait for a plugin or fall back to REST.
+   */
+  async hasRunningBridge(): Promise<boolean> {
+    const [lock, daemon] = await Promise.all([
+      this._readBridgeLock(),
+      this._readDaemonStatus(),
+    ]);
+    return !!(lock || daemon);
+  }
+
   /** Read daemon status file if it exists */
   private async _readDaemonStatus(): Promise<{ figmaPort: number } | null> {
     try {

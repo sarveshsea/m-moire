@@ -43,6 +43,8 @@ function makeRestEngine(opts: {
   return {
     async init() {},
     figma: { isConnected: false },
+    config: { figmaToken: undefined, figmaFileKey: undefined },
+    async hasRunningBridge() { return false; },
     async pullDesignSystemREST() {
       if (!restSucceeds) throw new Error(errorMsg ?? "REST pull failed");
     },
@@ -222,6 +224,8 @@ describe("pull (plugin mode) — unaffected by --rest changes", () => {
     const engine = {
       async init() {},
       figma: { isConnected: false },
+      config: { figmaToken: undefined, figmaFileKey: undefined },
+      async hasRunningBridge() { return false; },
       async pullDesignSystem() {},
       async pullDesignSystemREST() {},
       async ensureFigmaConnected() { throw new Error("No plugin"); },

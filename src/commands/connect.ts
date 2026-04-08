@@ -3,7 +3,9 @@ import type { MemoireEngine } from "../engine/core.js";
 import type { BridgeClient } from "../figma/ws-server.js";
 
 import { readFile, writeFile, unlink } from "fs/promises";
-import { join } from "path";
+import { join, dirname } from "path";
+import { spawn } from "child_process";
+import { fileURLToPath } from "url";
 import { createInterface } from "readline";
 import chalk from "chalk";
 import { resolvePluginHealth, type PluginInstallHealth } from "../plugin/install-info.js";
@@ -238,9 +240,64 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
     .option("-n, --name <name>", "Instance name shown in Figma plugin")
     .option("--role <role>", "Register as an agent with this role (e.g., token-engineer)")
     .option("--skip-setup", "Skip the guided setup, go straight to connecting")
+    .option("--background", "Start bridge as a background process and exit (no terminal required)")
     .option("--json", "Output connection state as JSON")
-    .action(async (opts: { port: string; name?: string; role?: string; skipSetup?: boolean; json?: boolean }) => {
+    .action(async (opts: { port: string; name?: string; role?: string; skipSetup?: boolean; background?: boolean; json?: boolean }) => {
       await engine.init();
+
+      // ── Background mode ───────────────────────────────
+      if (opts.background) {
+        // Resolve the CLI entry (dist/index.js next to this file's dist location)
+        const __filename = fileURLToPath(import.meta.url);
+        const cliPath = join(dirname(__filename), "index.js");
+
+        const args = [cliPath, "connect", "--skip-setup"];
+        if (opts.role) args.push("--role", opts.role);
+        if (opts.name) args.push("--name", opts.name);
+
+        const child = spawn(process.execPath, args, {
+          detached: true,
+          stdio: "ignore",
+          env: { ...process.env },
+        });
+        child.unref();
+
+        if (!opts.json) {
+          console.log();
+          console.log(ui.ok("Bridge starting in background..."));
+          console.log(ui.dim("  Waiting for plugin to register..."));
+        }
+
+        // Poll bridge.json for up to 8 seconds to confirm the child started
+        const root = engine.config.projectRoot;
+        const bridgeLockPath = join(root, ".memoire", "bridge.json");
+        const pollStart = Date.now();
+        let port: number | null = null;
+
+        while (Date.now() - pollStart < 8000) {
+          await new Promise((r) => setTimeout(r, 400));
+          try {
+            const raw = await readFile(bridgeLockPath, "utf-8");
+            const lock = JSON.parse(raw) as { port: number; pid: number };
+            if (lock.port && lock.pid) {
+              try { process.kill(lock.pid, 0); port = lock.port; break; } catch { /* stale */ }
+            }
+          } catch { /* not written yet */ }
+        }
+
+        if (opts.json) {
+          console.log(JSON.stringify({ status: port ? "connected" : "starting", bridge: { port, pid: child.pid ?? null } }));
+        } else if (port) {
+          console.log(ui.ok(`Bridge running on port ${port}`));
+          console.log(ui.dim("  Open the Mémoire plugin in Figma to connect"));
+          console.log(ui.dim("  Run `memi connect --json` to check status"));
+        } else {
+          console.log(ui.warn("Bridge started but port not confirmed yet"));
+          console.log(ui.dim("  Run `memi connect --json` to check status"));
+        }
+        console.log();
+        return;
+      }
 
       const root = engine.config.projectRoot;
       const json = Boolean(opts.json);

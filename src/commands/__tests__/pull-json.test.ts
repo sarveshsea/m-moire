@@ -68,10 +68,15 @@ function makePullEngine({ figmaConnected }: { figmaConnected: boolean }) {
 
   return {
     async init() {},
+    figma: { isConnected: figmaConnected },
+    config: { figmaToken: undefined, figmaFileKey: undefined },
+    async hasRunningBridge() { return false; },
     async ensureFigmaConnected() {
       if (!figmaConnected) throw new Error("No Figma plugin connected");
     },
     async pullDesignSystem() {},
+    async pullDesignSystemREST() {},
+    snapshotDesignSystem() { return { ...ds }; },
     registry: {
       designSystem: ds,
       async getAllSpecs() {
