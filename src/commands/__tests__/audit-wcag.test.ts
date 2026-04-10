@@ -34,11 +34,13 @@ type FakeSpec = {
 
 function makeEngine(specs: FakeSpec[]) {
   return {
+    async init() {},
     registry: {
       async load() {},
       async getAllSpecs() {
         return specs;
       },
+      getGenerationState() { return null; },
     },
   };
 }

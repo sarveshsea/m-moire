@@ -223,19 +223,74 @@ export function registerAuditCommand(program: Command, engine: MemoireEngine): v
     .command("audit")
     .description("Run WCAG 2.2 accessibility audit on component specs")
     .option("--wcag", "Run the 5-check WCAG accessibility audit")
+    .option("--unused", "List specs with no generated code (never generated or stale)")
     .option("--component <name>", "Audit only specs matching this name (case-insensitive substring)")
     .option("--json", "Output audit results as JSON")
-    .action(async (opts: { wcag?: boolean; component?: string; json?: boolean }) => {
+    .action(async (opts: { wcag?: boolean; unused?: boolean; component?: string; json?: boolean }) => {
+      await engine.init();
+
+      // ── Unused specs audit ────────────────────────────────────────
+      if (opts.unused) {
+        const allSpecs = await engine.registry.getAllSpecs();
+        const unused = allSpecs.filter((s) => {
+          if (s.type === "design" || s.type === "ia") return false; // reference-only
+          return !engine.registry.getGenerationState(s.name);
+        });
+        const stale = allSpecs.filter((s) => {
+          if (s.type === "design" || s.type === "ia") return false;
+          const state = engine.registry.getGenerationState(s.name);
+          if (!state) return false;
+          // Spec updated after last generation
+          const specUpdated = "updatedAt" in s ? new Date(s.updatedAt as string).getTime() : 0;
+          const generatedAt = new Date(state.generatedAt).getTime();
+          return specUpdated > generatedAt;
+        });
+
+        if (opts.json) {
+          console.log(JSON.stringify({
+            unused: unused.map((s) => ({ name: s.name, type: s.type })),
+            stale: stale.map((s) => ({ name: s.name, type: s.type })),
+            total: allSpecs.length,
+            unusedCount: unused.length,
+            staleCount: stale.length,
+          }, null, 2));
+          return;
+        }
+
+        console.log("\n  memi audit --unused\n");
+        if (unused.length === 0 && stale.length === 0) {
+          console.log("  All specs have been generated\n");
+          return;
+        }
+        if (unused.length > 0) {
+          console.log(`  Never generated (${unused.length}):`);
+          for (const s of unused) {
+            console.log(`    x  ${s.name}  ${s.type}  →  run: memi generate ${s.name}`);
+          }
+          console.log();
+        }
+        if (stale.length > 0) {
+          console.log(`  Stale — spec updated since last generate (${stale.length}):`);
+          for (const s of stale) {
+            console.log(`    !  ${s.name}  ${s.type}  →  run: memi generate ${s.name}`);
+          }
+          console.log();
+        }
+        if (unused.length > 0) process.exitCode = 1;
+        return;
+      }
+
       if (!opts.wcag) {
-        console.log("\n  Usage: memi audit --wcag [--component <name>] [--json]\n");
+        console.log("\n  Usage: memi audit --wcag [--component <name>] [--json]");
+        console.log("         memi audit --unused [--json]\n");
         console.log("  Options:");
         console.log("    --wcag               Run the 5-check WCAG accessibility audit");
+        console.log("    --unused             List specs with no generated code");
         console.log("    --component <name>   Filter to specs matching name (case-insensitive)");
         console.log("    --json               Output results as JSON\n");
         return;
       }
 
-      await engine.registry.load();
       const allSpecs = await engine.registry.getAllSpecs();
 
       // Filter to ComponentSpecs only
