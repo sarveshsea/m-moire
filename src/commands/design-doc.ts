@@ -102,8 +102,14 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
         // 5. Optionally write DesignSpec JSON
         let specPath: string | undefined;
         if (opts.spec) {
-          const hostname = new URL(url).hostname.replace(/\./g, "-");
-          const specName = `design-${hostname}`;
+          // Fix #9 (MEDIUM): fully sanitize hostname — strip unicode, collapse hyphens
+          const hostname = new URL(url).hostname
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "-")
+            .replace(/-+/g, "-")
+            .replace(/^-|-$/g, "")
+            .slice(0, 60);
+          const specName = `design-${hostname || "unknown"}`;
           specPath = join(engine.config.projectRoot, "specs", "design", `${specName}.json`);
           const spec = buildDesignSpec(specName, url, tokens);
           await mkdir(dirname(specPath), { recursive: true });

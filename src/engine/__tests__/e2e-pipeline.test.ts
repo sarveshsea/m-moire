@@ -156,7 +156,7 @@ describe("E2E Pipeline", () => {
         try {
           const subDir = join(generatedDir, "components", sub, spec.name);
           const files = await readdir(subDir);
-          const tsxFile = files.find((f) => f.endsWith(".tsx"));
+          const tsxFile = files.find((f) => f.endsWith(".tsx") && !f.endsWith(".stories.tsx"));
 
           if (tsxFile) {
             const content = await readFile(join(subDir, tsxFile), "utf8");

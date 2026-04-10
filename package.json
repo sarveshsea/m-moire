@@ -55,7 +55,16 @@
     "cli",
     "wcag",
     "design-intelligence",
-    "cursor"
+    "cursor",
+    "penpot",
+    "storybook",
+    "style-dictionary",
+    "w3c-dtcg",
+    "react",
+    "react-components",
+    "design-doc",
+    "css-extractor",
+    "figma-rest"
   ],
   "engines": {
     "node": ">=20.0.0"

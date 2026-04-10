@@ -728,13 +728,15 @@ export class MemoireWsServer extends EventEmitter {
     limit.messageCount++;
     limit.bytesCount += messageSize;
 
-    if (limit.messageCount > RATE_LIMIT.maxMessagesPerMinute) {
-      log.warn({ clientId, count: limit.messageCount }, "Rate limit exceeded (messages)");
-      return false;
-    }
-
-    if (limit.bytesCount > RATE_LIMIT.maxBytesPerMinute) {
-      log.warn({ clientId, bytes: limit.bytesCount }, "Rate limit exceeded (bytes)");
+    // Fix #11 (LOW): use combined weighted score so neither dimension can be
+    // independently exhausted while staying under the other limit.
+    const msgScore = limit.messageCount / RATE_LIMIT.maxMessagesPerMinute;
+    const byteScore = limit.bytesCount / RATE_LIMIT.maxBytesPerMinute;
+    if (msgScore >= 1 || byteScore >= 1 || msgScore + byteScore >= 1.5) {
+      log.warn(
+        { clientId, messages: limit.messageCount, bytes: limit.bytesCount },
+        "Rate limit exceeded",
+      );
       return false;
     }
 

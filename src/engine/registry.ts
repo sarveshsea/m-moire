@@ -108,7 +108,12 @@ export class Registry extends EventEmitter {
     try {
       const dsPath = join(this.arkDir, "design-system.json");
       const raw = await readFile(dsPath, "utf-8");
-      const parsed = JSON.parse(raw);
+      // Fix #5 (HIGH): sanitize JSON before parsing to prevent prototype pollution.
+      // JSON.parse with a reviver that blocks __proto__, constructor, prototype keys.
+      const parsed = JSON.parse(raw, (key, value) => {
+        if (key === "__proto__" || key === "constructor" || key === "prototype") return undefined;
+        return value;
+      });
       if (parsed && typeof parsed === "object" && Array.isArray(parsed.tokens)) {
         this._designSystem = parsed;
       } else {
@@ -131,7 +136,10 @@ export class Registry extends EventEmitter {
     try {
       const genPath = join(this.arkDir, "generations.json");
       const raw = await readFile(genPath, "utf-8");
-      const states: GenerationState[] = JSON.parse(raw);
+      const states: GenerationState[] = JSON.parse(raw, (key, value) => {
+        if (key === "__proto__" || key === "constructor" || key === "prototype") return undefined;
+        return value;
+      });
       for (const state of states) {
         this.generations.set(state.specName, state);
       }

@@ -28,7 +28,7 @@ import type { MemoireEvent } from "../engine/core.js";
 import type { Registry, DesignSystem } from "../engine/registry.js";
 import type { AnySpec, ComponentSpec, PageSpec, DataVizSpec } from "../specs/types.js";
 import type { ProjectContext } from "../engine/project-context.js";
-import { generateComponent } from "./shadcn-mapper.js";
+import { generateComponent, generateStory } from "./shadcn-mapper.js";
 import { generateDataViz } from "./dataviz-generator.js";
 import { generatePage } from "./page-generator.js";
 import { atomicLevelToFolder } from "../utils/naming.js";
@@ -207,11 +207,13 @@ export class CodeGenerator {
 
     const code = generateComponent(spec, ctx);
     const dir = this.getAtomicDir(spec);
+    const story = generateStory(spec);
 
     return {
       entryFile: `${dir}/${spec.name}.tsx`,
       files: [
         { path: `${dir}/${spec.name}.tsx`, content: code.component },
+        { path: `${dir}/${spec.name}.stories.tsx`, content: story },
         { path: `${dir}/index.ts`, content: code.barrel },
       ],
       spec,

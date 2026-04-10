@@ -42,11 +42,14 @@ async function rpc<T>(
     url.searchParams.set(k, v);
   }
 
+  // Fix #4 (HIGH): disable redirect following to prevent auth token leakage
+  // if a compromised/malicious Penpot server issues a 301 to an internal URL.
   const res = await fetch(url.toString(), {
     headers: {
       Authorization: `Token ${config.token}`,
       Accept: "application/json",
     },
+    redirect: "error",
   });
 
   if (!res.ok) {

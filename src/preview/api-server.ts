@@ -8,7 +8,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { readFile, readdir } from "fs/promises";
 import { existsSync } from "fs";
-import { join, extname, basename } from "path";
+import { join, extname, basename, resolve as resolvePath } from "path";
 import { WebSocketServer, WebSocket } from "ws";
 import type { MemoireEngine } from "../engine/core.js";
 import type { MemoireEvent } from "../engine/core.js";
@@ -86,8 +86,12 @@ export class PreviewApiServer {
         // API routes
         if (url.pathname.startsWith("/api/")) {
           res.setHeader("Content-Type", "application/json");
+          // Fix #8 (MEDIUM): scope CORS to exact port this server is on
           const origin = req.headers.origin;
-          if (origin && /^https?:\/\/localhost(:\d+)?$/.test(origin)) {
+          if (origin && (
+            origin === `http://localhost:${this.port}` ||
+            origin === `https://localhost:${this.port}`
+          )) {
             res.setHeader("Access-Control-Allow-Origin", origin);
           }
 
@@ -255,9 +259,20 @@ export class PreviewApiServer {
         //   npx shadcn add http://localhost:<port>/r/<ComponentName>.json
         if (url.pathname.startsWith("/r/")) {
           res.setHeader("Content-Type", "application/json");
-          res.setHeader("Access-Control-Allow-Origin", "*");
+          // Fix #6 (HIGH): restrict CORS to localhost only — not wildcard
+          const regOrigin = req.headers.origin;
+          if (regOrigin && /^https?:\/\/localhost(:\d+)?$/.test(regOrigin)) {
+            res.setHeader("Access-Control-Allow-Origin", regOrigin);
+          }
 
-          const name = url.pathname.slice(3).replace(/\.json$/, "");
+          // Fix #2 (CRITICAL): validate component name — alphanumeric + dash/underscore only
+          const rawName = url.pathname.slice(3).replace(/\.json$/, "");
+          if (!/^[A-Za-z][A-Za-z0-9_-]*$/.test(rawName)) {
+            res.statusCode = 400;
+            res.end(JSON.stringify({ error: "Invalid component name" }));
+            return;
+          }
+          const name = rawName;
 
           // GET /r/registry.json — full registry index
           if (name === "registry") {
@@ -312,8 +327,18 @@ export class PreviewApiServer {
         // Static file serving
         let filePath = url.pathname === "/" ? "/index.html" : url.pathname;
         const fullPath = join(this.staticDir, filePath);
-        const ext = extname(fullPath);
 
+        // Fix #1 (CRITICAL): path traversal guard — resolved path must stay inside staticDir
+        const resolvedStatic = resolvePath(fullPath);
+        const resolvedStaticDir = resolvePath(this.staticDir);
+        if (!resolvedStatic.startsWith(resolvedStaticDir + "/") && resolvedStatic !== resolvedStaticDir) {
+          res.statusCode = 403;
+          res.setHeader("Content-Type", "text/plain");
+          res.end("Forbidden");
+          return;
+        }
+
+        const ext = extname(fullPath);
         try {
           const content = await readFile(fullPath);
           res.setHeader("Content-Type", MIME_TYPES[ext] || "application/octet-stream");
@@ -338,7 +363,15 @@ export class PreviewApiServer {
       const setupWebSocketServer = () => {
         if (!this.server) return;
 
-        this.wss = new WebSocketServer({ server: this.server });
+        // Fix #7 (HIGH): validate WebSocket origin — localhost only
+        this.wss = new WebSocketServer({
+          server: this.server,
+          verifyClient: (info: { req: IncomingMessage; secure: boolean; origin: string }) => {
+            const origin = info.req.headers.origin;
+            if (!origin) return true; // non-browser clients (curl, CLI) allowed
+            return /^https?:\/\/localhost(:\d+)?$/.test(origin);
+          },
+        });
         this.wss.on("connection", (ws) => {
           this.liveClients.add(ws);
           ws.on("close", () => this.liveClients.delete(ws));

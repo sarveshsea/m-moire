@@ -155,19 +155,25 @@ export async function fetchPageAssets(url: string): Promise<PageAssets> {
   }
 
   // 2. Linked stylesheets — <link rel="stylesheet" href="...">
+  // Fix #3 (CRITICAL): re-validate each resolved URL before fetching to prevent
+  // SSRF via attacker-controlled stylesheet hrefs pointing at private IP ranges.
   const linkRegex = /<link[^>]+rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi;
   const sheetUrls: string[] = [];
   let linkMatch: RegExpExecArray | null;
   while ((linkMatch = linkRegex.exec(html)) !== null) {
     const resolved = resolveUrl(linkMatch[1], url);
-    if (resolved) sheetUrls.push(resolved);
+    if (resolved) {
+      try { assertPublicUrl(resolved); sheetUrls.push(resolved); } catch { /* skip private */ }
+    }
   }
 
   // Also catch href-first variant: <link href="..." rel="stylesheet">
   const linkRegex2 = /<link[^>]+href=["']([^"']+)["'][^>]*rel=["']stylesheet["'][^>]*>/gi;
   while ((linkMatch = linkRegex2.exec(html)) !== null) {
     const resolved = resolveUrl(linkMatch[1], url);
-    if (resolved && !sheetUrls.includes(resolved)) sheetUrls.push(resolved);
+    if (resolved && !sheetUrls.includes(resolved)) {
+      try { assertPublicUrl(resolved); sheetUrls.push(resolved); } catch { /* skip private */ }
+    }
   }
 
   // Fetch stylesheets in parallel (capped at MAX_STYLESHEETS)
@@ -178,6 +184,8 @@ export async function fetchPageAssets(url: string): Promise<PageAssets> {
       // 3. Follow @import rules within each stylesheet (one level deep)
       const importUrls = extractImportUrls(css, sheetUrl);
       for (const importUrl of importUrls.slice(0, 3)) {
+        // Re-validate @import URLs before fetching (same SSRF guard)
+        try { assertPublicUrl(importUrl); } catch { continue; }
         const importedCss = await fetchText(importUrl).catch(() => null);
         if (importedCss) cssBlocks.push(importedCss);
       }
