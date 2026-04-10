@@ -118,13 +118,14 @@ Your specs, generated code, and .env files are never touched.
 | `memi connect --background` | Start bridge as a background daemon |
 | `memi pull` | Extract tokens, components, styles from Figma (auto-falls back to REST) |
 | `memi pull --rest` | Pull via REST API — no plugin or Figma Desktop required |
+| `memi pull --penpot` | Pull from Penpot via REST (needs `PENPOT_TOKEN` + `PENPOT_FILE_ID`) |
 | `memi spec <type> <name>` | Create a component, page, or dataviz spec |
-| `memi generate [name]` | Generate shadcn/ui code from specs |
+| `memi generate [name]` | Generate shadcn/ui code + Storybook stories from specs |
 | `memi generate --preview` | Show generated code without writing files |
-| `memi preview` | Start localhost preview gallery |
+| `memi preview` | Start localhost preview gallery + shadcn registry server |
 | `memi go` | Full pipeline in one command |
 | `memi export` | Export generated code into your project |
-| `memi tokens` | Export design tokens as CSS / Tailwind / JSON |
+| `memi tokens` | Export tokens as CSS / Tailwind / JSON / Style Dictionary (W3C DTCG) |
 | `memi validate` | Validate specs against schemas and cross-references |
 
 ### Sync and daemon
@@ -163,7 +164,7 @@ Your specs, generated code, and .env files are never touched.
 | `memi status` | Project status overview |
 | `memi doctor` | Health check: project, plugin, bridge, workspace |
 | `memi dashboard` | Launch monitoring dashboard |
-| `memi design-doc <url>` | Extract design system from any URL → DESIGN.md |
+| `memi extract <url>` | Extract design system from any URL → DESIGN.md (alias: design-doc) |
 | `memi uninstall` | Remove all Memoire artifacts |
 
 All commands support `--json` for structured output.
@@ -227,6 +228,85 @@ memi mcp config --target cursor --install   # writes to .cursor/mcp.json
 | `memoire://design-system` | Current design system |
 | `memoire://specs/{name}` | Individual spec |
 | `memoire://project` | Project context |
+
+---
+
+## Penpot bridge
+
+Pull design tokens from **Penpot** — the open-source Figma alternative.
+
+```bash
+PENPOT_TOKEN=xxx PENPOT_FILE_ID=yyy PENPOT_BASE_URL=https://design.penpot.app memi pull --penpot
+```
+
+Or set in `.env.local`:
+
+```env
+PENPOT_TOKEN=your-access-token
+PENPOT_FILE_ID=your-file-id
+PENPOT_BASE_URL=https://design.penpot.app  # or your self-hosted instance
+```
+
+Extracts: colors → tokens, typographies → tokens, `tokensLib` sets. Returns the same `DesignSystem` interface so all downstream commands (`generate`, `tokens`, `status`) work unchanged.
+
+---
+
+## Style Dictionary export
+
+`memi tokens` now emits `tokens.style-dictionary.json` in **W3C DTCG format** (`$type` / `$value` syntax, compatible with Style Dictionary v4).
+
+```bash
+memi tokens                          # emits CSS, Tailwind, JSON, and Style Dictionary
+memi tokens --format style-dictionary   # only the SD export
+```
+
+Plug into any Style Dictionary pipeline:
+
+```js
+// style-dictionary.config.js
+module.exports = {
+  source: ["generated/tokens/tokens.style-dictionary.json"],
+  platforms: { css: { transformGroup: "css" } },
+};
+```
+
+---
+
+## Storybook story generation
+
+`memi generate` now produces a **Storybook CSF3 story file** alongside every component:
+
+```
+generated/
+  components/
+    molecules/
+      Button/
+        Button.tsx           # component
+        Button.stories.tsx   # Storybook stories
+        index.ts             # barrel
+```
+
+Stories include a `Default` story plus one story per variant, with `autodocs` enabled. If you have Storybook installed:
+
+```bash
+npx storybook dev -p 6006   # stories are auto-discovered from generated/
+```
+
+---
+
+## shadcn registry server
+
+The preview server serves a **shadcn-compatible component registry** at `/r/`. Install any generated component directly into another project:
+
+```bash
+# In project A — start preview server
+memi preview   # starts on localhost:3030
+
+# In project B — install component
+npx shadcn add http://localhost:3030/r/Button.json
+```
+
+The registry serves the component source, its npm dependencies, and its shadcn registry dependencies. No publishing required.
 
 ---
 

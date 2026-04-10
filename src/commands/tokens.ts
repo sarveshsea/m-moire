@@ -23,7 +23,7 @@ export function registerTokensCommand(program: Command, engine: MemoireEngine) {
       const outputDir = join(engine.config.projectRoot, opts.output);
       const formats: Set<string> = opts.format
         ? new Set((opts.format as string).split(",").map((f: string) => f.trim().toLowerCase()))
-        : new Set(["css", "tailwind", "json"]);
+        : new Set(["css", "tailwind", "json", "style-dictionary"]);
 
       console.log(`\n  Exporting ${ds.tokens.length} tokens (${[...formats].join(", ")})...\n`);
 
@@ -33,7 +33,7 @@ export function registerTokensCommand(program: Command, engine: MemoireEngine) {
       if (files.json) console.log(`  JSON:             ${files.json}`);
 
       // Style Dictionary v4 W3C DTCG format
-      if (formats.has("style-dictionary") || (!opts.format && true)) {
+      if (formats.has("style-dictionary")) {
         const sdTokens = exportToStyleDictionary(ds.tokens);
         const sdPath = join(outputDir, "tokens.style-dictionary.json");
         await mkdir(outputDir, { recursive: true });

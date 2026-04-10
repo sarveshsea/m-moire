@@ -221,7 +221,7 @@ export class PreviewApiServer {
               res.end(JSON.stringify({ ok: resolved, name, resolution }));
             } catch (err) {
               res.statusCode = 400;
-              res.end(JSON.stringify({ ok: false, error: (err as Error).message }));
+              res.end(JSON.stringify({ ok: false, error: sanitizeErrorMessage(err) }));
             }
             return;
           }
@@ -231,11 +231,18 @@ export class PreviewApiServer {
             const body = await readRequestBody(req);
             try {
               const { action } = JSON.parse(body);
+              // Fix #11 (MEDIUM): allowlist valid actions — reject unknown strings
+              const ALLOWED_ACTIONS = new Set(["inspect", "pull-tokens", "pull-components", "page-tree", "stickies", "full-sync"]);
+              if (!action || !ALLOWED_ACTIONS.has(action)) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ ok: false, error: `Unknown action "${String(action).slice(0, 32)}"` }));
+                return;
+              }
               const result = await this.dispatchAction(action);
               res.end(JSON.stringify({ ok: true, action, result }));
             } catch (err) {
               res.statusCode = 400;
-              res.end(JSON.stringify({ ok: false, error: (err as Error).message }));
+              res.end(JSON.stringify({ ok: false, error: sanitizeErrorMessage(err) }));
             }
             return;
           }
@@ -575,6 +582,16 @@ export class PreviewApiServer {
         throw new Error(`Unknown action: ${action}`);
     }
   }
+}
+
+/**
+ * Fix #10 (LOW): Strip filesystem paths from error messages before sending to clients.
+ * Prevents leaking absolute paths like /Users/alice/projects/... in API error responses.
+ */
+function sanitizeErrorMessage(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  // Replace absolute paths: /Users/... /home/... /var/... → <path>
+  return msg.replace(/\/(?:Users|home|var|tmp|private|opt)[^\s"',;)]+/g, "<path>");
 }
 
 const MAX_BODY_BYTES = 1_048_576; // 1 MB
