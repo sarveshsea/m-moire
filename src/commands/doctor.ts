@@ -367,7 +367,17 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
         push("rest.credentials", "bridge", "warn", "REST credentials", "Not configured — add FIGMA_TOKEN + FIGMA_FILE_KEY to .env.local for plugin-free pulls");
       }
 
-      // 12. Workspace
+      // 12. Penpot credentials (optional — enables Penpot pull)
+      const penpotToken = process.env.PENPOT_TOKEN;
+      const penpotFileId = process.env.PENPOT_FILE_ID;
+      if (penpotToken && penpotFileId) {
+        push("penpot.credentials", "bridge", "pass", "Penpot credentials", "PENPOT_TOKEN + PENPOT_FILE_ID set — `memi pull --penpot` available");
+      } else if (penpotToken || penpotFileId) {
+        push("penpot.credentials", "bridge", "warn", "Penpot credentials", `${penpotToken ? "PENPOT_TOKEN" : "PENPOT_FILE_ID"} set but incomplete — add both to .env.local`);
+      }
+      // Only show if something is set (Penpot is optional)
+
+      // 13. Workspace
       try {
         const memoireDir = join(engine.config.projectRoot, ".memoire");
         await access(memoireDir, constants.R_OK | constants.W_OK);

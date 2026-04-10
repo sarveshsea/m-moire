@@ -21,3 +21,12 @@ jobs:
       - run: npm run lint
       - run: npm test -- --run
       - run: npm run build
+      - name: Verify plugin bundle version matches package.json
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          META_VERSION=$(node -p "require('./plugin/widget-meta.json').packageVersion")
+          if [ "$PKG_VERSION" != "$META_VERSION" ]; then
+            echo "ERROR: widget-meta.json ($META_VERSION) does not match package.json ($PKG_VERSION)"
+            exit 1
+          fi
+          echo "Plugin version $META_VERSION matches package.json"
