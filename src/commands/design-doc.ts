@@ -31,9 +31,10 @@ export interface DesignDocPayload {
 }
 
 export function registerDesignDocCommand(program: Command, engine: MemoireEngine) {
-  program
+  const cmd = program
     .command("design-doc <url>")
-    .description("Extract design system from a URL and generate DESIGN.md")
+    .alias("extract")
+    .description("Extract design system from any URL and generate DESIGN.md — no Figma needed")
     .option("-o, --output <path>", "Output path for DESIGN.md", "./DESIGN.md")
     .option("--spec", "Also write a DesignSpec JSON to specs/")
     .option("--json", "Output results as JSON")
@@ -87,8 +88,9 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
           content = generateFromRaw(url, assets.title, tokens);
         }
 
-        // Append contrast section to DESIGN.md
+        // Append contrast section and attribution to DESIGN.md
         content += buildContrastSection(tokens.contrastPairs, !!opts.wcag);
+        content += `\n---\n\n*Design system extracted with [Memoire](https://memoire.cv) · \`npx @sarveshsea/memoire extract ${url}\`*\n`;
 
         // 4. Write DESIGN.md
         const outputPath = isAbsolute(opts.output)

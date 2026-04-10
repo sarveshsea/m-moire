@@ -1,6 +1,6 @@
 {
   "name": "@sarveshsea/memoire",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "AI-Native Design Intelligence Engine — Figma + Research + Spec-Driven Code Generation",
   "type": "module",
   "main": "dist/index.js",
@@ -26,7 +26,7 @@
     "lint": "tsc --noEmit && tsc -p tsconfig.plugin.json --noEmit",
     "typecheck": "tsc --noEmit --strict && tsc -p tsconfig.plugin.json --noEmit",
     "prepublishOnly": "npm run typecheck && npm run test && npm run build",
-    "prepare": "npm run build",
+    "prepare": "[ -d .git ] && npm run build || true",
     "postinstall": "node scripts/postinstall.mjs"
   },
   "repository": {

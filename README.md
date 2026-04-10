@@ -5,9 +5,9 @@
 <h1 align="center">Memoire</h1>
 
 <p align="center">
-  Design intelligence engine for Figma.<br/>
-  Pull your design system. Generate production code. Sync changes bidirectionally.<br/>
-  Works as a CLI, MCP server for Claude Code / Cursor, or fully autonomous agent.
+  Extract any design system. Generate production React components.<br/>
+  Works on any public URL — no Figma required to get started.<br/>
+  MCP server for Claude Code / Cursor, or run standalone as a CLI.
 </p>
 
 <p align="center">
@@ -32,17 +32,25 @@
 
 ---
 
+## Try it now — no install, no Figma
+
+```bash
+npx @sarveshsea/memoire extract https://stripe.com
+```
+
+Points at any public URL. Extracts colors, typography, spacing, and component patterns. Outputs a ready-to-use `DESIGN.md` and Tailwind config sketch. No account. No tokens. 10 seconds.
+
+---
+
 ## What it does
 
-Connect to Figma. Memoire handles the rest:
+1. **Extracts** any website's design system via CSS parsing + AI synthesis
+2. **Pulls** design tokens, components, and styles from Figma (REST or WebSocket)
+3. **Creates** structured JSON specs — every component described before code
+4. **Generates** React + TypeScript + Tailwind code using shadcn/ui
+5. **Syncs** changes bidirectionally between Figma and code
 
-1. **Pulls** design tokens, components, and styles via WebSocket bridge
-2. **Creates** structured JSON specs (every component described before code)
-3. **Generates** React + TypeScript + Tailwind code using shadcn/ui
-4. **Syncs** changes bidirectionally between Figma and code
-5. **Previews** everything on a local dashboard
-
-All components follow Atomic Design -- atoms, molecules, organisms, templates, pages.
+All components follow Atomic Design — atoms, molecules, organisms, templates, pages.
 
 ---
 
@@ -52,7 +60,7 @@ All components follow Atomic Design -- atoms, molecules, organisms, templates, p
 npm install -g @sarveshsea/memoire
 ```
 
-Requires Node.js 20+. Figma Desktop needed only for the real-time WebSocket bridge — REST mode works without it.
+Requires Node.js 20+. Figma is optional — `memi extract` works on any public URL without it.
 
 ### Works with
 
