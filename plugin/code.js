@@ -539,7 +539,7 @@ var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
     return { collections: result };
   }
   function getComponents() {
-    const components = figma.currentPage.findAll((node) => node.type === "COMPONENT" || node.type === "COMPONENT_SET");
+    const components = figma.root.findAll((node) => node.type === "COMPONENT" || node.type === "COMPONENT_SET");
     return components.map((component) => ({
       id: component.id,
       name: component.name,

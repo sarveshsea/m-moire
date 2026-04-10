@@ -4,6 +4,7 @@ import { checkCapabilities, formatCapabilityError } from "../engine/capabilities
 import { diffDesignSystem } from "../engine/token-differ.js";
 import { ui } from "../tui/format.js";
 import { auditTokensForWcag, type WcagTokenReport } from "../figma/wcag-token-checker.js";
+import { pullFromPenpot } from "../figma/penpot-client.js";
 
 export interface PullPayload {
   status: "completed" | "failed";
@@ -108,12 +109,62 @@ export function registerPullCommand(program: Command, engine: MemoireEngine) {
     .command("pull")
     .description("Pull design system from Figma. Auto-falls back to REST API when no plugin is connected.")
     .option("--rest", "Force pull via Figma REST API (no plugin required — needs FIGMA_TOKEN + FIGMA_FILE_KEY)")
+    .option("--penpot", "Pull from Penpot (needs PENPOT_TOKEN + PENPOT_FILE_ID + PENPOT_BASE_URL)")
     .option("--force", "Bypass the 5-minute pull cache and force a fresh pull")
     .option("--json", "Output pull results as JSON")
     .option("--wcag", "Run WCAG token audit after pull. Sets exit code 2 when failures are found.")
-    .action(async (opts: { rest?: boolean; force?: boolean; json?: boolean; wcag?: boolean }) => {
+    .action(async (opts: { rest?: boolean; penpot?: boolean; force?: boolean; json?: boolean; wcag?: boolean }) => {
       const start = Date.now();
       await engine.init();
+
+      // ── Penpot pull ─────────────────────────────────────────
+      if (opts.penpot) {
+        const penpotToken = process.env.PENPOT_TOKEN;
+        const penpotFileId = process.env.PENPOT_FILE_ID;
+        const penpotBase = process.env.PENPOT_BASE_URL ?? "https://design.penpot.app";
+
+        if (!penpotToken || !penpotFileId) {
+          const msg = "PENPOT_TOKEN and PENPOT_FILE_ID are required for --penpot pull";
+          if (opts.json) {
+            console.log(JSON.stringify({ status: "failed", error: msg }));
+          } else {
+            console.log(ui.fail(msg));
+            console.log("  export PENPOT_TOKEN=your-token");
+            console.log("  export PENPOT_FILE_ID=your-file-uuid");
+            console.log("  export PENPOT_BASE_URL=https://design.penpot.app  # or self-hosted URL");
+            console.log();
+          }
+          process.exitCode = 1;
+          return;
+        }
+
+        if (!opts.json) console.log("\n  Pulling from Penpot...\n");
+        try {
+          const result = await pullFromPenpot({ baseUrl: penpotBase, token: penpotToken, fileId: penpotFileId });
+          await engine.registry.updateDesignSystem({
+            tokens: result.tokens,
+            components: result.components,
+            styles: result.styles,
+            lastSync: new Date().toISOString(),
+          });
+          if (opts.json) {
+            console.log(JSON.stringify({ status: "completed", source: "penpot", fileName: result.fileName, designSystem: { tokens: result.tokens.length, components: result.components.length, styles: result.styles.length }, elapsedMs: Date.now() - start }, null, 2));
+          } else {
+            console.log(`  ${result.tokens.length} tokens, ${result.components.length} components from "${result.fileName}"`);
+            console.log("  Run `memi generate` to generate code from specs\n");
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          if (opts.json) {
+            console.log(JSON.stringify({ status: "failed", source: "penpot", error: msg }));
+          } else {
+            console.log(ui.fail(`Penpot error: ${msg}`));
+            console.log();
+          }
+          process.exitCode = 1;
+        }
+        return;
+      }
 
       // Explicit REST mode
       if (opts.rest) {

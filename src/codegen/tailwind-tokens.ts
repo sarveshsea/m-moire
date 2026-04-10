@@ -1,6 +1,9 @@
 /**
  * Tailwind Token Generator — Converts Figma design tokens into
  * Tailwind-compatible CSS custom properties and config extensions.
+ *
+ * Also exports Style Dictionary v4 W3C DTCG format for compatibility
+ * with the broader design token ecosystem (200K+ weekly SD users).
  */
 
 import { writeFile, mkdir } from "fs/promises";
@@ -107,6 +110,113 @@ export function generateShadcnTokenMapping(tokens: DesignToken[]): string {
 
   lines.push("}");
   return lines.join("\n");
+}
+
+// ── Style Dictionary v4 (W3C DTCG) export ────────────────────
+
+/**
+ * Export tokens as Style Dictionary v4 W3C DTCG format.
+ * Compatible with `style-dictionary`, `@tokens-studio/sd-transforms`, and any
+ * W3C Design Token Community Group-compliant tool.
+ *
+ * Output structure:
+ * {
+ *   "color": { "$type": "color", "primary": { "$value": "#..." } },
+ *   "spacing": { "$type": "dimension", "md": { "$value": "16px" } },
+ *   ...
+ * }
+ */
+export function exportToStyleDictionary(tokens: DesignToken[]): Record<string, unknown> {
+  const dtcg: Record<string, Record<string, unknown>> = {
+    color: { $type: "color" },
+    spacing: { $type: "dimension" },
+    radius: { $type: "dimension" },
+    typography: { $type: "typography" },
+    shadow: { $type: "shadow" },
+    other: {},
+  };
+
+  for (const token of tokens) {
+    const category = token.type === "other" ? "other" : token.type;
+    const group = dtcg[category] ?? (dtcg[category] = {});
+
+    // Use default mode value first, fall back to first available value
+    const value =
+      token.values["default"] ??
+      token.values["Default"] ??
+      token.values["Value"] ??
+      Object.values(token.values)[0];
+
+    if (value === undefined) continue;
+
+    // Sanitize name: strip leading "--", replace invalid chars with "-"
+    const key = token.name
+      .replace(/^--/, "")
+      .replace(/[^a-zA-Z0-9-_]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    const dtcgValue = formatDTCGValue(token.type, value);
+
+    const entry: Record<string, unknown> = { $value: dtcgValue };
+    if (token.collection) entry.$description = `From: ${token.collection}`;
+
+    // Multi-mode tokens: emit each mode as a separate token under key-mode
+    const modes = Object.keys(token.values);
+    if (modes.length > 1) {
+      for (const mode of modes) {
+        const modeKey = `${key}-${mode.toLowerCase().replace(/\s+/g, "-")}`;
+        const modeVal = token.values[mode];
+        (group as Record<string, unknown>)[modeKey] = {
+          $value: formatDTCGValue(token.type, modeVal),
+          $description: `${token.collection} / ${mode}`,
+        };
+      }
+    } else {
+      (group as Record<string, unknown>)[key] = entry;
+    }
+  }
+
+  // Remove empty groups
+  for (const key of Object.keys(dtcg)) {
+    const group = dtcg[key] as Record<string, unknown>;
+    const nonMeta = Object.keys(group).filter((k) => !k.startsWith("$"));
+    if (nonMeta.length === 0) delete dtcg[key];
+  }
+
+  return dtcg;
+}
+
+function formatDTCGValue(
+  type: DesignToken["type"],
+  raw: string | number
+): unknown {
+  const val = String(raw);
+  switch (type) {
+    case "color":
+      return val.startsWith("#") || val.startsWith("rgb") ? val : val;
+    case "spacing":
+    case "radius":
+      // Ensure unit
+      if (typeof raw === "number") return `${raw}px`;
+      return /^\d+(\.\d+)?$/.test(val) ? `${val}px` : val;
+    case "shadow": {
+      // Try to parse "offset-x offset-y blur spread color" CSS shadow
+      const parts = val.split(/\s+/);
+      if (parts.length >= 4) {
+        return {
+          offsetX: parts[0],
+          offsetY: parts[1],
+          blur: parts[2],
+          spread: parts[3] ?? "0px",
+          color: parts.slice(4).join(" ") || "#00000040",
+        };
+      }
+      return val;
+    }
+    default:
+      return val;
+  }
 }
 
 // ── Helpers ──────────────────────────────────────────────────
