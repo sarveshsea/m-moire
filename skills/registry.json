@@ -83,6 +83,15 @@
       "activateOn": "research-to-dashboard",
       "freedomLevel": "high",
       "prerequisite": null
+    },
+    {
+      "id": "design-extract",
+      "name": "Design Extract",
+      "file": "skills/DESIGN_EXTRACT.md",
+      "description": "Extract any website's design system from its public URL — colors, typography, spacing, shadows, component patterns. Outputs DESIGN.md with Tailwind config.",
+      "activateOn": "design-extraction",
+      "freedomLevel": "high",
+      "prerequisite": null
     }
   ],
   "activationContexts": {
@@ -95,6 +104,7 @@
     "multi-instance": "Multiple Claude agents operating simultaneously",
     "component-creation": "Creating or modifying component specs",
     "research-to-dashboard": "Transforming research data into visual dashboards",
+    "design-extraction": "Extracting design systems from URLs or websites",
     "docker-environment": "Project contains Dockerfile, docker-compose.yml, or .devcontainer/"
   }
 }

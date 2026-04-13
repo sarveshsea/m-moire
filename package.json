@@ -13,7 +13,8 @@
   },
   "bin": {
     "memoire": "dist/index.js",
-    "memi": "dist/index.js"
+    "memi": "dist/index.js",
+    "design-extract": "dist/index.js"
   },
   "scripts": {
     "build": "node scripts/build.mjs",
