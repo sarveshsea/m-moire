@@ -11,12 +11,28 @@ export function registerTokensCommand(program: Command, engine: MemoireEngine) {
     .option("-o, --output <dir>", "Output directory", "generated/tokens")
     .option("-f, --format <formats>", "Comma-separated formats: css,tailwind,json,style-dictionary (default: all)")
     .option("--shadcn", "Generate shadcn-compatible token mapping")
+    .option("--json", "Output token manifest as JSON")
     .action(async (opts) => {
       await engine.init();
 
       const ds = engine.registry.designSystem;
       if (ds.tokens.length === 0) {
+        if (opts.json) {
+          console.log(JSON.stringify({ tokens: [], count: 0 }));
+          return;
+        }
         console.log("\n  No design tokens found. Run `memi pull` first.\n");
+        return;
+      }
+
+      // --json: output token manifest and exit
+      if (opts.json) {
+        const manifest = {
+          count: ds.tokens.length,
+          tokens: ds.tokens,
+          lastSync: ds.lastSync,
+        };
+        console.log(JSON.stringify(manifest, null, 2));
         return;
       }
 

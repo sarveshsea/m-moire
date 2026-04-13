@@ -363,11 +363,11 @@ export class MemoireEngine extends EventEmitter {
 
     // Wait for a plugin to connect — register listener BEFORE checking state
     // to prevent the race where connection happens between check and listen
-    console.log(`  · Waiting for Figma plugin on port ${port}...`);
+    this.emit("event", { type: "info", message: `Waiting for Figma plugin on port ${port}...` });
     await new Promise<void>((resolve, reject) => {
       const onConnect = () => {
         clearTimeout(timer);
-        console.log(`  + Figma plugin connected on port ${port}`);
+        this.emit("event", { type: "success", message: `Figma plugin connected on port ${port}` });
         resolve();
       };
 

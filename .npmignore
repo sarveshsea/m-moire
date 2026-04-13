@@ -1,0 +1,24 @@
+# Source (distributed as compiled dist/)
+src/
+**/__tests__/
+
+# Build/CI
+.github/
+.claude/
+scripts/
+preview/
+docs/
+
+# Development configs
+Dockerfile
+glama.json
+.mcp.json
+.env*
+tsconfig*.json
+vitest.config.ts
+
+# Project docs (not needed in npm package)
+PRODUCT_SPEC.md
+AGENTS.md
+CONTRIBUTING.md
+CLAUDE.md

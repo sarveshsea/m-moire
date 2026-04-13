@@ -33,4 +33,18 @@ describe("CLI registration smoke test", () => {
     expect(pullSrc).toContain("--force");
     expect(pullSrc).toContain("pullDesignSystemREST");
   });
+
+  it("registers design-doc with extract alias", async () => {
+    const designDocSrc = await readFile(join(process.cwd(), "src", "commands", "design-doc.ts"), "utf-8");
+
+    expect(designDocSrc).toContain('.alias("extract")');
+    expect(designDocSrc).toContain("design-doc");
+  });
+
+  it("registers audit command in the CLI entrypoint", async () => {
+    const source = await readCliEntrypoint();
+
+    expect(source).toContain("registerAuditCommand");
+    expect(source).toContain("registerAuditCommand(program, engine);");
+  });
 });

@@ -268,7 +268,8 @@ function buildButtonComponent(spec: ComponentSpec, tokenStyles?: string, variant
   const lines: string[] = [];
   if (variantLogic) lines.push(variantLogic, "");
   lines.push("  return (");
-  const variantAttr = spec.variants.length > 1 ? ` variant={variant as any}` : "";
+  const variantUnion = spec.variants.map((v: string) => `"${v}"`).join(" | ");
+  const variantAttr = spec.variants.length > 1 ? ` variant={variant as ${variantUnion}}` : "";
   const disabledAttr = disabledProp ? ` disabled={${disabledProp}}` : "";
   const styleAttr = tokenStyles ? ` style={${tokenStyles}}` : "";
   lines.push(`    <Button className={cn(className)}${variantAttr}${disabledAttr}${styleAttr} {...props}>`);

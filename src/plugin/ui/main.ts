@@ -239,8 +239,10 @@ function bindPluginMessages(): void {
         forwardToBridge(serializeBridgeEnvelope(createBridgeJobStatusMessage(message.job)));
         scheduleRender();
         break;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- granular-change is a plugin-internal message type not in the union
       case "granular-change" as any: {
-        var granular = message as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- plugin sends untyped granular change events
+        const granular = message as any;
         if (granular.granularType === "variable-changed") {
           forwardToBridge(serializeBridgeEnvelope(createBridgeVariableChangedMessage(granular.data)));
         } else if (granular.granularType === "component-changed") {

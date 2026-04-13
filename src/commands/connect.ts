@@ -479,7 +479,9 @@ export function registerConnectCommand(program: Command, engine: MemoireEngine) 
 
         // ── Write bridge lock so `memi pull` can reuse this bridge ──
         await writeBridgeLock(root, port);
-        const cleanupBridgeLock = () => clearBridgeLock(root).catch(() => {});
+        const cleanupBridgeLock = () => clearBridgeLock(root).catch((err) => {
+          if (process.env.DEBUG) console.error("bridge lock cleanup failed:", err);
+        });
         process.once("exit", cleanupBridgeLock);
         process.once("SIGTERM", () => { cleanupBridgeLock(); process.exit(0); });
         process.once("SIGHUP", () => { cleanupBridgeLock(); process.exit(0); });
