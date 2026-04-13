@@ -1,0 +1,11 @@
+{
+  "name": "memoire",
+  "display_name": "Memoire",
+  "description": "Design system MCP server. 20 tools: extract design tokens from any URL, pull from Figma or Penpot, generate React + shadcn/ui components from specs, run WCAG audits, sync tokens bidirectionally.",
+  "repository": "https://github.com/sarveshsea/m-moire",
+  "homepage": "https://memoire.cv",
+  "author": "sarveshsea",
+  "license": "MIT",
+  "categories": ["Design Tools", "Developer Tools"],
+  "tags": ["figma", "design-system", "react", "shadcn", "mcp", "penpot", "tailwind", "storybook"]
+}
