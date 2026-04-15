@@ -60,6 +60,7 @@ import { registerAuditCommand } from "./commands/audit.js";
 import { registerDiffCommand } from "./commands/diff.js";
 import { registerAddCommand } from "./commands/add.js";
 import { registerPublishCommand } from "./commands/publish.js";
+import { registerViewCommand } from "./commands/view.js";
 import { registerUpgradeCommand } from "./commands/upgrade.js";
 import { registerUpdateCommand } from "./commands/update.js";
 import { existsSync, rmSync } from "fs";
@@ -135,6 +136,7 @@ registerAuditCommand(program, engine);
 registerDiffCommand(program, engine);
 registerAddCommand(program, engine);
 registerPublishCommand(program, engine);
+registerViewCommand(program, engine);
 registerUpgradeCommand(program, engine);
 registerUpdateCommand(program, engine);
 
