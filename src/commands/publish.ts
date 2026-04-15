@@ -14,6 +14,7 @@ import { resolve as resolvePath } from "path";
 import ora from "ora";
 import { ui } from "../tui/format.js";
 import { publishRegistry } from "../registry/publisher.js";
+import { marketplaceRegistryUrl, marketplaceComponentUrl } from "../registry/constants.js";
 import type { ComponentSpec } from "../specs/types.js";
 import { formatElapsed } from "../utils/format.js";
 
@@ -162,6 +163,16 @@ export function registerPublishCommand(program: Command, engine: MemoireEngine) 
         console.log(ui.dots("Tokens", `${ds.tokens.length}`));
         console.log(ui.dots("Components", `${componentSpecs.length}`));
         console.log(ui.dim(`  (${formatElapsed(Date.now() - start)})`));
+        console.log();
+
+        // Marketplace URLs — only active once `npm publish` has run
+        const registryUrl = marketplaceRegistryUrl(opts.name);
+        const sampleComponent = componentSpecs[0]?.name ?? "<Component>";
+        const componentUrl = marketplaceComponentUrl(opts.name, sampleComponent);
+        console.log(ui.dim("  View on Memoire:"));
+        console.log(`    ${registryUrl}`);
+        console.log(`    ${componentUrl}`);
+        console.log(ui.dim("  Visible on the Marketplace within 1 hour of `npm publish`."));
         console.log();
 
         // Optional: run `npm publish --access public`
