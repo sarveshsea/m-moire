@@ -16,6 +16,11 @@ import {
   type WidgetCommandName,
 } from "../shared/contracts.js";
 import { stringIncludes } from "../shared/compat.js";
+import {
+  createChangeBuffer,
+  type ChangeBuffer,
+  type ChangeBufferDropEvent,
+} from "./state/change-buffer.js";
 
 interface PluginState {
   sessionId: string;
@@ -24,16 +29,7 @@ interface PluginState {
   selectionListenerActive: boolean;
   lastSelectionUpdate: number;
   selectionThrottleMs: number;
-  changeBuffer: Array<{
-    type: string;
-    id: string;
-    origin: string | null;
-    sessionId: string;
-    runId: string | null;
-    pageId: string | null;
-    timestamp: number;
-  }>;
-  maxChangeBuffer: number;
+  changeBuffer: ChangeBuffer;
   connection: WidgetConnectionState;
 }
 
@@ -61,8 +57,10 @@ const state: PluginState = {
   selectionListenerActive: true,
   lastSelectionUpdate: 0,
   selectionThrottleMs: 180,
-  changeBuffer: [],
-  maxChangeBuffer: 300,
+  changeBuffer: createChangeBuffer({
+    capacity: 300,
+    onDrop: emitChangeBufferDrop,
+  }),
   connection: {
     stage: "offline",
     port: null,
@@ -77,6 +75,21 @@ const state: PluginState = {
     reconnectDelayMs: null,
   },
 };
+
+function emitChangeBufferDrop(event: ChangeBufferDropEvent): void {
+  post({
+    channel: WIDGET_V2_CHANNEL,
+    source: "main",
+    type: "changes-dropped",
+    droppedCount: event.droppedCount,
+    firstDroppedAt: event.firstDroppedAt,
+    lastDroppedAt: event.lastDroppedAt,
+    remaining: event.remaining,
+    capacity: event.capacity,
+    sessionId: state.sessionId,
+    updatedAt: Date.now(),
+  });
+}
 
 /** Emit a granular variable-changed or component-changed event to the UI for bridge relay. */
 function emitGranularChange(type: "variable-changed" | "component-changed", change: { id: string; node?: any }, timestamp: number): void {
@@ -164,18 +177,20 @@ async function bootstrap(): Promise<void> {
 
   figma.on("documentchange", (event: { documentChanges: Array<{ type: string; id: string; origin?: string; node?: any; properties?: string[] }> }) => {
     const now = Date.now();
-    for (const change of event.documentChanges || []) {
-      state.changeBuffer.push({
-        type: change.type,
-        id: change.id,
-        origin: change.origin ?? null,
-        sessionId: state.sessionId,
-        runId: state.activeRunId,
-        pageId: figma.currentPage?.id ?? null,
-        timestamp: now,
-      });
+    const changes = event?.documentChanges ?? [];
+    const pageId = figma.currentPage?.id ?? null;
+    const batch = changes.map((change) => ({
+      type: change.type,
+      id: change.id,
+      origin: change.origin ?? null,
+      sessionId: state.sessionId,
+      runId: state.activeRunId,
+      pageId,
+      timestamp: now,
+    }));
+    state.changeBuffer.pushMany(batch);
 
-      // Emit granular events for variable and component changes
+    for (const change of changes) {
       if (change.type === "STYLE_CREATE" || change.type === "STYLE_DELETE" || change.type === "STYLE_CHANGE") {
         emitGranularChange("variable-changed", change, now);
       }
@@ -186,15 +201,13 @@ async function bootstrap(): Promise<void> {
         }
       }
     }
-    if (state.changeBuffer.length > state.maxChangeBuffer) {
-      state.changeBuffer = state.changeBuffer.slice(-state.maxChangeBuffer);
-    }
+
     post({
       channel: WIDGET_V2_CHANNEL,
       source: "main",
       type: "changes",
-      count: event.documentChanges?.length ?? 0,
-      buffered: state.changeBuffer.length,
+      count: changes.length,
+      buffered: state.changeBuffer.size(),
       sessionId: state.sessionId,
       runId: state.activeRunId,
       updatedAt: now,
@@ -342,9 +355,7 @@ async function handleCommand(command: WidgetCommandName, params: Record<string, 
     case "getStickies":
       return getStickies();
     case "getChanges": {
-      const changes = [...state.changeBuffer];
-      state.changeBuffer = [];
-      return changes;
+      return state.changeBuffer.drain();
     }
     case "getComponentImage":
       return getComponentImage(String(params.nodeId ?? ""), String(params.format ?? "png"));
