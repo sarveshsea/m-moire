@@ -25,6 +25,7 @@ import {
 } from "./state/change-buffer.js";
 import { createJobsStore, type JobsStore } from "./state/jobs.js";
 import {
+  nodeFingerprint,
   optionalFiniteNumber,
   parseColorValue,
   validateScreenshotParams,
@@ -835,8 +836,29 @@ async function createNode(params: Record<string, unknown>): Promise<unknown> {
 async function updateNode(params: Record<string, unknown>): Promise<unknown> {
   const node = await figma.getNodeByIdAsync(String(params.nodeId || ""));
   if (!node) {
-    throw new Error(`Node not found: ${String(params.nodeId)}`);
+    throw new Error(
+      JSON.stringify({ code: "E_NODE_NOT_FOUND", message: "Node not found: " + String(params.nodeId), retryable: false }),
+    );
   }
+
+  // Optimistic concurrency (#29). If the caller supplied an
+  // `expectedVersion`, refuse to write when the current fingerprint
+  // differs — the client's view is stale and the mutation would stomp
+  // a concurrent edit. The caller re-reads and retries.
+  const serializedBefore = serializeSelectionNode(node);
+  const currentVersion = nodeFingerprint(serializedBefore);
+  const expectedVersion = typeof params.expectedVersion === "string" ? params.expectedVersion : null;
+  if (expectedVersion !== null && expectedVersion !== currentVersion) {
+    throw new Error(
+      JSON.stringify({
+        code: "E_NODE_VERSION_CONFLICT",
+        message: "updateNode: node changed since last read",
+        detail: { expected: expectedVersion, current: currentVersion, nodeId: node.id },
+        retryable: true,
+      }),
+    );
+  }
+
   const properties = (params.properties || {}) as Record<string, unknown>;
   // Property-dispatched writes use `in` guards to satisfy the typed
   // Figma node unions (#40). DocumentNode does not carry x/y/visible etc.;
@@ -898,7 +920,10 @@ async function updateNode(params: Record<string, unknown>): Promise<unknown> {
         break;
     }
   }
-  return serializeSelectionNode(node);
+  const serializedAfter = serializeSelectionNode(node);
+  // Fold the post-write fingerprint into the returned payload so the
+  // caller can chain subsequent writes with a fresh expectedVersion.
+  return { ...serializedAfter, version: nodeFingerprint(serializedAfter) };
 }
 
 async function loadTextNodeFonts(node: any): Promise<void> {

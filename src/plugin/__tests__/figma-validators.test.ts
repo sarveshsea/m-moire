@@ -3,6 +3,7 @@ import {
   FIGMA_EXPORT_FORMATS,
   finiteNumber,
   isConcreteFontName,
+  nodeFingerprint,
   optionalFiniteNumber,
   parseColorValue,
   validateScreenshotParams,
@@ -110,6 +111,41 @@ describe("finiteNumber / optionalFiniteNumber", () => {
     expect(optionalFiniteNumber("")).toBeNull();
     expect(optionalFiniteNumber("NaN")).toBeNull();
     expect(optionalFiniteNumber(3)).toBe(3);
+  });
+});
+
+describe("nodeFingerprint", () => {
+  it("is stable for identical nodes", () => {
+    const a = { type: "FRAME", name: "Hero", x: 10, y: 20, width: 300, height: 200, visible: true };
+    const b = { ...a };
+    expect(nodeFingerprint(a)).toBe(nodeFingerprint(b));
+  });
+
+  it("changes when any tracked field changes", () => {
+    const base = { type: "FRAME", name: "Hero", x: 10, y: 20, width: 300, height: 200 };
+    const f0 = nodeFingerprint(base);
+    expect(nodeFingerprint({ ...base, name: "Hero2" })).not.toBe(f0);
+    expect(nodeFingerprint({ ...base, x: 11 })).not.toBe(f0);
+    expect(nodeFingerprint({ ...base, width: 301 })).not.toBe(f0);
+    expect(nodeFingerprint({ ...base, visible: false })).not.toBe(f0);
+  });
+
+  it("folds fills array length, not content", () => {
+    const base = { type: "FRAME", name: "A", fills: [{ type: "SOLID" }] };
+    const same = { type: "FRAME", name: "A", fills: [{ type: "GRADIENT" }] };
+    const different = { type: "FRAME", name: "A", fills: [{ type: "SOLID" }, { type: "SOLID" }] };
+    expect(nodeFingerprint(base)).toBe(nodeFingerprint(same));
+    expect(nodeFingerprint(base)).not.toBe(nodeFingerprint(different));
+  });
+
+  it("starts with v1- prefix so future schema changes can migrate", () => {
+    expect(nodeFingerprint({ type: "FRAME", name: "x" }).startsWith("v1-")).toBe(true);
+  });
+
+  it("returns 'none' for non-object inputs", () => {
+    expect(nodeFingerprint(null)).toBe("none");
+    expect(nodeFingerprint(undefined)).toBe("none");
+    expect(nodeFingerprint(42)).toBe("none");
   });
 });
 

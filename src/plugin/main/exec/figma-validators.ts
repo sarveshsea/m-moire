@@ -156,3 +156,37 @@ export function isConcreteFontName(value: unknown, mixedSentinel: unknown): valu
   const fn = value as { family?: unknown; style?: unknown };
   return typeof fn.family === "string" && typeof fn.style === "string";
 }
+
+// Cheap, deterministic fingerprint over the mutable state of a scene node.
+// Used for optimistic concurrency on updateNode (#29): the caller reads the
+// node, receives this fingerprint, and must present it back on write so a
+// stale client cannot overwrite a concurrent change without realising.
+//
+// We deliberately fold only the fields that serializeSelectionNode exposes;
+// if the caller never saw a property, we don't care if it diverged.
+export function nodeFingerprint(node: unknown): string {
+  if (!node || typeof node !== "object") return "none";
+  const n = node as Record<string, unknown>;
+  const parts: string[] = [];
+  parts.push("t=" + String(n.type ?? ""));
+  parts.push("n=" + String(n.name ?? ""));
+  if ("x" in n) parts.push("x=" + String(n.x));
+  if ("y" in n) parts.push("y=" + String(n.y));
+  if ("width" in n) parts.push("w=" + String(n.width));
+  if ("height" in n) parts.push("h=" + String(n.height));
+  if ("visible" in n) parts.push("v=" + String(n.visible));
+  if ("opacity" in n) parts.push("o=" + String(n.opacity));
+  if ("rotation" in n) parts.push("r=" + String(n.rotation));
+  if ("characters" in n) parts.push("c=" + String((n.characters as string | undefined)?.length ?? 0));
+  if ("fills" in n && Array.isArray((n as { fills?: unknown }).fills)) {
+    parts.push("fl=" + String(((n as { fills: unknown[] }).fills).length));
+  }
+  // fnv-1a 32-bit — portable, allocation-light, no imports.
+  const raw = parts.join("|");
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < raw.length; i += 1) {
+    hash ^= raw.charCodeAt(i);
+    hash = (hash + ((hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24))) >>> 0;
+  }
+  return "v1-" + hash.toString(16);
+}
