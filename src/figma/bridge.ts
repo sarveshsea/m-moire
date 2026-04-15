@@ -224,6 +224,16 @@ export class FigmaBridge extends EventEmitter {
     return this.server.sendCommand("getSelection", {}, 30000);
   }
 
+  /**
+   * Pulls the operator-surface snapshot (Jobs / Selection / System + metrics)
+   * exposed by the plugin main thread as the `widgetSnapshot` command. Used by
+   * `memi doctor --json` to attach live widget health to its diagnostic report
+   * so agents can consume machine-readable bridge state in one call.
+   */
+  async getWidgetSnapshot(timeout = 8000): Promise<unknown> {
+    return this.server.sendCommand("widgetSnapshot", {}, timeout);
+  }
+
   async getFileData(depth = 3): Promise<unknown> {
     return this.server.sendCommand("getFileData", { depth }, 60000);
   }

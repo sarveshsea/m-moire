@@ -31,15 +31,19 @@ import {
 } from "./exec/figma-validators.js";
 import { makeError } from "../shared/errors.js";
 import { guardExecCode, withExecTimeout } from "./exec/sandbox.js";
+import { createMetricsRegistry, type MetricsRegistry } from "./telemetry/metrics.js";
+import type { WidgetOperatorSnapshot } from "../shared/contracts.js";
 
 interface PluginState {
   sessionId: string;
+  bootedAt: number;
   jobs: JobsStore;
   selectionListenerActive: boolean;
   lastSelectionUpdate: number;
   selectionThrottleMs: number;
   changeBuffer: ChangeBuffer;
   connection: WidgetConnectionState;
+  metrics: MetricsRegistry;
 }
 
 /** Race a promise against a timeout — prevents indefinite hangs on font loads etc. */
@@ -88,6 +92,8 @@ const BLOCKED_GLOBALS = [/\bFunction\s*\(/, /\bimport\s*\(/, /\brequire\s*\(/, /
 
 const state: PluginState = {
   sessionId: createRunId("widget"),
+  bootedAt: Date.now(),
+  metrics: createMetricsRegistry(),
   jobs: createJobsStore({
     onEmit: (job) =>
       post({
@@ -120,6 +126,7 @@ const state: PluginState = {
 };
 
 function emitChangeBufferDrop(event: ChangeBufferDropEvent): void {
+  state.metrics.inc("change_buffer_drops", undefined, event.droppedCount);
   post({
     channel: WIDGET_V2_CHANNEL,
     source: "main",
@@ -132,6 +139,25 @@ function emitChangeBufferDrop(event: ChangeBufferDropEvent): void {
     sessionId: state.sessionId,
     updatedAt: Date.now(),
   });
+}
+
+function buildOperatorSnapshot(): WidgetOperatorSnapshot {
+  return {
+    protocol: WIDGET_V2_CHANNEL,
+    system: {
+      sessionId: state.sessionId,
+      connection: state.connection,
+      metrics: state.metrics.snapshot(),
+      changeBuffer: {
+        size: state.changeBuffer.size(),
+        capacity: state.changeBuffer.capacity(),
+      },
+      bootedAt: state.bootedAt,
+    },
+    selection: createSelectionSnapshot(),
+    jobs: snapshotJobs(),
+    logs: [],
+  };
 }
 
 /** Emit a granular variable-changed or component-changed event to the UI for bridge relay. */
@@ -313,6 +339,7 @@ figma.ui.onmessage = async (message: WidgetUiEnvelope) => {
     if (job) {
       state.jobs.finishCompleted(job.id, summarizeCommandResult(message.command, result));
     }
+    state.metrics.inc("cmd_total", "ok:" + message.command);
     post({
       channel: WIDGET_V2_CHANNEL,
       source: "main",
@@ -328,6 +355,16 @@ figma.ui.onmessage = async (message: WidgetUiEnvelope) => {
     const messageText = error instanceof Error ? error.message : String(error);
     if (job) {
       state.jobs.finishFailed(job.id, messageText);
+    }
+    state.metrics.inc("cmd_total", "err:" + message.command);
+    // Classify E_EXEC_* rejections so operators can see what tripped.
+    if (message.command === "execute" && messageText.charAt(0) === "{") {
+      try {
+        const parsed = JSON.parse(messageText) as { code?: string };
+        if (parsed.code && parsed.code.indexOf("E_EXEC_") === 0) {
+          state.metrics.inc("exec_rejects", parsed.code);
+        }
+      } catch { /* ignore */ }
     }
     post({
       channel: WIDGET_V2_CHANNEL,
@@ -403,6 +440,8 @@ async function handleCommand(command: WidgetCommandName, params: Record<string, 
       return captureScreenshot(params);
     case "pushTokens":
       return pushTokens(params);
+    case "widgetSnapshot":
+      return buildOperatorSnapshot();
     default:
       throw new Error(`Unknown command: ${command}`);
   }

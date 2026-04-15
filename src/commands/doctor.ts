@@ -299,6 +299,24 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
         push("bridge.figma", "bridge", "warn", "Figma bridge", "unable to check connection");
       }
 
+      // 6b. Widget operator snapshot (#62, #63). When the bridge is
+      // connected, pull the machine-readable Jobs / Selection / System
+      // snapshot from the plugin so JSON consumers can see live widget
+      // health in the same payload as the rest of the doctor report.
+      if (opts.json && engine.figma.isConnected) {
+        try {
+          const snapshot = await engine.figma.getWidgetSnapshot(4000);
+          if (snapshot && typeof snapshot === "object") {
+            push("widget.snapshot", "bridge", "pass", "Widget snapshot", "operator surfaces available", {
+              snapshot,
+            });
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          push("widget.snapshot", "bridge", "warn", "Widget snapshot", msg);
+        }
+      }
+
       // 7. Preview files
       try {
         const previewDir = join(engine.config.projectRoot, "preview");

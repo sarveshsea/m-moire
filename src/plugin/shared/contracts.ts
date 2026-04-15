@@ -21,7 +21,37 @@ export const WIDGET_COMMAND_NAMES = [
   "getPageTree",
   "captureScreenshot",
   "pushTokens",
+  // Phase 6: exposes the operator-surface snapshot for `memi doctor --json`.
+  "widgetSnapshot",
 ] as const;
+
+export interface WidgetMetricsSnapshot {
+  cmd_total: Record<string, number>;
+  change_buffer_drops: number;
+  reconnects: number;
+  queue_depth: Record<string, number>;
+  exec_rejects: Record<string, number>;
+  selection_throttled: number;
+  bridge_send_failed: number;
+  startedAt: number;
+  sampledAt: number;
+}
+
+export interface WidgetSystemSnapshot {
+  sessionId: string;
+  connection: WidgetConnectionState;
+  metrics: WidgetMetricsSnapshot;
+  changeBuffer: { size: number; capacity: number };
+  bootedAt: number;
+}
+
+export interface WidgetOperatorSnapshot {
+  protocol: typeof WIDGET_V2_CHANNEL;
+  system: WidgetSystemSnapshot;
+  selection: WidgetSelectionSnapshot;
+  jobs: WidgetJob[];
+  logs: WidgetLogEntry[];
+}
 
 export type WidgetCommandName = (typeof WIDGET_COMMAND_NAMES)[number];
 
