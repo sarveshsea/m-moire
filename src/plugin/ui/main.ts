@@ -599,6 +599,7 @@ function cleanupPendingRequests(): void {
   const timers = Array.from(pendingRequestTimers.values());
   pendingBridgeRequests.clear();
   pendingRequestTimers.clear();
+  inFlightDedupeKeys.clear();
   for (const timerId of timers) {
     window.clearTimeout(timerId);
   }
@@ -650,9 +651,44 @@ function writeCachedPort(port: number): void {
   }
 }
 
+// Hard ceiling on a single bridge frame after JSON.parse (#13). Protects
+// the plugin from an adversarial or buggy bridge flooding us with a
+// gigantic payload that would sit in memory while normalization runs.
+const MAX_INBOUND_FRAME_CHARS = 256 * 1024;
+
 function handleBridgeMessage(payload: unknown): void {
+  // Cheap structural sanity: everything we care about is an object.
+  if (!payload || typeof payload !== "object") {
+    addLog("warn", "Rejected non-object bridge frame", {
+      typeofPayload: typeof payload,
+    });
+    return;
+  }
+  // Size gate happens here (post-parse) so we catch wire shapes that
+  // JSON.parse accepted but that we still don't want to process.
+  try {
+    const serialized = JSON.stringify(payload);
+    if (serialized.length > MAX_INBOUND_FRAME_CHARS) {
+      addLog("warn", "Rejected oversized bridge frame", {
+        bytes: serialized.length,
+        max: MAX_INBOUND_FRAME_CHARS,
+      });
+      return;
+    }
+  } catch {
+    addLog("warn", "Rejected bridge frame with circular references");
+    return;
+  }
+
   const message = normalizeBridgeMessage(payload);
   if (!message) {
+    // Upgrade prior silent-drop (#13) into a visible diagnostic. The
+    // preview is truncated so a malformed frame can't swamp the log
+    // buffer by itself.
+    const shape = payload as { type?: unknown };
+    addLog("warn", "Rejected bridge frame — failed shape validation", {
+      type: typeof shape.type === "string" ? shape.type : "<unknown>",
+    });
     return;
   }
 
@@ -754,6 +790,10 @@ function handleCommandResult(message: Extract<WidgetMainEnvelope, { type: "comma
     pendingRequestTimers.delete(message.requestId);
   }
 
+  // Free the dedupe slot so the same command can be re-triggered now that
+  // the main thread has replied (#28).
+  releaseDedupe(message.requestId);
+
   var bridgeResponse = resolveBridgeResponse(pendingBridgeRequests, message);
   if (bridgeResponse) {
     forwardToBridge(serializeBridgeEnvelope(bridgeResponse));
@@ -818,8 +858,33 @@ function handleCommandResult(message: Extract<WidgetMainEnvelope, { type: "comma
   }
 }
 
+// In-flight requests keyed by (command + dedupe hint). Rapid-fire clicks
+// on sync/inspect/etc. within the dedupe window skip redispatch until the
+// first invocation completes, preventing duplicate command fan-out (#28).
+const inFlightDedupeKeys = new Map<string, string>();
+
+function dedupeKeyFor(command: WidgetCommandName, params: Record<string, unknown>): string {
+  // For commands whose behavior depends on params (nodeId, depth, format),
+  // fold those into the key so `capture node A` and `capture node B` don't
+  // coalesce into one dispatch.
+  const salient: string[] = [command];
+  if (typeof params.nodeId === "string") salient.push("n=" + params.nodeId);
+  if (typeof params.depth === "number") salient.push("d=" + String(params.depth));
+  if (typeof params.format === "string") salient.push("f=" + String(params.format));
+  return salient.join("|");
+}
+
 function requestCommand(command: WidgetCommandName, params: Record<string, unknown> = {}, label: string = command, kind: WidgetJob["kind"] = "system"): void {
+  const dedupeKey = dedupeKeyFor(command, params);
+  if (inFlightDedupeKeys.has(dedupeKey)) {
+    addLog("info", "Command already in flight — skipped redundant dispatch", {
+      command,
+      dedupeKey,
+    });
+    return;
+  }
   const requestId = createRunId("cmd");
+  inFlightDedupeKeys.set(dedupeKey, requestId);
   sendToMain({
     channel: WIDGET_V2_CHANNEL,
     source: "ui",
@@ -829,6 +894,16 @@ function requestCommand(command: WidgetCommandName, params: Record<string, unkno
     params,
     action: { kind, label },
   });
+}
+
+// Called by handleCommandResult so the dedupe slot frees when main replies.
+function releaseDedupe(requestId: string): void {
+  for (const [key, id] of inFlightDedupeKeys) {
+    if (id === requestId) {
+      inFlightDedupeKeys.delete(key);
+      return;
+    }
+  }
 }
 
 function recordSyncSummary(part: "tokens" | "components" | "styles", result: unknown, error?: string): void {
