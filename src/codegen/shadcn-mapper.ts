@@ -64,13 +64,34 @@ const SHADCN_IMPORTS: Record<string, string> = {
 };
 
 /**
+ * Per-variant generation context. Optional — only populated when the
+ * generator is emitting one of N variants under a cartesian axis set.
+ *
+ * `priorVariants` lists the sibling variants already generated in this run;
+ * future AI-augmented codegen paths read it to avoid producing near-duplicates.
+ * The template-based path ignores it — the hook is forward-looking.
+ */
+export interface VariantContext {
+  axisValues: Record<string, string>;
+  priorVariants: Array<{ axisValues: Record<string, string>; code: string }>;
+}
+
+/**
  * Generate a React + TypeScript component from a ComponentSpec.
  *
  * @param spec - The component spec describing props, variants, shadcn base, and design tokens.
  * @param ctx  - Codegen context providing the project path and design system registry.
+ * @param variantCtx - Optional variant context when emitting one of N cartesian variants.
  * @returns    ComponentCode with `component` (the .tsx source) and `barrel` (index.ts re-export).
  */
-export function generateComponent(spec: ComponentSpec, ctx: CodegenContext): ComponentCode {
+export function generateComponent(
+  spec: ComponentSpec,
+  ctx: CodegenContext,
+  variantCtx?: VariantContext,
+): ComponentCode {
+  // variantCtx is consumed by future AI-augmented codegen paths; the
+  // deterministic template path is pure over `spec` + `ctx`.
+  void variantCtx;
   const imports = buildImports(spec);
   const propsInterface = buildPropsInterface(spec);
   const tokens = ctx.designSystem?.tokens ?? [];

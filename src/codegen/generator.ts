@@ -34,6 +34,77 @@ import { generateSvelteComponent } from "./svelte-mapper.js";
 import { generateDataViz } from "./dataviz-generator.js";
 import { generatePage } from "./page-generator.js";
 import { atomicLevelToFolder } from "../utils/naming.js";
+import { expandAxes } from "../specs/variations.js";
+
+function pascalIdentifier(id: string): string {
+  return id
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("")
+    .replace(/[^A-Za-z0-9_]/g, "");
+}
+
+function escapeHTML(s: string): string {
+  return s.replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] ?? c),
+  );
+}
+
+function renderVariantGridHTML(
+  name: string,
+  axes: string[],
+  variants: Array<{ id: string; hash: string; axisValues: Record<string, string> }>,
+): string {
+  const rows = variants.map((v) => {
+    const axisCells = axes
+      .map((a) => `<td><code>${escapeHTML(v.axisValues[a] ?? "")}</code></td>`)
+      .join("");
+    return `<tr>
+      <td><strong>${escapeHTML(v.id)}</strong></td>
+      ${axisCells}
+      <td><code>${escapeHTML(v.hash)}</code></td>
+      <td><a href="./${escapeHTML(v.id)}.tsx">${escapeHTML(v.id)}.tsx</a></td>
+    </tr>`;
+  }).join("\n");
+
+  const axisHeaders = axes.map((a) => `<th>${escapeHTML(a)}</th>`).join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${escapeHTML(name)} — variants</title>
+<style>
+  body { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 2rem; max-width: 960px; margin: 0 auto; }
+  h1 { margin: 0 0 0.25rem; font-size: 1.25rem; }
+  .sub { color: #6b7280; margin-bottom: 1.5rem; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; }
+  th { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #374151; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+  a { color: #0f172a; }
+</style>
+</head>
+<body>
+  <h1>${escapeHTML(name)}</h1>
+  <div class="sub">${variants.length} variants · ${axes.join(" × ")}</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Variant</th>
+        ${axisHeaders}
+        <th>Hash</th>
+        <th>File</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+</body>
+</html>`;
+}
 
 export interface CodegenConfig {
   outputDir: string;
@@ -233,6 +304,8 @@ export class CodeGenerator {
         { path: `${dir}/${spec.name}.svelte`, content: code.component },
         { path: `${dir}/index.ts`, content: code.barrel },
       );
+    } else if (spec.variantAxes && Object.keys(spec.variantAxes).length > 0) {
+      return this.generateVariantFiles(spec, ctx, dir);
     } else {
       const code = generateComponent(spec, ctx);
       files.push(
@@ -247,6 +320,134 @@ export class CodeGenerator {
 
     return {
       entryFile: `${dir}/${spec.name}.tsx`,
+      files,
+      spec,
+    };
+  }
+
+  /**
+   * Variation-aware component generation. When `spec.variantAxes` is declared,
+   * expand the cartesian product and emit one file per variant under
+   * `<dir>/variants/{id}.tsx`, a shared barrel, a Storybook story with one
+   * export per variant, and a `variants/manifest.json` for the preview gallery.
+   *
+   * `priorVariants` context is threaded through per-variant generation so any
+   * future AI-augmented codegen path can diversify against already-generated
+   * siblings. Today the template generator ignores the context but the hook
+   * is in place.
+   */
+  private async generateVariantFiles(
+    spec: ComponentSpec,
+    ctx: CodegenContext,
+    dir: string,
+  ): Promise<CodegenResult> {
+    const tokenVersion = ctx.designSystem?.tokens?.length
+      ? String(ctx.designSystem.tokens.length)
+      : "";
+    const variants = expandAxes(spec, tokenVersion);
+    if (variants.length === 0) {
+      // Declared axes were empty arrays — fall back to single-file path.
+      const code = generateComponent(spec, ctx);
+      return {
+        entryFile: `${dir}/${spec.name}.tsx`,
+        files: [
+          { path: `${dir}/${spec.name}.tsx`, content: code.component },
+          { path: `${dir}/index.ts`, content: code.barrel },
+        ],
+        spec,
+      };
+    }
+
+    const files: { path: string; content: string }[] = [];
+
+    // Two-round dispatch: round 1 gets no prior context, round 2 sees round 1's
+    // output so any AI-augmented generator can diversify against siblings.
+    // Each round runs fully in parallel via Promise.all.
+    const round1 = variants.slice(0, Math.max(1, Math.ceil(variants.length / 2)));
+    const round2 = variants.slice(round1.length);
+
+    const emitOne = async (
+      variant: typeof variants[number],
+      priorVariants: Array<{ axisValues: Record<string, string>; code: string }>,
+    ) => {
+      const perVariantSpec: ComponentSpec = { ...spec, variants: [variant.id] };
+      const code = generateComponent(perVariantSpec, ctx, {
+        axisValues: variant.axisValues,
+        priorVariants,
+      });
+      return { variant, code };
+    };
+
+    const round1Results = await Promise.all(round1.map((v) => emitOne(v, [])));
+    for (const r of round1Results) {
+      files.push({ path: `${dir}/variants/${r.variant.id}.tsx`, content: r.code.component });
+    }
+
+    const priorForRound2 = round1Results.map((r) => ({
+      axisValues: r.variant.axisValues,
+      code: r.code.component,
+    }));
+    const round2Results = await Promise.all(round2.map((v) => emitOne(v, priorForRound2)));
+    for (const r of round2Results) {
+      files.push({ path: `${dir}/variants/${r.variant.id}.tsx`, content: r.code.component });
+    }
+
+    // Barrel re-exports every variant under its pascalCased id, plus the
+    // first variant aliased as the component's canonical name so existing
+    // `import { Button } from "..."` call sites still resolve.
+    const barrel = [
+      `// Generated by Memoire · variant set for ${spec.name}`,
+      ...variants.map((v) =>
+        `export { ${spec.name} as ${pascalIdentifier(v.id)} } from "./variants/${v.id}.js";`,
+      ),
+      `export { ${spec.name} } from "./variants/${variants[0].id}.js";`,
+      "",
+    ].join("\n");
+    files.push({ path: `${dir}/index.ts`, content: barrel });
+
+    // One Storybook story per variant — reuse existing generateStory by
+    // synthesizing a spec whose `variants` list is the expanded ids.
+    if (!this.config.noStories) {
+      const storySpec: ComponentSpec = {
+        ...spec,
+        variants: variants.map((v) => v.id),
+      };
+      files.push({
+        path: `${dir}/${spec.name}.stories.tsx`,
+        content: generateStory(storySpec),
+      });
+    }
+
+    // Manifest consumed by the preview gallery to render the grid.
+    const axisNames = Object.keys(spec.variantAxes ?? {}).sort();
+    const manifest = {
+      component: spec.name,
+      axes: axisNames,
+      variants: variants.map((v) => ({
+        id: v.id,
+        hash: v.hash,
+        axisValues: v.axisValues,
+        file: `variants/${v.id}.tsx`,
+      })),
+      generatedAt: new Date().toISOString(),
+    };
+    files.push({
+      path: `${dir}/variants/manifest.json`,
+      content: JSON.stringify(manifest, null, 2),
+    });
+
+    // Static variant-grid page — viewable with `memi preview` without any
+    // server-side template changes. Shows one card per variant labeled with
+    // its axis values and source file path.
+    files.push({
+      path: `${dir}/variants/index.html`,
+      content: renderVariantGridHTML(spec.name, axisNames, variants),
+    });
+
+    this.emitEvent("success", `Expanded "${spec.name}" into ${variants.length} variants`);
+
+    return {
+      entryFile: `${dir}/variants/${variants[0].id}.tsx`,
       files,
       spec,
     };
