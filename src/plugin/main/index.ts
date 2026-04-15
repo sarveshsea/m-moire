@@ -1,4 +1,6 @@
-declare const figma: any;
+// figma is ambient via @figma/plugin-typings (see src/plugin/env.d.ts).
+// The previous `declare const figma: any` shadowed those types and erased
+// static checking on every plugin API call (#38).
 declare const __html__: string;
 
 import {
@@ -732,7 +734,10 @@ async function getComponentImage(nodeId: string, format: string): Promise<unknow
   if (!validated.ok) {
     throw new Error(validated.error.message);
   }
-  const bytes = await node.exportAsync({
+  if (!("exportAsync" in node)) {
+    throw new Error(`Node ${nodeId} does not support export`);
+  }
+  const bytes = await (node as ExportMixin).exportAsync({
     format: validated.value.format,
     constraint: { type: "SCALE", value: validated.value.scale },
   });
@@ -794,6 +799,9 @@ async function updateNode(params: Record<string, unknown>): Promise<unknown> {
     throw new Error(`Node not found: ${String(params.nodeId)}`);
   }
   const properties = (params.properties || {}) as Record<string, unknown>;
+  // Property-dispatched writes use `in` guards to satisfy the typed
+  // Figma node unions (#40). DocumentNode does not carry x/y/visible etc.;
+  // only SceneNode-family subtypes do, so each property is gated.
   for (const [key, value] of Object.entries(properties)) {
     switch (key) {
       case "name":
@@ -801,45 +809,51 @@ async function updateNode(params: Record<string, unknown>): Promise<unknown> {
         break;
       case "x": {
         const n = optionalFiniteNumber(value);
-        if (n !== null) node.x = n;
+        if (n !== null && "x" in node) (node as LayoutMixin).x = n;
         break;
       }
       case "y": {
         const n = optionalFiniteNumber(value);
-        if (n !== null) node.y = n;
+        if (n !== null && "y" in node) (node as LayoutMixin).y = n;
         break;
       }
       case "width": {
         const n = optionalFiniteNumber(value);
-        if (n !== null && "resize" in node) node.resize(n, node.height);
+        if (n !== null && "resize" in node) {
+          const lm = node as LayoutMixin;
+          lm.resize(n, lm.height);
+        }
         break;
       }
       case "height": {
         const n = optionalFiniteNumber(value);
-        if (n !== null && "resize" in node) node.resize(node.width, n);
+        if (n !== null && "resize" in node) {
+          const lm = node as LayoutMixin;
+          lm.resize(lm.width, n);
+        }
         break;
       }
       case "visible":
-        node.visible = Boolean(value);
+        if ("visible" in node) (node as SceneNodeMixin).visible = Boolean(value);
         break;
       case "opacity": {
         const n = optionalFiniteNumber(value);
-        if (n !== null) node.opacity = n;
+        if (n !== null && "opacity" in node) (node as BlendMixin).opacity = n;
         break;
       }
       case "rotation": {
         const n = optionalFiniteNumber(value);
-        if (n !== null) node.rotation = n;
+        if (n !== null && "rotation" in node) (node as LayoutMixin).rotation = n;
         break;
       }
       case "characters":
         if (node.type === "TEXT") {
           await loadTextNodeFonts(node);
-          node.characters = String(value);
+          (node as TextNode).characters = String(value);
         }
         break;
       case "fills":
-        if ("fills" in node) node.fills = value;
+        if ("fills" in node) (node as GeometryMixin).fills = value as Paint[];
         break;
       default:
         break;
@@ -885,10 +899,15 @@ async function deleteNode(nodeId: string): Promise<unknown> {
 }
 
 async function setSelection(nodeIds: string[]): Promise<unknown> {
-  const nodes = [];
+  const nodes: SceneNode[] = [];
   for (const id of nodeIds) {
     const node = await figma.getNodeByIdAsync(id);
-    if (node && "parent" in node) nodes.push(node);
+    // `parent` on a non-root node implies the node is in the scene tree;
+    // DocumentNode and PageNode are filtered out so the selection
+    // assignment satisfies readonly SceneNode[].
+    if (node && "parent" in node && node.type !== "DOCUMENT" && node.type !== "PAGE") {
+      nodes.push(node as SceneNode);
+    }
   }
   figma.currentPage.selection = nodes;
   return { selected: nodes.length };
@@ -899,7 +918,10 @@ async function navigateTo(nodeId: string): Promise<unknown> {
   if (!node) {
     throw new Error(`Node not found: ${nodeId}`);
   }
-  figma.viewport.scrollAndZoomIntoView([node]);
+  if (node.type === "DOCUMENT" || node.type === "PAGE") {
+    throw new Error(`Cannot navigate into document/page root: ${nodeId}`);
+  }
+  figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
   return { navigated: nodeId };
 }
 
@@ -913,7 +935,10 @@ async function captureScreenshot(params: Record<string, unknown>): Promise<unkno
     throw new Error(validated.error.message);
   }
   const { format, scale } = validated.value;
-  const bytes = await node.exportAsync({
+  if (!("exportAsync" in node)) {
+    throw new Error(`Node ${String(params.nodeId)} does not support export`);
+  }
+  const bytes = await (node as ExportMixin).exportAsync({
     format,
     constraint: { type: "SCALE", value: scale },
   });
