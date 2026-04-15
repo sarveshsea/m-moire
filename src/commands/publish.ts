@@ -40,6 +40,7 @@ export function registerPublishCommand(program: Command, engine: MemoireEngine) 
     .option("--homepage <url>", "Homepage URL (often your Figma file URL)")
     .option("--license <spdx>", "License identifier", "MIT")
     .option("--figma <url>", "Figma file URL (triggers REST pull before publish)")
+    .option("--theme <path-or-url>", "tweakcn theme (CSS file path or share URL) — load tokens from it")
     .option("--framework <fw...>", "Bundle code for frameworks: react, vue, svelte (default: react)")
     .option("--specs-only", "Publish specs only — do not bundle generated code")
     .option("--push", "Run `npm publish --access public` after building the package")
@@ -52,6 +53,7 @@ export function registerPublishCommand(program: Command, engine: MemoireEngine) 
       homepage?: string;
       license?: string;
       figma?: string;
+      theme?: string;
       framework?: string[];
       specsOnly?: boolean;
       push?: boolean;
@@ -73,9 +75,40 @@ export function registerPublishCommand(program: Command, engine: MemoireEngine) 
         }
       }
 
+      // Optional: load tokens from a tweakcn theme (file or URL)
+      if (opts.theme) {
+        try {
+          const { parseTweakcnCss, fetchTweakcnTheme } = await import("../integrations/tweakcn.js");
+          const isUrl = /^https?:\/\//.test(opts.theme);
+          if (!opts.json) console.log(ui.dots("Loading", `tweakcn theme (${isUrl ? "url" : "file"})`));
+          const css = isUrl
+            ? await fetchTweakcnTheme(opts.theme)
+            : await (await import("node:fs/promises")).readFile(opts.theme, "utf-8");
+          const { tokens, hasDarkMode } = parseTweakcnCss(css);
+          if (tokens.length === 0) {
+            handleFail(opts, start, `No tokens found in theme: ${opts.theme}`);
+            return;
+          }
+          // Merge into the current design system (theme tokens win)
+          const ds = engine.registry.designSystem;
+          const byVar = new Map(ds.tokens.map(t => [t.cssVariable, t] as const));
+          for (const t of tokens) byVar.set(t.cssVariable, t);
+          await engine.registry.updateDesignSystem({
+            tokens: [...byVar.values()],
+            components: ds.components,
+            styles: ds.styles,
+            lastSync: new Date().toISOString(),
+          });
+          if (!opts.json) console.log(ui.ok(`Loaded ${tokens.length} tokens from tweakcn${hasDarkMode ? " (with dark mode)" : ""}`));
+        } catch (err) {
+          handleFail(opts, start, `Theme load failed: ${(err as Error).message}`);
+          return;
+        }
+      }
+
       const ds = engine.registry.designSystem;
       if (ds.tokens.length === 0 && (await engine.registry.getAllSpecs()).length === 0) {
-        handleFail(opts, start, "No tokens or specs to publish. Run `memi pull` first.");
+        handleFail(opts, start, "No tokens or specs to publish. Run `memi pull` or pass --theme first.");
         return;
       }
 

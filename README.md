@@ -44,6 +44,20 @@ memi sync --auto-pr
 
 A registry bundles tokens (W3C DTCG JSON + Tailwind v4 `@theme` CSS), component specs, and **real generated code** for React / Vue / Svelte. Publishable to npm, GitHub, or any static host. See [`examples/starter-registry/`](./examples/starter-registry) to fork one.
 
+### Designed in tweakcn? Publish with Memoire.
+
+[tweakcn](https://tweakcn.com) is the visual theme editor for shadcn/ui. Paint your theme there, ship it with Memoire:
+
+```bash
+# From a tweakcn CSS export
+memi publish --name @you/theme --theme ./tweakcn-export.css --push
+
+# Or straight from a tweakcn share URL
+memi publish --name @you/theme --theme https://tweakcn.com/r/themes/xxx --push
+```
+
+The `--theme` flag parses both Tailwind v3 (`:root { --primary: ... }`) and v4 (`@theme { --color-primary: ... }`) exports, including `:root` + `.dark` multi-mode themes.
+
 <p align="center">
   <img src="assets/demo.gif" alt="memoire extracting a design system from a URL" width="720" />
 </p>

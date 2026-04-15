@@ -6,6 +6,27 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
+## v0.12.0 — 2026-04-15 (tweakcn integration)
+
+### The hook
+[tweakcn](https://tweakcn.com) owns visual theming for shadcn/ui. Memoire owns distribution. They now plug into each other.
+
+### New
+- **`memi publish --theme <path-or-url>`** — load tokens from a tweakcn CSS export (file or share URL) before publishing. Parses Tailwind v3 `:root { --primary: ... }` **and** v4 `@theme { --color-primary: ... }` blocks, merges `:root` + `.dark` into multi-mode tokens, and hands them to the registry publisher.
+- **`src/integrations/tweakcn.ts`** — `parseTweakcnCss()` + `fetchTweakcnTheme()` with the same SSRF guard as the registry resolver.
+- **24 new parser tests** covering v3 shorthand HSL, v4 oklch(), dark mode, shadow/spacing/typography classification, and SSRF edge cases.
+
+### Flow
+```bash
+# Design your theme at tweakcn.com, copy the CSS (or share URL), then:
+memi publish --name @you/theme --theme ./tweakcn.css --push
+
+# Any project can now install it:
+npx @sarveshsea/memoire add Button --from @you/theme
+```
+
+---
+
 ## v0.11.0 — 2026-04-15 (The Registry Pivot)
 
 ### The shift
