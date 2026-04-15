@@ -142,6 +142,13 @@ export const ComponentSpecSchema = z.object({
     mapped: z.boolean().default(false),
   }).default({}),
   variants: z.array(z.string()).default(["default"]),
+  variantAxes: z.record(z.string(), z.array(z.string())).optional().describe(
+    "Declared variation axes — cartesian product expands to variants. e.g. { size: ['sm','md','lg'], tone: ['neutral','brand'] } → 6 variants. Additive over `variants`; v1 is cartesian only."
+  ),
+  variantConstraints: z.object({
+    forbid: z.array(z.record(z.string(), z.string())).default([])
+      .describe("Axis-value combos to exclude from expansion. Partial matches count — e.g. { size: 'sm', padding: '2xl' } rejects any variant with those two axes set, regardless of other axes."),
+  }).optional().describe("Prune impossible combos before generation."),
   props: z.record(z.string()).default({}).describe("Prop name → type string"),
   shadcnBase: z.array(z.string()).default([]).describe("Which shadcn components to build on"),
   composesSpecs: z.array(z.string()).default([]).describe("Names of component specs this composes (for molecules/organisms)"),
