@@ -230,13 +230,16 @@ export type BridgeEnvelope =
   | BridgeAgentMessageEnvelope;
 
 export function isBridgeEnvelope(value: unknown): value is BridgeEnvelope {
-  return Boolean(
-    value &&
-      typeof value === "object" &&
-      "channel" in value &&
-      (value as { channel?: string }).channel === BRIDGE_V2_CHANNEL &&
-      "type" in value,
-  );
+  if (!value || typeof value !== "object") return false;
+  const v = value as { channel?: unknown; type?: unknown; method?: unknown };
+  if (v.channel !== BRIDGE_V2_CHANNEL) return false;
+  if (typeof v.type !== "string") return false;
+  // If the envelope claims to be a command, the method must be on the
+  // approved list — otherwise the fast-path in normalizeBridgeMessage
+  // would let unknown commands through, defeating the validation we
+  // added below (#13).
+  if (v.type === "command" && !isWidgetCommandName(v.method)) return false;
+  return true;
 }
 
 export function createBridgeCommandEnvelope(
