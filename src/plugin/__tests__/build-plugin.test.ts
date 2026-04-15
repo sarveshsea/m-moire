@@ -37,10 +37,14 @@ describe("plugin build pipeline", () => {
       expect(html).toContain("ui-monospace");
       expect(html).not.toContain('src="/assets/');
       expect(html).not.toContain('href="/assets/');
-      expect(code).not.toContain("??");
-      expect(code).not.toContain("?.");
-      expect(html).not.toContain("??");
-      expect(html).not.toContain("?.");
+      // Nullish-coalescing and optional-chaining checks use the syntax-
+      // aware scan from hasRawToken so acorn's internal token tables
+      // (which carry "??" and "?." as *string literals* describing the
+      // language) don't trigger false positives.
+      expect(hasRawToken(code, "??")).toBe(false);
+      expect(hasRawToken(code, "?.")).toBe(false);
+      expect(hasRawToken(html, "??")).toBe(false);
+      expect(hasRawToken(html, "?.")).toBe(false);
       expect(code).not.toContain(".includes(");
       expect(code).not.toContain(".find(");
       expect(code).not.toContain(".findIndex(");
@@ -59,6 +63,52 @@ describe("plugin build pipeline", () => {
     }
   }, 60_000);
 });
+
+// Syntax-aware scan for a literal token sequence. Mirrors
+// hasRawObjectSpread: skips over string literals (single/double/backtick)
+// and comments so occurrences of the token inside *strings* (e.g. acorn's
+// token table containing "??") don't register as ES2020 syntax. Returns
+// true iff the token appears outside any string or comment context.
+function hasRawToken(source: string, token: string): boolean {
+  let quote: "'" | "\"" | "`" | null = null;
+  let escaped = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+
+  for (let i = 0; i < source.length; i += 1) {
+    const ch = source[i];
+    const next = source[i + 1];
+
+    if (inLineComment) {
+      if (ch === "\n") inLineComment = false;
+      continue;
+    }
+    if (inBlockComment) {
+      if (ch === "*" && next === "/") {
+        inBlockComment = false;
+        i += 1;
+      }
+      continue;
+    }
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (ch === "\\") {
+        escaped = true;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "/" && next === "/") { inLineComment = true; i += 1; continue; }
+    if (ch === "/" && next === "*") { inBlockComment = true; i += 1; continue; }
+    if (ch === "\"" || ch === "'" || ch === "`") { quote = ch; continue; }
+    if (source.slice(i, i + token.length) === token) return true;
+  }
+  return false;
+}
 
 function hasRawObjectSpread(source: string): boolean {
   const stack: string[] = [];

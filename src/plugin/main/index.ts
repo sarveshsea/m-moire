@@ -32,6 +32,7 @@ import {
 } from "./exec/figma-validators.js";
 import { makeError } from "../shared/errors.js";
 import { guardExecCode, withExecTimeout } from "./exec/sandbox.js";
+import { parseAndGuard } from "./exec/ast-guard.js";
 import { createMetricsRegistry, type MetricsRegistry } from "./telemetry/metrics.js";
 import type { WidgetOperatorSnapshot } from "../shared/contracts.js";
 
@@ -610,12 +611,22 @@ async function executeCode(code: string): Promise<unknown> {
       JSON.stringify({ code: "E_PARAM_INVALID", message: "Code must be a non-empty string", retryable: false }),
     );
   }
-  // Phase 5a sandbox: normalize-strip-scan denylist + loop-shape checks +
-  // length/token gates. See main/exec/sandbox.ts. This is layered on top of
-  // the legacy isCodeSafe regex pass as defense-in-depth.
+  // Three-pass defense-in-depth:
+  //   1. Cheap regex/string normalization gate (sandbox.ts).
+  //   2. Real AST parse + structural guard (ast-guard.ts, acorn-backed).
+  //   3. Legacy regex denylist kept as a fourth belt-and-suspenders check.
+  // Anything that bypasses #1 or #2 still has to survive #3, and anything
+  // that parses ambiguously in #2 was probably already caught in #1.
   const guard = guardExecCode(code);
   if (!guard.ok && guard.error) {
     const e = guard.error;
+    throw new Error(
+      JSON.stringify({ code: e.code, message: e.message, detail: e.detail, retryable: e.retryable }),
+    );
+  }
+  const ast = parseAndGuard(code);
+  if (!ast.ok && ast.error) {
+    const e = ast.error;
     throw new Error(
       JSON.stringify({ code: e.code, message: e.message, detail: e.detail, retryable: e.retryable }),
     );
