@@ -20,6 +20,7 @@
     "build": "node scripts/build.mjs",
     "build:changelog": "node scripts/build-changelog-preview.mjs",
     "build:plugin": "node scripts/build-plugin.mjs",
+    "validate:presets": "node scripts/build-presets.mjs",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "preview": "vite --config preview/vite.config.ts",
