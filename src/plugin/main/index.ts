@@ -156,27 +156,48 @@ async function bootstrap(): Promise<void> {
     initialJobs: snapshotJobs(),
   });
 
-  figma.on("selectionchange", () => {
-    if (!state.selectionListenerActive) return;
-    const now = Date.now();
-    if (now - state.lastSelectionUpdate < state.selectionThrottleMs) return;
-    state.lastSelectionUpdate = now;
+  // Coalescing throttle: emit the first change immediately, then schedule a
+  // trailing emit so the final selection is never silently dropped (#25).
+  let pendingTrailingEmit: ReturnType<typeof setTimeout> | null = null;
+  const emitSelection = (): void => {
+    state.lastSelectionUpdate = Date.now();
     post({
       channel: WIDGET_V2_CHANNEL,
       source: "main",
       type: "selection",
       selection: createSelectionSnapshot(),
     });
+  };
+
+  figma.on("selectionchange", () => {
+    if (!state.selectionListenerActive) return;
+    const now = Date.now();
+    const elapsed = now - state.lastSelectionUpdate;
+    if (elapsed >= state.selectionThrottleMs) {
+      if (pendingTrailingEmit) {
+        clearTimeout(pendingTrailingEmit);
+        pendingTrailingEmit = null;
+      }
+      emitSelection();
+      return;
+    }
+    if (pendingTrailingEmit) return;
+    pendingTrailingEmit = setTimeout(() => {
+      pendingTrailingEmit = null;
+      emitSelection();
+    }, state.selectionThrottleMs - elapsed);
+    return;
   });
 
   figma.on("currentpagechange", () => {
     refreshConnectionState();
+    const page = figma.currentPage;
     post({
       channel: WIDGET_V2_CHANNEL,
       source: "main",
       type: "page",
-      pageName: figma.currentPage.name,
-      pageId: figma.currentPage.id,
+      pageName: page ? page.name : "",
+      pageId: page ? page.id : null,
       updatedAt: Date.now(),
     });
     post({
@@ -866,44 +887,60 @@ async function captureScreenshot(params: Record<string, unknown>): Promise<unkno
 
 /**
  * Push token values from the server into Figma variables.
- * Finds matching variables by name and updates their values.
+ *
+ * Fetches all local variables in parallel, builds a name→variable index,
+ * then applies each token in O(1) instead of the previous O(T·C·V) nested
+ * sequential awaits which stalled for O(seconds) on real design systems (#27).
  */
 async function pushTokens(params: Record<string, unknown>): Promise<unknown> {
-  var tokens = Array.isArray(params.tokens) ? params.tokens : [];
-  var updated = 0;
-  var notFound: string[] = [];
+  const tokens = Array.isArray(params.tokens) ? params.tokens : [];
+  let updated = 0;
+  const notFound: string[] = [];
 
-  var collections = await figma.variables.getLocalVariableCollectionsAsync();
+  const collections = await figma.variables.getLocalVariableCollectionsAsync();
 
-  for (var i = 0; i < tokens.length; i++) {
-    var token = tokens[i] as { name: string; values: Record<string, string | number> };
-    if (!token || !token.name) continue;
+  type Entry = { variable: any; modeId: string };
+  const index = new Map<string, Entry>();
 
-    var found = false;
-    for (var ci = 0; ci < collections.length; ci++) {
-      var col = collections[ci];
-      var varIds = col.variableIds;
-      for (var vi = 0; vi < varIds.length; vi++) {
-        var v = await figma.variables.getVariableByIdAsync(varIds[vi]);
-        if (v && v.name === token.name) {
-          var modeId = col.modes[0]?.modeId;
-          if (modeId && token.values) {
-            var firstValue = Object.values(token.values)[0];
-            var parsedColor = parseColorValue(firstValue);
-            if (parsedColor) {
-              v.setValueForMode(modeId, parsedColor);
-            } else {
-              v.setValueForMode(modeId, firstValue);
-            }
-            updated++;
-            found = true;
-          }
-          break;
-        }
-      }
-      if (found) break;
+  // Fetch every variable in every collection in parallel.
+  const fetchPromises: Array<Promise<Entry | null>> = [];
+  for (let ci = 0; ci < collections.length; ci += 1) {
+    const col = collections[ci];
+    const modeId = col.modes[0] ? col.modes[0].modeId : null;
+    if (!modeId) continue;
+    const varIds = col.variableIds;
+    for (let vi = 0; vi < varIds.length; vi += 1) {
+      const varId = varIds[vi];
+      fetchPromises.push(
+        figma.variables.getVariableByIdAsync(varId).then((v: any) => (v ? { variable: v, modeId } : null)),
+      );
     }
-    if (!found) notFound.push(token.name);
+  }
+  const fetched = await Promise.all(fetchPromises);
+  for (let i = 0; i < fetched.length; i += 1) {
+    const entry = fetched[i];
+    if (entry && entry.variable && typeof entry.variable.name === "string") {
+      // First occurrence wins — matches the original break-on-first semantics.
+      if (!index.has(entry.variable.name)) index.set(entry.variable.name, entry);
+    }
+  }
+
+  for (let i = 0; i < tokens.length; i += 1) {
+    const token = tokens[i] as { name: string; values: Record<string, string | number> };
+    if (!token || !token.name) continue;
+    const entry = index.get(token.name);
+    if (!entry || !token.values) {
+      notFound.push(token.name);
+      continue;
+    }
+    const firstValue = Object.values(token.values)[0];
+    const parsedColor = parseColorValue(firstValue);
+    if (parsedColor) {
+      entry.variable.setValueForMode(entry.modeId, parsedColor);
+    } else {
+      entry.variable.setValueForMode(entry.modeId, firstValue);
+    }
+    updated += 1;
   }
 
   return { updated: updated, notFound: notFound, total: tokens.length };
