@@ -17,6 +17,7 @@ import { fetchPageAssets, parseCSSTokens, type RawDesignTokens, type ContrastPai
 import { getAI, hasAI } from "../ai/client.js";
 import { formatElapsed } from "../utils/format.js";
 import { ui } from "../tui/format.js";
+import { getMemoirePackageVersion } from "../utils/package-version.js";
 
 export interface DesignDocPayload {
   status: "completed" | "failed";
@@ -138,7 +139,7 @@ export function registerDesignDocCommand(program: Command, engine: MemoireEngine
           const { publishRegistry } = await import("../registry/publisher.js");
           const baseName = opts.init.replace(/^@[^/]+\//, "");
           registryDir = join(engine.config.projectRoot, baseName);
-          const pkgVersion = (await import("../../package.json", { with: { type: "json" } })).default.version;
+          const pkgVersion = getMemoirePackageVersion();
           await publishRegistry({
             name: opts.init,
             version: "0.1.0",

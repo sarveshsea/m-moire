@@ -17,6 +17,7 @@ import { publishRegistry } from "../registry/publisher.js";
 import { marketplaceRegistryUrl, marketplaceComponentUrl } from "../registry/constants.js";
 import type { ComponentSpec } from "../specs/types.js";
 import { formatElapsed } from "../utils/format.js";
+import { getMemoirePackageVersion } from "../utils/package-version.js";
 
 export interface PublishPayload {
   status: "published" | "failed";
@@ -115,7 +116,7 @@ export function registerPublishCommand(program: Command, engine: MemoireEngine) 
 
       const baseName = opts.name.replace(/^@[^/]+\//, "");
       const outDir = opts.dir ? resolvePath(opts.dir) : resolvePath(engine.config.projectRoot, baseName);
-      const pkgVersion = (await import("../../package.json", { with: { type: "json" } })).default.version;
+      const pkgVersion = getMemoirePackageVersion();
 
       const spinner = opts.json ? null : ora({ text: "Building registry...", indent: 2, color: "cyan" }).start();
 

@@ -27,6 +27,7 @@
 
 import { Command } from "commander";
 import { MemoireEngine } from "./engine/core.js";
+import { getMemoirePackageVersion } from "./utils/package-version.js";
 
 import { existsSync, rmSync } from "fs";
 import { join } from "path";
@@ -81,9 +82,7 @@ const program = new Command();
 program
   .name("memoire")
   .description("Registry-first design system CLI + MCP server")
-  .version(
-    (await import("../package.json", { with: { type: "json" } })).default.version
-  );
+  .version(getMemoirePackageVersion());
 
 // Create engine instance (shared across commands)
 const engine = new MemoireEngine({

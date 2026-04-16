@@ -7,6 +7,7 @@ import { join, resolve as resolvePath } from "path";
 import ora from "ora";
 import { ui } from "../tui/format.js";
 import { publishRegistry } from "../registry/publisher.js";
+import { getMemoirePackageVersion } from "../utils/package-version.js";
 
 export function registerInitCommand(program: Command, engine: MemoireEngine) {
   program
@@ -320,7 +321,7 @@ async function scaffoldRegistry(engine: MemoireEngine, name: string, dirOpt?: st
 
   const spinner = ora({ text: "Building registry package...", indent: 2, color: "cyan" }).start();
 
-  const pkgVersion = (await import("../../package.json", { with: { type: "json" } })).default.version;
+  const pkgVersion = getMemoirePackageVersion();
 
   const result = await publishRegistry({
     name,
