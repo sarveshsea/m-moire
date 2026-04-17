@@ -26,8 +26,11 @@ function listPresets(): string[] {
 const presets = listPresets();
 
 describe("example presets — registry v1 roundtrip", () => {
-  it("discovers at least four presets on disk", () => {
-    expect(presets.length).toBeGreaterThanOrEqual(4);
+  it("discovers the featured presets on disk", () => {
+    expect(presets.length).toBeGreaterThanOrEqual(7);
+    expect(presets).toContain("starter-saas");
+    expect(presets).toContain("docs-blog");
+    expect(presets).toContain("dashboard");
     expect(presets).toContain("starter");
     expect(presets).toContain("tweakcn-vercel");
     expect(presets).toContain("tweakcn-supabase");

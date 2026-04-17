@@ -1,11 +1,11 @@
 {
   "name": "memoire",
   "display_name": "Memoire",
-  "description": "Registry-first design system CLI and MCP server. Publish Figma or tweakcn systems, pull tokens, generate shadcn/ui code, and connect AI tools to the result.",
+  "description": "Publish Figma and tweakcn design systems as installable shadcn registries, then connect the same workflow to MCP clients.",
   "repository": "https://github.com/sarveshsea/m-moire",
   "homepage": "https://memoire.cv",
   "author": "sarveshsea",
   "license": "MIT",
   "categories": ["Design Tools", "Developer Tools"],
-  "tags": ["figma", "design-system", "react", "shadcn", "mcp", "penpot", "tailwind", "storybook"]
+  "tags": ["registry", "figma", "tweakcn", "design-system", "shadcn", "npm", "tailwind", "mcp"]
 }

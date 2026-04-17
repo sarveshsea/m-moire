@@ -1,0 +1,27 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="720" rx="32" fill="#0B1020"/>
+  <rect x="56" y="56" width="1168" height="608" rx="28" fill="#111827" stroke="#1F2937"/>
+  <rect x="104" y="110" width="300" height="500" rx="24" fill="#0F172A"/>
+  <text x="136" y="158" fill="#E5E7EB" font-family="JetBrains Mono, monospace" font-size="24">tweakcn export.css</text>
+  <rect x="136" y="196" width="232" height="12" rx="6" fill="#8B5CF6"/>
+  <rect x="136" y="224" width="198" height="12" rx="6" fill="#94A3B8"/>
+  <rect x="136" y="252" width="214" height="12" rx="6" fill="#94A3B8"/>
+  <rect x="136" y="280" width="188" height="12" rx="6" fill="#94A3B8"/>
+  <text x="136" y="362" fill="#38BDF8" font-family="JetBrains Mono, monospace" font-size="22">memi theme import</text>
+  <text x="136" y="398" fill="#F8FAFC" font-family="JetBrains Mono, monospace" font-size="20">memi theme validate</text>
+  <text x="136" y="434" fill="#F8FAFC" font-family="JetBrains Mono, monospace" font-size="20">memi theme preview</text>
+  <text x="136" y="470" fill="#F8FAFC" font-family="JetBrains Mono, monospace" font-size="20">memi theme publish</text>
+  <path d="M444 360H566" stroke="#38BDF8" stroke-width="10" stroke-linecap="round"/>
+  <path d="M548 336L588 360L548 384" stroke="#38BDF8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="610" y="110" width="566" height="220" rx="24" fill="#F8FAFC"/>
+  <text x="650" y="158" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="28">Acme Theme</text>
+  <rect x="650" y="194" width="120" height="56" rx="28" fill="#6D28D9"/>
+  <rect x="794" y="194" width="120" height="56" rx="28" fill="#0F172A"/>
+  <rect x="938" y="194" width="120" height="56" rx="28" fill="#E5E7EB"/>
+  <rect x="650" y="278" width="470" height="12" rx="6" fill="#CBD5E1"/>
+  <path d="M610 430C610 396.863 636.863 370 670 370H1116C1149.14 370 1176 396.863 1176 430V540C1176 573.137 1149.14 600 1116 600H670C636.863 600 610 573.137 610 540V430Z" fill="#0F172A" stroke="#1F2937"/>
+  <text x="650" y="420" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="24">Published registry</text>
+  <text x="650" y="470" fill="#E5E7EB" font-family="JetBrains Mono, monospace" font-size="24">@you/theme</text>
+  <text x="650" y="520" fill="#38BDF8" font-family="JetBrains Mono, monospace" font-size="22">memi add Button --from @you/theme</text>
+  <text x="650" y="564" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="22">Import -> validate -> preview -> publish -> install</text>
+</svg>

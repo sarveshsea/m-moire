@@ -82,7 +82,7 @@ const program = new Command();
 
 program
   .name("memoire")
-  .description("Registry-first design system CLI + MCP server")
+  .description("Publish Figma and tweakcn design systems as installable shadcn registries")
   .version(getMemoirePackageVersion());
 
 // Create engine instance (shared across commands)
@@ -178,14 +178,17 @@ if (process.argv.length === 2) {
       const stamp = join(home, ".memoire", ".first-run-done");
       if (!existsSync(stamp)) {
         console.log();
-        console.log("  ▸ Mémoire — publishable design systems");
+        console.log("  ▸ Mémoire — installable design system registries");
         console.log();
         console.log("  Get started:");
         console.log("    memi publish --name @you/ds --figma <url>");
+        console.log("    memi theme import ./tweakcn.css --name \"Acme Theme\"");
         console.log("    memi add Button --from @you/ds");
         console.log("    memi design-doc <url>  Extract a site into DESIGN.md");
         console.log();
-        console.log("  Docs: https://memoire.cv   Issues: https://github.com/sarveshsea/m-moire/issues");
+        console.log("  npm:  https://www.npmjs.com/package/@sarveshsea/memoire");
+        console.log("  Docs: https://github.com/sarveshsea/m-moire/tree/main/docs");
+        console.log("  Issues: https://github.com/sarveshsea/m-moire/issues");
         console.log();
         mkdirSync(join(home, ".memoire"), { recursive: true });
         writeFileSync(stamp, new Date().toISOString());

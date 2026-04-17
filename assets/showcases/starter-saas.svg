@@ -1,0 +1,33 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="720" rx="36" fill="#F4F7FB"/>
+  <rect x="40" y="40" width="1120" height="640" rx="28" fill="#FFFFFF" stroke="#D9E3F0"/>
+  <rect x="72" y="72" width="228" height="576" rx="24" fill="#0F172A"/>
+  <rect x="104" y="118" width="96" height="18" rx="9" fill="#E2E8F0"/>
+  <rect x="104" y="180" width="164" height="14" rx="7" fill="#1D4ED8"/>
+  <rect x="104" y="216" width="136" height="14" rx="7" fill="#334155"/>
+  <rect x="104" y="252" width="120" height="14" rx="7" fill="#334155"/>
+  <rect x="332" y="96" width="360" height="128" rx="28" fill="#EAF2FF"/>
+  <rect x="364" y="132" width="148" height="18" rx="9" fill="#0F172A"/>
+  <rect x="364" y="164" width="232" height="14" rx="7" fill="#64748B"/>
+  <rect x="364" y="196" width="126" height="42" rx="21" fill="#2563EB"/>
+  <rect x="724" y="96" width="404" height="128" rx="28" fill="#0F172A"/>
+  <rect x="756" y="132" width="154" height="18" rx="9" fill="#F8FAFC"/>
+  <rect x="756" y="164" width="258" height="14" rx="7" fill="#94A3B8"/>
+  <rect x="756" y="194" width="310" height="10" rx="5" fill="#1D4ED8"/>
+  <rect x="332" y="256" width="250" height="168" rx="28" fill="#FFFFFF" stroke="#D9E3F0"/>
+  <rect x="604" y="256" width="250" height="168" rx="28" fill="#FFFFFF" stroke="#D9E3F0"/>
+  <rect x="876" y="256" width="252" height="168" rx="28" fill="#FFFFFF" stroke="#D9E3F0"/>
+  <rect x="364" y="290" width="96" height="16" rx="8" fill="#0F172A"/>
+  <rect x="364" y="320" width="66" height="44" rx="22" fill="#2563EB"/>
+  <rect x="636" y="290" width="116" height="16" rx="8" fill="#0F172A"/>
+  <rect x="636" y="324" width="186" height="10" rx="5" fill="#CBD5E1"/>
+  <rect x="636" y="346" width="162" height="10" rx="5" fill="#CBD5E1"/>
+  <rect x="908" y="290" width="106" height="16" rx="8" fill="#0F172A"/>
+  <rect x="908" y="330" width="188" height="54" rx="18" fill="#EFF6FF"/>
+  <rect x="332" y="456" width="796" height="160" rx="28" fill="#FFFFFF" stroke="#D9E3F0"/>
+  <rect x="364" y="490" width="150" height="16" rx="8" fill="#0F172A"/>
+  <rect x="364" y="528" width="732" height="14" rx="7" fill="#E2E8F0"/>
+  <rect x="364" y="556" width="682" height="14" rx="7" fill="#E2E8F0"/>
+  <rect x="364" y="584" width="592" height="14" rx="7" fill="#E2E8F0"/>
+  <text x="96" y="620" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="28">starter-saas</text>
+</svg>

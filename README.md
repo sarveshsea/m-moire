@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/authentic-logo.svg" alt="Memoire" width="80" height="80" />
+  <img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/authentic-logo.svg" alt="Memoire" width="80" height="80" />
 </p>
 
 <h1 align="center">memoire</h1>
@@ -17,23 +17,48 @@
 
 ---
 
-## The shadcn pattern, for entire design systems
+## 60-second quickstart
 
 Memoire is registry-first. The primary loop is simple: publish a design system, install real components anywhere, then keep the registry updated as the source changes.
 
+### Figma -> npm -> shadcn app
+
 ```bash
-# Publish your Figma file to npm in one command
+npm i -g @sarveshsea/memoire
+
+# Publish your Figma file to npm
 npx @sarveshsea/memoire publish --name @you/ds --figma https://figma.com/design/xxx --push
 
 # From any project, drop working code in
 npx @sarveshsea/memoire add Button --from @you/ds
 # → src/components/memoire/Button.tsx (real working code, not a spec)
-
-# Or start from a live site and scaffold a registry from it
-npx @sarveshsea/memoire design-doc https://linear.app --init @you/linear-theme
 ```
 
-A registry bundles tokens (W3C DTCG JSON + Tailwind v4 `@theme` CSS), component specs, and **real generated code** for React / Vue / Svelte. Publishable to npm, GitHub, or any static host. See [`examples/starter-registry/`](./examples/starter-registry) to fork one.
+### tweakcn -> npm -> shadcn app
+
+```bash
+npm i -g @sarveshsea/memoire
+
+memi theme import ./tweakcn-export.css --name "Acme Theme"
+memi theme publish "Acme Theme" --package @you/theme
+memi add Button --from @you/theme
+```
+
+A registry bundles tokens (W3C DTCG JSON + Tailwind v4 `@theme` CSS), component specs, and **real generated code** for React / Vue / Svelte. Publishable to npm, GitHub, or any static host.
+
+## Featured registries
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/starter-saas.svg" alt="Starter SaaS registry" width="240" />
+  <img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/docs-blog.svg" alt="Docs Blog registry" width="240" />
+  <img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/dashboard.svg" alt="Dashboard registry" width="240" />
+</p>
+
+- `@memoire-examples/starter-saas` — neutral SaaS starter. Install with `memi add Button --from @memoire-examples/starter-saas`. Source: [`examples/presets/starter-saas`](./examples/presets/starter-saas)
+- `@memoire-examples/docs-blog` — editorial docs/blog kit. Install with `memi add Button --from @memoire-examples/docs-blog`. Source: [`examples/presets/docs-blog`](./examples/presets/docs-blog)
+- `@memoire-examples/dashboard` — high-contrast analytics dashboard. Install with `memi add Button --from @memoire-examples/dashboard`. Source: [`examples/presets/dashboard`](./examples/presets/dashboard)
+
+More examples and the featured fallback catalog live in [`examples/`](./examples/README.md).
 
 ### Designed in tweakcn? Publish with Memoire.
 
@@ -57,8 +82,14 @@ memi theme publish "Acme Theme" --package @you/theme
 Theme import handles both Tailwind v3 (`:root { --primary: ... }`) and v4 (`@theme { --color-primary: ... }`) exports, including `:root` + `.dark` multi-mode themes. If you want the one-shot path, `memi publish --theme <path-or-url>` still works.
 
 <p align="center">
-  <img src="assets/demo.gif" alt="memoire extracting a design system from a URL" width="720" />
+  <img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/demo.gif" alt="Memoire terminal publish and install flow" width="720" />
 </p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/theme-workflow-demo.svg" alt="Memoire tweakcn theme workflow" width="720" />
+</p>
+
+Demo scripts for recording and reuse live in [`docs/DEMOS.md`](./docs/DEMOS.md).
 
 ---
 
@@ -118,7 +149,7 @@ Verify with `SHA256SUMS.txt` (attached to every release). Extract, add `memi` to
 
 ---
 
-## Use with Claude Code / Cursor
+## Advanced: Use with Claude Code / Cursor
 
 Memoire also runs as an MCP server, so your AI assistant can work directly with your design system after the registry workflow is in place.
 
@@ -139,7 +170,7 @@ Or add manually to `.mcp.json`:
 }
 ```
 
-**Tools include:** `pull_design_system`, `generate_code`, `create_spec`, `get_tokens`, `compose`, `design_doc`, `run_audit`, `capture_screenshot`, `analyze_design`, and more in the [docs](https://memoire.cv/docs).
+**Tools include:** `pull_design_system`, `generate_code`, `create_spec`, `get_tokens`, `compose`, `design_doc`, `run_audit`, `capture_screenshot`, `analyze_design`, and more in the [docs](./docs/README.md).
 
 ---
 
@@ -180,7 +211,7 @@ Or add manually to `.mcp.json`:
 </details>
 
 <details>
-<summary><strong>Sync, agents, research</strong></summary>
+<summary><strong>Advanced: sync, agents, research</strong></summary>
 
 | Command | What it does |
 |---------|-------------|
@@ -250,7 +281,7 @@ src/
 
 ## Links
 
-[memoire.cv](https://memoire.cv) -- [Changelog](CHANGELOG.md) -- [MCP docs](https://memoire.cv/docs) -- [Notes](https://memoire.cv/notes)
+[Quickstart](./docs/README.md) -- [Examples](./examples/README.md) -- [Launch Pack](./docs/LAUNCH.md) -- [Changelog](CHANGELOG.md)
 
 ## License
 

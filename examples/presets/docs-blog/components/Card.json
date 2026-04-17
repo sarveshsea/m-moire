@@ -1,0 +1,32 @@
+{
+  "name": "Card",
+  "type": "component",
+  "level": "molecule",
+  "purpose": "Linear-style editorial surface with soft radii and violet-tinted elevated shadow",
+  "researchBacking": [],
+  "designTokens": { "source": "manual", "mapped": true },
+  "variants": ["default", "elevated"],
+  "props": {
+    "variant": "'default' | 'elevated'",
+    "title": "string?",
+    "description": "string?",
+    "children": "ReactNode"
+  },
+  "shadcnBase": ["Card"],
+  "composesSpecs": [],
+  "codeConnect": { "props": {}, "mapped": false },
+  "accessibility": {
+    "ariaLabel": "optional",
+    "keyboardNav": false,
+    "focusStyle": "outline",
+    "focusWidth": "2px",
+    "touchTarget": "default",
+    "reducedMotion": false,
+    "liveRegion": "off",
+    "colorIndependent": true
+  },
+  "dataviz": null,
+  "tags": ["surface", "container", "linear"],
+  "createdAt": "2026-04-15T00:00:00.000Z",
+  "updatedAt": "2026-04-15T00:00:00.000Z"
+}

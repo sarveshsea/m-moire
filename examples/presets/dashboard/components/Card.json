@@ -1,0 +1,32 @@
+{
+  "name": "Card",
+  "type": "component",
+  "level": "molecule",
+  "purpose": "Vercel-style bordered surface with tight radii and deep dark-mode shadow",
+  "researchBacking": [],
+  "designTokens": { "source": "manual", "mapped": true },
+  "variants": ["default", "elevated"],
+  "props": {
+    "variant": "'default' | 'elevated'",
+    "title": "string?",
+    "description": "string?",
+    "children": "ReactNode"
+  },
+  "shadcnBase": ["Card"],
+  "composesSpecs": [],
+  "codeConnect": { "props": {}, "mapped": false },
+  "accessibility": {
+    "ariaLabel": "optional",
+    "keyboardNav": false,
+    "focusStyle": "outline",
+    "focusWidth": "2px",
+    "touchTarget": "default",
+    "reducedMotion": false,
+    "liveRegion": "off",
+    "colorIndependent": true
+  },
+  "dataviz": null,
+  "tags": ["surface", "container", "vercel"],
+  "createdAt": "2026-04-15T00:00:00.000Z",
+  "updatedAt": "2026-04-15T00:00:00.000Z"
+}

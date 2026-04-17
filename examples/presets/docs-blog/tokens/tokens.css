@@ -1,0 +1,56 @@
+/* @memoire-examples/docs-blog — editorial docs/blog starter */
+@import "tailwindcss";
+
+@theme {
+  /* Light */
+  --color-background: oklch(99% 0.005 280);
+  --color-foreground: oklch(18% 0.02 280);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(18% 0.02 280);
+  --color-primary: oklch(60% 0.18 280);
+  --color-primary-foreground: oklch(99% 0.005 280);
+  --color-muted: oklch(96% 0.01 280);
+  --color-muted-foreground: oklch(48% 0.015 280);
+  --color-accent: oklch(60% 0.18 280);
+  --color-accent-foreground: oklch(99% 0.005 280);
+  --color-border: oklch(92% 0.01 280);
+  --color-input: oklch(94% 0.008 280);
+  --color-ring: oklch(60% 0.18 280);
+
+  /* Type */
+  --font-sans: "Inter Tight", "Inter", system-ui, sans-serif;
+  --font-serif: "Tiempos Headline", "Georgia", serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Radii — slightly softer for editorial feel */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  --shadow-md: 0 10px 30px -8px rgb(60 50 120 / 0.15);
+}
+
+.dark,
+:root.dark {
+  --color-background: oklch(14% 0.015 280);
+  --color-foreground: oklch(96% 0.005 280);
+  --color-card: oklch(18% 0.02 280);
+  --color-card-foreground: oklch(96% 0.005 280);
+  --color-primary: oklch(68% 0.18 280);
+  --color-primary-foreground: oklch(14% 0.015 280);
+  --color-muted: oklch(22% 0.02 280);
+  --color-muted-foreground: oklch(70% 0.015 280);
+  --color-accent: oklch(68% 0.18 280);
+  --color-accent-foreground: oklch(14% 0.015 280);
+  --color-border: oklch(26% 0.015 280);
+  --color-input: oklch(26% 0.015 280);
+  --color-ring: oklch(68% 0.18 280);
+}

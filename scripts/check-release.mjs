@@ -67,6 +67,38 @@ if (!starterReadmeMatch) {
   fail(`examples/presets/starter/README.md says v${starterReadmeMatch[1]} but package.json is ${version}`);
 }
 
+const featuredCatalogPath = join(root, "examples", "featured-registries.json");
+const featuredCatalog = await readJson(featuredCatalogPath);
+if (!Array.isArray(featuredCatalog) || featuredCatalog.length < 3) {
+  fail("examples/featured-registries.json must contain at least three featured registries");
+} else {
+  for (const entry of featuredCatalog) {
+    if (!entry.slug || !entry.packageName || !entry.installCommand || !entry.sourcePath || !entry.screenshotPath) {
+      fail(`featured registry entry is missing required fields: ${JSON.stringify(entry)}`);
+      continue;
+    }
+
+    if (!entry.installCommand.includes(entry.packageName)) {
+      fail(`featured registry ${entry.slug} installCommand does not reference ${entry.packageName}`);
+    }
+
+    const sourceDir = join(root, entry.sourcePath);
+    const screenshotPath = join(root, entry.screenshotPath);
+
+    try {
+      await access(sourceDir);
+    } catch {
+      fail(`featured registry ${entry.slug} sourcePath does not exist: ${entry.sourcePath}`);
+    }
+
+    try {
+      await access(screenshotPath);
+    } catch {
+      fail(`featured registry ${entry.slug} screenshotPath does not exist: ${entry.screenshotPath}`);
+    }
+  }
+}
+
 if (failures.length > 0) {
   console.error("\nRelease consistency check failed:\n");
   for (const failure of failures) {

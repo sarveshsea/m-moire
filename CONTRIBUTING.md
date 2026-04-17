@@ -2,12 +2,28 @@
 
 ## Ways to contribute
 
+- **Showcase registries** — add or improve installable examples under `examples/presets/`
+- **Quickstart docs** — tighten the publish -> add -> update flow in README and `docs/`
 - **Bug reports** — use the bug report template
 - **Feature requests** — use the feature request template
-- **Notes (skill packs)** — the fastest way to extend Memoire without touching the core
 - **MCP tool improvements** — add tools, improve descriptions, fix edge cases
+- **Notes (skill packs)** — extend Memoire without touching the core
 - **Test coverage** — adding more is always welcome
-- **Documentation** — README, inline JSDoc, or examples
+- **Documentation** — README, inline JSDoc, launch copy, or examples
+
+## Showcase registries
+
+The fastest growth contribution is a registry people can install in one command.
+
+```bash
+cp -r examples/presets/starter-saas my-design-system
+cd my-design-system
+# rename in package.json + registry.json
+memi publish --name @yourscope/your-ds
+npm publish --access public
+```
+
+Ship a clear screenshot, a short install command, and a README that explains the vibe in one paragraph.
 
 ## Notes (skill packs)
 

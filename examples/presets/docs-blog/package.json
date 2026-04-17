@@ -1,0 +1,25 @@
+{
+  "name": "@memoire-examples/docs-blog",
+  "version": "0.1.0",
+  "description": "Docs Blog Memoire Registry — editorial docs/blog starter with softer surfaces and reading-friendly contrast.",
+  "homepage": "https://memoire.cv",
+  "license": "MIT",
+  "files": [
+    "registry.json",
+    "tokens/",
+    "components/",
+    "README.md"
+  ],
+  "keywords": [
+    "memoire-registry",
+    "design-system",
+    "design-tokens",
+    "shadcn",
+    "docs",
+    "blog"
+  ],
+  "memoire": {
+    "registry": true,
+    "schemaVersion": "v1"
+  }
+}

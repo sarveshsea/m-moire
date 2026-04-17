@@ -1,0 +1,30 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="720" rx="36" fill="#FBF8F6"/>
+  <rect x="44" y="44" width="1112" height="632" rx="28" fill="#FFFDFB" stroke="#E9DDD7"/>
+  <rect x="96" y="96" width="1008" height="72" rx="20" fill="#F4EEEA"/>
+  <rect x="132" y="122" width="142" height="16" rx="8" fill="#332822"/>
+  <rect x="430" y="122" width="76" height="12" rx="6" fill="#8A6E61"/>
+  <rect x="528" y="122" width="76" height="12" rx="6" fill="#8A6E61"/>
+  <rect x="626" y="122" width="76" height="12" rx="6" fill="#8A6E61"/>
+  <rect x="900" y="110" width="168" height="44" rx="22" fill="#5B4CE6"/>
+  <rect x="96" y="204" width="636" height="404" rx="28" fill="#FFFFFF" stroke="#E9DDD7"/>
+  <rect x="132" y="244" width="448" height="32" rx="16" fill="#332822"/>
+  <rect x="132" y="296" width="550" height="16" rx="8" fill="#8A6E61"/>
+  <rect x="132" y="326" width="520" height="16" rx="8" fill="#8A6E61"/>
+  <rect x="132" y="356" width="480" height="16" rx="8" fill="#8A6E61"/>
+  <rect x="132" y="400" width="152" height="50" rx="25" fill="#5B4CE6"/>
+  <rect x="764" y="204" width="340" height="188" rx="28" fill="#F6F1EE"/>
+  <rect x="796" y="236" width="130" height="16" rx="8" fill="#332822"/>
+  <rect x="796" y="270" width="244" height="10" rx="5" fill="#BCA397"/>
+  <rect x="796" y="292" width="212" height="10" rx="5" fill="#BCA397"/>
+  <rect x="796" y="322" width="84" height="34" rx="17" fill="#E7DEFF"/>
+  <rect x="764" y="420" width="340" height="188" rx="28" fill="#FFFFFF" stroke="#E9DDD7"/>
+  <rect x="796" y="454" width="146" height="16" rx="8" fill="#332822"/>
+  <rect x="796" y="490" width="252" height="10" rx="5" fill="#D6C6BE"/>
+  <rect x="796" y="512" width="224" height="10" rx="5" fill="#D6C6BE"/>
+  <rect x="796" y="542" width="132" height="38" rx="19" fill="#F4EEEA"/>
+  <rect x="132" y="482" width="552" height="90" rx="22" fill="#F7F1ED"/>
+  <rect x="164" y="512" width="98" height="14" rx="7" fill="#5B4CE6"/>
+  <rect x="164" y="538" width="324" height="10" rx="5" fill="#BCA397"/>
+  <text x="94" y="638" fill="#8A6E61" font-family="Georgia, serif" font-size="32">docs-blog</text>
+</svg>

@@ -1,0 +1,25 @@
+{
+  "name": "@memoire-examples/dashboard",
+  "version": "0.1.0",
+  "description": "Dashboard Memoire Registry — high-contrast analytics starter for admin and ops products.",
+  "homepage": "https://memoire.cv",
+  "license": "MIT",
+  "files": [
+    "registry.json",
+    "tokens/",
+    "components/",
+    "README.md"
+  ],
+  "keywords": [
+    "memoire-registry",
+    "design-system",
+    "design-tokens",
+    "shadcn",
+    "dashboard",
+    "analytics"
+  ],
+  "memoire": {
+    "registry": true,
+    "schemaVersion": "v1"
+  }
+}

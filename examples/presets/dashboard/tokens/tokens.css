@@ -1,0 +1,75 @@
+/* @memoire-examples/dashboard — analytics dashboard starter */
+@import "tailwindcss";
+
+@theme {
+  /* Light mode (default) */
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(15% 0.005 280);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(15% 0.005 280);
+  --color-primary: oklch(15% 0.005 280);
+  --color-primary-foreground: oklch(98% 0.002 280);
+  --color-muted: oklch(96% 0.003 280);
+  --color-muted-foreground: oklch(45% 0.01 280);
+  --color-accent: oklch(70% 0.2 250);
+  --color-accent-foreground: oklch(98% 0.002 280);
+  --color-border: oklch(90% 0.005 280);
+  --color-input: oklch(90% 0.005 280);
+  --color-ring: oklch(70% 0.2 250);
+
+  /* Typography — monospace-leaning label font */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Radii — tight, sharp */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.25);
+  --shadow-md: 0 8px 24px -4px rgb(0 0 0 / 0.35);
+}
+
+/* Dark mode — activated via .dark class or prefers-color-scheme */
+.dark,
+:root.dark {
+  --color-background: oklch(8% 0.005 280);
+  --color-foreground: oklch(98% 0.002 280);
+  --color-card: oklch(12% 0.006 280);
+  --color-card-foreground: oklch(98% 0.002 280);
+  --color-primary: oklch(98% 0.002 280);
+  --color-primary-foreground: oklch(8% 0.005 280);
+  --color-muted: oklch(18% 0.006 280);
+  --color-muted-foreground: oklch(70% 0.01 280);
+  --color-accent: oklch(70% 0.2 250);
+  --color-accent-foreground: oklch(8% 0.005 280);
+  --color-border: oklch(22% 0.008 280);
+  --color-input: oklch(22% 0.008 280);
+  --color-ring: oklch(70% 0.2 250);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --color-background: oklch(8% 0.005 280);
+    --color-foreground: oklch(98% 0.002 280);
+    --color-card: oklch(12% 0.006 280);
+    --color-card-foreground: oklch(98% 0.002 280);
+    --color-primary: oklch(98% 0.002 280);
+    --color-primary-foreground: oklch(8% 0.005 280);
+    --color-muted: oklch(18% 0.006 280);
+    --color-muted-foreground: oklch(70% 0.01 280);
+    --color-accent: oklch(70% 0.2 250);
+    --color-accent-foreground: oklch(8% 0.005 280);
+    --color-border: oklch(22% 0.008 280);
+    --color-input: oklch(22% 0.008 280);
+    --color-ring: oklch(70% 0.2 250);
+  }
+}

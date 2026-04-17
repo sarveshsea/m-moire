@@ -1,0 +1,25 @@
+{
+  "name": "@memoire-examples/starter-saas",
+  "version": "0.1.0",
+  "description": "Starter SaaS Memoire Registry — neutral surfaces, blue product accents, installable app-shell primitives.",
+  "homepage": "https://memoire.cv",
+  "license": "MIT",
+  "files": [
+    "registry.json",
+    "tokens/",
+    "components/",
+    "README.md"
+  ],
+  "keywords": [
+    "memoire-registry",
+    "design-system",
+    "design-tokens",
+    "shadcn",
+    "starter",
+    "saas"
+  ],
+  "memoire": {
+    "registry": true,
+    "schemaVersion": "v1"
+  }
+}
