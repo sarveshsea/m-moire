@@ -70,6 +70,7 @@ export class TaskQueue extends EventEmitter {
       // Auto-prune completed tasks older than 5 minutes every cycle
       if (this.tasks.size > 100) this.prune(300_000);
     }, 10_000);
+    this.reclaimTimer.unref?.();
   }
 
   /** Stop the reclaim timer. */

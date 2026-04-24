@@ -46,7 +46,7 @@ export function registerPreviewCommand(program: Command, engine: MemoireEngine) 
       // Load research data if available
       let research: ResearchStore | null = null;
       try {
-        const researchPath = join(engine.config.projectRoot, "research", "insights.json");
+        const researchPath = join(engine.config.projectRoot, "research", "store.v2.json");
         const raw = await readFile(researchPath, "utf-8");
         research = JSON.parse(raw) as ResearchStore;
       } catch {
@@ -62,7 +62,7 @@ export function registerPreviewCommand(program: Command, engine: MemoireEngine) 
       const html = generatePreviewHTML(data);
       await writeFile(join(generatedDir, "gallery.html"), html);
 
-      if (research && research.insights.length > 0) {
+      if (research && research.findings.length > 0) {
         const researchHtml = generateResearchDashboard(research, data.generatedAt);
         await writeFile(join(generatedDir, "research.html"), researchHtml);
       }
@@ -81,7 +81,7 @@ export function registerPreviewCommand(program: Command, engine: MemoireEngine) 
       console.log(`    ${ia.length} IA specs`);
       console.log(`    ${tokens.length} design tokens`);
       if (research) {
-        console.log(`    ${research.insights.length} research insights`);
+        console.log(`    ${research.findings.length} research findings`);
         console.log(`    ${research.themes.length} themes`);
       }
 

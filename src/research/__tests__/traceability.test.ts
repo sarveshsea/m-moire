@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdir, rm } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 import { ResearchTraceability } from "../traceability.js";
-import type { ResearchInsight } from "../engine.js";
+import type { ResearchFinding } from "../engine.js";
 
 let testDir: string;
 let trace: ResearchTraceability;
@@ -25,49 +25,49 @@ function makeSpec(name: string, backing: string[] = []) {
 
 describe("ResearchTraceability", () => {
   it("starts empty", () => {
-    expect(trace.getSpecsForInsight("any")).toHaveLength(0);
-    expect(trace.getInsightsForSpec("any")).toHaveLength(0);
+    expect(trace.getSpecsForFinding("any")).toHaveLength(0);
+    expect(trace.getFindingsForSpec("any")).toHaveLength(0);
   });
 
-  it("indexes spec -> insight on save", async () => {
-    await trace.onSpecSaved(makeSpec("Button", ["insight-1", "insight-2"]));
-    expect(trace.getInsightsForSpec("Button")).toEqual(["insight-1", "insight-2"]);
-    expect(trace.getSpecsForInsight("insight-1")).toEqual(["Button"]);
-    expect(trace.getSpecsForInsight("insight-2")).toEqual(["Button"]);
+  it("indexes spec -> finding on save", async () => {
+    await trace.onSpecSaved(makeSpec("Button", ["finding-1", "finding-2"]));
+    expect(trace.getFindingsForSpec("Button")).toEqual(["finding-1", "finding-2"]);
+    expect(trace.getSpecsForFinding("finding-1")).toEqual(["Button"]);
+    expect(trace.getSpecsForFinding("finding-2")).toEqual(["Button"]);
   });
 
-  it("updates index when spec is re-saved with different insights", async () => {
-    await trace.onSpecSaved(makeSpec("Card", ["insight-1"]));
-    expect(trace.getSpecsForInsight("insight-1")).toEqual(["Card"]);
+  it("updates index when spec is re-saved with different findings", async () => {
+    await trace.onSpecSaved(makeSpec("Card", ["finding-1"]));
+    expect(trace.getSpecsForFinding("finding-1")).toEqual(["Card"]);
 
-    await trace.onSpecSaved(makeSpec("Card", ["insight-2"]));
-    expect(trace.getSpecsForInsight("insight-1")).toHaveLength(0);
-    expect(trace.getSpecsForInsight("insight-2")).toEqual(["Card"]);
+    await trace.onSpecSaved(makeSpec("Card", ["finding-2"]));
+    expect(trace.getSpecsForFinding("finding-1")).toHaveLength(0);
+    expect(trace.getSpecsForFinding("finding-2")).toEqual(["Card"]);
   });
 
-  it("handles multiple specs referencing same insight", async () => {
-    await trace.onSpecSaved(makeSpec("Button", ["insight-1"]));
-    await trace.onSpecSaved(makeSpec("Card", ["insight-1"]));
-    expect(trace.getSpecsForInsight("insight-1")).toEqual(["Button", "Card"]);
+  it("handles multiple specs referencing same finding", async () => {
+    await trace.onSpecSaved(makeSpec("Button", ["finding-1"]));
+    await trace.onSpecSaved(makeSpec("Card", ["finding-1"]));
+    expect(trace.getSpecsForFinding("finding-1")).toEqual(["Button", "Card"]);
   });
 
   it("removes spec from index", async () => {
-    await trace.onSpecSaved(makeSpec("Button", ["insight-1"]));
+    await trace.onSpecSaved(makeSpec("Button", ["finding-1"]));
     await trace.onSpecRemoved("Button");
-    expect(trace.getSpecsForInsight("insight-1")).toHaveLength(0);
-    expect(trace.getInsightsForSpec("Button")).toHaveLength(0);
+    expect(trace.getSpecsForFinding("finding-1")).toHaveLength(0);
+    expect(trace.getFindingsForSpec("Button")).toHaveLength(0);
   });
 
   it("persists and reloads from disk", async () => {
-    await trace.onSpecSaved(makeSpec("Button", ["insight-1"]));
+    await trace.onSpecSaved(makeSpec("Button", ["finding-1"]));
 
     const trace2 = new ResearchTraceability(testDir);
     await trace2.load();
-    expect(trace2.getSpecsForInsight("insight-1")).toEqual(["Button"]);
+    expect(trace2.getSpecsForFinding("finding-1")).toEqual(["Button"]);
   });
 
   it("computes coverage", async () => {
-    await trace.onSpecSaved(makeSpec("Button", ["insight-1"]));
+    await trace.onSpecSaved(makeSpec("Button", ["finding-1"]));
     await trace.onSpecSaved(makeSpec("Card", []));
 
     const cov = trace.getCoverage(["Button", "Card", "Input"]);
@@ -76,16 +76,46 @@ describe("ResearchTraceability", () => {
     expect(cov.ratio).toBeCloseTo(1 / 3, 2);
   });
 
-  it("finds orphaned insights", async () => {
-    await trace.onSpecSaved(makeSpec("Button", ["insight-1"]));
+  it("finds orphaned findings", async () => {
+    await trace.onSpecSaved(makeSpec("Button", ["finding-1"]));
 
-    const insights: ResearchInsight[] = [
-      { id: "insight-1", finding: "Linked", confidence: "high", source: "test", evidence: [], tags: [], createdAt: "" },
-      { id: "insight-2", finding: "Orphaned", confidence: "high", source: "test", evidence: [], tags: [], createdAt: "" },
+    const findings: ResearchFinding[] = [
+      {
+        id: "finding-1",
+        statement: "Linked",
+        category: "general",
+        confidence: "high",
+        themeIds: [],
+        evidenceObservationIds: [],
+        evidenceSourceIds: [],
+        sourceTypeCount: 1,
+        method: "qualitative",
+        caveats: [],
+        tags: [],
+        entities: [],
+        signalTags: [],
+        createdAt: "",
+      },
+      {
+        id: "finding-2",
+        statement: "Orphaned",
+        category: "general",
+        confidence: "high",
+        themeIds: [],
+        evidenceObservationIds: [],
+        evidenceSourceIds: [],
+        sourceTypeCount: 1,
+        method: "qualitative",
+        caveats: [],
+        tags: [],
+        entities: [],
+        signalTags: [],
+        createdAt: "",
+      },
     ];
 
-    const orphaned = trace.getOrphanedInsights(insights);
+    const orphaned = trace.getOrphanedFindings(findings);
     expect(orphaned).toHaveLength(1);
-    expect(orphaned[0].id).toBe("insight-2");
+    expect(orphaned[0].id).toBe("finding-2");
   });
 });

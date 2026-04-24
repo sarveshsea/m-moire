@@ -7,7 +7,6 @@
  */
 
 import { createLogger } from "../engine/logger.js";
-import type { ResearchInsight } from "./engine.js";
 
 const log = createLogger("transcript-processor");
 
@@ -31,11 +30,21 @@ export interface ProcessedTranscript {
   speakers: string[];
   segments: TranscriptSegment[];
   themes: TranscriptTheme[];
-  insights: ResearchInsight[];
+  insights: ProcessedTranscriptInsight[];
   quotes: string[];
   summary: string;
   wordCount: number;
   duration?: string;
+}
+
+export interface ProcessedTranscriptInsight {
+  id: string;
+  finding: string;
+  confidence: "high" | "medium" | "low";
+  source: string;
+  evidence: string[];
+  tags: string[];
+  createdAt: string;
 }
 
 // ── Speaker Detection ──────────────────────────────────────
@@ -223,8 +232,8 @@ export function extractQuotes(segments: TranscriptSegment[], minLength = 15): st
 
 // ── Insight Generation ─────────────────────────────────────
 
-export function generateInsights(themes: TranscriptTheme[], segments: TranscriptSegment[], source: string): ResearchInsight[] {
-  const insights: ResearchInsight[] = [];
+export function generateInsights(themes: TranscriptTheme[], segments: TranscriptSegment[], source: string): ProcessedTranscriptInsight[] {
+  const insights: ProcessedTranscriptInsight[] = [];
 
   // Generate insights from negative themes (pain points)
   const negativeThemes = themes.filter((t) => t.sentiment === "negative" || t.sentiment === "mixed");

@@ -1,5 +1,5 @@
 /**
- * `memi view <component>` — open a component's page on the Memoire Marketplace.
+ * `memi view <component>` — open the source registry package for a component.
  *
  * Resolution order for the source registry:
  *   1. A fully-qualified ref (`@scope/name/Component`) — parsed directly.
@@ -16,7 +16,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { spawn } from "node:child_process";
 import { ui } from "../tui/format.js";
-import { marketplaceComponentUrl } from "../registry/constants.js";
+import { npmPackageUrl } from "../registry/constants.js";
 import type { ComponentSpec } from "../specs/types.js";
 
 export interface ViewPayload {
@@ -76,7 +76,7 @@ export function openInBrowser(url: string): void {
 export function registerViewCommand(program: Command, engine: MemoireEngine) {
   program
     .command("view <component>")
-    .description("Open a component's Marketplace page (memoire.cv/components/...)")
+    .description("Open the source registry package for a component")
     .option("--from <registry>", "Source registry (e.g. @acme/design-system)")
     .option("--print", "Print the URL to stdout instead of opening the browser")
     .option("--json", "Emit JSON { url, component, registry } and do not open a browser")
@@ -109,7 +109,7 @@ export function registerViewCommand(program: Command, engine: MemoireEngine) {
           }
         }
 
-        const url = marketplaceComponentUrl(registry, component);
+        const url = npmPackageUrl(registry);
 
         if (opts.json) {
           const payload: ViewPayload = { status: "printed", url, component, registry };
@@ -124,7 +124,7 @@ export function registerViewCommand(program: Command, engine: MemoireEngine) {
 
         openInBrowser(url);
         console.log();
-        console.log(ui.ok(`Opening ${component} on Memoire Marketplace`));
+        console.log(ui.ok(`Opening ${registry} for ${component}`));
         console.log(ui.dim(`  ${url}`));
         console.log();
       } catch (err) {

@@ -1,7 +1,7 @@
 /**
- * `memi publish` success-message test — verifies the Marketplace URL
- * section is printed in the human-readable success output and embeds
- * the correct package name.
+ * `memi publish` success-message test — verifies the public npm package page
+ * is printed in the human-readable success output and embeds the correct
+ * package name.
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Command } from "commander";
@@ -46,7 +46,7 @@ afterEach(async () => {
   delete process.env.MEMOIRE_MARKETPLACE_URL;
 });
 
-describe("memi publish — Marketplace URL success message", () => {
+describe("memi publish — public package URL success message", () => {
   let engine: MemoireEngine;
   let projectRoot: string;
 
@@ -56,7 +56,7 @@ describe("memi publish — Marketplace URL success message", () => {
     projectRoot = created.projectRoot;
   });
 
-  it("prints registry + component Marketplace URLs with the right package name", async () => {
+  it("prints the npm package page with the right package name", async () => {
     const logs = captureLogs();
     const program = new Command();
     registerPublishCommand(program, engine);
@@ -77,10 +77,9 @@ describe("memi publish — Marketplace URL success message", () => {
     );
 
     const joined = logs.join("\n");
-    expect(joined).toContain("View on Memoire:");
-    expect(joined).toContain("https://memoire.cv/r/@acme/design-system");
-    expect(joined).toContain("https://memoire.cv/components/@acme/design-system/");
-    expect(joined).toContain("Visible on the Marketplace within 1 hour");
+    expect(joined).toContain("Public package page after `npm publish`:");
+    expect(joined).toContain("https://www.npmjs.com/package/@acme/design-system");
+    expect(joined).toContain("Prefer the npm package page until the public Marketplace index is healthy.");
     // Existing next-step output must still be present
     expect(joined).toContain("npm publish --access public");
   });

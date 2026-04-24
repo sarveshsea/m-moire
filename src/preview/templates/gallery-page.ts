@@ -251,15 +251,16 @@ ${CSS}
   <div class="sys-header">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C4A35A" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <h2 class="sys-title">Dibs Research</h2>
-    <span class="sys-sub">${data.research ? data.research.insights.length + ' insights / ' + data.research.themes.length + ' themes / ' + (data.research.personas?.length || 0) + ' personas / ' + (data.research.sources?.length || 0) + ' sources' : 'No research data'}</span>
+    <span class="sys-sub">${data.research ? data.research.findings.length + ' findings / ' + data.research.themes.length + ' themes / ' + (data.research.personas?.length || 0) + ' personas / ' + (data.research.sources?.length || 0) + ' sources' : 'No research data'}</span>
   </div>
 
   ${data.research ? (() => {
     const r = data.research;
-    const highCount = r.insights.filter((i: { confidence: string }) => i.confidence === 'high').length;
-    const medCount = r.insights.filter((i: { confidence: string }) => i.confidence === 'medium').length;
-    const lowCount = r.insights.filter((i: { confidence: string }) => i.confidence === 'low').length;
-    const totalIns = r.insights.length;
+    const findings = r.findings;
+    const highCount = findings.filter((i: { confidence: string }) => i.confidence === 'high').length;
+    const medCount = findings.filter((i: { confidence: string }) => i.confidence === 'medium').length;
+    const lowCount = findings.filter((i: { confidence: string }) => i.confidence === 'low').length;
+    const totalIns = findings.length;
     const maxFreq = Math.max(...r.themes.map((t: { frequency: number }) => t.frequency), 1);
 
     return `
@@ -274,12 +275,12 @@ ${CSS}
   <!-- ── Overview Panel ──────── -->
   <div id="res-overview" class="res-panel active">
     <div class="res-stats">
-      <div class="res-stat"><div class="res-stat-num">${totalIns}</div><div class="res-stat-label">Insights</div></div>
+      <div class="res-stat"><div class="res-stat-num">${totalIns}</div><div class="res-stat-label">Findings</div></div>
       <div class="res-stat"><div class="res-stat-num">${r.themes.length}</div><div class="res-stat-label">Themes</div></div>
       <div class="res-stat"><div class="res-stat-num">${r.personas?.length || 0}</div><div class="res-stat-label">Personas</div></div>
       <div class="res-stat"><div class="res-stat-num">${r.sources?.length || 0}</div><div class="res-stat-label">Sources</div></div>
       <div class="res-stat"><div class="res-stat-num">${highCount}</div><div class="res-stat-label">High Confidence</div></div>
-      <div class="res-stat"><div class="res-stat-num">5</div><div class="res-stat-label">JTBD Identified</div></div>
+      <div class="res-stat"><div class="res-stat-num">${r.quality?.overallScore || 0}</div><div class="res-stat-label">Quality</div></div>
     </div>
 
     <div class="sys-card-label">CONFIDENCE DISTRIBUTION</div>
@@ -308,11 +309,11 @@ ${CSS}
 
     <div style="margin-top:24px">
       <div class="sys-card-label">KEY FINDINGS (HIGH CONFIDENCE)</div>
-      ${r.insights.filter((i: { confidence: string }) => i.confidence === 'high').slice(0, 5).map((ins: { finding: string; source: string }) => `
+      ${findings.filter((i: { confidence: string }) => i.confidence === 'high').slice(0, 5).map((ins: { statement: string; source?: string }) => `
       <div class="res-insight" style="cursor:default">
-        <div class="res-insight-text">${esc(ins.finding)}</div>
+        <div class="res-insight-text">${esc(ins.statement)}</div>
         <div class="res-insight-meta">
-          <span class="res-src">${esc(ins.source)}</span>
+          <span class="res-src">${esc(ins.source || 'research')}</span>
           <span class="res-conf-badge res-conf-high">HIGH</span>
         </div>
       </div>`).join("")}
@@ -343,11 +344,11 @@ ${CSS}
   <!-- ── Themes Panel ──────── -->
   <div id="res-themes" class="res-panel">
     <div class="res-theme-grid">
-      ${r.themes.map((t: { name: string; description: string; frequency: number; insights: string[] }) => `
+      ${r.themes.map((t: { name: string; description: string; frequency: number; findingIds: string[] }) => `
       <div class="res-theme-card">
         <div class="res-theme-head">
           <div class="res-theme-name">${esc(t.name)}</div>
-          <span class="res-theme-freq">${t.frequency} insights</span>
+          <span class="res-theme-freq">${t.frequency} findings</span>
         </div>
         <div class="res-theme-desc">${esc(t.description)}</div>
         <div class="res-theme-bar"><div class="res-theme-fill" style="width:${(t.frequency/maxFreq*100).toFixed(0)}%"></div></div>
@@ -362,19 +363,19 @@ ${CSS}
       <button class="filter-btn" onclick="filterInsights('high',this)" style="font-size:9px;padding:4px 12px">HIGH (${highCount})</button>
       <button class="filter-btn" onclick="filterInsights('medium',this)" style="font-size:9px;padding:4px 12px">MEDIUM (${medCount})</button>
     </div>
-    ${r.insights.map((ins: { id: string; finding: string; source: string; confidence: string; tags: string[]; evidence: string[] }, idx: number) => `
+    ${findings.map((ins: { id: string; statement: string; source?: string; confidence: string; tags: string[]; evidence?: string[] }, idx: number) => `
     <div class="res-insight" data-conf="${ins.confidence}" onclick="toggleEvidence(${idx})">
       <div style="display:flex;gap:8px;align-items:flex-start">
         <span style="font-family:var(--mono);font-size:9px;color:var(--fg-muted);min-width:18px;padding-top:2px">${idx + 1}.</span>
         <div style="flex:1">
-          <div class="res-insight-text">${esc(ins.finding)}</div>
+          <div class="res-insight-text">${esc(ins.statement)}</div>
           <div class="res-insight-meta">
-            <span class="res-src">${esc(ins.source)}</span>
+            <span class="res-src">${esc(ins.source || 'research')}</span>
             <span class="res-conf-badge res-conf-${ins.confidence}">${ins.confidence.toUpperCase()}</span>
           </div>
           ${ins.tags ? `<div class="res-insight-tags">${ins.tags.map((t: string) => `<span class="res-tag">${esc(t)}</span>`).join('')}</div>` : ''}
           <div class="res-evidence" id="ev-${idx}">
-            ${ins.evidence.map((e: string) => `<div class="res-ev-item">${esc(e)}</div>`).join('')}
+            ${(ins.evidence || []).map((e: string) => `<div class="res-ev-item">${esc(e)}</div>`).join('')}
           </div>
         </div>
       </div>
@@ -382,7 +383,7 @@ ${CSS}
   </div>
 
 `;
-  })() : `<div style="padding:24px;color:var(--fg-muted)">No research data available. Run <code>memoire research</code> to generate insights.</div>`}
+  })() : `<div style="padding:24px;color:var(--fg-muted)">No research data available. Run <code>memi research</code> to generate findings.</div>`}
 </div>
 </div>
 
@@ -1703,7 +1704,7 @@ ${CSS}
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;margin-top:48px">
   <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M25.5 15.5A9.5 9.5 0 0 1 12 25 9.5 9.5 0 0 1 9.5 6.5 12 12 0 1 0 25.5 15.5z" fill="#C4A35A"/></svg>
   <div style="font-size:16px;font-weight:700;letter-spacing:3px;color:var(--accent-bright);text-transform:uppercase">Mémoire</div>
-  <div style="font-size:10px;color:var(--fg-muted);letter-spacing:0.5px">AI-Native Design Intelligence Engine</div>
+  <div style="font-size:10px;color:var(--fg-muted);letter-spacing:0.5px">Registry-first design system workspace</div>
   <div style="flex:1;height:1px;background:var(--border)"></div>
 </div>
 
@@ -1810,7 +1811,7 @@ ${CSS}
       </div>
       <div class="decision">
         <div class="decision-icon">&raquo;</div>
-        <div class="decision-text"><strong>Multi-Agent Native.</strong> Multiple Codex or Claude instances connect on ports 9223-9232. Each shows a color-coded box widget in Figma (yellow=working, green=done, red=error).</div>
+        <div class="decision-text"><strong>Agent-Ready Handoff.</strong> Multiple Codex, Claude Code, or MCP-connected clients can share the same design system context. Registry state stays portable instead of being trapped in one prompt thread.</div>
       </div>
       <div class="decision">
         <div class="decision-icon">&raquo;</div>
@@ -1887,7 +1888,7 @@ ${CSS}
       <div class="commit">
         <div class="commit-hash">199df7a</div>
         <div class="commit-body">
-          <div class="commit-msg">Initial commit: Ark &mdash; AI-native Figma design intelligence engine</div>
+          <div class="commit-msg">Initial commit: Ark &mdash; code-native design system workspace foundation</div>
           <div class="commit-meta">Sarvesh M Chidambaram &middot; 2026-03-23 14:45</div>
         </div>
       </div>
@@ -1943,7 +1944,7 @@ ${CSS}
 
 <!-- ── Footer ────────────────────────────────── -->
 <footer class="memoire-footer">
-  <div>MÉMOIRE v0.1.0 &mdash; AI-native design intelligence engine</div>
+  <div>MÉMOIRE preview &mdash; code-native design quality workspace</div>
   <div>
     <a href="#changelog" onclick="showSection('changelog',document.querySelector('.hdr-nav-link[href=&quot;#changelog&quot;]'));return false">Changelog</a>
   </div>

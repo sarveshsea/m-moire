@@ -7,6 +7,8 @@
  */
 
 import { createLogger } from "../engine/logger.js";
+import type { DesignToken } from "../engine/registry.js";
+import { extractDesignTokensFromCss, type TokenExtractionReport } from "../tokens/extractor.js";
 
 const log = createLogger("css-extractor");
 
@@ -34,6 +36,8 @@ export interface RawDesignTokens {
   shadows: string[];
   cssVars: Record<string, string>;
   contrastPairs: ContrastPair[];
+  designTokens?: DesignToken[];
+  tokenReport?: TokenExtractionReport;
 }
 
 export interface PageAssets {
@@ -417,6 +421,7 @@ function buildContrastPairs(colors: string[]): ContrastPair[] {
  */
 export function parseCSSTokens(cssBlocks: string[]): RawDesignTokens {
   const combined = cssBlocks.join("\n");
+  const tokenReport = extractDesignTokensFromCss(cssBlocks, { sourceName: "css-extractor" });
 
   const cssVars = extractCssVars(combined);
   const colors = extractColors(combined);
@@ -433,5 +438,16 @@ export function parseCSSTokens(cssBlocks: string[]): RawDesignTokens {
     "CSS tokens parsed",
   );
 
-  return { colors, fonts, fontSizes, spacing, radii, shadows, cssVars, contrastPairs };
+  return {
+    colors,
+    fonts,
+    fontSizes,
+    spacing,
+    radii,
+    shadows,
+    cssVars,
+    contrastPairs,
+    designTokens: tokenReport.tokens,
+    tokenReport,
+  };
 }

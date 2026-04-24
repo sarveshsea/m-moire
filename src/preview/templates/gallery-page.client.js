@@ -429,7 +429,8 @@ async function fetchResearch() {
 
 function renderResearchPanel(data) {
   var body = document.getElementById('research-panel-body');
-  if (!data || (!data.insights?.length && !data.personas?.length && !data.themes?.length)) {
+  var findings = data && (data.findings || data.insights) || [];
+  if (!data || (!findings?.length && !data.personas?.length && !data.themes?.length)) {
     body.innerHTML = '<div class="research-empty">No research data. Run: memi research from-file &lt;file&gt;</div>';
     return;
   }
@@ -445,19 +446,19 @@ function renderResearchPanel(data) {
     '</div>';
   }
 
-  // Insights
-  if (data.insights?.length) {
-    html += '<div class="research-section">INSIGHTS (' + data.insights.length + ')</div>';
-    for (var i = 0; i < Math.min(data.insights.length, 10); i++) {
-      var ins = data.insights[i];
+  // Findings
+  if (findings?.length) {
+    html += '<div class="research-section">FINDINGS (' + findings.length + ')</div>';
+    for (var i = 0; i < Math.min(findings.length, 10); i++) {
+      var ins = findings[i];
       var tags = (ins.tags || []).slice(0, 3).map(function(t) { return '<span class="research-tag">' + escapeHtml(t) + '</span>'; }).join('');
       html += '<div class="research-item">' +
-        '<div style="color:var(--fg)">' + escapeHtml(ins.finding) + '</div>' +
+        '<div style="color:var(--fg)">' + escapeHtml(ins.statement || ins.finding) + '</div>' +
         '<div style="margin-top:2px">' + tags + ' <span style="color:var(--fg-dim)">' + ins.confidence + '</span></div>' +
       '</div>';
     }
-    if (data.insights.length > 10) {
-      html += '<div class="research-item" style="color:var(--fg-dim)">... and ' + (data.insights.length - 10) + ' more</div>';
+    if (findings.length > 10) {
+      html += '<div class="research-item" style="color:var(--fg-dim)">... and ' + (findings.length - 10) + ' more</div>';
     }
   }
 
@@ -478,7 +479,7 @@ function renderResearchPanel(data) {
     html += '<div class="research-section">THEMES (' + data.themes.length + ')</div>';
     for (var t = 0; t < Math.min(data.themes.length, 8); t++) {
       var theme = data.themes[t];
-      html += '<div class="research-item">' + escapeHtml(theme.name) + ' <span style="color:var(--fg-dim)">(' + (theme.insightIds?.length || 0) + ' insights)</span></div>';
+      html += '<div class="research-item">' + escapeHtml(theme.name) + ' <span style="color:var(--fg-dim)">(' + (theme.findingIds?.length || theme.insightIds?.length || 0) + ' findings)</span></div>';
     }
   }
 

@@ -1,120 +1,116 @@
 /**
- * Research Traceability — Bidirectional links between insights and specs.
+ * Research Traceability — Bidirectional links between findings and specs.
  *
- * Maintains a reverse index: insight ID -> spec names[].
- * Updated on every spec save. Queryable for impact analysis.
+ * Maintains a reverse index: finding ID -> spec names[].
+ * Updated on every spec save. Queryable for coverage and orphan detection.
  */
 
-import { readFile, writeFile, mkdir } from "fs/promises";
-import { join, dirname } from "path";
+import { mkdir, readFile, writeFile } from "fs/promises";
+import { dirname, join } from "path";
 import { createLogger } from "../engine/logger.js";
 import type { AnySpec } from "../specs/types.js";
-import type { ResearchInsight } from "./engine.js";
+import type { ResearchFinding } from "./engine.js";
 
 const log = createLogger("traceability");
 
 export interface TraceabilityIndex {
-  /** insight ID -> spec names that reference it */
-  insightToSpecs: Record<string, string[]>;
-  /** spec name -> insight IDs it references */
-  specToInsights: Record<string, string[]>;
+  findingToSpecs: Record<string, string[]>;
+  specToFindings: Record<string, string[]>;
   updatedAt: string;
 }
 
 export class ResearchTraceability {
-  private index: TraceabilityIndex = { insightToSpecs: {}, specToInsights: {}, updatedAt: "" };
+  private index: TraceabilityIndex = { findingToSpecs: {}, specToFindings: {}, updatedAt: "" };
   private indexPath: string;
 
   constructor(memoireDir: string) {
     this.indexPath = join(memoireDir, "research", "spec-index.json");
   }
 
-  /** Load the traceability index from disk. */
   async load(): Promise<void> {
     try {
       const raw = await readFile(this.indexPath, "utf-8");
-      this.index = JSON.parse(raw);
+      const parsed = JSON.parse(raw) as Partial<TraceabilityIndex> & {
+        insightToSpecs?: Record<string, string[]>;
+        specToInsights?: Record<string, string[]>;
+      };
+      this.index = {
+        findingToSpecs: parsed.findingToSpecs ?? parsed.insightToSpecs ?? {},
+        specToFindings: parsed.specToFindings ?? parsed.specToInsights ?? {},
+        updatedAt: parsed.updatedAt ?? "",
+      };
     } catch {
-      this.index = { insightToSpecs: {}, specToInsights: {}, updatedAt: "" };
+      this.index = { findingToSpecs: {}, specToFindings: {}, updatedAt: "" };
     }
   }
 
-  /** Save the index to disk. */
   async save(): Promise<void> {
     this.index.updatedAt = new Date().toISOString();
     await mkdir(dirname(this.indexPath), { recursive: true });
     await writeFile(this.indexPath, JSON.stringify(this.index, null, 2));
   }
 
-  /** Update the index when a spec is saved. */
   async onSpecSaved(spec: AnySpec): Promise<void> {
     const backing = "researchBacking" in spec ? (spec as { researchBacking: string[] }).researchBacking : [];
     if (!Array.isArray(backing)) return;
 
-    // Remove old reverse entries for this spec
-    const oldInsights = this.index.specToInsights[spec.name] ?? [];
-    for (const insightId of oldInsights) {
-      const specList = this.index.insightToSpecs[insightId];
-      if (specList) {
-        this.index.insightToSpecs[insightId] = specList.filter((s) => s !== spec.name);
-        if (this.index.insightToSpecs[insightId].length === 0) {
-          delete this.index.insightToSpecs[insightId];
-        }
+    const oldFindings = this.index.specToFindings[spec.name] ?? [];
+    for (const findingId of oldFindings) {
+      const specs = this.index.findingToSpecs[findingId];
+      if (!specs) continue;
+      this.index.findingToSpecs[findingId] = specs.filter((name) => name !== spec.name);
+      if (this.index.findingToSpecs[findingId].length === 0) {
+        delete this.index.findingToSpecs[findingId];
       }
     }
 
-    // Add new entries
-    this.index.specToInsights[spec.name] = backing;
-    for (const insightId of backing) {
-      if (!this.index.insightToSpecs[insightId]) {
-        this.index.insightToSpecs[insightId] = [];
+    this.index.specToFindings[spec.name] = backing;
+    for (const findingId of backing) {
+      if (!this.index.findingToSpecs[findingId]) {
+        this.index.findingToSpecs[findingId] = [];
       }
-      if (!this.index.insightToSpecs[insightId].includes(spec.name)) {
-        this.index.insightToSpecs[insightId].push(spec.name);
+      if (!this.index.findingToSpecs[findingId].includes(spec.name)) {
+        this.index.findingToSpecs[findingId].push(spec.name);
       }
     }
 
     await this.save();
-    log.debug({ spec: spec.name, insights: backing.length }, "Traceability index updated");
+    log.debug({ spec: spec.name, findings: backing.length }, "Traceability index updated");
   }
 
-  /** Remove a spec from the index. */
   async onSpecRemoved(specName: string): Promise<void> {
-    const insightIds = this.index.specToInsights[specName] ?? [];
-    for (const insightId of insightIds) {
-      const specList = this.index.insightToSpecs[insightId];
-      if (specList) {
-        this.index.insightToSpecs[insightId] = specList.filter((s) => s !== specName);
-        if (this.index.insightToSpecs[insightId].length === 0) {
-          delete this.index.insightToSpecs[insightId];
-        }
+    const findingIds = this.index.specToFindings[specName] ?? [];
+    for (const findingId of findingIds) {
+      const specs = this.index.findingToSpecs[findingId];
+      if (!specs) continue;
+      this.index.findingToSpecs[findingId] = specs.filter((name) => name !== specName);
+      if (this.index.findingToSpecs[findingId].length === 0) {
+        delete this.index.findingToSpecs[findingId];
       }
     }
-    delete this.index.specToInsights[specName];
+
+    delete this.index.specToFindings[specName];
     await this.save();
   }
 
-  /** Get all specs that reference a given insight. */
-  getSpecsForInsight(insightId: string): string[] {
-    return this.index.insightToSpecs[insightId] ?? [];
+  getSpecsForFinding(findingId: string): string[] {
+    return this.index.findingToSpecs[findingId] ?? [];
   }
 
-  /** Get all insights referenced by a spec. */
-  getInsightsForSpec(specName: string): string[] {
-    return this.index.specToInsights[specName] ?? [];
+  getFindingsForSpec(specName: string): string[] {
+    return this.index.specToFindings[specName] ?? [];
   }
 
-  /** Get insights with no spec references (orphaned). */
-  getOrphanedInsights(allInsights: ResearchInsight[]): ResearchInsight[] {
-    return allInsights.filter((i) => !this.index.insightToSpecs[i.id] || this.index.insightToSpecs[i.id].length === 0);
+  getOrphanedFindings(allFindings: ResearchFinding[]): ResearchFinding[] {
+    return allFindings.filter((finding) => !this.index.findingToSpecs[finding.id] || this.index.findingToSpecs[finding.id].length === 0);
   }
 
-  /** Compute research coverage: % of specs with at least one insight. */
   getCoverage(specNames: string[]): { covered: number; total: number; ratio: number } {
     const covered = specNames.filter((name) => {
-      const insights = this.index.specToInsights[name];
-      return insights && insights.length > 0;
+      const findings = this.index.specToFindings[name];
+      return findings && findings.length > 0;
     }).length;
+
     return {
       covered,
       total: specNames.length,
@@ -122,7 +118,6 @@ export class ResearchTraceability {
     };
   }
 
-  /** Get the full index for serialization. */
   getIndex(): TraceabilityIndex {
     return this.index;
   }

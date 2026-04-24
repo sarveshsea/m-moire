@@ -54,7 +54,7 @@ describe("memi view", () => {
 
     await program.parseAsync(["view", "@acme/ds/Button", "--print"], { from: "user" });
 
-    expect(lastLog(logs)).toBe("https://memoire.cv/components/@acme/ds/Button");
+    expect(lastLog(logs)).toBe("https://www.npmjs.com/package/@acme/ds");
   });
 
   it("uses --from when a bare component name is given", async () => {
@@ -67,7 +67,7 @@ describe("memi view", () => {
       { from: "user" },
     );
 
-    expect(lastLog(logs)).toBe("https://memoire.cv/components/@acme/ds/Button");
+    expect(lastLog(logs)).toBe("https://www.npmjs.com/package/@acme/ds");
   });
 
   it("errors out when no --from and no matching local spec", async () => {
@@ -95,7 +95,7 @@ describe("memi view", () => {
 
     await program.parseAsync(["view", "Button", "--print"], { from: "user" });
 
-    expect(lastLog(logs)).toBe("https://memoire.cv/components/@acme/ds/Button");
+    expect(lastLog(logs)).toBe("https://www.npmjs.com/package/@acme/ds");
   });
 
   it("--json emits structured payload", async () => {
@@ -111,7 +111,7 @@ describe("memi view", () => {
     const payload = JSON.parse(lastLog(logs));
     expect(payload).toEqual({
       status: "printed",
-      url: "https://memoire.cv/components/@acme/ds/Button",
+      url: "https://www.npmjs.com/package/@acme/ds",
       component: "Button",
       registry: "@acme/ds",
     });

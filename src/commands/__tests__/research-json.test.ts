@@ -1,9 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
 import { registerResearchCommand } from "../research.js";
 import { captureLogs, lastLog } from "./test-helpers.js";
 
-// Mock existsSync so the from-file command doesn't bail on missing fixtures
 vi.mock("fs", async (importOriginal) => {
   const actual = await importOriginal<typeof import("fs")>();
   return { ...actual, existsSync: vi.fn(() => true) };
@@ -33,16 +32,19 @@ describe("research --json", () => {
         path: "fixtures/interviews.csv",
       },
       summary: {
-        insights: 3,
+        observations: 6,
+        findings: 3,
         themes: 2,
         personas: 1,
         sources: 2,
+        quantitativeMetrics: 2,
       },
       artifacts: {
         researchDir: "/workspace/research",
-        insightsPath: "/workspace/research/insights.json",
+        storePath: "/workspace/research/store.v2.json",
         notesDir: "/workspace/research/notes",
-        reportPath: "/workspace/research/reports/report.md",
+        reportMarkdownPath: "/workspace/research/reports/report.md",
+        reportJsonPath: "/workspace/research/reports/report.json",
       },
     });
   });
@@ -69,7 +71,7 @@ describe("research --json", () => {
     });
   });
 
-  it("emits synthesis and report metadata for JSON modes", async () => {
+  it("emits synthesis, quality, and report metadata for JSON modes", async () => {
     const synthLogs = captureLogs();
     const synthProgram = new Command();
     registerResearchCommand(synthProgram, makeResearchEngine() as never);
@@ -91,6 +93,32 @@ describe("research --json", () => {
         risks: 1,
         topRisk: "Navigation is a product risk",
         contradictions: 1,
+        quantitativeMetrics: 2,
+        qualityScore: 84,
+        sampleSize: 42,
+      },
+    });
+
+    vi.restoreAllMocks();
+
+    const qualityLogs = captureLogs();
+    const qualityProgram = new Command();
+    registerResearchCommand(qualityProgram, makeResearchEngine() as never);
+
+    await qualityProgram.parseAsync(["research", "quality", "--json"], { from: "user" });
+
+    expect(qualityLogs).toHaveLength(1);
+    const qualityPayload = JSON.parse(lastLog(qualityLogs));
+    expect(qualityPayload).toMatchObject({
+      action: "quality",
+      status: "completed",
+      quality: {
+        overallScore: 84,
+        sampleSize: 42,
+        completenessScore: 92,
+        sourceDiversityScore: 75,
+        triangulationScore: 80,
+        structureScore: 88,
       },
     });
 
@@ -108,9 +136,10 @@ describe("research --json", () => {
       action: "report",
       status: "completed",
       report: {
-        path: "/workspace/research/reports/report.md",
-        bytes: Buffer.byteLength("# Report\nOne insight\n", "utf-8"),
-        lines: 3,
+        markdownPath: "/workspace/research/reports/report.md",
+        jsonPath: "/workspace/research/reports/report.json",
+        markdownBytes: Buffer.byteLength("# Report\nOne finding\n", "utf-8"),
+        markdownLines: 3,
       },
     });
   });
@@ -145,17 +174,39 @@ function makeResearchEngine(input?: { figmaConnected?: boolean }) {
         };
       },
       async generateReport() {
-        return "# Report\nOne insight\n";
+        return "# Report\nOne finding\n";
+      },
+      assessQuality() {
+        return {
+          overallScore: 84,
+          sampleSize: 42,
+          completenessScore: 92,
+          sourceDiversityScore: 75,
+          triangulationScore: 80,
+          structureScore: 88,
+          notes: ["Coverage is strong."],
+          generatedAt: "2026-04-17T00:00:00.000Z",
+        };
       },
       getStore() {
         return {
-          insights: [{}, {}, {}],
+          observations: [{}, {}, {}, {}, {}, {}],
+          findings: [{ confidence: "high" }, { confidence: "low" }, { confidence: "medium" }],
           themes: [{ name: "Navigation" }, { name: "Trust" }],
           personas: [{ name: "PM" }],
           sources: [{ name: "CSV" }, { name: "FigJam" }],
           opportunities: [{ title: "Invest in Navigation" }, { title: "Invest in Trust" }],
           risks: [{ title: "Navigation is a product risk" }],
           contradictions: [{ topic: "Navigation" }],
+          quantitativeMetrics: [{ field: "CSAT" }, { field: "NPS" }],
+          quality: {
+            overallScore: 84,
+            sampleSize: 42,
+            completenessScore: 92,
+            sourceDiversityScore: 75,
+            triangulationScore: 80,
+            structureScore: 88,
+          },
         };
       },
     },

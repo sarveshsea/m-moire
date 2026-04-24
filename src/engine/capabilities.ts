@@ -146,14 +146,14 @@ export function formatCapabilityError(check: CapabilityCheck, command: string): 
 export function detectCapabilities(engine: {
   figma: { isConnected: boolean };
   registry: { designSystem: { tokens: { length: number } }; getAllSpecs: () => Promise<unknown[]> };
-  research: { getStore: () => { insights: unknown[] } };
+  research: { getStore: () => { findings: unknown[] } };
 }): { figma: boolean; ai: boolean; specs: boolean; generatedCode: boolean; research: boolean; daemon: boolean } {
   return {
     figma: engine.figma.isConnected,
     ai: !!process.env.ANTHROPIC_API_KEY,
     specs: engine.registry.designSystem.tokens.length > 0,
     generatedCode: false, // checked lazily per command
-    research: engine.research.getStore().insights.length > 0,
+    research: engine.research.getStore().findings.length > 0,
     daemon: false, // checked by daemon command
   };
 }

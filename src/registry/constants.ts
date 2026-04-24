@@ -8,6 +8,7 @@
 
 /** Default production Marketplace origin. */
 export const DEFAULT_MARKETPLACE_BASE_URL = "https://memoire.cv";
+export const DEFAULT_NPM_PACKAGE_BASE_URL = "https://www.npmjs.com/package";
 
 /**
  * Resolved Marketplace base URL (no trailing slash).
@@ -33,4 +34,12 @@ export function marketplaceRegistryUrl(registryName: string): string {
  */
 export function marketplaceComponentUrl(registryName: string, component: string): string {
   return `${MARKETPLACE_BASE_URL}/components/${registryName}/${component}`;
+}
+
+/**
+ * Build the public npm package page for a published registry.
+ * e.g. `@acme/ds` → `https://www.npmjs.com/package/@acme/ds`
+ */
+export function npmPackageUrl(registryName: string): string {
+  return `${DEFAULT_NPM_PACKAGE_BASE_URL}/${registryName}`;
 }

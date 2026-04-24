@@ -1,5 +1,5 @@
 /**
- * ResearchMapper — Maps research insights to design spec requirements.
+ * ResearchMapper — Maps research findings to design spec requirements.
  *
  * Analyzes user research findings and generates concrete accessibility,
  * UX, and interaction requirements that should be added to component
@@ -7,7 +7,7 @@
  */
 
 import { createLogger } from "./logger.js";
-import type { ResearchInsight, ResearchPersona, ResearchTheme, ResearchStore } from "../research/engine.js";
+import type { ResearchFinding, ResearchPersona, ResearchStore } from "../research/engine.js";
 import type { ComponentSpec, PageSpec, AnySpec } from "../specs/types.js";
 
 const log = createLogger("research-mapper");
@@ -16,7 +16,7 @@ const log = createLogger("research-mapper");
 
 export interface SpecRequirement {
   source: "research";
-  insightId: string;
+  findingId: string;
   finding: string;
   requirement: string;
   category: "accessibility" | "ux" | "interaction" | "content" | "performance";
@@ -26,8 +26,8 @@ export interface SpecRequirement {
 
 export interface ResearchMapping {
   requirements: SpecRequirement[];
-  unmapped: ResearchInsight[];
-  coverage: number; // 0-1 ratio of insights that map to specs
+  unmapped: ResearchFinding[];
+  coverage: number; // 0-1 ratio of findings that map to specs
 }
 
 // ── Keyword → Requirement Rules ────────────────────────────
@@ -125,49 +125,46 @@ const MAPPING_RULES: MappingRule[] = [
 // ── Mapping Logic ──────────────────────────────────────────
 
 /**
- * Map research insights to spec requirements.
+ * Map research findings to spec requirements.
  * Returns requirements that should be added to existing specs.
  */
 export function mapResearchToSpecs(store: ResearchStore, specs: AnySpec[]): ResearchMapping {
   const requirements: SpecRequirement[] = [];
   const mapped = new Set<string>();
 
-  for (const insight of store.insights) {
+  for (const finding of store.findings) {
     for (const rule of MAPPING_RULES) {
-      if (!rule.keywords.test(insight.finding)) continue;
+      if (!rule.keywords.test(finding.statement)) continue;
 
-      // Find target specs
-      const targets = findTargetSpecs(insight, rule, specs);
+      const targets = findTargetSpecs(finding, rule, specs);
       if (targets.length === 0) {
-        // No specific target — apply to all components/pages
         targets.push("*");
       }
 
       requirements.push({
         source: "research",
-        insightId: insight.id,
-        finding: insight.finding,
-        requirement: rule.generateRequirement(insight.finding),
+        findingId: finding.id,
+        finding: finding.statement,
+        requirement: rule.generateRequirement(finding.statement),
         category: rule.category,
         priority: rule.priority,
         targetSpecs: targets,
       });
 
-      mapped.add(insight.id);
-      break; // First matching rule wins per insight
+      mapped.add(finding.id);
+      break;
     }
   }
 
-  const unmapped = store.insights.filter((i) => !mapped.has(i.id));
-  const coverage = store.insights.length > 0 ? mapped.size / store.insights.length : 1;
+  const unmapped = store.findings.filter((finding) => !mapped.has(finding.id));
+  const coverage = store.findings.length > 0 ? mapped.size / store.findings.length : 1;
 
-  log.info({ total: store.insights.length, mapped: mapped.size, unmapped: unmapped.length }, "Research mapping complete");
+  log.info({ total: store.findings.length, mapped: mapped.size, unmapped: unmapped.length }, "Research mapping complete");
 
   return { requirements, unmapped, coverage };
 }
 
-/** Find which specs an insight + rule should target. */
-function findTargetSpecs(insight: ResearchInsight, rule: MappingRule, specs: AnySpec[]): string[] {
+function findTargetSpecs(finding: ResearchFinding, rule: MappingRule, specs: AnySpec[]): string[] {
   const targets: string[] = [];
 
   for (const spec of specs) {
@@ -177,16 +174,14 @@ function findTargetSpecs(insight: ResearchInsight, rule: MappingRule, specs: Any
       continue;
     }
 
-    // Match by insight tags overlapping with spec tags
     const specTags = "tags" in spec ? (spec as { tags: string[] }).tags : [];
-    const overlap = insight.tags.some((t) => specTags.includes(t));
+    const overlap = finding.tags.some((t) => specTags.includes(t));
     if (overlap) {
       targets.push(spec.name);
       continue;
     }
 
-    // Match by insight finding mentioning the spec name
-    if (insight.finding.toLowerCase().includes(spec.name.toLowerCase())) {
+    if (finding.statement.toLowerCase().includes(spec.name.toLowerCase())) {
       targets.push(spec.name);
     }
   }
@@ -220,7 +215,7 @@ export function mapPersonaRequirements(personas: ResearchPersona[]): SpecRequire
         if (rule.keywords.test(painPoint)) {
           requirements.push({
             source: "research",
-            insightId: `persona:${persona.name}`,
+            findingId: `persona:${persona.name}`,
             finding: painPoint,
             requirement: rule.generateRequirement(painPoint),
             category: rule.category,

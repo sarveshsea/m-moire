@@ -23,9 +23,9 @@ function filterByTag(tag, el) {
     i.style.display = tags.includes(tag) ? '' : 'none';
   });
 
-  // Switch to insights tab
+  // Switch to findings tab
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelector('.tab-btn').classList.add('active');
-  document.getElementById('tab-insights').classList.add('active');
+  document.getElementById('tab-findings').classList.add('active');
 }

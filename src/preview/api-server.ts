@@ -207,7 +207,35 @@ export class PreviewApiServer {
               }));
             } catch (err) {
               log.warn({ err }, "Failed to load research data");
-              res.end(JSON.stringify({ insights: [], personas: [], themes: [], sources: [], coverage: { covered: 0, total: 0, ratio: 1 } }));
+              res.end(JSON.stringify({
+                version: 2,
+                sources: [],
+                observations: [],
+                findings: [],
+                themes: [],
+                personas: [],
+                quantitativeMetrics: [],
+                opportunities: [],
+                risks: [],
+                contradictions: [],
+                quality: {
+                  overallScore: 0,
+                  sampleSize: 0,
+                  completenessScore: 0,
+                  sourceDiversityScore: 0,
+                  triangulationScore: 0,
+                  structureScore: 0,
+                  notes: [],
+                  generatedAt: new Date().toISOString(),
+                },
+                methods: {
+                  analysisMode: "decision-grade",
+                  quantitativeApproach: "descriptive statistics + confidence intervals + cohort deltas",
+                  qualitativeApproach: "coded observations + evidence-backed theme synthesis",
+                  limitations: [],
+                },
+                coverage: { covered: 0, total: 0, ratio: 1 },
+              }));
             }
             return;
           }

@@ -4,13 +4,13 @@ These are the exact external-surface updates that still need credentials or the 
 
 ## GitHub repo metadata
 
-- Description: `Publish Figma and tweakcn design systems as installable shadcn registries.`
-- Topics: `registry`, `design-system`, `figma`, `tweakcn`, `shadcn`, `tailwind`, `npm`, `mcp`
+- Description: `Design CI for web apps: diagnose UI debt, improve shadcn/Tailwind systems, and publish installable registries.`
+- Topics: `design-ci`, `ui-audit`, `design-system`, `tailwind`, `shadcn`, `registry`, `figma`, `tweakcn`, `npm`, `mcp`
 
 ## Homepage hero
 
-- Heading: `Publish Figma and tweakcn design systems as installable registries.`
-- Subhead: `Ship tokens and real components to npm. Install them into any shadcn app with one command.`
+- Heading: `Design CI for web apps.`
+- Subhead: `Diagnose UI debt in real shadcn/Tailwind apps, improve the visual system, then publish it as an installable registry.`
 - Primary CTA: `https://www.npmjs.com/package/@sarveshsea/memoire`
 - Secondary CTA: `https://github.com/sarveshsea/m-moire/tree/main/examples`
 

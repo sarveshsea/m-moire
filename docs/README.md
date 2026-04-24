@@ -1,12 +1,30 @@
 # Memoire Quickstart
 
-Memoire is a registry-first CLI. Lead with one loop:
+Memoire is Design CI for web apps. Lead with one loop:
 
-1. Publish a design system from Figma or tweakcn.
-2. Install real components into any shadcn app.
-3. Update the registry instead of hand-copying components.
+1. Diagnose the app you already have.
+2. Improve the visual system behind it.
+3. Publish the improved system as an installable registry.
 
 ## Fastest paths
+
+### Existing app to diagnosis
+
+```bash
+npm i -g @sarveshsea/memoire
+memi diagnose
+memi diagnose http://localhost:3000
+```
+
+### Existing app to tokens
+
+```bash
+npm i -g @sarveshsea/memoire
+memi tokens --from ./src --save
+memi tokens --from http://localhost:3000 --output generated/tokens --report
+```
+
+Use this when the team is code-first and not starting in Figma. Memoire extracts CSS variables, Tailwind `@theme` tokens, `:root`/`.dark` modes, aliases, repeated literal candidates, mode coverage, duplicate values, alias graph issues, and token quality recommendations.
 
 ### Figma to npm
 
@@ -34,4 +52,4 @@ memi add Button --from @you/theme
 
 ## Advanced
 
-Memoire still supports MCP, research, notes, and agents. Keep those as follow-on surfaces after the registry workflow is already clear.
+Memoire still supports Figma, MCP, research, notes, and agents. Keep those as follow-on surfaces after the app-quality workflow is already clear.

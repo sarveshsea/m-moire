@@ -14,15 +14,15 @@ const CSS = resolveAsset("research-page.css");
 const CLIENT_JS = resolveAsset("research-page.client.js");
 
 export function generateResearchDashboard(research: ResearchStore, generatedAt: string): string {
-  const { insights, themes, personas, sources, summary, opportunities = [], risks = [], contradictions = [] } = research;
-  const highConf = insights.filter(i => i.confidence === "high");
-  const medConf = insights.filter(i => i.confidence === "medium");
-  const lowConf = insights.filter(i => i.confidence === "low");
+  const { findings, themes, personas, sources, summary, opportunities = [], risks = [], contradictions = [], quantitativeMetrics = [] } = research;
+  const highConf = findings.filter((finding) => finding.confidence === "high");
+  const medConf = findings.filter((finding) => finding.confidence === "medium");
+  const lowConf = findings.filter((finding) => finding.confidence === "low");
 
   // Tag frequency for the tag cloud
   const tagFreq = new Map<string, number>();
-  for (const i of insights) {
-    for (const t of i.tags) {
+  for (const finding of findings) {
+    for (const t of finding.tags) {
       tagFreq.set(t, (tagFreq.get(t) || 0) + 1);
     }
   }
@@ -51,8 +51,8 @@ ${CSS}
 
 <div class="stats-bar">
   <div class="stat">
-    <div class="stat-val">${insights.length}</div>
-    <div class="stat-label">Insights</div>
+    <div class="stat-val">${findings.length}</div>
+    <div class="stat-label">Findings</div>
   </div>
   <div class="stat">
     <div class="stat-val">${themes.length}</div>
@@ -70,6 +70,14 @@ ${CSS}
     <div class="stat-val">${personas.length}</div>
     <div class="stat-label">Personas</div>
   </div>
+  <div class="stat">
+    <div class="stat-val">${quantitativeMetrics.length}</div>
+    <div class="stat-label">Quant Metrics</div>
+  </div>
+  ${research.quality ? `<div class="stat">
+    <div class="stat-val">${research.quality.overallScore}</div>
+    <div class="stat-label">Quality</div>
+  </div>` : ""}
 </div>
 
 <div class="content">
@@ -146,34 +154,34 @@ ${summary ? `<div style="border:1px solid var(--border);background:var(--panel);
 </div>` : ""}
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('insights',this)">Insights (${insights.length})</button>
+  <button class="tab-btn active" onclick="switchTab('findings',this)">Findings (${findings.length})</button>
   <button class="tab-btn" onclick="switchTab('themes',this)">Themes (${themes.length})</button>
   ${personas.length > 0 ? `<button class="tab-btn" onclick="switchTab('personas',this)">Personas (${personas.length})</button>` : ""}
 </div>
 
-<!-- Insights Tab -->
-<div class="tab-panel active" id="tab-insights">
+<!-- Findings Tab -->
+<div class="tab-panel active" id="tab-findings">
   <div class="insight-list" id="insightList">
-    ${insights.map(i => `<div class="insight" data-tags="${esc(i.tags.join(","))}" data-confidence="${i.confidence}">
+    ${findings.map((finding) => `<div class="insight" data-tags="${esc(finding.tags.join(","))}" data-confidence="${finding.confidence}">
       <div class="insight-header">
-        <div class="insight-conf ${i.confidence}" title="${i.confidence} confidence"></div>
-        <div class="insight-finding">${esc(i.finding)}</div>
+        <div class="insight-conf ${finding.confidence}" title="${finding.confidence} confidence"></div>
+        <div class="insight-finding">${esc(finding.statement)}</div>
       </div>
       <div class="insight-meta">
-        <span>${esc(i.source.split("/").pop() || i.source)}</span>
-        <span>${esc(i.confidence)}</span>
-        <span>${esc(new Date(i.createdAt).toLocaleDateString())}</span>
+        <span>${esc((finding.source || "").split("/").pop() || finding.source || "research")}</span>
+        <span>${esc(finding.confidence)}</span>
+        <span>${esc(new Date(finding.createdAt).toLocaleDateString())}</span>
       </div>
-      ${i.evidence.length > 0 ? `<div class="insight-evidence">
+      ${(finding.evidence?.length ?? 0) > 0 ? `<div class="insight-evidence">
         <details>
-          <summary>${i.evidence.length} evidence point${i.evidence.length !== 1 ? "s" : ""}</summary>
-          ${i.evidence.slice(0, 5).map(e => `<blockquote>${esc(e)}</blockquote>`).join("")}
-          ${i.evidence.length > 5 ? `<div style="font-size:9px;color:var(--fg-dim);padding:4px 0">+${i.evidence.length - 5} more</div>` : ""}
+          <summary>${finding.evidence?.length ?? 0} evidence point${(finding.evidence?.length ?? 0) !== 1 ? "s" : ""}</summary>
+          ${(finding.evidence ?? []).slice(0, 5).map((e) => `<blockquote>${esc(e)}</blockquote>`).join("")}
+          ${(finding.evidence?.length ?? 0) > 5 ? `<div style="font-size:9px;color:var(--fg-dim);padding:4px 0">+${(finding.evidence?.length ?? 0) - 5} more</div>` : ""}
         </details>
       </div>` : ""}
-      ${i.tags.length > 0 ? `<div class="insight-tags">${i.tags.map(t => `<span class="insight-tag">${esc(t)}</span>`).join("")}</div>` : ""}
+      ${finding.tags.length > 0 ? `<div class="insight-tags">${finding.tags.map((t) => `<span class="insight-tag">${esc(t)}</span>`).join("")}</div>` : ""}
     </div>`).join("\n    ")}
-    ${insights.length === 0 ? `<div class="empty-note">No insights yet. Run <code>memoire research from-file</code> or <code>memoire research from-stickies</code></div>` : ""}
+    ${findings.length === 0 ? `<div class="empty-note">No findings yet. Run <code>memi research from-file</code> or <code>memi research from-stickies</code></div>` : ""}
   </div>
 </div>
 
@@ -181,7 +189,7 @@ ${summary ? `<div style="border:1px solid var(--border);background:var(--panel);
 <div class="tab-panel" id="tab-themes">
   <div class="themes-grid">
     ${themes.map(t => {
-      const relatedInsights = insights.filter(i => t.insights.includes(i.id));
+      const relatedFindings = findings.filter((finding) => t.findingIds.includes(finding.id));
       return `<div class="theme-card">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
           <div>
@@ -193,13 +201,13 @@ ${summary ? `<div style="border:1px solid var(--border);background:var(--panel);
             <div class="theme-freq-label">findings</div>
           </div>
         </div>
-        ${relatedInsights.slice(0, 3).map(i => `<div style="font-size:10px;padding:4px 0;border-top:1px solid var(--border);color:var(--fg-muted);font-family:var(--sans)">
-          <span style="color:var(--${i.confidence})">&bull;</span> ${esc(i.finding.substring(0, 80))}${i.finding.length > 80 ? "..." : ""}
+        ${relatedFindings.slice(0, 3).map((finding) => `<div style="font-size:10px;padding:4px 0;border-top:1px solid var(--border);color:var(--fg-muted);font-family:var(--sans)">
+          <span style="color:var(--${finding.confidence})">&bull;</span> ${esc(finding.statement.substring(0, 80))}${finding.statement.length > 80 ? "..." : ""}
         </div>`).join("")}
-        ${relatedInsights.length > 3 ? `<div style="font-size:9px;color:var(--fg-dim);padding-top:4px">+${relatedInsights.length - 3} more insights</div>` : ""}
+        ${relatedFindings.length > 3 ? `<div style="font-size:9px;color:var(--fg-dim);padding-top:4px">+${relatedFindings.length - 3} more findings</div>` : ""}
       </div>`;
     }).join("\n    ")}
-    ${themes.length === 0 ? `<div class="empty-note" style="grid-column:1/-1">No themes yet. Run <code>memoire research synthesize</code></div>` : ""}
+    ${themes.length === 0 ? `<div class="empty-note" style="grid-column:1/-1">No themes yet. Run <code>memi research synthesize</code></div>` : ""}
   </div>
 </div>
 
@@ -220,7 +228,7 @@ ${summary ? `<div style="border:1px solid var(--border);background:var(--panel);
         <ul class="persona-list">${p.behaviors.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : ""}
       </div>
     </div>`).join("\n    ")}
-    ${personas.length === 0 ? `<div class="empty-note" style="grid-column:1/-1">No personas yet. Run <code>memoire research synthesize</code></div>` : ""}
+    ${personas.length === 0 ? `<div class="empty-note" style="grid-column:1/-1">No personas yet. Run <code>memi research synthesize</code></div>` : ""}
   </div>
 </div>
 

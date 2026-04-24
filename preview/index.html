@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%230a0a0a'/%3E%3C/svg%3E">
 <title>memoire</title>
-<meta name="description" content="Publish Figma and tweakcn design systems as installable shadcn registries.">
+<meta name="description" content="Design CI for web apps: diagnose UI debt, improve shadcn/Tailwind systems, and publish installable registries.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -72,6 +72,11 @@ a:hover { text-decoration: underline; }
 .hero-name { font-family: var(--serif); font-size: 42px; font-weight: 300; font-style: italic; letter-spacing: 3px; }
 .hero-badge { display: inline-block; padding: 3px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); }
 .hero-desc { color: var(--fg-muted); font-size: 12px; margin-bottom: 48px; max-width: 600px; line-height: 1.7; }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: -24px 0 48px; }
+.hero-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 16px; border: 1px solid var(--border); border-radius: 999px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; background: #fff; transition: transform 0.15s, border-color 0.15s, background 0.15s; }
+.hero-btn:hover { text-decoration: none; transform: translateY(-1px); border-color: rgba(0, 0, 0, 0.18); background: #f5f5f4; }
+.hero-btn.primary { background: var(--fg); color: #fff; border-color: var(--fg); }
+.hero-btn.primary:hover { background: #1f1f1f; border-color: #1f1f1f; }
 
 /* -- Figma card -- */
 .figma-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 48px; backdrop-filter: blur(8px); display: flex; align-items: center; gap: 14px; }
@@ -83,6 +88,24 @@ a:hover { text-decoration: underline; }
 .about { margin-bottom: 48px; }
 .about-heading { font-family: var(--serif); font-size: 26px; font-weight: 300; font-style: italic; letter-spacing: 1px; margin-bottom: 8px; }
 .about-text { color: var(--fg-muted); font-size: 12px; line-height: 1.8; max-width: 640px; }
+
+/* -- Featured registries -- */
+.showcase-section { margin-bottom: 48px; }
+.showcase-heading { font-family: var(--serif); font-size: 26px; font-weight: 300; font-style: italic; letter-spacing: 1px; margin-bottom: 8px; }
+.showcase-text { color: var(--fg-muted); font-size: 12px; line-height: 1.8; max-width: 700px; margin-bottom: 18px; }
+.showcase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 900px) { .showcase-grid { grid-template-columns: 1fr; } }
+.showcase-card { overflow: hidden; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.showcase-card:hover { text-decoration: none; }
+.showcase-shot { aspect-ratio: 16 / 10; display: flex; align-items: center; justify-content: center; background: #f5f5f4; border-bottom: 1px solid var(--border); overflow: hidden; }
+.showcase-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.showcase-copy { padding: 16px; }
+.showcase-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.showcase-title strong { font-size: 12px; font-weight: 500; }
+.showcase-meta { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg-muted); }
+.showcase-copy p { color: var(--fg-muted); font-size: 11px; line-height: 1.7; margin-bottom: 12px; }
+.showcase-code { display: block; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: #fafaf9; font-family: var(--mono); font-size: 10px; line-height: 1.6; margin-bottom: 12px; }
+.showcase-links { display: flex; gap: 10px; flex-wrap: wrap; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
 
 /* -- Feature grid -- */
 .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 48px; }
@@ -173,18 +196,56 @@ a:hover { text-decoration: underline; }
       <div class="hero-name">m&eacute;moire</div>
       <div class="hero-badge">v0.12.4</div>
     </div>
-    <div class="hero-desc">Publish Figma and tweakcn design systems as installable registries. Ship tokens and real components to npm, then install them into any shadcn app with one command.</div>
+    <div class="hero-desc">Diagnose UI debt in real shadcn/Tailwind apps, improve the visual system, then publish it as an installable registry. Figma is optional; code is the source of truth.</div>
+    <div class="hero-actions">
+      <a class="hero-btn primary" href="https://www.npmjs.com/package/@sarveshsea/memoire">Install on npm</a>
+      <a class="hero-btn" href="https://github.com/sarveshsea/m-moire#60-second-quickstart">Run memi diagnose</a>
+    </div>
 
     <!-- Figma link card -->
     <div class="figma-card">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5.5A3.5 3.5 0 018.5 2H12v7H8.5A3.5 3.5 0 015 5.5z"/><path d="M12 2h3.5a3.5 3.5 0 010 7H12V2z"/><path d="M12 12.5a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z"/><path d="M5 19.5A3.5 3.5 0 018.5 16H12v3.5a3.5 3.5 0 01-7 0z"/><path d="M5 12.5A3.5 3.5 0 018.5 9H12v7H8.5A3.5 3.5 0 015 12.5z"/></svg>
-      <div class="figma-card-text">Start with Figma or tweakcn, publish with <strong>memi publish</strong> or <strong>memi theme publish</strong>, then install with <strong>memi add</strong>. Primary package: <a href="https://www.npmjs.com/package/@sarveshsea/memoire">@sarveshsea/memoire</a>.</div>
+      <div class="figma-card-text">Start with the app you already have: run <strong>memi diagnose</strong>, inspect <strong>.memoire/app-quality</strong>, then package the improved system with <strong>memi publish</strong>. Primary package: <a href="https://www.npmjs.com/package/@sarveshsea/memoire">@sarveshsea/memoire</a>.</div>
     </div>
 
     <!-- About -->
     <div class="about">
       <div class="about-heading">About</div>
-      <div class="about-text">Memoire is a registry-first CLI and MCP server. Publish design systems from Figma, tweakcn, or extracted site docs; install real components into shadcn apps; and keep the same workflow available to AI tools only after the registry loop is in place.</div>
+      <div class="about-text">Memoire is Design CI for code-native web apps. Prompt-first tools can generate a first pass; Memoire diagnoses the system debt afterward, gives concrete design directions, and keeps the improved tokens, components, and registries portable across teams and AI tools.</div>
+    </div>
+
+    <div class="showcase-section">
+      <div class="showcase-heading">Proof Outputs</div>
+      <div class="showcase-text">After diagnosis, the improved system should be reusable. These first-party registries show the package format Memoire can produce from stronger app systems.</div>
+      <div class="showcase-grid">
+        <a class="showcase-card" href="https://github.com/sarveshsea/m-moire/tree/main/examples/presets/starter-saas">
+          <div class="showcase-shot"><img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/starter-saas.svg" alt="Starter SaaS registry preview"></div>
+          <div class="showcase-copy">
+            <div class="showcase-title"><strong>Starter SaaS</strong><span class="showcase-meta">@memoire-examples/starter-saas</span></div>
+            <p>Neutral SaaS starter with clean product surfaces and blue accents for app-shell work.</p>
+            <code class="showcase-code">memi add Button --from @memoire-examples/starter-saas</code>
+            <div class="showcase-links"><span>Installable</span><span>GitHub source</span></div>
+          </div>
+        </a>
+        <a class="showcase-card" href="https://github.com/sarveshsea/m-moire/tree/main/examples/presets/docs-blog">
+          <div class="showcase-shot"><img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/docs-blog.svg" alt="Docs Blog registry preview"></div>
+          <div class="showcase-copy">
+            <div class="showcase-title"><strong>Docs Blog</strong><span class="showcase-meta">@memoire-examples/docs-blog</span></div>
+            <p>Editorial docs and blog kit with softer surfaces and a reading-first layout language.</p>
+            <code class="showcase-code">memi add Button --from @memoire-examples/docs-blog</code>
+            <div class="showcase-links"><span>Installable</span><span>GitHub source</span></div>
+          </div>
+        </a>
+        <a class="showcase-card" href="https://github.com/sarveshsea/m-moire/tree/main/examples/presets/dashboard">
+          <div class="showcase-shot"><img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/dashboard.svg" alt="Dashboard registry preview"></div>
+          <div class="showcase-copy">
+            <div class="showcase-title"><strong>Dashboard</strong><span class="showcase-meta">@memoire-examples/dashboard</span></div>
+            <p>High-contrast admin and analytics starter for dense operational UI and monitoring products.</p>
+            <code class="showcase-code">memi add Button --from @memoire-examples/dashboard</code>
+            <div class="showcase-links"><span>Installable</span><span>GitHub source</span></div>
+          </div>
+        </a>
+      </div>
     </div>
 
     <!-- Feature grid -->
@@ -202,7 +263,7 @@ a:hover { text-decoration: underline; }
       <div class="feature-card">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
         <div class="feature-title">Research</div>
-        <div class="feature-desc">Synthesizes user research from Excel files, web sources, and Figma stickies into actionable insights, themes, and personas.</div>
+        <div class="feature-desc">Decision-grade mixed-methods research: auditable observations, quantitative summaries, quality scoring, and evidence-backed themes, risks, and opportunities.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>
@@ -216,8 +277,8 @@ a:hover { text-decoration: underline; }
       </div>
       <div class="feature-card">
         <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
-        <div class="feature-title">Agents</div>
-        <div class="feature-desc">Autonomous design agents powered by Claude. Classify intent, plan execution, generate artifacts, and self-heal after every canvas operation.</div>
+        <div class="feature-title">AI Handoff</div>
+        <div class="feature-desc">Bring the same registry into Claude Code, Cursor, or other MCP clients. Memoire keeps the system portable instead of rebuilding context inside one prompt surface.</div>
       </div>
     </div>
 

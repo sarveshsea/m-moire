@@ -5,8 +5,8 @@
 <h1 align="center">memoire</h1>
 
 <p align="center">
-  <strong>Publish Figma and tweakcn design systems as installable registries.</strong><br/>
-  Ship tokens and real components to npm. Install them into any shadcn app with one command.
+  <strong>Design CI for web apps.</strong><br/>
+  Diagnose UI debt in real shadcn/Tailwind apps, improve the system, then publish it as an installable registry.
 </p>
 
 <p align="center">
@@ -19,7 +19,39 @@
 
 ## 60-second quickstart
 
-Memoire is registry-first. The primary loop is simple: publish a design system, install real components anywhere, then keep the registry updated as the source changes.
+Memoire starts from the app you already have. It reads code, Tailwind classes, shadcn usage, CSS variables, routes, and markup to find design-system debt before you publish anything.
+
+```bash
+npm i -g @sarveshsea/memoire
+
+# Diagnose an existing app from code
+memi diagnose
+
+# Or diagnose a running local route / public URL
+memi diagnose http://localhost:3000
+
+# Reports are written to .memoire/app-quality/diagnosis.{json,md}
+```
+
+The goal is simple: make a working app feel designed, then package the improved system so it can be reused.
+
+## Registry workflow
+
+After diagnosis, the registry loop is simple: publish the improved design system, install real components anywhere, then keep the registry updated as the source changes.
+
+### Existing app/CSS -> tokens -> registry
+
+```bash
+npm i -g @sarveshsea/memoire
+
+# Mine a real app for CSS variables, Tailwind theme tokens, modes, aliases, repeated literals, and utility patterns
+memi tokens --from ./src --output generated/tokens --report
+
+# Save extracted tokens into .memoire/design-system.json for publish/codegen flows
+memi tokens --from ./src --save
+```
+
+This is the no-Figma path: point Memoire at `src/`, `app/globals.css`, a built CSS file, `http://localhost:3000`, or a public URL. It emits CSS, Tailwind, JSON, Style Dictionary, semantic coverage, scale-health notes, dark-mode parity, alias graph validation, duplicate-value groups, recommendations, and inferred token candidates from repeated one-off values.
 
 ### Figma -> npm -> shadcn app
 
@@ -93,10 +125,24 @@ Demo scripts for recording and reuse live in [`docs/DEMOS.md`](./docs/DEMOS.md).
 
 ---
 
+## Why teams keep Memoire in the stack
+
+Claude Design, Figma Make, Lovable, Bolt, Replit Agent, and v0 are useful for fast first passes. Memoire is for the part after that first pass, when the output has to survive beyond a single prompt or canvas session.
+
+- App builders: strong for creating the first version. Memoire diagnoses the design debt that shows up once the app is real.
+- Claude Design and Figma Make: strong for visual exploration. Memoire keeps the reusable system portable across code, registries, and AI tools.
+- v0: strong for generating screens and using registries. Memoire helps infer, improve, and publish the registry from the app you already have.
+
+If your team needs better visual quality, versioned tokens, installable components, tweakcn theme packaging, and cross-tool design system context, that is the Memoire wedge.
+
+---
+
 ## What you get
 
 | Input | Output |
 |-------|--------|
+| Existing shadcn/Tailwind app | Design debt diagnosis with scores, issues, reports, and visual direction options |
+| Existing CSS/code/URL | Extracted design tokens with modes, aliases, semantic coverage, scale health, and Style Dictionary export |
 | Figma file | npm-ready design system registry with tokens, specs, and real components |
 | tweakcn theme | A first-class workflow: import, preview, diff, validate, apply, variants, publish |
 | Any public URL | `DESIGN.md` plus an optional starter registry scaffold |
@@ -106,7 +152,11 @@ Demo scripts for recording and reuse live in [`docs/DEMOS.md`](./docs/DEMOS.md).
 ```bash
 npm i -g @sarveshsea/memoire
 
+memi diagnose                         # audit the current app from code
+memi diagnose http://localhost:3000   # audit a running route or public URL
 memi design-doc https://linear.app     # extract any site's design system
+memi tokens --from ./src --save         # extract app tokens into the registry
+memi tokens --from ./src --report       # write token-extraction.report.{md,json}
 memi go                                 # figma -> tokens -> specs -> components -> preview
 memi go --rest                          # same thing, no figma desktop needed
 memi go --penpot                        # same thing, from penpot
@@ -183,6 +233,7 @@ Or add manually to `.mcp.json`:
 |---------|-------------|
 | `memi setup` | Full onboarding: token, file, plugin, bridge, MCP config, test pull |
 | `memi init` | Initialize workspace with starter specs |
+| `memi diagnose [target]` | Diagnose design debt in an existing web app from code or URL |
 | `memi connect` | Start Figma bridge (auto-discovers plugin on ports 9223-9232) |
 | `memi pull` | Extract tokens, components, styles from Figma |
 | `memi pull --rest` | Pull via REST API -- no plugin, no Figma Desktop |
@@ -194,7 +245,8 @@ Or add manually to `.mcp.json`:
 | `memi theme <subcommand>` | tweakcn workflow: import, preview, validate, diff, apply, variants, publish |
 | `memi go` | Full pipeline in one command |
 | `memi export` | Export generated code into your project |
-| `memi tokens` | Export tokens as CSS / Tailwind / JSON / Style Dictionary (W3C DTCG) |
+| `memi tokens` | Export registry tokens as CSS / Tailwind / JSON / Style Dictionary (W3C DTCG) |
+| `memi tokens --from <file|dir|url>` | Extract tokens from CSS/code/URL with modes, alias graph checks, semantic coverage, inferred literals, and optional `--report` |
 | `memi validate` | Validate all specs against schemas |
 
 </details>

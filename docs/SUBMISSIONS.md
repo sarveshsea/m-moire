@@ -11,7 +11,7 @@ Ready-to-submit entries for awesome lists and directories.
 **Entry:**
 
 ```markdown
-- [Memoire](https://github.com/sarveshsea/m-moire) by [sarveshsea](https://github.com/sarveshsea) - Registry-first design system CLI and MCP server. Publish Figma or tweakcn systems to npm, install components with `memi add`, and connect Claude Code to the same workflow with `memi mcp config --install`.
+- [Memoire](https://github.com/sarveshsea/m-moire) by [sarveshsea](https://github.com/sarveshsea) - Design CI for web apps. Diagnose UI debt in shadcn/Tailwind codebases, improve the visual system, publish installable registries, and connect Claude Code to the same workflow with `memi mcp config --install`.
 ```
 
 ---
@@ -23,7 +23,7 @@ Ready-to-submit entries for awesome lists and directories.
 **Entry:**
 
 ```markdown
-- [Memoire](https://github.com/sarveshsea/m-moire) 📇 🏠 - Registry-first design system MCP server. Publish installable registries from Figma or tweakcn, pull tokens from Figma or Penpot, generate shadcn/ui code, and connect the workflow to Claude Code with `memi mcp config --install`.
+- [Memoire](https://github.com/sarveshsea/m-moire) 📇 🏠 - Design CI for web apps. Diagnose UI debt in shadcn/Tailwind codebases, publish installable registries from improved systems, pull tokens from Figma or Penpot, and connect the workflow to Claude Code with `memi mcp config --install`.
 ```
 
 ---
@@ -35,7 +35,7 @@ Ready-to-submit entries for awesome lists and directories.
 **Body:**
 
 ```
-I built Memoire — a registry-first CLI + MCP server for design systems.
+I built Memoire — Design CI for web apps and a registry-capable CLI + MCP server for design systems.
 
   npx @sarveshsea/memoire publish --name @acme/ds --figma https://figma.com/design/xxx --push
 

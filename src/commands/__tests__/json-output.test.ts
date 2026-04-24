@@ -88,9 +88,19 @@ function makeStatusEngine() {
       async load() {},
       getStore() {
         return {
-          insights: [{ confidence: "high" }, { confidence: "low" }],
+          findings: [{ confidence: "high" }, { confidence: "low" }],
           themes: [{ name: "navigation" }],
           sources: [{ name: "interviews" }],
+          quantitativeMetrics: [{ field: "csat" }],
+          quality: {
+            overallScore: 82,
+            sampleSize: 24,
+            completenessScore: 90,
+            sourceDiversityScore: 70,
+            triangulationScore: 75,
+            structureScore: 88,
+            notes: [],
+          },
         };
       },
     },

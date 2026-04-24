@@ -64,6 +64,7 @@ export class AgentRegistry extends EventEmitter {
   startHealthCheck(): void {
     if (this.healthTimer) return;
     this.healthTimer = setInterval(() => this.evictStale(), HEALTH_CHECK_INTERVAL_MS);
+    this.healthTimer.unref?.();
   }
 
   /** Stop the health check timer. */

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Mémoire CLI — registry-first design system workflow
+ * Mémoire CLI — design-quality engine for code-native web apps
  *
  * Commands:
+ *    memoire diagnose          Diagnose design debt in an existing web app
  *    memoire connect           Connect to Figma Desktop Bridge
  *    memoire pull              Pull design system from Figma
  *    memoire research <sub>    Run research pipeline
@@ -71,6 +72,7 @@ const { registerThemeCommand } = await import("./commands/theme.js");
 const { registerViewCommand } = await import("./commands/view.js");
 const { registerUpgradeCommand } = await import("./commands/upgrade.js");
 const { registerUpdateCommand } = await import("./commands/update.js");
+const { registerDiagnoseCommand } = await import("./commands/diagnose.js");
 
 // Catch unhandled async errors so the CLI doesn't crash silently
 process.on("unhandledRejection", (reason) => {
@@ -82,7 +84,7 @@ const program = new Command();
 
 program
   .name("memoire")
-  .description("Publish Figma and tweakcn design systems as installable shadcn registries")
+  .description("Diagnose and improve real web apps, then package the design system as an installable registry")
   .version(getMemoirePackageVersion());
 
 // Create engine instance (shared across commands)
@@ -106,8 +108,9 @@ if (!mcpMode) {
   });
 }
 
-// Register all commands. Put the publish/install workflow first so `memi --help`
-// leads with the core product surface instead of the long tail.
+// Register all commands. Put the code-native design-quality workflow first so
+// `memi --help` leads with the new product surface instead of the long tail.
+registerDiagnoseCommand(program, engine);
 registerInitCommand(program, engine);
 registerPublishCommand(program, engine);
 registerThemeCommand(program, engine);

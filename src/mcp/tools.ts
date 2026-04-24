@@ -397,15 +397,15 @@ Use this tool vs analyze_design: run_audit operates on specs and the token regis
   // ── get_research ────────────────────────────────────────
   server.tool(
     "get_research",
-    `Load and return the project's user research store — insights, personas, themes, and source references.
+    `Load and return the project's user research V2 store — observations, findings, personas, themes, quantitative metrics, and quality metadata.
 
-Prerequisites: None — reads from the local .memoire/research/ directory. Research data is populated by running \`memi research from-file\`, \`memi research from-stickies\`, or \`memi research synthesize\`. Returns an empty store if no research has been imported yet.
+Prerequisites: None — reads from the local .memoire/research/ directory. Research data is populated by running \`memi research from-file\`, \`memi research from-stickies\`, \`memi research from-transcript\`, \`memi research web\`, or \`memi research synthesize\`. Returns an empty V2 store if no research has been imported yet.
 
-Returns on success: Research store object with shape { insights: Insight[], personas: Persona[], themes: Theme[], sources: Source[] }. Each Insight has { id, title, body, tags, sourceId? }. Each Persona has { id, name, role, goals, painPoints }. Each Theme has { id, label, insightIds[] }.
+Returns on success: Research store object with shape { version, sources, observations, findings, themes, personas, quantitativeMetrics, opportunities, risks, contradictions, quality, summary, methods }. Findings include auditable evidence links via \`evidenceObservationIds\` and \`evidenceSourceIds\`. Themes reference \`findingIds[]\`.
 
 Error behavior: Never throws — loads gracefully and returns an empty store if files are missing.
 
-Use this tool: before running compose with a research-driven intent (e.g. "generate a dashboard based on user research"), to inspect what research context is available, or to verify that a research import succeeded. Combine with compose to ground design decisions in actual user data.`,
+Use this tool: before running compose with a research-driven intent (e.g. "generate a dashboard based on user research"), to inspect what research context is available, or to verify that a research import or synthesis succeeded. Combine with compose to ground design decisions in actual user data.`,
     {},
     async () => {
       await engine.research.load();

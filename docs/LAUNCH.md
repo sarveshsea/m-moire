@@ -2,27 +2,35 @@
 
 Use one message everywhere for the next 30 days:
 
-> Publish Figma and tweakcn design systems as installable shadcn registries.
+> Design CI for web apps: diagnose UI debt, improve the shadcn/Tailwind system, and publish it as an installable registry.
 
 Link to one conversion page only per post. Until `memoire.cv/components` is fixed, prefer the npm package page:
 
 - [npm: `@sarveshsea/memoire`](https://www.npmjs.com/package/@sarveshsea/memoire)
+
+## Competitive positioning
+
+Use this distinction consistently:
+
+- Claude Design is for prompt-first visual exploration and prototypes.
+- Figma Make is for prompt-to-app work inside Figma.
+- v0 is for first-screen and first-app generation.
+- Memoire is for the existing-app phase: diagnose UI debt from code, improve the design system, publish the result, and carry that registry into AI tools.
 
 ## Canonical posts
 
 ### X / Twitter
 
 ```text
-Memoire turns Figma and tweakcn themes into installable shadcn registries.
+Memoire is Design CI for shadcn/Tailwind apps.
 
-publish:
-memi publish --name @you/ds --figma <url>
+diagnose:
+memi diagnose http://localhost:3000
 
-install:
-memi add Button --from @you/ds
+package the improved system:
+memi publish --name @you/ds
 
-Now shipping first-party starter registries too:
-starter-saas, docs-blog, dashboard
+It finds UI debt in real apps, then turns the cleaned-up system into something installable.
 
 https://www.npmjs.com/package/@sarveshsea/memoire
 ```

@@ -470,6 +470,10 @@ function buildDesignSpec(name: string, url: string, tokens: RawDesignTokens): ob
 
 /** Convert raw CSS tokens into DesignToken[] for codegen consumption. */
 function buildDesignTokensFromRaw(raw: RawDesignTokens): import("../engine/registry.js").DesignToken[] {
+  if (raw.designTokens?.length) {
+    return raw.designTokens;
+  }
+
   const tokens: import("../engine/registry.js").DesignToken[] = [];
   for (const color of raw.colors.slice(0, 30)) {
     const slug = color.replace(/[^a-z0-9]/gi, "").slice(0, 10) || "color";

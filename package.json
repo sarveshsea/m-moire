@@ -1,7 +1,7 @@
 {
   "name": "@sarveshsea/memoire",
   "version": "0.12.4",
-  "description": "Publish Figma and tweakcn design systems as installable shadcn registries.",
+  "description": "Design CI for web apps: diagnose UI debt, improve shadcn/Tailwind systems, and publish installable registries.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -40,6 +40,11 @@
   "license": "MIT",
   "keywords": [
     "design-system-registry",
+    "design-ci",
+    "ui-audit",
+    "design-audit",
+    "web-app-design",
+    "tailwind-audit",
     "component-registry",
     "registry",
     "registry-marketplace",
@@ -95,7 +100,7 @@
   "bugs": {
     "url": "https://github.com/sarveshsea/m-moire/issues"
   },
-  "homepage": "https://memoire.cv",
+  "homepage": "https://github.com/sarveshsea/m-moire#readme",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "@chenglou/pretext": "^0.0.3",

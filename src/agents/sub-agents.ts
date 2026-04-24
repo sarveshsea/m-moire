@@ -406,10 +406,10 @@ export class SubAgentRunner {
     try {
       await this.engine.research.load();
       const store = this.engine.research.getStore();
-      if (store.insights.length > 0) {
+      if (store.findings.length > 0) {
         const mapping = mapResearchToSpecs(store, ctx.specs);
         if (mapping.coverage < 0.5) {
-          issues.push(`Low research coverage: only ${Math.round(mapping.coverage * 100)}% of insights map to specs`);
+          issues.push(`Low research coverage: only ${Math.round(mapping.coverage * 100)}% of findings map to specs`);
         }
       }
     } catch {

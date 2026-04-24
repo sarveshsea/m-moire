@@ -40,10 +40,13 @@ export interface StatusPayload {
     total: number;
   };
   research: {
-    insights: number;
+    findings: number;
     themes: number;
     sources: number;
     highConfidence: number;
+    qualityScore: number;
+    sampleSize: number;
+    quantitativeMetrics: number;
   };
   ai: {
     apiKey: boolean;
@@ -99,7 +102,7 @@ export async function collectStatus(engine: MemoireEngine): Promise<StatusPayloa
   const pages = specs.filter((s) => s.type === "page");
   const dataviz = specs.filter((s) => s.type === "dataviz");
   const generated = specs.filter((s) => engine.registry.getGenerationState(s.name));
-  const highConfidence = research.insights.filter((i) => i.confidence === "high").length;
+  const highConfidence = research.findings.filter((finding) => finding.confidence === "high").length;
 
   const allNotes = engine.notes.notes;
   const builtInCount = allNotes.filter((n) => n.builtIn).length;
@@ -131,10 +134,13 @@ export async function collectStatus(engine: MemoireEngine): Promise<StatusPayloa
       total: specs.length,
     },
     research: {
-      insights: research.insights.length,
+      findings: research.findings.length,
       themes: research.themes.length,
       sources: research.sources.length,
       highConfidence,
+      qualityScore: research.quality.overallScore,
+      sampleSize: research.quality.sampleSize,
+      quantitativeMetrics: research.quantitativeMetrics.length,
     },
     ai: {
       apiKey: hasAI(),
@@ -177,11 +183,18 @@ function printStatus(p: StatusPayload): void {
 
   // ── Research ──────────────────────────────────────
   console.log(ui.section("RESEARCH"));
-  console.log(ui.dots("Insights", String(p.research.insights)));
+  console.log(ui.dots("Findings", String(p.research.findings)));
   console.log(ui.dots("Themes", String(p.research.themes)));
   console.log(ui.dots("Sources", String(p.research.sources)));
   if (p.research.highConfidence > 0) {
     console.log(ui.dots("High confidence", String(p.research.highConfidence)));
+  }
+  console.log(ui.dots("Quality", `${p.research.qualityScore}/100`));
+  if (p.research.sampleSize > 0) {
+    console.log(ui.dots("Sample size", String(p.research.sampleSize)));
+  }
+  if (p.research.quantitativeMetrics > 0) {
+    console.log(ui.dots("Quant metrics", String(p.research.quantitativeMetrics)));
   }
 
   // ── AI ────────────────────────────────────────────
