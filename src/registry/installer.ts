@@ -16,6 +16,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import type { ComponentSpec } from "../specs/types.js";
 import { ComponentSpecSchema } from "../specs/types.js";
 import { resolveRegistry, readRegistryFile, findComponentRef, type ResolvedRegistry } from "./resolver.js";
+import { installShadcnRegistryItem } from "../shadcn/installer.js";
 
 export interface InstallComponentOptions {
   /** Registry ref (npm package, github:user/repo, https://..., or local path) */
@@ -46,6 +47,30 @@ export interface InstallResult {
  * Install a component from a registry into the current project.
  */
 export async function installComponent(
+  engine: MemoireEngine,
+  opts: InstallComponentOptions,
+): Promise<InstallResult> {
+  try {
+    return await installMemoireRegistryComponent(engine, opts);
+  } catch (memoireError) {
+    try {
+      const result = await installShadcnRegistryItem(engine, opts);
+      return {
+        spec: result.spec,
+        specPath: result.specPath,
+        codePath: result.codePath,
+        generatedFiles: result.generatedFiles,
+        source: result.source,
+      };
+    } catch (shadcnError) {
+      const memoireMessage = memoireError instanceof Error ? memoireError.message : String(memoireError);
+      const shadcnMessage = shadcnError instanceof Error ? shadcnError.message : String(shadcnError);
+      throw new Error(`Could not install from Memoire V1 or shadcn registry. Memoire: ${memoireMessage}; shadcn: ${shadcnMessage}`);
+    }
+  }
+}
+
+async function installMemoireRegistryComponent(
   engine: MemoireEngine,
   opts: InstallComponentOptions,
 ): Promise<InstallResult> {

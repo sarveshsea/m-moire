@@ -176,7 +176,7 @@ registerPublishCommand(program, engine);
 registerThemeCommand(program, engine);
 registerShadcnCommand(program, engine);
 registerAddCommand(program, engine);
-registerRegistryCommand(program);
+registerRegistryCommand(program, engine);
 registerUpdateCommand(program, engine);
 registerViewCommand(program, engine);
 registerDesignDocCommand(program, engine);

@@ -6,6 +6,8 @@ import { loadMarketplaceCatalog, resolveMarketplaceAlias } from "../marketplace/
 import type { MarketplaceCatalogEntry } from "../marketplace/catalog.js";
 import { packagePath } from "../utils/asset-path.js";
 import { readRegistryFile, resolveRegistry } from "../registry/resolver.js";
+import { installComponent } from "../registry/installer.js";
+import type { MemoireEngine } from "../engine/core.js";
 
 export interface RegistryDiscoveryEntry {
   slug: string;
@@ -91,7 +93,7 @@ export function findRegistryDiscoveryEntry(
   });
 }
 
-export function registerRegistryCommand(program: Command) {
+export function registerRegistryCommand(program: Command, engine?: MemoireEngine) {
   const registry = program
     .command("registry")
     .description("Discover installable Memoire registries")
@@ -102,6 +104,56 @@ export function registerRegistryCommand(program: Command) {
       "  memi registry search chat --json",
       "  memi registry info ai-chat",
     ].join("\n"));
+
+  registry
+    .command("install")
+    .argument("<component>", "Component or shadcn registry item name")
+    .requiredOption("--from <ref>", "Registry alias, package, URL, GitHub ref, or local path")
+    .option("--tokens", "Also install tokens.css from a Memoire V1 registry")
+    .option("--regenerate", "Run local codegen instead of using bundled Memoire V1 code")
+    .option("--target <dir>", "Target directory for installed code")
+    .option("--refresh", "Refresh cached npm registry packages before resolving")
+    .option("--json", "Output stable JSON")
+    .description("Install from Memoire V1 or shadcn-native registry items")
+    .action(async (component: string, opts: {
+      from: string;
+      tokens?: boolean;
+      regenerate?: boolean;
+      target?: string;
+      refresh?: boolean;
+      json?: boolean;
+    }) => {
+      if (!engine) {
+        throw new Error("registry install requires a Memoire engine");
+      }
+      await engine.init();
+      const result = await installComponent(engine, {
+        from: opts.from,
+        name: component,
+        withTokens: opts.tokens,
+        regenerate: opts.regenerate,
+        targetDir: opts.target,
+        refresh: opts.refresh,
+      });
+      const payload = {
+        status: "installed",
+        component,
+        from: opts.from,
+        source: result.source,
+        specPath: result.specPath,
+        codePath: result.codePath,
+        generated: result.generatedFiles,
+      };
+      if (opts.json) {
+        console.log(JSON.stringify(payload, null, 2));
+        return;
+      }
+      console.log();
+      console.log(`  Installed ${component} from ${result.source}`);
+      if (result.codePath) console.log(`  Code: ${result.codePath}`);
+      console.log(`  Spec: ${result.specPath}`);
+      console.log();
+    });
 
   registry
     .command("list")
