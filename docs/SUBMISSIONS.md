@@ -11,7 +11,7 @@ Ready-to-submit entries for awesome lists and directories.
 **Entry:**
 
 ```markdown
-- [Memoire](https://github.com/sarveshsea/m-moire) by [sarveshsea](https://github.com/sarveshsea) - Design CI for web apps. Diagnose UI debt in shadcn/Tailwind codebases, improve the visual system, publish installable registries, and connect Claude Code to the same workflow with `memi mcp config --install`.
+- [Memoire](https://github.com/sarveshsea/m-moire) by [sarveshsea](https://github.com/sarveshsea) - Design CI for shadcn/Tailwind apps. Diagnose UI debt in real code, extract tokens, publish installable registries, and connect Claude Code to the same workflow with `memi mcp config --install`.
 ```
 
 ---
@@ -23,23 +23,26 @@ Ready-to-submit entries for awesome lists and directories.
 **Entry:**
 
 ```markdown
-- [Memoire](https://github.com/sarveshsea/m-moire) 📇 🏠 - Design CI for web apps. Diagnose UI debt in shadcn/Tailwind codebases, publish installable registries from improved systems, pull tokens from Figma or Penpot, and connect the workflow to Claude Code with `memi mcp config --install`.
+- [Memoire](https://github.com/sarveshsea/m-moire) 📇 🏠 - Design CI for shadcn/Tailwind apps. Diagnose UI debt in real code, publish installable registries from improved systems, pull tokens from Figma or Penpot, and connect the workflow to Claude Code with `memi mcp config --install`.
 ```
 
 ---
 
 ## 3. Show HN Post
 
-**Title:** Show HN: Publish your Figma design system as an installable npm registry
+**Title:** Show HN: Design CI for shadcn/Tailwind apps
 
 **Body:**
 
 ```
-I built Memoire — Design CI for web apps and a registry-capable CLI + MCP server for design systems.
+I built Memoire - Design CI for shadcn/Tailwind apps and a registry-capable CLI + MCP server for design systems.
 
-  npx @sarveshsea/memoire publish --name @acme/ds --figma https://figma.com/design/xxx --push
+  npm i -g @sarveshsea/memoire
+  memi diagnose
+  memi tokens --from ./src --report
+  memi publish --name @acme/ds
 
-That turns a Figma file into an npm package with tokens, specs, and real components.
+That turns an existing codebase into a UI-quality audit, token extraction report, and publishable registry.
 
 Then in any shadcn app:
 
@@ -47,7 +50,7 @@ Then in any shadcn app:
 
 It also works as an MCP server for Claude Code / Cursor, so the same registry workflow can be driven from AI tools.
 
-There is also a `design-doc` path if you want to start from a public site URL instead of Figma.
+There are Figma, tweakcn, Penpot, and public-site paths too, but the main path is code-first.
 
 MIT licensed.
 
@@ -60,24 +63,27 @@ https://github.com/sarveshsea/m-moire
 
 **Tweet 1 (hook):**
 ```
-i built a CLI that turns a Figma design system into an installable npm registry
+i built Design CI for shadcn/Tailwind apps
 
-npx @sarveshsea/memoire publish --name @acme/ds --figma https://figma.com/design/xxx --push
+memi diagnose
+memi tokens --from ./src --report
+memi publish --name @acme/ds
 
 then from any shadcn app:
 npx @sarveshsea/memoire add Button --from @acme/ds
 
-tokens + real components, not screenshots or specs only
+UI debt audit + tokens + real components, not screenshots or specs only
 ```
 
 **Tweet 2 (how it works):**
 ```
 how it works:
 
-1. pull from figma or load a tweakcn theme
-2. package tokens + specs + generated code
-3. publish to npm
-4. install components anywhere with `memi add`
+1. diagnose the app you already have
+2. extract tokens from code
+3. package tokens + specs + generated code
+4. publish to npm
+5. install components anywhere with `memi add`
 
 it’s basically the shadcn pattern for whole design systems
 ```
@@ -103,7 +109,8 @@ MIT licensed. works offline. npm package + standalone binary.
 github.com/sarveshsea/m-moire
 
 try it:
-  npx @sarveshsea/memoire publish --name @you/ds --figma [your-file]
+  npm i -g @sarveshsea/memoire
+  memi diagnose
 ```
 
 ---
