@@ -25,6 +25,7 @@ export interface ShadcnRegistryExportInput {
   homepage?: string;
   memoireVersion?: string;
   sourcePackage?: string;
+  generatedAt?: string;
 }
 
 export interface ShadcnRegistryExportResult {
@@ -103,7 +104,7 @@ export function buildShadcnRegistry(input: Omit<ShadcnRegistryExportInput, "outD
     meta: {
       memoire: {
         protocol: "shadcn-v2",
-        generatedAt: new Date().toISOString(),
+        generatedAt: input.generatedAt ?? new Date().toISOString(),
         memoireVersion: input.memoireVersion,
         sourcePackage: input.sourcePackage,
       },

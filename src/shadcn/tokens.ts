@@ -23,7 +23,8 @@ export function designTokensToShadcnCssVars(tokens: DesignToken[]): ShadcnCssVar
         } else {
           cssVars.light![`${slot}-${modeName}`] = value;
         }
-        cssVars.theme![tailwindThemeName(token, slot)] = value;
+        const themeName = tailwindThemeName(token, slot);
+        cssVars.theme![themeName] ??= value;
         continue;
       }
 
