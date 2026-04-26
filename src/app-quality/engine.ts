@@ -1,5 +1,6 @@
-import { access, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
-import { join, relative, resolve } from "node:path";
+import { access, mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { scanSources } from "../utils/source-scanner.js";
 
 export type AppQualitySeverity = "critical" | "high" | "medium" | "low";
 export type AppQualityCategory =
@@ -77,6 +78,7 @@ interface RawFile {
 }
 
 const DEFAULT_MAX_FILES = 500;
+const FETCH_TIMEOUT_MS = 15000;
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".html", ".css"]);
 const IGNORE_DIRS = new Set([
   ".git",
@@ -145,55 +147,23 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
 }
 
 async function loadTargetFiles(projectRoot: string, target: string, maxFiles: number): Promise<RawFile[]> {
-  if (/^https?:\/\//i.test(target)) {
-    return [await fetchTarget(target)];
-  }
-
-  const absoluteTarget = resolve(projectRoot, target);
-  const targetStat = await stat(absoluteTarget);
-  if (targetStat.isFile()) {
-    const content = await readFile(absoluteTarget, "utf-8");
-    return [{ path: relative(projectRoot, absoluteTarget) || target, absolutePath: absoluteTarget, content }];
-  }
-
-  const candidates: string[] = [];
-  await walk(absoluteTarget, candidates, maxFiles);
-  const files: RawFile[] = [];
-  for (const absolutePath of candidates.slice(0, maxFiles)) {
-    const content = await readFile(absolutePath, "utf-8");
-    files.push({ path: relative(projectRoot, absolutePath), absolutePath, content });
-  }
-  return files;
-}
-
-async function fetchTarget(url: string): Promise<RawFile> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
-  }
-  const content = await response.text();
-  return { path: url, absolutePath: url, content };
-}
-
-async function walk(dir: string, files: string[], maxFiles: number): Promise<void> {
-  if (files.length >= maxFiles) return;
-  const entries = await readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (files.length >= maxFiles) return;
-    const absolutePath = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (!IGNORE_DIRS.has(entry.name)) await walk(absolutePath, files, maxFiles);
-      continue;
-    }
-    if (!entry.isFile()) continue;
-    const ext = extensionOf(entry.name);
-    if (SOURCE_EXTENSIONS.has(ext)) files.push(absolutePath);
-  }
-}
-
-function extensionOf(name: string): string {
-  const idx = name.lastIndexOf(".");
-  return idx >= 0 ? name.slice(idx) : "";
+  const sources = await scanSources({
+    projectRoot,
+    target,
+    extensions: SOURCE_EXTENSIONS,
+    ignoreDirs: IGNORE_DIRS,
+    maxFiles,
+    concurrency: 16,
+    fetchTimeoutMs: FETCH_TIMEOUT_MS,
+    includeInlineStyles: true,
+    includeLinkedStyles: false,
+    userAgent: "Memoire-Diagnose/1.0",
+  });
+  return sources.map((source) => ({
+    path: source.projectPath,
+    absolutePath: source.absolutePath,
+    content: source.content,
+  }));
 }
 
 function analyzeFile(file: RawFile): AppQualityFileSignal {

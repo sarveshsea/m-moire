@@ -48,7 +48,7 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
 }
 
 function printDiagnosis(diagnosis: AppQualityDiagnosis, wroteReports: boolean): void {
-  console.log(ui.brand("Design CI for web apps"));
+  console.log(ui.brand("Design CI for shadcn/Tailwind apps"));
   console.log(ui.dots("Target", diagnosis.target));
   console.log(ui.dots("Score", `${diagnosis.summary.score}/100`));
   console.log(ui.dots("Verdict", diagnosis.summary.verdict));
