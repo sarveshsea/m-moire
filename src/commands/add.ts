@@ -13,6 +13,8 @@ import type { MemoireEngine } from "../engine/core.js";
 import ora from "ora";
 import { ui } from "../tui/format.js";
 import { installComponent, listRegistryComponents } from "../registry/installer.js";
+import { npmPackageUrl } from "../registry/constants.js";
+import { resolveMarketplaceAlias } from "../marketplace/catalog-loader.js";
 import { formatElapsed } from "../utils/format.js";
 
 export interface AddPayload {
@@ -23,6 +25,11 @@ export interface AddPayload {
   tokensPath?: string;
   generated: string[];
   available?: string[];
+  suggestions?: string[];
+  usageSnippet?: string;
+  tokenInstallCommand?: string;
+  packageUrl?: string;
+  sourceUrl?: string;
   elapsedMs: number;
   error?: string;
 }
@@ -84,6 +91,8 @@ export function registerAddCommand(program: Command, engine: MemoireEngine) {
           generated: result.generatedFiles,
           elapsedMs: Date.now() - start,
         };
+        const hints = await buildMarketplaceAddHints(opts.from, component, opts.tokens === true);
+        Object.assign(payload, hints);
 
         if (opts.json) {
           console.log(JSON.stringify(payload, null, 2));
@@ -95,11 +104,26 @@ export function registerAddCommand(program: Command, engine: MemoireEngine) {
         if (result.codePath) console.log(ui.dim(`  Code:   ${result.codePath}`));
         console.log(ui.dim(`  Spec:   ${result.specPath}`));
         if (result.tokensPath) console.log(ui.dim(`  Tokens: ${result.tokensPath}`));
+        if (hints.usageSnippet) {
+          console.log();
+          console.log(ui.section("USAGE"));
+          console.log(hints.usageSnippet.split("\n").map((line) => `  ${line}`).join("\n"));
+        }
+        if (hints.tokenInstallCommand && !result.tokensPath) {
+          console.log();
+          console.log(ui.dim(`  Tokens: ${hints.tokenInstallCommand}`));
+        }
+        if (hints.packageUrl || hints.sourceUrl) {
+          console.log();
+          if (hints.packageUrl) console.log(ui.dim(`  npm:    ${hints.packageUrl}`));
+          if (hints.sourceUrl) console.log(ui.dim(`  Source: ${hints.sourceUrl}`));
+        }
         console.log(ui.dim(`  (${formatElapsed(Date.now() - start)})`));
         console.log();
       } catch (err) {
         spinner?.stop();
         const msg = err instanceof Error ? err.message : String(err);
+        const suggestions = await suggestRegistryComponents(opts.from, component).catch(() => []);
         const payload: AddPayload = {
           status: "failed",
           component,
@@ -107,17 +131,96 @@ export function registerAddCommand(program: Command, engine: MemoireEngine) {
           generated: [],
           elapsedMs: Date.now() - start,
           error: msg,
+          suggestions,
         };
         if (opts.json) {
           console.log(JSON.stringify(payload, null, 2));
         } else {
           console.log();
           console.log(ui.fail(`Install failed: ${msg}`));
+          if (suggestions.length > 0) {
+            console.log();
+            console.log(ui.dim(`  Available: ${suggestions.join(", ")}`));
+            console.log(ui.dim(`  Try:       memi add ${suggestions[0]} --from ${opts.from}`));
+          }
           console.log();
         }
         process.exitCode = 1;
       }
     });
+}
+
+export async function buildMarketplaceAddHints(
+  from: string,
+  component: string,
+  tokensAlreadyRequested: boolean,
+): Promise<Pick<AddPayload, "usageSnippet" | "tokenInstallCommand" | "packageUrl" | "sourceUrl">> {
+  const entry = await resolveMarketplaceAlias(from).catch(() => undefined);
+  const packageName = entry?.packageName ?? (from.startsWith("@") ? from : undefined);
+  return {
+    usageSnippet: buildUsageSnippet(component),
+    tokenInstallCommand: tokensAlreadyRequested
+      ? undefined
+      : `memi add ${component} --from ${entry?.slug ?? packageName ?? from} --tokens`,
+    packageUrl: packageName ? npmPackageUrl(packageName) : undefined,
+    sourceUrl: entry?.sourceUrl,
+  };
+}
+
+export function buildUsageSnippet(component: string): string {
+  const examples: Record<string, string> = {
+    AuthCard: `<AuthCard title="Welcome back" description="Sign in to continue" primaryCta="Sign in" />`,
+    Button: `<Button label="Continue" variant="primary" />`,
+    ChatComposer: `<ChatComposer placeholder="Ask the assistant..." sendLabel="Send" />`,
+    ChatMessage: `<ChatMessage role="assistant" content="Here is the next step." />`,
+    HeroSection: `<HeroSection eyebrow="Launch ready" headline="Ship a better product page" description="Install a tokenized landing section into your shadcn app." primaryCta="Start now" />`,
+    ProductCard: `<ProductCard name="Pro plan" price="$29" cta="Add to cart" />`,
+  };
+  const jsx = examples[component] ?? `<${component} />`;
+  return [
+    `import { ${component} } from "@/components/memoire/${component}"`,
+    "",
+    jsx,
+  ].join("\n");
+}
+
+export async function suggestRegistryComponents(from: string, requested: string): Promise<string[]> {
+  const { components } = await listRegistryComponents(from);
+  return rankComponentSuggestions(
+    components.map((component) => component.name),
+    requested,
+  );
+}
+
+export function rankComponentSuggestions(available: string[], requested: string): string[] {
+  const needle = requested.toLowerCase();
+  const ranked = available
+    .map((name) => ({
+      name,
+      score:
+        name.toLowerCase() === needle ? 0 :
+        name.toLowerCase().includes(needle) || needle.includes(name.toLowerCase()) ? 1 :
+        levenshtein(name.toLowerCase(), needle),
+    }))
+    .sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
+  return ranked.slice(0, 5).map((entry) => entry.name);
+}
+
+function levenshtein(a: string, b: string): number {
+  const dp = Array.from({ length: a.length + 1 }, () => Array<number>(b.length + 1).fill(0));
+  for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost,
+      );
+    }
+  }
+  return dp[a.length][b.length];
 }
 
 async function handleList(from: string, json: boolean | undefined, start: number): Promise<void> {
