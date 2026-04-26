@@ -28,10 +28,11 @@ memi mcp config --install
 | P0 | PulseMCP | MCP directory | Directory indexing/submission path | Ready | Confirm listing after official registry submission |
 | P0 | MCP Central | MCP directory | Directory listing | Ready | Submit after npm is live |
 | P0 | mcp.so | MCP directory | Directory listing | Ready | Submit after npm is live |
-| P0 | `punkpeye/awesome-mcp-servers` | Awesome list | Pull request | In progress | Update PR copy to shadcn-native MCP positioning |
-| P0 | `hesreallyhim/awesome-claude-code` | Awesome list | Issue or PR | In progress | Comment with 0.14.1 proof and install command |
+| P0 | `punkpeye/awesome-mcp-servers` | Awesome list | Pull request | Accepted | Merged: https://github.com/punkpeye/awesome-mcp-servers/pull/4373 |
+| P0 | `hesreallyhim/awesome-claude-code` | Awesome list | Issue or PR | Closed | Closed issue: https://github.com/hesreallyhim/awesome-claude-code/issues/1533 |
 | P1 | shadcn registry directory | shadcn registry | Pull request to registry index | Ready | Submit when public registry URL is stable |
-| P1 | Awesome shadcn/ui | shadcn ecosystem | Submit project or PR | Ready | Pitch as registry generator and MCP bridge |
+| P1 | `bytefer/awesome-shadcn-ui` | shadcn ecosystem | Pull request | Submitted | https://github.com/bytefer/awesome-shadcn-ui/pull/18 |
+| P1 | `birobirobiro/awesome-shadcn-ui` | shadcn ecosystem | Pull request | Submitted | https://github.com/birobirobiro/awesome-shadcn-ui/pull/493 |
 | P1 | v0/design-system community | v0 ecosystem | Post/demo | Ready | Lead with Open in v0 registry workflow |
 | P2 | Product Hunt | Launch | Launch page | Draft | Use demo video and npm CTA |
 | P2 | Hacker News | Launch | Show HN post | Draft | Post after npm latest is verified |
@@ -142,7 +143,7 @@ https://www.npmjs.com/package/@sarveshsea/memoire
 
 ## Submission Checklist
 
-- [ ] Publish npm 0.14.1 and verify `npm view @sarveshsea/memoire version`
+- [x] Publish npm 0.14.1 and verify `npm view @sarveshsea/memoire version`
 - [ ] Publish next patch with `mcpName` and `server.json`
 - [x] Update GitHub description and topics
 - [x] Enable GitHub Discussions
@@ -153,10 +154,11 @@ https://www.npmjs.com/package/@sarveshsea/memoire
 - [ ] Submit to PulseMCP
 - [ ] Submit to MCP Central
 - [ ] Submit to mcp.so
-- [ ] Update `punkpeye/awesome-mcp-servers` PR
-- [ ] Update `hesreallyhim/awesome-claude-code` issue
+- [x] Merge `punkpeye/awesome-mcp-servers` PR
+- [x] Close `hesreallyhim/awesome-claude-code` issue
+- [ ] Merge `bytefer/awesome-shadcn-ui` PR
+- [ ] Merge `birobirobiro/awesome-shadcn-ui` PR
 - [ ] Submit to shadcn registry directory
-- [ ] Submit to Awesome shadcn/ui
 - [ ] Post Show HN
 - [ ] Post X/Twitter thread with demo
 - [ ] Post practical walkthrough to `r/mcp`
