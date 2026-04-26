@@ -29,6 +29,11 @@ export interface ResolvedRegistry {
   source: string;
 }
 
+export interface ResolveRegistryOptions {
+  refresh?: boolean;
+  cacheTtlMs?: number;
+}
+
 const FETCH_TIMEOUT_MS = 15000;
 
 // ── SSRF guard (same pattern as penpot-client) ───────────────
@@ -55,7 +60,7 @@ function assertSafePublicUrl(url: string): void {
 /**
  * Resolve a registry reference to a parsed Registry + baseUrl.
  */
-export async function resolveRegistry(ref: string, cwd: string = process.cwd()): Promise<ResolvedRegistry> {
+export async function resolveRegistry(ref: string, cwd: string = process.cwd(), options: ResolveRegistryOptions = {}): Promise<ResolvedRegistry> {
   if (ref.startsWith("github:")) {
     return resolveGitHub(ref);
   }
@@ -72,7 +77,7 @@ export async function resolveRegistry(ref: string, cwd: string = process.cwd()):
   const marketplaceEntry = await resolveMarketplaceAlias(ref);
   if (marketplaceEntry && marketplaceEntry.packageName !== ref) {
     try {
-      return await resolveNpm(marketplaceEntry.packageName, cwd);
+      return await resolveNpm(marketplaceEntry.packageName, cwd, options);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(
@@ -81,7 +86,7 @@ export async function resolveRegistry(ref: string, cwd: string = process.cwd()):
     }
   }
   // Default: treat as npm package name — look in node_modules
-  return resolveNpm(ref, cwd);
+  return resolveNpm(ref, cwd, options);
 }
 
 async function resolveLocal(ref: string, cwd: string): Promise<ResolvedRegistry> {
@@ -94,7 +99,7 @@ async function resolveLocal(ref: string, cwd: string): Promise<ResolvedRegistry>
   return { registry, baseUrl: baseDir, source: `local:${baseDir}` };
 }
 
-async function resolveNpm(pkgName: string, cwd: string): Promise<ResolvedRegistry> {
+async function resolveNpm(pkgName: string, cwd: string, options: ResolveRegistryOptions): Promise<ResolvedRegistry> {
   // Look in local node_modules
   const { packageName, version } = splitNpmPackageRef(pkgName);
   const baseDir = resolve(cwd, "node_modules", packageName);
@@ -102,7 +107,10 @@ async function resolveNpm(pkgName: string, cwd: string): Promise<ResolvedRegistr
     return await resolveLocal(baseDir, cwd);
   } catch (localError) {
     try {
-      const cached = await fetchNpmPackageToCache(packageName, cwd, version);
+      const cached = await fetchNpmPackageToCache(packageName, cwd, version, {
+        refresh: options.refresh,
+        ttlMs: options.cacheTtlMs,
+      });
       const resolved = await resolveLocal(cached.packageDir, cwd);
       return {
         ...resolved,

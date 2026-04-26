@@ -1,10 +1,12 @@
-import { mkdir, mkdtemp, rm, rename, access, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, rename, access, writeFile, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 
 const NPM_REGISTRY_URL = "https://registry.npmjs.org";
 const FETCH_TIMEOUT_MS = 15000;
+const DEFAULT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 export interface NpmPackageDist {
   tarball: string;
@@ -26,10 +28,25 @@ export interface CachedNpmPackage {
   dist: NpmPackageDist;
 }
 
+export interface FetchNpmPackageOptions {
+  refresh?: boolean;
+  ttlMs?: number;
+}
+
+interface NpmCacheManifest {
+  packageName: string;
+  version: string;
+  tarball: string;
+  shasum?: string;
+  integrity?: string;
+  fetchedAt: string;
+}
+
 export async function fetchNpmPackageToCache(
   packageName: string,
   cwd: string,
   versionRange = "latest",
+  options: FetchNpmPackageOptions = {},
 ): Promise<CachedNpmPackage> {
   const metadata = await fetchNpmMetadata(packageName);
   const version = resolveVersion(metadata, versionRange);
@@ -41,12 +58,14 @@ export async function fetchNpmPackageToCache(
   const cacheRoot = join(cwd, ".memoire", "cache", "registries", sanitizePackageName(packageName), version);
   const packageDir = join(cacheRoot, "package");
   const tarballPath = join(cacheRoot, "package.tgz");
-  if (await exists(join(packageDir, "registry.json"))) {
+  const manifestPath = join(cacheRoot, "cache.json");
+  if (!options.refresh && await isCacheFresh(packageDir, manifestPath, options.ttlMs ?? DEFAULT_CACHE_TTL_MS)) {
     return { packageName, version, packageDir, tarballPath, dist };
   }
 
   await mkdir(cacheRoot, { recursive: true });
   await downloadFile(dist.tarball, tarballPath);
+  await verifyTarball(tarballPath, dist);
 
   const tempExtractDir = await mkdtemp(join(tmpdir(), "memoire-npm-registry-"));
   try {
@@ -56,6 +75,16 @@ export async function fetchNpmPackageToCache(
   } finally {
     await rm(tempExtractDir, { recursive: true, force: true });
   }
+
+  const manifest: NpmCacheManifest = {
+    packageName,
+    version,
+    tarball: dist.tarball,
+    shasum: dist.shasum,
+    integrity: dist.integrity,
+    fetchedAt: new Date().toISOString(),
+  };
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
   return { packageName, version, packageDir, tarballPath, dist };
 }
@@ -101,6 +130,29 @@ async function downloadFile(url: string, outputPath: string): Promise<void> {
   }
 }
 
+async function verifyTarball(tarballPath: string, dist: NpmPackageDist): Promise<void> {
+  const bytes = await readFile(tarballPath);
+  if (dist.integrity) {
+    const verified = dist.integrity.split(/\s+/).some((entry) => {
+      const [algorithm, expected] = entry.split("-");
+      if (!algorithm || !expected) return false;
+      if (!["sha512", "sha384", "sha256", "sha1"].includes(algorithm)) return false;
+      return createHash(algorithm).update(bytes).digest("base64") === expected;
+    });
+    if (!verified) {
+      throw new Error("npm tarball integrity check failed");
+    }
+    return;
+  }
+
+  if (dist.shasum) {
+    const actual = createHash("sha1").update(bytes).digest("hex");
+    if (actual !== dist.shasum) {
+      throw new Error(`npm tarball shasum mismatch: expected ${dist.shasum}, got ${actual}`);
+    }
+  }
+}
+
 async function extractTarball(tarballPath: string, outDir: string): Promise<void> {
   await run("tar", ["-xzf", tarballPath, "-C", outDir]);
 }
@@ -124,6 +176,17 @@ async function exists(path: string): Promise<boolean> {
   try {
     await access(path);
     return true;
+  } catch {
+    return false;
+  }
+}
+
+async function isCacheFresh(packageDir: string, manifestPath: string, ttlMs: number): Promise<boolean> {
+  if (!await exists(join(packageDir, "registry.json"))) return false;
+  try {
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as NpmCacheManifest;
+    const fetchedAt = Date.parse(manifest.fetchedAt);
+    return Number.isFinite(fetchedAt) && Date.now() - fetchedAt <= ttlMs;
   } catch {
     return false;
   }

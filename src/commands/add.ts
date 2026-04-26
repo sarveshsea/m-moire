@@ -42,6 +42,7 @@ export function registerAddCommand(program: Command, engine: MemoireEngine) {
     .option("--tokens", "Also install tokens.css from the registry")
     .option("--regenerate", "Run local codegen instead of using bundled code")
     .option("--target <dir>", "Target directory (default: src/components/memoire)")
+    .option("--refresh", "Refresh cached npm registry packages before resolving")
     .option("--list", "List components in the registry without installing")
     .option("--json", "Output as JSON")
     .action(async (component: string | undefined, opts: {
@@ -49,6 +50,7 @@ export function registerAddCommand(program: Command, engine: MemoireEngine) {
       tokens?: boolean;
       regenerate?: boolean;
       target?: string;
+      refresh?: boolean;
       list?: boolean;
       json?: boolean;
     }) => {
@@ -64,7 +66,7 @@ export function registerAddCommand(program: Command, engine: MemoireEngine) {
       await engine.init();
 
       if (opts.list || !component) {
-        await handleList(opts.from, opts.json, start);
+        await handleList(opts.from, opts.json, start, opts.refresh);
         return;
       }
 
@@ -79,6 +81,7 @@ export function registerAddCommand(program: Command, engine: MemoireEngine) {
           withTokens: opts.tokens,
           regenerate: opts.regenerate,
           targetDir: opts.target,
+          refresh: opts.refresh,
         });
         spinner?.stop();
 
@@ -223,9 +226,9 @@ function levenshtein(a: string, b: string): number {
   return dp[a.length][b.length];
 }
 
-async function handleList(from: string, json: boolean | undefined, start: number): Promise<void> {
+async function handleList(from: string, json: boolean | undefined, start: number, refresh?: boolean): Promise<void> {
   try {
-    const { registry, components } = await listRegistryComponents(from);
+    const { registry, components } = await listRegistryComponents(from, process.cwd(), { refresh });
     if (json) {
       const payload: AddPayload = {
         status: "listed",

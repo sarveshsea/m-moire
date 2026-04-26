@@ -169,9 +169,10 @@ export function registerRegistryCommand(program: Command) {
     .command("doctor")
     .argument("<ref>", "Registry slug, package name, local path, GitHub ref, or registry URL")
     .description("Validate registry package files and marketplace metadata")
+    .option("--refresh", "Refresh cached npm registry packages before validating")
     .option("--json", "Output CI-friendly JSON")
-    .action(async (ref: string, opts: { json?: boolean }) => {
-      const payload = await doctorRegistryRef(ref);
+    .action(async (ref: string, opts: { refresh?: boolean; json?: boolean }) => {
+      const payload = await doctorRegistryRef(ref, process.cwd(), { refresh: opts.refresh });
       if (opts.json) {
         console.log(JSON.stringify(payload, null, 2));
       } else {
@@ -183,7 +184,7 @@ export function registerRegistryCommand(program: Command) {
     });
 }
 
-export async function doctorRegistryRef(ref: string, cwd: string = process.cwd()): Promise<RegistryDoctorPayload> {
+export async function doctorRegistryRef(ref: string, cwd: string = process.cwd(), options: { refresh?: boolean } = {}): Promise<RegistryDoctorPayload> {
   const checks: RegistryDoctorCheck[] = [];
   const errors: string[] = [];
   const catalogEntry = await resolveMarketplaceAlias(ref).catch(() => undefined);
@@ -200,7 +201,7 @@ export async function doctorRegistryRef(ref: string, cwd: string = process.cwd()
       }
     }
 
-    const resolved = await resolveRegistry(resolvedRef, cwd);
+    const resolved = await resolveRegistry(resolvedRef, cwd, { refresh: options.refresh });
     checks.push({ name: "registry.json", status: "passed", message: `${resolved.registry.name}@${resolved.registry.version}` });
 
     if (resolved.registry.tokens?.href) {

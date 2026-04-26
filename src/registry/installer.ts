@@ -28,6 +28,8 @@ export interface InstallComponentOptions {
   regenerate?: boolean;
   /** Target directory for bundled code install. Default: src/components/memoire */
   targetDir?: string;
+  /** Bypass cached npm registry packages and fetch the tarball again. */
+  refresh?: boolean;
 }
 
 export interface InstallResult {
@@ -47,7 +49,7 @@ export async function installComponent(
   engine: MemoireEngine,
   opts: InstallComponentOptions,
 ): Promise<InstallResult> {
-  const resolved = await resolveRegistry(opts.from, engine.config.projectRoot);
+  const resolved = await resolveRegistry(opts.from, engine.config.projectRoot, { refresh: opts.refresh });
   const ref = findComponentRef(resolved.registry, opts.name);
 
   // Fetch the component spec
@@ -131,11 +133,11 @@ async function installTokens(projectRoot: string, resolved: ResolvedRegistry, to
 /**
  * List all components available in a registry without installing.
  */
-export async function listRegistryComponents(ref: string, cwd: string = process.cwd()): Promise<{
+export async function listRegistryComponents(ref: string, cwd: string = process.cwd(), options: { refresh?: boolean } = {}): Promise<{
   registry: ResolvedRegistry["registry"];
   components: { name: string; level?: string }[];
 }> {
-  const resolved = await resolveRegistry(ref, cwd);
+  const resolved = await resolveRegistry(ref, cwd, { refresh: options.refresh });
   return {
     registry: resolved.registry,
     components: resolved.registry.components.map(c => ({ name: c.name, level: c.level })),
