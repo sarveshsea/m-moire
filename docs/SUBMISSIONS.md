@@ -21,7 +21,7 @@ memi mcp config --install
 
 | Priority | Target | Lane | Submission route | Status | Next action |
 | --- | --- | --- | --- | --- | --- |
-| P0 | Official MCP Registry | MCP directory | `mcp-publisher publish` with server metadata | Blocked | Publish npm 0.14.1, then add registry metadata |
+| P0 | Official MCP Registry | MCP directory | `mcp-publisher publish server.json` | Ready next patch | Publish a patch containing `mcpName`, then publish `server.json` |
 | P0 | MCP.Directory | MCP directory | `https://mcp.directory/submit` | Ready | Submit GitHub URL, npm package, and one-line description |
 | P0 | Smithery | MCP directory | `https://smithery.ai/new` or CLI publish | Ready | Submit after server metadata is published |
 | P0 | Glama | MCP directory | Glama MCP server directory submission | Ready | Submit npm/GitHub links and demo |
@@ -143,6 +143,7 @@ https://www.npmjs.com/package/@sarveshsea/memoire
 ## Submission Checklist
 
 - [ ] Publish npm 0.14.1 and verify `npm view @sarveshsea/memoire version`
+- [ ] Publish next patch with `mcpName` and `server.json`
 - [x] Update GitHub description and topics
 - [x] Enable GitHub Discussions
 - [ ] Submit to Official MCP Registry

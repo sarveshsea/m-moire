@@ -16,7 +16,7 @@ This tracker keeps achievement work tied to real Memoire distribution. The goal 
 | --- | --- | --- |
 | Memoire repo stars | 4 | Drive Starstruck through launch and directory distribution |
 | Memoire discussions | Enabled on GitHub | `Q&A` and `Show and tell` are active; add `Registry help` and `MCP setup` in repository settings |
-| npm latest | Requires manual auth and publish | Publish 0.14.1 before directory announcements |
+| npm latest | 0.14.1 | Publish the next patch with official MCP Registry metadata |
 | Sandbox repo | `sarveshsea/memoire-achievements-lab` | Use only for harmless workflow checks |
 | GitHub metadata | Updated to shadcn-native Design CI | Keep npm, README, and directory copy aligned |
 
@@ -31,6 +31,22 @@ This tracker keeps achievement work tied to real Memoire distribution. The goal 
 | Pair Extraordinaire | Merge real coauthored PRs with valid `Co-authored-by:` trailers | Base, then x2 | Pending | Use actual collaborator commits only |
 | Galaxy Brain | Answer real GitHub Discussions questions and have them accepted | Base, then x2 | Pending | Requires Discussions enabled |
 | Starstruck | Earn real stars from distribution, demos, and useful listings | 16 stars, then 128 | Pending | Track weekly in `docs/METRICS.md` |
+
+## Official MCP Registry Readiness
+
+The official MCP Registry verifies npm package ownership through `package.json#mcpName`, so the already-published `0.14.1` package cannot be submitted there retroactively. The next npm patch must include:
+
+- `package.json#mcpName`: `io.github.sarveshsea/memoire`
+- `server.json#name`: `io.github.sarveshsea/memoire`
+- `server.json#packages[0].identifier`: `@sarveshsea/memoire`
+- `server.json#packages[0].packageArguments`: `mcp`
+
+After that patch is published, run:
+
+```bash
+mcp-publisher login github
+mcp-publisher publish server.json
+```
 
 ## Discussion Categories To Configure
 

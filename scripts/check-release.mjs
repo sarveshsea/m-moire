@@ -20,6 +20,10 @@ function fail(message) {
 
 const packageJson = await readJson(join(root, "package.json"));
 const version = packageJson.version;
+const expectedMcpName = "io.github.sarveshsea/memoire";
+if (packageJson.mcpName !== expectedMcpName) {
+  fail(`package.json mcpName ${packageJson.mcpName} does not match ${expectedMcpName}`);
+}
 
 const readme = await readFile(join(root, "README.md"), "utf-8");
 const readmeTopFold = readme.slice(0, 3000);
@@ -52,6 +56,38 @@ if (lockfile.version !== version) {
 }
 if (lockfile.packages?.[""]?.version !== version) {
   fail(`package-lock.json root package version ${lockfile.packages?.[""]?.version} does not match package.json ${version}`);
+}
+
+const mcpServerJson = await readJson(join(root, "server.json"));
+if (mcpServerJson.name !== packageJson.mcpName) {
+  fail(`server.json name ${mcpServerJson.name} does not match package.json mcpName ${packageJson.mcpName}`);
+}
+if (mcpServerJson.version !== version) {
+  fail(`server.json version ${mcpServerJson.version} does not match package.json ${version}`);
+}
+if (mcpServerJson.description?.length > 100) {
+  fail("server.json description must be 100 characters or fewer for the MCP Registry");
+}
+const npmPackageEntry = mcpServerJson.packages?.find((entry) => entry.registryType === "npm");
+if (!npmPackageEntry) {
+  fail("server.json must include an npm package entry");
+} else {
+  if (npmPackageEntry.identifier !== packageJson.name) {
+    fail(`server.json npm identifier ${npmPackageEntry.identifier} does not match package.json name ${packageJson.name}`);
+  }
+  if (npmPackageEntry.version !== version) {
+    fail(`server.json npm version ${npmPackageEntry.version} does not match package.json ${version}`);
+  }
+  if (npmPackageEntry.registryBaseUrl !== "https://registry.npmjs.org") {
+    fail("server.json npm package must use https://registry.npmjs.org");
+  }
+  if (npmPackageEntry.transport?.type !== "stdio") {
+    fail("server.json npm package transport must be stdio");
+  }
+  const packageArgs = npmPackageEntry.packageArguments ?? [];
+  if (!packageArgs.some((arg) => arg.type === "positional" && arg.value === "mcp")) {
+    fail("server.json npm package must pass the memi mcp positional argument");
+  }
 }
 
 const changelog = await readFile(join(root, "CHANGELOG.md"), "utf-8");
