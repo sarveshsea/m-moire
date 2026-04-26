@@ -24,6 +24,7 @@
     "bench:cli": "node scripts/bench-cli.mjs",
     "pack:dry-run": "node scripts/pack-dry-run.mjs",
     "check:release": "node scripts/check-release.mjs",
+    "check:public-release": "node scripts/check-public-release-gate.mjs",
     "validate:presets": "node scripts/build-presets.mjs",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
