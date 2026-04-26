@@ -6,17 +6,28 @@ Use this copy on the website repo, GitHub metadata, and launch pages until `memo
 
 `Design CI for shadcn/Tailwind apps`
 
+## Marketplace Search Phrases
+
+- `shadcn registry marketplace`
+- `installable shadcn design systems`
+- `Tailwind design system registry`
+- `AI chat shadcn registry`
+- `auth UI shadcn registry`
+- `landing page shadcn registry`
+- `ecommerce shadcn registry`
+- `tweakcn registry publishing`
+
 ## Title Tags
 
 - Homepage: `Memoire - Design CI for shadcn/Tailwind apps`
-- Components fallback: `Installable shadcn registries - Memoire`
+- Components fallback: `Shadcn registry marketplace - Memoire`
 - Docs: `Memoire docs - Diagnose UI debt, extract tokens, publish registries`
 - Launch page: `Memoire 0.13 - Code-first Design CI for frontend teams`
 
 ## Meta Descriptions
 
 - Homepage: `Memoire diagnoses UI debt in real shadcn/Tailwind codebases, extracts design tokens, and publishes improved systems as installable registries.`
-- Components fallback: `Explore Memoire showcase registries for SaaS, docs, and dashboards. Install real shadcn components from npm-backed registries.`
+- Components fallback: `Explore installable shadcn/Tailwind design systems for SaaS, docs, dashboards, landing pages, auth, AI chat, ecommerce, and tweakcn-inspired themes.`
 - Docs: `Install Memoire, run memi diagnose, extract tokens from code, and publish a reusable shadcn/Tailwind registry.`
 - Launch page: `Memoire 0.13 is a code-first Design CI workflow for teams using shadcn, Tailwind, tweakcn, and installable registries.`
 
@@ -57,6 +68,9 @@ Use this copy on the website repo, GitHub metadata, and launch pages until `memo
     "token-extraction",
     "design-tokens",
     "shadcn-registry",
+    "shadcn-registry-marketplace",
+    "installable-shadcn-design-systems",
+    "tailwind-design-system-registry",
     "tweakcn"
   ],
   "offers": {
@@ -71,13 +85,15 @@ Use this copy on the website repo, GitHub metadata, and launch pages until `memo
 
 - `/` priority `1.0`, changefreq `weekly`
 - `/docs` priority `0.8`, changefreq `weekly`
-- `/components` priority `0.8`, changefreq `daily` once the registry index is stable
-- `/components/starter-saas`, `/components/docs-blog`, `/components/dashboard` priority `0.7`, changefreq `weekly`
+- `/components` priority `0.9`, changefreq `daily` once the registry index is stable
+- `/components/starter-saas`, `/components/docs-blog`, `/components/dashboard`, `/components/landing-page`, `/components/auth-flow`, `/components/ai-chat`, `/components/ecommerce` priority `0.8`, changefreq `weekly`
+- `/components/starter`, `/components/tweakcn-vercel`, `/components/tweakcn-supabase`, `/components/tweakcn-linear` priority `0.7`, changefreq `weekly`
 
 ## Website Acceptance Criteria
 
 - The first screen says `Design CI for shadcn/Tailwind apps`.
 - The only primary CTA is `https://www.npmjs.com/package/@sarveshsea/memoire`.
 - The first code block uses `npm i -g @sarveshsea/memoire`, `memi diagnose`, `memi tokens --from ./src --report`, and `memi publish --name @you/ds`.
-- `/components` never renders an empty state if `examples/featured-registries.json` can be mirrored.
+- `/components` renders `examples/marketplace-catalog.v1.json`; if that fails, it falls back to `examples/featured-registries.json` instead of an empty state.
 - Footer links use `@sarveshsea/memoire`, not an unscoped package name.
+- Individual registry pages use the page templates in [`MARKETPLACE_SEO.md`](./MARKETPLACE_SEO.md).

@@ -21,8 +21,11 @@ These are the exact external-surface updates that still need credentials or the 
 
 ## `/components` fallback
 
-- When the live component index is unavailable, render the three entries from [`examples/featured-registries.json`](../examples/featured-registries.json)
-- Never show an all-zero empty state if this fallback data exists
+- Primary data: render all entries from [`examples/marketplace-catalog.v1.json`](../examples/marketplace-catalog.v1.json)
+- Fallback data: when the full catalog cannot load, render the three entries from [`examples/featured-registries.json`](../examples/featured-registries.json)
+- Never show an all-zero empty state if either catalog exists
+- Registry cards must show screenshot, title, description, install command, tags, component count, source link, and npm package link
+- Individual pages should use the template and keyword clusters in [`docs/MARKETPLACE_SEO.md`](./MARKETPLACE_SEO.md)
 
 ## Footer
 
