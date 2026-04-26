@@ -19,6 +19,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "build:changelog": "node scripts/build-changelog-preview.mjs",
+    "build:marketplace": "node scripts/build-marketplace-catalog.mjs",
     "build:plugin": "node scripts/build-plugin.mjs",
     "bench:cli": "node scripts/bench-cli.mjs",
     "pack:dry-run": "node scripts/pack-dry-run.mjs",

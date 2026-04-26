@@ -9,15 +9,37 @@
       "packageName": "@memoire-examples/starter-saas",
       "description": "Neutral SaaS starter with blue product accents and clean app-shell primitives.",
       "category": "saas",
-      "tags": ["saas", "starter", "app-shell", "blue", "neutral"],
+      "tags": [
+        "saas",
+        "starter",
+        "app-shell",
+        "blue",
+        "neutral"
+      ],
       "featured": true,
       "installCommand": "memi add Button --from @memoire-examples/starter-saas",
       "componentCount": 4,
       "components": [
-        { "name": "Badge", "level": "atom", "category": "status" },
-        { "name": "Button", "level": "atom", "category": "action" },
-        { "name": "Card", "level": "molecule", "category": "surface" },
-        { "name": "Input", "level": "atom", "category": "form" }
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
       ],
       "sourcePath": "examples/presets/starter-saas",
       "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/starter-saas",
@@ -30,15 +52,37 @@
       "packageName": "@memoire-examples/docs-blog",
       "description": "Editorial docs/blog kit with softer surfaces and reading-friendly accents.",
       "category": "content",
-      "tags": ["docs", "blog", "editorial", "content", "reading"],
+      "tags": [
+        "docs",
+        "blog",
+        "editorial",
+        "content",
+        "reading"
+      ],
       "featured": true,
       "installCommand": "memi add Button --from @memoire-examples/docs-blog",
       "componentCount": 4,
       "components": [
-        { "name": "Badge", "level": "atom", "category": "status" },
-        { "name": "Button", "level": "atom", "category": "action" },
-        { "name": "Card", "level": "molecule", "category": "surface" },
-        { "name": "Input", "level": "atom", "category": "form" }
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
       ],
       "sourcePath": "examples/presets/docs-blog",
       "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/docs-blog",
@@ -51,20 +95,214 @@
       "packageName": "@memoire-examples/dashboard",
       "description": "High-contrast analytics dashboard starter for admin and ops products.",
       "category": "dashboard",
-      "tags": ["dashboard", "analytics", "admin", "ops", "dark"],
+      "tags": [
+        "dashboard",
+        "analytics",
+        "admin",
+        "ops",
+        "dark"
+      ],
       "featured": true,
       "installCommand": "memi add Button --from @memoire-examples/dashboard",
       "componentCount": 4,
       "components": [
-        { "name": "Badge", "level": "atom", "category": "status" },
-        { "name": "Button", "level": "atom", "category": "action" },
-        { "name": "Card", "level": "molecule", "category": "surface" },
-        { "name": "Input", "level": "atom", "category": "form" }
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
       ],
       "sourcePath": "examples/presets/dashboard",
       "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/dashboard",
       "screenshotPath": "assets/showcases/dashboard.svg",
       "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/dashboard.svg"
+    },
+    {
+      "slug": "starter",
+      "title": "Starter",
+      "packageName": "@memoire-examples/starter",
+      "description": "Minimal neutral registry for teams that want a clean shadcn starting point.",
+      "category": "starter",
+      "tags": [
+        "starter",
+        "minimal",
+        "shadcn",
+        "tailwind",
+        "neutral"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/starter",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/starter",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/starter",
+      "screenshotPath": "assets/showcases/starter.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/starter.svg"
+    },
+    {
+      "slug": "tweakcn-vercel",
+      "title": "tweakcn Vercel",
+      "packageName": "@memoire-examples/tweakcn-vercel",
+      "description": "Vercel-inspired dark registry with sharp surfaces and electric-blue actions.",
+      "category": "tweakcn",
+      "tags": [
+        "tweakcn",
+        "vercel",
+        "dark",
+        "minimal",
+        "blue"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/tweakcn-vercel",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/tweakcn-vercel",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/tweakcn-vercel",
+      "screenshotPath": "assets/showcases/tweakcn-vercel.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/tweakcn-vercel.svg"
+    },
+    {
+      "slug": "tweakcn-supabase",
+      "title": "tweakcn Supabase",
+      "packageName": "@memoire-examples/tweakcn-supabase",
+      "description": "Supabase-inspired registry for technical products with green-on-dark contrast.",
+      "category": "tweakcn",
+      "tags": [
+        "tweakcn",
+        "supabase",
+        "green",
+        "technical",
+        "dark"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/tweakcn-supabase",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/tweakcn-supabase",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/tweakcn-supabase",
+      "screenshotPath": "assets/showcases/tweakcn-supabase.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/tweakcn-supabase.svg"
+    },
+    {
+      "slug": "tweakcn-linear",
+      "title": "tweakcn Linear",
+      "packageName": "@memoire-examples/tweakcn-linear",
+      "description": "Linear-inspired registry with warm surfaces and focused indigo-violet accents.",
+      "category": "tweakcn",
+      "tags": [
+        "tweakcn",
+        "linear",
+        "indigo",
+        "productivity",
+        "editorial"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/tweakcn-linear",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/tweakcn-linear",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/tweakcn-linear",
+      "screenshotPath": "assets/showcases/tweakcn-linear.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/tweakcn-linear.svg"
     }
   ]
 }
