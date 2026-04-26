@@ -30,7 +30,7 @@ import {
   RegistrySchema,
   type Registry,
   type RegistryComponentRef,
-} from "./schema.js";
+} from "./legacy.js";
 
 export interface PublishInput {
   name: string;

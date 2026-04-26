@@ -16,7 +16,7 @@ import {
   type Registry,
   type RegistryComponentRef,
   REGISTRY_FILENAME,
-} from "./schema.js";
+} from "./legacy.js";
 import { resolveMarketplaceAlias } from "../marketplace/catalog-loader.js";
 import { fetchNpmPackageToCache } from "./npm-fetch.js";
 import { packagePath } from "../utils/asset-path.js";

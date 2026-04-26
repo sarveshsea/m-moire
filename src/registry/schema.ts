@@ -1,5 +1,5 @@
 /**
- * Memoire Registry Protocol — v1
+ * Memoire Registry Protocol — v1 compatibility schema
  *
  * A registry is a versioned, distributable design system package. It bundles
  * design tokens, component specs, and optional generated code into a shape
@@ -7,8 +7,8 @@
  *
  * Distribution channels: npm packages, GitHub repos, raw HTTPS URLs.
  *
- * The protocol is intentionally small — a single registry.json at package root
- * with pointers to tokens and component specs.
+ * New code should import this through `src/registry/legacy.ts` so V1 remains
+ * clearly separated from shadcn-native V2 registry output.
  */
 
 import { z } from "zod";

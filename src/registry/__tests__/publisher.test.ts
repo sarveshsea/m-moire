@@ -8,7 +8,7 @@ import { readFile, rm, mkdtemp } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 import { publishRegistry } from "../publisher.js";
-import { parseRegistry } from "../schema.js";
+import { parseRegistry } from "../legacy.js";
 import type { ComponentSpec } from "../../specs/types.js";
 import type { DesignSystem } from "../../engine/registry.js";
 

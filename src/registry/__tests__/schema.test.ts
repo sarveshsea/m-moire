@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { parseRegistry, safeParseRegistry, findComponent, RegistrySchema } from "../schema.js";
+import { parseRegistry, safeParseRegistry, findComponent, RegistrySchema } from "../legacy.js";
 
 const validRegistry = {
   name: "@acme/design-system",
