@@ -62,6 +62,7 @@ memi add Button --from @you/theme
 - No-Figma proof examples: [`docs/PROOF.md`](./PROOF.md)
 - Recording scripts: [`docs/DEMOS.md`](./DEMOS.md)
 - Launch copy: [`docs/LAUNCH.md`](./LAUNCH.md)
+- Weekly growth scorecard: [`docs/METRICS.md`](./METRICS.md)
 - Full package overview: [`README.md`](../README.md)
 
 ## Advanced

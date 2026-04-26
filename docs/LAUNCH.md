@@ -165,7 +165,11 @@ https://www.npmjs.com/package/@sarveshsea/memoire
 
 ## Weekly checks
 
+- Fill in [`docs/METRICS.md`](./METRICS.md)
 - Weekly npm downloads
-- npm page views and install conversion
-- Clicks to `examples/README.md`
+- Monthly npm downloads
+- npm latest version
+- GitHub stars and metadata status
+- README first-screen CTA
+- Website `/components` health
 - Which featured registry gets the most installs
