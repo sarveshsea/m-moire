@@ -43,6 +43,7 @@ describe("marketplace catalog v1", () => {
       "landing-page",
       "auth-flow",
       "ai-chat",
+      "ecommerce",
       "starter",
       "tweakcn-vercel",
       "tweakcn-supabase",

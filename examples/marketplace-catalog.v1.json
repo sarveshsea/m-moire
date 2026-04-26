@@ -282,6 +282,54 @@
       "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/ai-chat.svg"
     },
     {
+      "slug": "ecommerce",
+      "title": "Ecommerce",
+      "packageName": "@memoire-examples/ecommerce",
+      "description": "Product card, badge, input, and button patterns for shadcn stores.",
+      "category": "ecommerce",
+      "tags": [
+        "ecommerce",
+        "product",
+        "conversion",
+        "storefront",
+        "shadcn"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/ecommerce",
+      "componentCount": 5,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        },
+        {
+          "name": "ProductCard",
+          "level": "organism",
+          "category": "product-card"
+        }
+      ],
+      "sourcePath": "examples/presets/ecommerce",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/ecommerce",
+      "screenshotPath": "assets/showcases/ecommerce.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/ecommerce.svg"
+    },
+    {
       "slug": "starter",
       "title": "Starter",
       "packageName": "@memoire-examples/starter",

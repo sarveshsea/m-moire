@@ -1,0 +1,38 @@
+/* @memoire-examples/ecommerce - Tailwind v4 @theme */
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-background: oklch(98% 0.02 95);
+  --color-foreground: oklch(18% 0.02 120);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(18% 0.02 120);
+  --color-primary: oklch(52% 0.18 140);
+  --color-primary-foreground: oklch(99% 0.01 95);
+  --color-muted: oklch(94% 0.03 95);
+  --color-muted-foreground: oklch(42% 0.03 120);
+  --color-accent: oklch(76% 0.16 70);
+  --color-accent-foreground: oklch(18% 0.02 120);
+  --color-border: oklch(88% 0.03 95);
+  --color-input: oklch(88% 0.03 95);
+  --color-ring: oklch(52% 0.18 140);
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}

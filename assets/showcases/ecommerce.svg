@@ -1,0 +1,23 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="720" rx="36" fill="#F5F3E8"/>
+  <rect x="48" y="48" width="1104" height="624" rx="36" fill="#FFFDF4" stroke="#D9E7C6"/>
+  <rect x="96" y="96" width="1008" height="74" rx="28" fill="#FFFFFF" stroke="#D9E7C6"/>
+  <rect x="136" y="124" width="124" height="18" rx="9" fill="#1F2A1D"/>
+  <rect x="860" y="116" width="128" height="42" rx="21" fill="#15803D"/>
+  <rect x="128" y="226" width="272" height="370" rx="32" fill="#FFFFFF" stroke="#D9E7C6"/>
+  <rect x="464" y="226" width="272" height="370" rx="32" fill="#FFFFFF" stroke="#D9E7C6"/>
+  <rect x="800" y="226" width="272" height="370" rx="32" fill="#FFFFFF" stroke="#D9E7C6"/>
+  <rect x="160" y="258" width="208" height="154" rx="24" fill="#E7F2D9"/>
+  <rect x="496" y="258" width="208" height="154" rx="24" fill="#FDE68A"/>
+  <rect x="832" y="258" width="208" height="154" rx="24" fill="#D9F99D"/>
+  <rect x="160" y="444" width="116" height="18" rx="9" fill="#1F2A1D"/>
+  <rect x="496" y="444" width="128" height="18" rx="9" fill="#1F2A1D"/>
+  <rect x="832" y="444" width="118" height="18" rx="9" fill="#1F2A1D"/>
+  <rect x="160" y="488" width="90" height="30" rx="15" fill="#FBBF24"/>
+  <rect x="496" y="488" width="90" height="30" rx="15" fill="#FBBF24"/>
+  <rect x="832" y="488" width="90" height="30" rx="15" fill="#FBBF24"/>
+  <rect x="258" y="526" width="110" height="42" rx="21" fill="#15803D"/>
+  <rect x="594" y="526" width="110" height="42" rx="21" fill="#15803D"/>
+  <rect x="930" y="526" width="110" height="42" rx="21" fill="#15803D"/>
+  <text x="136" y="646" fill="#166534" font-family="Inter, Arial, sans-serif" font-size="28">ecommerce</text>
+</svg>

@@ -1,0 +1,27 @@
+{
+  "name": "@memoire-examples/ecommerce",
+  "version": "0.1.0",
+  "description": "Ecommerce Memoire Registry - product card, badge, input, and button patterns for shadcn stores.",
+  "homepage": "https://memoire.cv",
+  "license": "MIT",
+  "files": [
+    "registry.json",
+    "tokens/",
+    "components/",
+    "README.md"
+  ],
+  "keywords": [
+    "memoire-registry",
+    "design-system",
+    "design-tokens",
+    "shadcn",
+    "ecommerce",
+    "product",
+    "conversion",
+    "storefront"
+  ],
+  "memoire": {
+    "registry": true,
+    "schemaVersion": "v1"
+  }
+}

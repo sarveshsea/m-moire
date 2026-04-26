@@ -16,6 +16,7 @@ const componentCategories = {
   ChatComposer: "chat-input",
   ChatMessage: "chat-message",
   Input: "form",
+  ProductCard: "product-card",
 };
 
 const presetMeta = {
@@ -67,6 +68,14 @@ const presetMeta = {
     screenshotPath: "assets/showcases/ai-chat.svg",
     description: "AI chat registry with composer, message, card, and prompt primitives.",
   },
+  ecommerce: {
+    title: "Ecommerce",
+    category: "ecommerce",
+    tags: ["ecommerce", "product", "conversion", "storefront", "shadcn"],
+    featured: false,
+    screenshotPath: "assets/showcases/ecommerce.svg",
+    description: "Product card, badge, input, and button patterns for shadcn stores.",
+  },
   starter: {
     title: "Starter",
     category: "starter",
@@ -108,6 +117,7 @@ const priority = [
   "landing-page",
   "auth-flow",
   "ai-chat",
+  "ecommerce",
   "starter",
   "tweakcn-vercel",
   "tweakcn-supabase",

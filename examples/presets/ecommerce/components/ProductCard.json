@@ -1,0 +1,36 @@
+{
+  "name": "ProductCard",
+  "type": "component",
+  "level": "organism",
+  "purpose": "Conversion-focused product card for ecommerce grids, pricing cards, and storefront surfaces",
+  "researchBacking": [],
+  "designTokens": { "source": "manual", "mapped": true },
+  "variants": ["default", "featured", "compact"],
+  "props": {
+    "name": "string",
+    "description": "string?",
+    "price": "string",
+    "badge": "string?",
+    "rating": "string?",
+    "cta": "string"
+  },
+  "shadcnBase": ["Button", "Card", "Badge"],
+  "composesSpecs": ["Badge", "Button", "Card"],
+  "codeConnect": { "props": {}, "mapped": false },
+  "accessibility": {
+    "role": "article",
+    "ariaLabel": "optional",
+    "keyboardNav": true,
+    "focusStyle": "ring",
+    "focusWidth": "2px",
+    "focusContrastRatio": 3,
+    "touchTarget": "min-44",
+    "reducedMotion": true,
+    "liveRegion": "polite",
+    "colorIndependent": true
+  },
+  "dataviz": null,
+  "tags": ["ecommerce", "product", "conversion", "card"],
+  "createdAt": "2026-04-26T00:00:00.000Z",
+  "updatedAt": "2026-04-26T00:00:00.000Z"
+}
