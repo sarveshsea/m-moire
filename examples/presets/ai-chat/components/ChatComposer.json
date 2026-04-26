@@ -1,0 +1,34 @@
+{
+  "name": "ChatComposer",
+  "type": "component",
+  "level": "molecule",
+  "purpose": "Prompt composer with accessible text input, send action, and optional attachment hint",
+  "researchBacking": [],
+  "designTokens": { "source": "manual", "mapped": true },
+  "variants": ["default", "compact"],
+  "props": {
+    "placeholder": "string?",
+    "sendLabel": "string?",
+    "attachmentHint": "string?",
+    "disabled": "boolean?"
+  },
+  "shadcnBase": ["Input", "Button"],
+  "composesSpecs": ["Input", "Button"],
+  "codeConnect": { "props": {}, "mapped": false },
+  "accessibility": {
+    "role": "form",
+    "ariaLabel": "required",
+    "keyboardNav": true,
+    "focusStyle": "ring",
+    "focusWidth": "2px",
+    "focusContrastRatio": 3,
+    "touchTarget": "min-44",
+    "reducedMotion": true,
+    "liveRegion": "polite",
+    "colorIndependent": true
+  },
+  "dataviz": null,
+  "tags": ["ai", "chat", "input", "prompt"],
+  "createdAt": "2026-04-26T00:00:00.000Z",
+  "updatedAt": "2026-04-26T00:00:00.000Z"
+}

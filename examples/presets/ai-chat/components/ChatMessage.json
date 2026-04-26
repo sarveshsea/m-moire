@@ -1,0 +1,33 @@
+{
+  "name": "ChatMessage",
+  "type": "component",
+  "level": "molecule",
+  "purpose": "Tokenized AI chat message surface for assistant, user, and system messages",
+  "researchBacking": [],
+  "designTokens": { "source": "manual", "mapped": true },
+  "variants": ["assistant", "user", "system"],
+  "props": {
+    "role": "'assistant' | 'user' | 'system'",
+    "content": "ReactNode",
+    "timestamp": "string?",
+    "status": "string?"
+  },
+  "shadcnBase": ["Card", "Badge"],
+  "composesSpecs": ["Card", "Badge"],
+  "codeConnect": { "props": {}, "mapped": false },
+  "accessibility": {
+    "role": "article",
+    "ariaLabel": "optional",
+    "keyboardNav": false,
+    "focusStyle": "outline",
+    "focusWidth": "2px",
+    "touchTarget": "default",
+    "reducedMotion": false,
+    "liveRegion": "polite",
+    "colorIndependent": true
+  },
+  "dataviz": null,
+  "tags": ["ai", "chat", "message"],
+  "createdAt": "2026-04-26T00:00:00.000Z",
+  "updatedAt": "2026-04-26T00:00:00.000Z"
+}

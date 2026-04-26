@@ -229,6 +229,59 @@
       "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/auth-flow.svg"
     },
     {
+      "slug": "ai-chat",
+      "title": "AI Chat",
+      "packageName": "@memoire-examples/ai-chat",
+      "description": "AI chat registry with composer, message, card, and prompt primitives.",
+      "category": "ai-chat",
+      "tags": [
+        "ai-chat",
+        "chat-ui",
+        "llm",
+        "assistant",
+        "shadcn"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/ai-chat",
+      "componentCount": 6,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        },
+        {
+          "name": "ChatMessage",
+          "level": "molecule",
+          "category": "chat-message"
+        },
+        {
+          "name": "ChatComposer",
+          "level": "molecule",
+          "category": "chat-input"
+        }
+      ],
+      "sourcePath": "examples/presets/ai-chat",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/ai-chat",
+      "screenshotPath": "assets/showcases/ai-chat.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/ai-chat.svg"
+    },
+    {
       "slug": "starter",
       "title": "Starter",
       "packageName": "@memoire-examples/starter",

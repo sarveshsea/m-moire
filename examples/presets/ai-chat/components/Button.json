@@ -1,0 +1,35 @@
+{
+  "name": "Button",
+  "type": "component",
+  "level": "atom",
+  "purpose": "Primary action button with default/primary/ghost variants, a loading state, and accessible focus",
+  "researchBacking": [],
+  "designTokens": { "source": "manual", "mapped": true },
+  "variants": ["default", "primary", "ghost"],
+  "props": {
+    "label": "string",
+    "variant": "'default' | 'primary' | 'ghost'",
+    "loading": "boolean?",
+    "disabled": "boolean?",
+    "icon": "ReactNode?"
+  },
+  "shadcnBase": ["Button"],
+  "composesSpecs": [],
+  "codeConnect": { "props": {}, "mapped": false },
+  "accessibility": {
+    "role": "button",
+    "ariaLabel": "optional",
+    "keyboardNav": true,
+    "focusStyle": "ring",
+    "focusWidth": "2px",
+    "focusContrastRatio": 3,
+    "touchTarget": "min-44",
+    "reducedMotion": true,
+    "liveRegion": "off",
+    "colorIndependent": true
+  },
+  "dataviz": null,
+  "tags": ["action", "primitive"],
+  "createdAt": "2026-04-15T00:00:00.000Z",
+  "updatedAt": "2026-04-15T00:00:00.000Z"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Badge",
+  "type": "component",
+  "level": "atom",
+  "purpose": "Compact status/label indicator with default/muted/accent variants",
+  "researchBacking": [],
+  "designTokens": { "source": "manual", "mapped": true },
+  "variants": ["default", "muted", "accent"],
+  "props": {
+    "label": "string",
+    "variant": "'default' | 'muted' | 'accent'"
+  },
+  "shadcnBase": ["Badge"],
+  "composesSpecs": [],
+  "codeConnect": { "props": {}, "mapped": false },
+  "accessibility": {
+    "role": "status",
+    "ariaLabel": "optional",
+    "keyboardNav": false,
+    "focusStyle": "none",
+    "focusWidth": "2px",
+    "touchTarget": "default",
+    "reducedMotion": false,
+    "liveRegion": "polite",
+    "colorIndependent": true
+  },
+  "dataviz": null,
+  "tags": ["status", "label"],
+  "createdAt": "2026-04-15T00:00:00.000Z",
+  "updatedAt": "2026-04-15T00:00:00.000Z"
+}

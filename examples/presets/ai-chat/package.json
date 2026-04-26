@@ -1,0 +1,27 @@
+{
+  "name": "@memoire-examples/ai-chat",
+  "version": "0.1.0",
+  "description": "AI Chat Memoire Registry - chat composer, message, and card primitives for AI shadcn apps.",
+  "homepage": "https://memoire.cv",
+  "license": "MIT",
+  "files": [
+    "registry.json",
+    "tokens/",
+    "components/",
+    "README.md"
+  ],
+  "keywords": [
+    "memoire-registry",
+    "design-system",
+    "design-tokens",
+    "shadcn",
+    "ai-chat",
+    "chat-ui",
+    "ai-app",
+    "llm"
+  ],
+  "memoire": {
+    "registry": true,
+    "schemaVersion": "v1"
+  }
+}

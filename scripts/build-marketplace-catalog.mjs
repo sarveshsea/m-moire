@@ -13,6 +13,8 @@ const componentCategories = {
   Badge: "status",
   Button: "action",
   Card: "surface",
+  ChatComposer: "chat-input",
+  ChatMessage: "chat-message",
   Input: "form",
 };
 
@@ -57,6 +59,14 @@ const presetMeta = {
     screenshotPath: "assets/showcases/auth-flow.svg",
     description: "Install login, signup, and account-settings UI into shadcn apps.",
   },
+  "ai-chat": {
+    title: "AI Chat",
+    category: "ai-chat",
+    tags: ["ai-chat", "chat-ui", "llm", "assistant", "shadcn"],
+    featured: false,
+    screenshotPath: "assets/showcases/ai-chat.svg",
+    description: "AI chat registry with composer, message, card, and prompt primitives.",
+  },
   starter: {
     title: "Starter",
     category: "starter",
@@ -97,6 +107,7 @@ const priority = [
   "dashboard",
   "landing-page",
   "auth-flow",
+  "ai-chat",
   "starter",
   "tweakcn-vercel",
   "tweakcn-supabase",

@@ -1,0 +1,17 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="720" rx="36" fill="#06131F"/>
+  <rect x="48" y="48" width="1104" height="624" rx="36" fill="#0B1220" stroke="#1E293B"/>
+  <rect x="96" y="96" width="1008" height="72" rx="28" fill="#111827" stroke="#334155"/>
+  <rect x="136" y="124" width="148" height="18" rx="9" fill="#ECFEFF"/>
+  <rect x="912" y="116" width="112" height="34" rx="17" fill="#5EEAD4"/>
+  <rect x="160" y="228" width="444" height="98" rx="28" fill="#111827" stroke="#334155"/>
+  <rect x="200" y="264" width="92" height="18" rx="9" fill="#5EEAD4"/>
+  <rect x="200" y="296" width="336" height="12" rx="6" fill="#64748B"/>
+  <rect x="596" y="366" width="444" height="98" rx="28" fill="#14B8A6"/>
+  <rect x="636" y="402" width="82" height="18" rx="9" fill="#042F2E"/>
+  <rect x="636" y="434" width="318" height="12" rx="6" fill="#0F766E"/>
+  <rect x="160" y="506" width="880" height="94" rx="32" fill="#111827" stroke="#334155"/>
+  <rect x="204" y="536" width="612" height="34" rx="17" fill="#0B1220" stroke="#334155"/>
+  <rect x="848" y="530" width="144" height="46" rx="23" fill="#5EEAD4"/>
+  <text x="136" y="646" fill="#67E8F9" font-family="Inter, Arial, sans-serif" font-size="28">ai-chat</text>
+</svg>
