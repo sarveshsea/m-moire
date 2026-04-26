@@ -12,12 +12,65 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 This patch release turns the registry marketplace into the growth wedge: more installable example registries, catalog data the website can mirror, discovery commands, and stronger registry package proof.
 
 ### New
-- Started the `0.13.1` marketplace release line and aligned package, plugin, preview, and example registry markers.
-- Added release workflow verification so npm latest, README positioning, and install commands are checked after publish.
+- Added manual publish workflow dispatch plus npm post-publish verification for latest version, README phrase, and global install command.
+- Bumped package, lockfile, plugin metadata, preview badges, example registries, and release checks to `0.13.1`.
+- Added Marketplace Catalog V1 with repo-owned schema, deterministic generation, npm-shipped `assets/marketplace-catalog.v1.json`, and website-mirror `examples/marketplace-catalog.v1.json`.
+- Expanded first-party marketplace inventory from 7 to 11 registries with new `landing-page`, `auth-flow`, `ai-chat`, and `ecommerce` presets.
+- Added showcase screenshots, tokens, specs, React code, README proof, install commands, and source links for every new preset.
+- Added `memi registry list`, `memi registry search <query>`, `memi registry info <slug>`, and `memi registry doctor <ref>`.
+- Added featured alias resolution so users can run commands like `memi add ChatComposer --from ai-chat` and `memi view starter-saas/Button --print`.
+- Improved `memi add` output with usage snippets, token install commands, npm/source links, and missing-component suggestions.
+- Updated `memi view` to print npm plus planned Marketplace URLs for catalog-backed aliases.
+- Strengthened generated registry package READMEs and `package.json` keywords/marketplace tags for npm conversion.
+- Added marketplace SEO docs, site handoff copy, category-specific launch posts, and proof docs for the 11-registry catalog.
+
+### Verification
+- `npm run lint` passed after the third implementation block.
+- `npm run validate:presets` passed for all 11 presets.
+- `npm run build:marketplace` regenerated identical catalog copies.
+- Focused marketplace, registry, add, view, publisher, and doctor tests passed.
+- `npm run check:release` passed throughout the release work.
+- `npm run bench:cli` passed: help median `29ms`, diagnose median `373ms`, tokens median `652ms`, status median `383ms`.
+- `npm run pack:dry-run` passed: package size `1,043,394` bytes, unpacked size `3,701,166` bytes, `434` files, under the `1,250,000` byte gate.
+
+### Commits
+| Hash | Message |
+|------|---------|
+| `300e5f37` | ci(publish): add manual release dispatch and npm verification |
+| `020d2109` | chore(release): bump to 0.13.1 |
+| `eaccbdfa` | feat(marketplace): add catalog v1 schema |
+| `102b9637` | feat(marketplace): generate catalog from presets |
+| `427d7429` | test(marketplace): validate catalog contract |
+| `74d783a4` | feat(examples): add landing-page registry preset |
+| `aaf475dc` | feat(examples): add auth-flow registry preset |
+| `7c6ded84` | feat(examples): add ai-chat registry preset |
+| `97b8b816` | feat(examples): add ecommerce registry preset |
+| `c1f6caca` | docs(examples): upgrade marketplace proof pages |
+| `bc3d1f91` | feat(registry): add featured registry aliases |
+| `d3eff0c1` | feat(cli): add registry discovery command |
+| `0ddb5bbf` | feat(add): improve marketplace install UX |
+| `e1c632d2` | feat(view): open catalog-backed registry pages |
+| `a341ebad` | feat(publisher): strengthen generated registry README |
+| `7e25d470` | feat(registry): add registry doctor |
+| `e8f8a01b` | docs(seo): add marketplace keyword pack |
+| `772ecc86` | docs(launch): add marketplace launch campaign |
+| `pending` | docs(changelog): finalize v0.13.1 |
+| `pending` | chore(release): tag v0.13.1 |
 
 ### Key Design Decisions
 - **Lead with installable inventory** — Marketplace growth depends on useful registries users can install immediately.
 - **Keep changes additive** — `0.13.1` is a patch release, so existing `memi add`, `publish`, `view`, `tokens`, and `diagnose` behavior remains compatible.
+- **Catalog is the source of truth** — The website, CLI, docs, and launch copy should mirror `marketplace-catalog.v1.json` instead of hand-maintaining separate lists.
+- **Aliases improve activation** — Slugs like `ai-chat`, `auth-flow`, and `landing-page` are easier to remember than scoped package names, while package-name refs remain supported.
+- **npm stays the conversion URL** — Until `/components` is deployed and healthy, every launch post and external CTA points to `https://www.npmjs.com/package/@sarveshsea/memoire`.
+- **Doctor before distribution** — Registry packages now have a CI-friendly validation path before teams publish or mirror them.
+
+### External Release Gates
+- Publish `0.13.1` to npm and verify npm latest reports `0.13.1`.
+- Update GitHub description to `Design CI for shadcn/Tailwind apps: diagnose UI debt, extract tokens, and publish installable registries.`
+- Update GitHub topics to include `design-ci`, `shadcn-registry`, `tailwind-audit`, `token-extraction`, `ui-quality`, and `tweakcn`.
+- Deploy `/components` from `examples/marketplace-catalog.v1.json`; fall back to `examples/featured-registries.json` if the full catalog cannot load.
+- Recheck npm weekly/monthly downloads and GitHub stars 7 days after publish.
 
 ## v0.13.0 — 2026-04-26
 
