@@ -1,6 +1,6 @@
 # Memoire Quickstart
 
-Memoire is Design CI for web apps. Lead with one loop:
+Memoire is Design CI for shadcn/Tailwind apps. Lead with one loop:
 
 1. Diagnose the app you already have.
 2. Improve the visual system behind it.
@@ -25,6 +25,19 @@ memi tokens --from http://localhost:3000 --output generated/tokens --report
 ```
 
 Use this when the team is code-first and not starting in Figma. Memoire extracts CSS variables, Tailwind `@theme` tokens, `:root`/`.dark` modes, aliases, repeated literal candidates, mode coverage, duplicate values, alias graph issues, and token quality recommendations.
+
+## No Figma required
+
+The highest-conversion path is code-first:
+
+```bash
+npm i -g @sarveshsea/memoire
+memi diagnose
+memi tokens --from ./src --report
+memi publish --name @you/ds
+```
+
+Use a single CTA until the website is fully synced: [`@sarveshsea/memoire` on npm](https://www.npmjs.com/package/@sarveshsea/memoire).
 
 ### Figma to npm
 

@@ -1,7 +1,7 @@
 {
   "name": "@sarveshsea/memoire",
   "version": "0.13.0",
-  "description": "Design CI for web apps: diagnose UI debt, improve shadcn/Tailwind systems, and publish installable registries.",
+  "description": "Design CI for shadcn/Tailwind apps: diagnose UI debt, extract tokens, and publish installable registries.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

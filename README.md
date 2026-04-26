@@ -5,8 +5,8 @@
 <h1 align="center">memoire</h1>
 
 <p align="center">
-  <strong>Design CI for web apps.</strong><br/>
-  Diagnose UI debt in real shadcn/Tailwind apps, improve the system, then publish it as an installable registry.
+  <strong>Design CI for shadcn/Tailwind apps.</strong><br/>
+  Diagnose UI debt in real code, extract tokens, and publish the improved system as an installable registry.
 </p>
 
 <p align="center">
@@ -19,21 +19,37 @@
 
 ## 60-second quickstart
 
-Memoire starts from the app you already have. It reads code, Tailwind classes, shadcn usage, CSS variables, routes, and markup to find design-system debt before you publish anything.
+Memoire starts from the app you already have. Install the npm package, run a code-first audit, then turn the cleaned-up system into a registry.
 
 ```bash
 npm i -g @sarveshsea/memoire
 
+memi diagnose
+memi tokens --from ./src --report
+memi publish --name @you/ds
+```
+
+Primary CTA: [`@sarveshsea/memoire` on npm](https://www.npmjs.com/package/@sarveshsea/memoire).
+
+## No Figma required
+
+Most developer teams do not start in Figma. Memoire reads the codebase directly: Tailwind classes, shadcn usage, CSS variables, routes, markup, repeated literals, dark-mode coverage, token aliases, and registry shape.
+
+```bash
 # Diagnose an existing app from code
 memi diagnose
 
-# Or diagnose a running local route / public URL
+# Diagnose a running local route / public URL
 memi diagnose http://localhost:3000
 
-# Reports are written to .memoire/app-quality/diagnosis.{json,md}
+# Extract the token system from the app and write audit reports
+memi tokens --from ./src --output generated/tokens --report
+
+# Save extracted tokens into .memoire/design-system.json for publish/codegen flows
+memi tokens --from ./src --save
 ```
 
-The goal is simple: make a working app feel designed, then package the improved system so it can be reused.
+Reports are written to `.memoire/app-quality/diagnosis.{json,md}` and token extraction emits CSS, Tailwind, JSON, Style Dictionary, semantic coverage, scale-health notes, alias graph validation, duplicate-value groups, recommendations, and inferred token candidates.
 
 ## Registry workflow
 
@@ -44,14 +60,12 @@ After diagnosis, the registry loop is simple: publish the improved design system
 ```bash
 npm i -g @sarveshsea/memoire
 
-# Mine a real app for CSS variables, Tailwind theme tokens, modes, aliases, repeated literals, and utility patterns
-memi tokens --from ./src --output generated/tokens --report
-
-# Save extracted tokens into .memoire/design-system.json for publish/codegen flows
-memi tokens --from ./src --save
+memi tokens --from ./src --report
+memi publish --name @you/ds
+memi add Button --from @you/ds
 ```
 
-This is the no-Figma path: point Memoire at `src/`, `app/globals.css`, a built CSS file, `http://localhost:3000`, or a public URL. It emits CSS, Tailwind, JSON, Style Dictionary, semantic coverage, scale-health notes, dark-mode parity, alias graph validation, duplicate-value groups, recommendations, and inferred token candidates from repeated one-off values.
+Point Memoire at `src/`, `app/globals.css`, a built CSS file, `http://localhost:3000`, or a public URL.
 
 ### Figma -> npm -> shadcn app
 
