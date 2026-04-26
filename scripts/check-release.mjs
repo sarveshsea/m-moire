@@ -40,7 +40,7 @@ for (const term of requiredReadmeTerms) {
 }
 
 const cliEntry = await readFile(join(root, "src", "index.ts"), "utf-8");
-for (const command of ["diagnose [target]", "tokens", "publish", "shadcn <subcommand>", "add <component>", "registry <subcommand>"]) {
+for (const command of ["diagnose [target]", "tokens", "publish", "shadcn <subcommand>", "fix <subcommand>", "add <component>", "registry <subcommand>"]) {
   if (!cliEntry.includes(command)) {
     fail(`fast CLI help is missing command: ${command}`);
   }

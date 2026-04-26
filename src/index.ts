@@ -21,6 +21,7 @@
  *    memoire page <name>       Create a page spec
  *    memoire tokens            Export design tokens
  *    memoire shadcn            Export and serve shadcn-native registry files
+ *    memoire fix               Plan and apply safe UI quality fixes
  *    memoire registry          Discover installable registries
  *    memoire pull --rest       Pull design system via Figma REST API (no plugin)
  *    memoire design-doc <url>  Extract design system from any URL → DESIGN.md
@@ -86,6 +87,7 @@ const [
   { registerPublishCommand },
   { registerThemeCommand },
   { registerShadcnCommand },
+  { registerFixCommand },
   { registerViewCommand },
   { registerRegistryCommand },
   { registerUpgradeCommand },
@@ -127,6 +129,7 @@ const [
   import("./commands/publish.js"),
   import("./commands/theme.js"),
   import("./commands/shadcn.js"),
+  import("./commands/fix.js"),
   import("./commands/view.js"),
   import("./commands/registry.js"),
   import("./commands/upgrade.js"),
@@ -175,6 +178,7 @@ registerInitCommand(program, engine);
 registerPublishCommand(program, engine);
 registerThemeCommand(program, engine);
 registerShadcnCommand(program, engine);
+registerFixCommand(program, engine);
 registerAddCommand(program, engine);
 registerRegistryCommand(program, engine);
 registerUpdateCommand(program, engine);
@@ -291,6 +295,7 @@ function printFastHelp(version: string): void {
     "  tokens                  Extract or export design tokens",
     "  publish                 Package the design system as an installable registry",
     "  shadcn <subcommand>     Export, serve, and validate shadcn-native registry files",
+    "  fix <subcommand>        Plan and apply safe UI quality fixes",
     "  add <component>         Install a component from a registry",
     "  registry <subcommand>   List, search, and inspect installable registries",
     "  theme <subcommand>      Import, preview, validate, diff, apply, and publish tweakcn themes",
