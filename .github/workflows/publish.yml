@@ -1,6 +1,12 @@
 name: Publish to npm
 
 on:
+  workflow_dispatch:
+    inputs:
+      expected_version:
+        description: 'Expected npm version after publish'
+        required: false
+        type: string
   push:
     tags:
       - 'v*'
@@ -26,3 +32,7 @@ jobs:
       - run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Verify npm release
+        run: node scripts/verify-npm-release.mjs
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
