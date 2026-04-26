@@ -104,6 +104,8 @@ https://www.npmjs.com/package/@sarveshsea/memoire
 
 The `0.13.1` marketplace-specific launch posts live in [`docs/MARKETPLACE_LAUNCH.md`](./MARKETPLACE_LAUNCH.md). Use those for category-specific pushes around `landing-page`, `auth-flow`, `ai-chat`, `ecommerce`, shadcn, tweakcn, and developer forums.
 
+The `0.14.1` shadcn-native registry bridge campaign lives in [`docs/LAUNCH_0_14_1.md`](./LAUNCH_0_14_1.md). Use it for shadcn, v0, AI editor/MCP, Tailwind, and existing-app audiences.
+
 ## Canonical posts
 
 Standalone post templates and reply copy live in [`docs/SOCIAL.md`](./SOCIAL.md).
