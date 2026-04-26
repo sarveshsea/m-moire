@@ -27,10 +27,24 @@ This tracker keeps achievement work tied to real Memoire distribution. The goal 
 | Public Sponsor | Sponsor one OSS maintainer whose work supports Memoire | Base badge | Pending | Add sponsor link after completion |
 | Quickdraw | Open and close a sandbox issue or PR within 5 minutes | Base badge | Completed in sandbox | https://github.com/sarveshsea/memoire-achievements-lab/issues/1 |
 | YOLO | Merge a tiny own PR in the sandbox repo without review | Base badge | Completed in sandbox | https://github.com/sarveshsea/memoire-achievements-lab/pull/2 |
-| Pull Shark | Submit real PRs to MCP, shadcn, docs, and awesome-list directories | x2 first, then x3 | In progress | Merged: https://github.com/punkpeye/awesome-mcp-servers/pull/4373; pending: https://github.com/bytefer/awesome-shadcn-ui/pull/18 and https://github.com/birobirobiro/awesome-shadcn-ui/pull/493 |
+| Pull Shark | Submit real PRs to MCP, shadcn, docs, and awesome-list directories | x2 first, then x3 | In progress | Merged: https://github.com/punkpeye/awesome-mcp-servers/pull/4373; pending: https://github.com/TensorBlock/awesome-mcp-servers/pull/455, https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/208, https://github.com/MobinX/awesome-mcp-list/pull/241, https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/296, https://github.com/bytefer/awesome-shadcn-ui/pull/18, https://github.com/birobirobiro/awesome-shadcn-ui/pull/493 |
 | Pair Extraordinaire | Merge real coauthored PRs with valid `Co-authored-by:` trailers | Base, then x2 | Pending | Use actual collaborator commits only |
 | Galaxy Brain | Answer real GitHub Discussions questions and have them accepted | Base, then x2 | Pending | Requires Discussions enabled |
 | Starstruck | Earn real stars from distribution, demos, and useful listings | 16 stars, then 128 | Pending | Track weekly in `docs/METRICS.md` |
+
+## Starstruck Sprint
+
+Detailed operating board: [`docs/STARSTRUCK.md`](STARSTRUCK.md).
+
+Current target is `16` stars. Memoire is at `4`, so the sprint needs `12` real stars from useful distribution, not artificial engagement.
+
+Immediate sequence:
+
+1. Publish the next npm patch with `mcpName` and `server.json`.
+2. Publish `server.json` to the official MCP Registry.
+3. Submit MCP.Directory, refresh Glama, submit Smithery, confirm PulseMCP and mcp.so.
+4. Follow up on open directory PRs with the official registry link.
+5. Post the 60-second install/demo with a GitHub star CTA.
 
 ## Official MCP Registry Readiness
 
