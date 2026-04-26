@@ -390,9 +390,9 @@ a:hover { text-decoration: underline; }
       <a href="changelog.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a>
     </nav>
     <div class="hdr-stats">
-      <span><span class="n" id="stat-commits">156</span> commits</span>
-      <span><span class="n" id="stat-versions">10</span> versions</span>
-      <span><span class="n" id="stat-latest">2026-04-06</span> latest</span>
+      <span><span class="n" id="stat-commits">157</span> commits</span>
+      <span><span class="n" id="stat-versions">11</span> versions</span>
+      <span><span class="n" id="stat-latest">2026-04-26</span> latest</span>
     </div>
   </header>
 
@@ -407,8 +407,8 @@ a:hover { text-decoration: underline; }
         <div class="hero-kpis">
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
-            <strong class="summary-value">v0.8.0</strong>
-            <div class="summary-caption">20 commits tracked in v0.8.0 from CHANGELOG.md.</div>
+            <strong class="summary-value">v0.13.0</strong>
+            <div class="summary-caption">1 commits tracked in v0.13.0 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -434,10 +434,115 @@ a:hover { text-decoration: underline; }
     <section class="release-list" id="release-list"></section>
   </main>
 
-  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v0.8.0</footer>
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v0.13.0</footer>
 
 <script>
 const releases = [
+  {
+    "version": "v0.13.0",
+    "date": "2026-04-26",
+    "tag": "feature",
+    "summary": "Bumped the public release line to 0.13.0 so the next npm publish can carry the Design CI positioning, faster CLI work, and code-first docs under one semver release; Added high-intent npm keywords for design-ci, UI quality, shadcn/Tailwind audits, token extraction, design tokens, tweakcn, and registry publishing; Updated shipped examples, preview badges, plugin metadata, and release checks to the new release marker.",
+    "commits": [
+      [
+        "66ed209c",
+        "feat(engine): add design ci research v2 and token intelligence"
+      ]
+    ],
+    "decisions": [
+      [
+        "Prioritize code-first adoption",
+        "Developers can start from an existing shadcn/Tailwind app without opening Figma."
+      ],
+      [
+        "Use Design CI as the wedge",
+        "Public copy should sell repeatable UI quality checks and registry publishing, not a broad AI design platform."
+      ]
+    ],
+    "changes": [
+      "Bumped the public release line to 0.13.0 so the next npm publish can carry the Design CI positioning, faster CLI work, and code-first docs under one semver release.",
+      "Added high-intent npm keywords for design-ci, UI quality, shadcn/Tailwind audits, token extraction, design tokens, tweakcn, and registry publishing.",
+      "Updated shipped examples, preview badges, plugin metadata, and release checks to the new release marker.",
+      "**Design CI diagnosis command** — memi diagnose [target] audits real shadcn/Tailwind apps from source code or a URL, scores UI debt, and writes .memoire/app-quality/diagnosis.{json,md}.",
+      "**Code-first token intelligence** — memi tokens --from <file|dir|url> extracts CSS variables, Tailwind @theme tokens, modes, aliases, repeated literals, utility patterns, semantic coverage, mode coverage, duplicate groups, and recommendations.",
+      "**Auditable token reports** — memi tokens --from ./src --report writes token-extraction.report.md and token-extraction.report.json alongside CSS, Tailwind, JSON, and Style Dictionary exports.",
+      "**Featured registry catalog** — examples/featured-registries.json now ships a machine-readable fallback list for the website with three first-party showcases: starter-saas, docs-blog, and dashboard.",
+      "**Three first-party showcase registries** — examples/presets/starter-saas, docs-blog, and dashboard give new users installable packages with screenshots, install commands, and source links instead of an empty marketplace story.",
+      "**Growth docs pack** — new docs/README.md, docs/DEMOS.md, and docs/LAUNCH.md define the quickstart, demo scripts, and distribution copy around the registry-first pitch.",
+      "**README proof upgrades** — the package README now leads with two 60-second quickstarts, embeds the theme workflow poster, links to featured registries, and keeps MCP framed as an advanced layer instead of the main story.",
+      "**Release guard for featured content** — scripts/check-release.mjs now validates that the featured registry catalog exists, carries at least three entries, and points at real source folders and screenshots.",
+      "memi tokens --from ... --json and other initialized one-shot commands now exit cleanly instead of being held open by agent health timers.",
+      "Tightened npm metadata, CLI help text, and first-run messaging to the same installable-registry story.",
+      "Bumped every shipped example registry and starter README marker to v0.12.4 so release checks stay green.",
+      "**Richer insight model** — research artifacts now persist categories, sentiment, entities, signal tags, actors, source types, and supporting source links instead of only plain findings and tags.",
+      "**Deeper ingestion** — spreadsheet imports now emit row-level insights, repeated-signal synthesis, participant coverage, and rating summaries; transcript and web imports now preserve structured metadata for downstream synthesis.",
+      "**Decision-ready synthesis** — memi research synthesize now generates opportunities, risks, contradictions, personas, and an executive summary on top of themes.",
+      "**Upgraded reporting + preview** — research reports now include executive summary, coverage, opportunities, risks, contradictions, personas, and next moves; the preview dashboard surfaces the same summary layer.",
+      "**Expanded release guard** — scripts/check-release.mjs now validates the shipped plugin bundle metadata, all example registries under examples/, the starter preset README version marker, and the synced preview changelog output.",
+      "**Release checks in more pipelines** — CI and release-binary workflows now run npm run check:release, so drift gets caught before tags or binaries are built.",
+      "**Linux-safe workflow installs** — publish, CI, and release-binary workflows regenerate package-lock.json on the runner before npm install --ignore-scripts, which restores the platform-native esbuild binaries needed for Ubuntu test and release jobs.",
+      "**First-class tweakcn workflow** — memi theme import, preview, validate, diff, apply, variants, and publish turn tweakcn themes into saved Memoire assets under .memoire/themes/ instead of a one-off publish flag.",
+      "**Theme validation + semantic diffing** — imported themes now get contrast-aware validation summaries, dark-mode coverage checks, and semantic diff highlights like primary changed, radius scale changed, and contrast regressed.",
+      "**Theme packaging artifacts** — memi theme publish now adds theme.json metadata and a generated preview/theme-preview.html so published theme packages carry more than raw tokens.",
+      "Aligned examples/starter-registry/registry.json to the current Memoire release instead of leaving it pinned to 0.11.0.",
+      "Rebuilt derived release artifacts so plugin/widget-meta.json and preview/changelog.html reflect v0.12.3.",
+      "**Registry-first positioning** across package.json, the CLI help text, first-run banner, Homebrew description, and README hero. The public surface now leads with publish -> add -> design-doc instead of the full legacy command spread.",
+      "**Release consistency check** via scripts/check-release.mjs and npm run check:release. It validates that package.json, package-lock.json, CHANGELOG.md, and the example preset registries all agree on the shipped Memoire version.",
+      "**Publish workflow guard** — .github/workflows/publish.yml now runs npm run check:release before linting and publishing so version drift fails early.",
+      "Removed stale version examples from install and upgrade docs (v0.11.0) and replaced them with generic tagged examples.",
+      "Aligned the example preset registries and starter preset README to v0.12.2 instead of the incorrect v0.13.0.",
+      "Removed hardcoded test/tool counts from key public docs where they had already drifted out of sync.",
+      "Updated deprecation warnings so they no longer claim removal in the already-passed v0.12.0.",
+      "**memi view <Component>** — opens the component's Marketplace page in the system browser. Accepts a bare name (memi view Button), a fully-qualified ref (memi view @acme/ds/Button), or --from @acme/ds. Supports --print (stdout only) and --json (structured output, no browser).",
+      "**memi publish success message** now surfaces the Marketplace URLs where the registry and each component will appear after npm publish finishes — making the \"what happens next\" explicit.",
+      "**Provenance tracking** — memi add now stamps __memoireSource: { registry, version, installedAt } onto the installed spec. This lets memi view <Component> resolve the right Marketplace URL from a bare name. Field is optional; existing specs continue to load.",
+      "**MARKETPLACE_BASE_URL constant** in src/registry/constants.ts, overridable via MEMOIRE_MARKETPLACE_URL env var for dev/staging.",
+      "**9 new tests** across view.test.ts (ref parsing, URL assembly, --from, local-spec resolution, --json) and publish-message.test.ts (success-message Marketplace lines). 806 total (up from 797).",
+      "**memi publish --theme <path-or-url>** — load tokens from a tweakcn CSS export (file or share URL) before publishing. Parses Tailwind v3 :root { --primary: ... } **and** v4 @theme { --color-primary: ... } blocks, merges :root + .dark into multi-mode tokens, and hands them to the registry publisher.",
+      "**src/integrations/tweakcn.ts** — parseTweakcnCss() + fetchTweakcnTheme() with the same SSRF guard as the registry resolver.",
+      "**24 new parser tests** covering v3 shorthand HSL, v4 oklch(), dark mode, shadow/spacing/typography classification, and SSRF edge cases.",
+      "**memi publish --name @you/ds [--push]** — Figma → npm package with registry.json + tokens + specs + **bundled React/Vue/Svelte code**. --push runs npm publish --access public automatically.",
+      "**memi add <Component> --from <registry>** — drops a working component file into src/components/memoire/ immediately (uses bundled code — no local codegen required).",
+      "**memi update <registry>** — re-install every component from a registry at its latest version.",
+      "**memi sync --auto-pr** — on design system change, create a branch, commit, push, and open a PR via gh. The career-ops moment.",
+      "**memi init <name>** — scaffold a registry package with your current design system.",
+      "**memi design-doc <url> --codegen** — also emit Tailwind v4 @theme block.",
+      "**memi design-doc <url> --init <name>** — extract URL + immediately build a registry package.",
+      "src/registry/schema.ts — Memoire Registry Protocol v1 (Zod schemas)",
+      "src/registry/publisher.ts — design system → publishable package",
+      "src/registry/resolver.ts — fetch registries from npm, github:, https://, local path (with SSRF guard)",
+      "src/registry/installer.ts — install components from registries into user projects",
+      "src/codegen/tailwind-v4.ts — Tailwind v4 @theme CSS generator",
+      "curl -fsSL https://memoire.cv/install.sh | sh — auto-patches shell rc, verifies SHA256",
+      "irm https://memoire.cv/install.ps1 | iex — auto-adds to Windows user PATH",
+      "brew install sarveshsea/memoire/memoire — Homebrew tap, auto-updated per release",
+      "docker run ghcr.io/sarveshsea/memoire — air-gapped envs",
+      "Manual archive + SHA256SUMS.txt download for proxy-blocked users",
+      "memi upgrade — self-update the binary in place (SHA-verified, atomic swap with rollback on failure)",
+      "Built with bun build --compile per [scripts/build-binary.mjs](scripts/build-binary.mjs), emitting per-archive .sha256 and combined SHA256SUMS.txt",
+      "CI matrix in [.github/workflows/release-binaries.yml](.github/workflows/release-binaries.yml) produces 4 archives + Docker image + Homebrew formula bump per tag",
+      "New [src/utils/asset-path.ts](src/utils/asset-path.ts) resolves sidecar assets (skills/, notes/, plugin/, preview/templates/) in both npm and binary modes",
+      "@napi-rs/canvas moved to optionalDependencies with a character-width fallback so text measurement works even when the native module isn't available",
+      "First-run welcome banner in [src/index.ts](src/index.ts) shown once per $HOME, stamped so it never nags",
+      "**Multi-framework codegen** — memi generate --framework vue|svelte alongside React",
+      "**AI retry logic** — exponential backoff (3 retries) for transient API failures",
+      "**Token-aware codegen** — generated components use CSS variable refs instead of hardcoded hex",
+      "**memi diff** — show what changed since last design system pull",
+      "**Parallel pipeline** — spec generation and registry loading run concurrently",
+      "**REST pull MCP tool** — pull_design_system_rest (21 tools total)",
+      "**JSDoc + a11y defaults** — generated components include purpose docs and ARIA attributes",
+      "**39 new tests** — auto-spec, page-gen, dataviz-gen, tailwind-tokens, AI retry, Penpot SSRF",
+      "**Glama A A A** — MCP server listed on Glama with full quality score",
+      "Configurable --timeout for design-doc fetch",
+      "Prop name validation (TS identifier check) in MCP create_spec",
+      "Atom composition now an error (not warning) in spec validation",
+      ".npmignore — package 60% smaller, no src/tests/Dockerfile shipped",
+      "awesome-mcp-servers PR submitted (Glama badge, A A A)",
+      "awesome-claude-code issue filed",
+      "README rewritten for viral positioning",
+      "design-extract skill + registry entry"
+    ]
+  },
   {
     "version": "v0.8.0",
     "date": "2026-04-06",

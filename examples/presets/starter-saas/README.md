@@ -42,4 +42,4 @@ memi add Button --from @yourscope/your-ds
 
 Source: [examples/presets/starter-saas](https://github.com/sarveshsea/m-moire/tree/main/examples/presets/starter-saas)
 
-Generated for Memoire v0.12.4.
+Generated for Memoire v0.13.0.

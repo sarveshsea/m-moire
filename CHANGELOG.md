@@ -6,6 +6,20 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
+## v0.13.0 — 2026-04-26
+
+### The fix
+This release makes Memoire a code-first Design CI tool for shadcn/Tailwind apps: diagnose real UI debt, extract tokens from code, and publish improved systems as installable registries.
+
+### New
+- Bumped the public release line to `0.13.0` so the next npm publish can carry the Design CI positioning, faster CLI work, and code-first docs under one semver release.
+- Added high-intent npm keywords for `design-ci`, UI quality, shadcn/Tailwind audits, token extraction, design tokens, tweakcn, and registry publishing.
+- Updated shipped examples, preview badges, plugin metadata, and release checks to the new release marker.
+
+### Key Design Decisions
+- **Prioritize code-first adoption** — Developers can start from an existing shadcn/Tailwind app without opening Figma.
+- **Use Design CI as the wedge** — Public copy should sell repeatable UI quality checks and registry publishing, not a broad AI design platform.
+
 ## v0.12.4 — 2026-04-16 (Growth surfaces)
 
 ### The fix

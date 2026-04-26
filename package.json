@@ -1,6 +1,6 @@
 {
   "name": "@sarveshsea/memoire",
-  "version": "0.12.4",
+  "version": "0.13.0",
   "description": "Design CI for web apps: diagnose UI debt, improve shadcn/Tailwind systems, and publish installable registries.",
   "type": "module",
   "main": "dist/index.js",
@@ -41,10 +41,15 @@
   "keywords": [
     "design-system-registry",
     "design-ci",
+    "ui-quality",
     "ui-audit",
+    "shadcn-audit",
     "design-audit",
+    "design-quality",
+    "frontend-quality",
     "web-app-design",
     "tailwind-audit",
+    "token-extraction",
     "component-registry",
     "registry",
     "registry-marketplace",
