@@ -89,6 +89,10 @@ npm i -g @sarveshsea/memoire
 https://www.npmjs.com/package/@sarveshsea/memoire
 ```
 
+## Marketplace category posts
+
+Use [`docs/MARKETPLACE_LAUNCH.md`](./MARKETPLACE_LAUNCH.md) for the `0.13.1` registry marketplace campaign. It contains one post each for landing pages, auth flows, AI chat, ecommerce, shadcn, tweakcn, and developer forums.
+
 ## Short comments
 
 ```text

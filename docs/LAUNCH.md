@@ -100,6 +100,10 @@ Memoire 0.13 target:
 https://www.npmjs.com/package/@sarveshsea/memoire
 ```
 
+## Marketplace campaign
+
+The `0.13.1` marketplace-specific launch posts live in [`docs/MARKETPLACE_LAUNCH.md`](./MARKETPLACE_LAUNCH.md). Use those for category-specific pushes around `landing-page`, `auth-flow`, `ai-chat`, `ecommerce`, shadcn, tweakcn, and developer forums.
+
 ## Canonical posts
 
 Standalone post templates and reply copy live in [`docs/SOCIAL.md`](./SOCIAL.md).
