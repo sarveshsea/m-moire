@@ -18,6 +18,7 @@ import {
   REGISTRY_FILENAME,
 } from "./schema.js";
 import { resolveMarketplaceAlias } from "../marketplace/catalog-loader.js";
+import { fetchNpmPackageToCache } from "./npm-fetch.js";
 
 export interface ResolvedRegistry {
   /** The parsed registry document */
@@ -95,14 +96,38 @@ async function resolveLocal(ref: string, cwd: string): Promise<ResolvedRegistry>
 
 async function resolveNpm(pkgName: string, cwd: string): Promise<ResolvedRegistry> {
   // Look in local node_modules
-  const baseDir = resolve(cwd, "node_modules", pkgName);
+  const { packageName, version } = splitNpmPackageRef(pkgName);
+  const baseDir = resolve(cwd, "node_modules", packageName);
   try {
     return await resolveLocal(baseDir, cwd);
-  } catch {
-    throw new Error(
-      `Registry "${pkgName}" not found in node_modules. Install it first: npm install ${pkgName}`,
-    );
+  } catch (localError) {
+    try {
+      const cached = await fetchNpmPackageToCache(packageName, cwd, version);
+      const resolved = await resolveLocal(cached.packageDir, cwd);
+      return {
+        ...resolved,
+        source: `npm:${packageName}@${cached.version}`,
+      };
+    } catch (remoteError) {
+      const localMessage = localError instanceof Error ? localError.message : String(localError);
+      const remoteMessage = remoteError instanceof Error ? remoteError.message : String(remoteError);
+      throw new Error(
+        `Registry "${pkgName}" could not be resolved locally or from npm. local: ${localMessage}; npm: ${remoteMessage}`,
+      );
+    }
   }
+}
+
+function splitNpmPackageRef(ref: string): { packageName: string; version: string } {
+  if (ref.startsWith("@")) {
+    const secondAt = ref.indexOf("@", 1);
+    if (secondAt === -1) return { packageName: ref, version: "latest" };
+    return { packageName: ref.slice(0, secondAt), version: ref.slice(secondAt + 1) || "latest" };
+  }
+
+  const at = ref.lastIndexOf("@");
+  if (at > 0) return { packageName: ref.slice(0, at), version: ref.slice(at + 1) || "latest" };
+  return { packageName: ref, version: "latest" };
 }
 
 async function resolveGitHub(ref: string): Promise<ResolvedRegistry> {
