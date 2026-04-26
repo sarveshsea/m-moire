@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
 import { mkdir, readFile, rm, writeFile } from "fs/promises";
 import { tmpdir } from "os";
@@ -45,6 +45,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   process.exitCode = 0;
+  vi.restoreAllMocks();
   await rm(projectRoot, { recursive: true, force: true });
 });
 
@@ -52,6 +53,7 @@ describe("tokens --from", () => {
   it("emits extraction report JSON for a local CSS file", async () => {
     const logs = captureLogs();
     const engine = new MemoireEngine({ projectRoot });
+    const initSpy = vi.spyOn(engine, "init");
     const program = new Command();
     registerTokensCommand(program, engine);
 
@@ -63,11 +65,13 @@ describe("tokens --from", () => {
     expect(payload.report.modes).toEqual(["default", "dark"]);
     expect(payload.report.semanticCoverage.present).toContain("background");
     expect(payload.report.summary.inferredTokenCount).toBeGreaterThan(0);
+    expect(initSpy).not.toHaveBeenCalled();
   });
 
   it("can save extracted tokens into the design system registry", async () => {
     const logs = captureLogs();
     const engine = new MemoireEngine({ projectRoot });
+    const initSpy = vi.spyOn(engine, "init");
     const program = new Command();
     registerTokensCommand(program, engine);
 
@@ -77,6 +81,7 @@ describe("tokens --from", () => {
     const registry = JSON.parse(await readFile(join(projectRoot, ".memoire", "design-system.json"), "utf-8"));
 
     expect(payload.saved).toBe(true);
+    expect(initSpy).toHaveBeenCalledWith("registry");
     expect(registry.tokens.some((token: { cssVariable: string }) => token.cssVariable === "--background")).toBe(true);
     expect(registry.tokens.some((token: { collection: string }) => token.collection.startsWith("inferred-literal:"))).toBe(true);
   });

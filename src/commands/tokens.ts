@@ -9,9 +9,9 @@ import {
   type TokenExtractionReport,
   type TokenExtractionSource,
 } from "../tokens/extractor.js";
-import { fetchPageAssets } from "../research/css-extractor.js";
-import { writeFile, mkdir, readFile, readdir, stat } from "fs/promises";
-import { join, resolve, isAbsolute, extname } from "path";
+import { scanSources } from "../utils/source-scanner.js";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
 
 const SUPPORTED_SOURCE_EXTENSIONS = new Set([
   ".css",
@@ -65,9 +65,11 @@ export function registerTokensCommand(program: Command, engine: MemoireEngine) {
       shadcn?: boolean;
       json?: boolean;
     }) => {
-      await engine.init();
-
       if (opts.from) {
+        if (opts.save) {
+          await engine.init("registry");
+        }
+
         const sources = await collectTokenSources(opts.from, engine.config.projectRoot);
         const report = extractDesignTokensFromSources(sources, {
           sourceName: opts.from,
@@ -123,6 +125,7 @@ export function registerTokensCommand(program: Command, engine: MemoireEngine) {
         return;
       }
 
+      await engine.init("registry");
       const ds = engine.registry.designSystem;
       if (ds.tokens.length === 0) {
         if (opts.json) {
@@ -258,54 +261,23 @@ function tokenKey(token: DesignToken): string {
 }
 
 async function collectTokenSources(target: string, projectRoot: string): Promise<TokenExtractionSource[]> {
-  if (isUrl(target)) {
-    return collectUrlSources(target);
-  }
-
-  const resolved = isAbsolute(target) ? target : resolve(projectRoot, target);
-  const info = await stat(resolved);
-  if (info.isFile()) {
-    return [await readSourceFile(resolved, resolved)];
-  }
-  if (!info.isDirectory()) {
-    throw new Error(`Unsupported token source: ${target}`);
-  }
-
-  const sources: TokenExtractionSource[] = [];
-  await walkSourceDirectory(resolved, resolved, sources);
-  return sources;
-}
-
-async function walkSourceDirectory(
-  root: string,
-  dir: string,
-  sources: TokenExtractionSource[],
-): Promise<void> {
-  if (sources.length >= MAX_LOCAL_SOURCE_FILES) return;
-  const entries = await readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (sources.length >= MAX_LOCAL_SOURCE_FILES) return;
-    const fullPath = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (SKIP_DIRECTORIES.has(entry.name)) continue;
-      await walkSourceDirectory(root, fullPath, sources);
-      continue;
-    }
-    if (!entry.isFile()) continue;
-    if (!SUPPORTED_SOURCE_EXTENSIONS.has(extname(entry.name).toLowerCase())) continue;
-    sources.push(await readSourceFile(fullPath, root));
-  }
-}
-
-async function readSourceFile(filePath: string, root: string): Promise<TokenExtractionSource> {
-  const content = await readFile(filePath, "utf-8");
-  const extension = extname(filePath).toLowerCase();
-  const relativeId = filePath.startsWith(root) ? filePath.slice(root.length).replace(/^\/+/, "") : filePath;
-  return {
-    id: relativeId || filePath,
-    content,
-    kind: extensionToSourceKind(extension),
-  };
+  const sources = await scanSources({
+    projectRoot,
+    target,
+    extensions: SUPPORTED_SOURCE_EXTENSIONS,
+    ignoreDirs: SKIP_DIRECTORIES,
+    maxFiles: MAX_LOCAL_SOURCE_FILES,
+    concurrency: 16,
+    fetchTimeoutMs: FETCH_TIMEOUT_MS,
+    includeInlineStyles: true,
+    includeLinkedStyles: true,
+    userAgent: "Memoire-Tokens/1.0",
+  });
+  return sources.map((source) => ({
+    id: source.id,
+    content: source.content,
+    kind: extensionToSourceKind(source.extension),
+  }));
 }
 
 function extensionToSourceKind(extension: string): TokenExtractionSource["kind"] {
@@ -332,96 +304,5 @@ function extensionToSourceKind(extension: string): TokenExtractionSource["kind"]
       return "svelte";
     default:
       return "unknown";
-  }
-}
-
-async function collectUrlSources(url: string): Promise<TokenExtractionSource[]> {
-  try {
-    const assets = await fetchPageAssets(url, FETCH_TIMEOUT_MS);
-    const sources: TokenExtractionSource[] = [
-      { id: url, content: assets.html, kind: "html" },
-      ...assets.cssBlocks.map((content, index) => ({
-        id: `${url}#css-${index + 1}`,
-        content,
-        kind: "css" as const,
-      })),
-    ];
-    return sources.filter((source) => source.content.trim().length > 0);
-  } catch (err) {
-    const message = (err as Error).message;
-    if (!/private|loopback|reserved|Only http/.test(message)) throw err;
-    return collectExplicitUrlSources(url);
-  }
-}
-
-async function collectExplicitUrlSources(url: string): Promise<TokenExtractionSource[]> {
-  const html = await fetchText(url);
-  const sources: TokenExtractionSource[] = [{ id: url, content: html, kind: "html" }];
-  const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
-  let styleMatch: RegExpExecArray | null;
-  let inlineIndex = 0;
-  while ((styleMatch = styleRegex.exec(html)) !== null) {
-    const content = styleMatch[1]?.trim();
-    if (content) {
-      inlineIndex += 1;
-      sources.push({ id: `${url}#inline-${inlineIndex}`, content, kind: "css" });
-    }
-  }
-
-  const sheetUrls = extractStylesheetUrls(html, url);
-  const sheets = await Promise.all(sheetUrls.slice(0, 12).map(async (sheetUrl, index) => {
-    const content = await fetchText(sheetUrl).catch(() => "");
-    return content ? { id: `${sheetUrl}#sheet-${index + 1}`, content, kind: "css" as const } : null;
-  }));
-  for (const sheet of sheets) {
-    if (sheet) sources.push(sheet);
-  }
-
-  return sources;
-}
-
-async function fetchText(url: string): Promise<string> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        "Accept": "text/html,text/css,*/*",
-        "User-Agent": "Memoire-Tokens/1.0",
-      },
-    });
-    if (!response.ok) throw new Error(`Could not fetch ${url}: ${response.status}`);
-    return await response.text();
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-function extractStylesheetUrls(html: string, baseUrl: string): string[] {
-  const urls = new Set<string>();
-  const relFirst = /<link[^>]+rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi;
-  const hrefFirst = /<link[^>]+href=["']([^"']+)["'][^>]*rel=["']stylesheet["'][^>]*>/gi;
-  for (const regex of [relFirst, hrefFirst]) {
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(html)) !== null) {
-      const href = match[1];
-      if (!href) continue;
-      try {
-        urls.add(new URL(href, baseUrl).href);
-      } catch {
-        continue;
-      }
-    }
-  }
-  return Array.from(urls);
-}
-
-function isUrl(value: string): boolean {
-  try {
-    const parsed = new URL(value);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
-  } catch {
-    return false;
   }
 }
