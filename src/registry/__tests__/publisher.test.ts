@@ -108,6 +108,39 @@ describe("Registry publisher", () => {
     }
   });
 
+  it("writes npm-ready README and marketplace package metadata", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "memoire-pub-"));
+    try {
+      await publishRegistry({
+        name: "@test/ds",
+        version: "0.1.0",
+        description: "Test design system",
+        outDir,
+        designSystem: makeDesignSystem(),
+        specs: [makeSpec("Button"), makeSpec("Card")],
+        memoireVersion: "0.13.1",
+        tags: ["saas", "conversion"],
+      });
+
+      const readme = await readFile(join(outDir, "README.md"), "utf-8");
+      expect(readme).toContain("## Quickstart");
+      expect(readme).toContain("npm install @test/ds");
+      expect(readme).toContain("memi add Button --from @test/ds");
+      expect(readme).toContain("memi add Button --from @test/ds --tokens");
+      expect(readme).toContain("| Button | atom | react |");
+      expect(readme).toContain(`@import "@test/ds/tokens/tokens.css";`);
+
+      const pkg = JSON.parse(await readFile(join(outDir, "package.json"), "utf-8"));
+      expect(pkg.keywords).toContain("shadcn-registry");
+      expect(pkg.keywords).toContain("design-ci");
+      expect(pkg.keywords).toContain("conversion");
+      expect(pkg.memoire.marketplaceTags).toContain("saas");
+      expect(pkg.memoire.marketplaceTags).toContain("button");
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+    }
+  });
+
   it("handles zero components", async () => {
     const outDir = await mkdtemp(join(tmpdir(), "memoire-pub-"));
     try {
