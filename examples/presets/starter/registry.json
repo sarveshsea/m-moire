@@ -15,32 +15,44 @@
       "href": "./components/Button.json",
       "level": "atom",
       "framework": "react",
-      "code": { "href": "./components/code/react/Button.tsx", "framework": "react" }
+      "code": {
+        "href": "./components/code/react/Button.tsx",
+        "framework": "react"
+      }
     },
     {
       "name": "Card",
       "href": "./components/Card.json",
       "level": "molecule",
       "framework": "react",
-      "code": { "href": "./components/code/react/Card.tsx", "framework": "react" }
+      "code": {
+        "href": "./components/code/react/Card.tsx",
+        "framework": "react"
+      }
     },
     {
       "name": "Badge",
       "href": "./components/Badge.json",
       "level": "atom",
       "framework": "react",
-      "code": { "href": "./components/code/react/Badge.tsx", "framework": "react" }
+      "code": {
+        "href": "./components/code/react/Badge.tsx",
+        "framework": "react"
+      }
     },
     {
       "name": "Input",
       "href": "./components/Input.json",
       "level": "atom",
       "framework": "react",
-      "code": { "href": "./components/code/react/Input.tsx", "framework": "react" }
+      "code": {
+        "href": "./components/code/react/Input.tsx",
+        "framework": "react"
+      }
     }
   ],
   "meta": {
     "extractedAt": "2026-04-15T00:00:00.000Z",
-    "memoireVersion": "0.13.1"
+    "memoireVersion": "0.14.1"
   }
 }

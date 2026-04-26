@@ -31,4 +31,4 @@ memi add ProductCard --from @memoire-examples/ecommerce
 
 Source: [examples/presets/ecommerce](https://github.com/sarveshsea/m-moire/tree/main/examples/presets/ecommerce)
 
-Generated for Memoire v0.13.1.
+Generated for Memoire v0.14.1.

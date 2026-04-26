@@ -391,7 +391,7 @@ a:hover { text-decoration: underline; }
     </nav>
     <div class="hdr-stats">
       <span><span class="n" id="stat-commits">194</span> commits</span>
-      <span><span class="n" id="stat-versions">12</span> versions</span>
+      <span><span class="n" id="stat-versions">13</span> versions</span>
       <span><span class="n" id="stat-latest">2026-04-26</span> latest</span>
     </div>
   </header>
@@ -407,8 +407,8 @@ a:hover { text-decoration: underline; }
         <div class="hero-kpis">
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
-            <strong class="summary-value">v0.13.1</strong>
-            <div class="summary-caption">20 commits tracked in v0.13.1 from CHANGELOG.md.</div>
+            <strong class="summary-value">v0.14.1</strong>
+            <div class="summary-caption">0 commits tracked in v0.14.1 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -434,10 +434,36 @@ a:hover { text-decoration: underline; }
     <section class="release-list" id="release-list"></section>
   </main>
 
-  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v0.13.1</footer>
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v0.14.1</footer>
 
 <script>
 const releases = [
+  {
+    "version": "v0.14.1",
+    "date": "2026-04-26",
+    "tag": "fix",
+    "summary": "Started the 0.14.1 release line and aligned package, lockfile, plugin metadata, preview labels, docs, and example registry markers; Set the public package description to Shadcn-native Design CI for Tailwind apps; Kept the release compatible by preparing shadcn V2 outputs alongside the legacy Mémoire registry protocol instead of replacing existing commands.",
+    "commits": [],
+    "decisions": [
+      [
+        "Shadcn-native is the wedge",
+        "The install path should match the ecosystem developers already use: shadcn, v0, AI editors, npm, and registry URLs."
+      ],
+      [
+        "Bridge existing apps first",
+        "Developers should be able to start from a real shadcn/Tailwind codebase, not a Figma-only workflow."
+      ],
+      [
+        "Add V2 without breaking V1",
+        "Old registry commands stay valid while shadcn-compatible artifacts become the new default output surface."
+      ]
+    ],
+    "changes": [
+      "Started the 0.14.1 release line and aligned package, lockfile, plugin metadata, preview labels, docs, and example registry markers.",
+      "Set the public package description to Shadcn-native Design CI for Tailwind apps.",
+      "Kept the release compatible by preparing shadcn V2 outputs alongside the legacy Mémoire registry protocol instead of replacing existing commands."
+    ]
+  },
   {
     "version": "v0.13.1",
     "date": "2026-04-26",

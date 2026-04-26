@@ -1,7 +1,7 @@
 {
   "name": "@sarveshsea/memoire",
-  "version": "0.13.1",
-  "description": "Design CI for shadcn/Tailwind apps: diagnose UI debt, extract tokens, and publish installable registries.",
+  "version": "0.14.1",
+  "description": "Shadcn-native Design CI for Tailwind apps: export registries that work with shadcn, v0, AI editors, and npm.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -43,6 +43,11 @@
   "author": "Sarvesh Chidambaram",
   "license": "MIT",
   "keywords": [
+    "ui-fix-plan",
+    "registry-generator",
+    "v0-design-system",
+    "shadcn-registry-generator",
+    "shadcn-native",
     "design-system-registry",
     "design-ci",
     "ui-quality",

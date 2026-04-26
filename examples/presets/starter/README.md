@@ -30,4 +30,4 @@ memi add Button --from @yourscope/your-ds
 - Four real React components using CSS variables, not hardcoded hex
 - `Button.loading` prop that swaps the label for a spinner
 
-Generated for Memoire v0.13.1.
+Generated for Memoire v0.14.1.

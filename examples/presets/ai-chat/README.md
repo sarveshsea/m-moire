@@ -31,4 +31,4 @@ memi add ChatComposer --from @memoire-examples/ai-chat
 
 Source: [examples/presets/ai-chat](https://github.com/sarveshsea/m-moire/tree/main/examples/presets/ai-chat)
 
-Generated for Memoire v0.13.1.
+Generated for Memoire v0.14.1.

@@ -6,6 +6,21 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
+## v0.14.1 — 2026-04-26
+
+### The fix
+This release line rebuilds Mémoire around shadcn-native registry export: diagnose an existing Tailwind app, emit registry files that work with shadcn and v0, and install those registries from npm, URLs, aliases, or local paths.
+
+### New
+- Started the `0.14.1` release line and aligned package, lockfile, plugin metadata, preview labels, docs, and example registry markers.
+- Set the public package description to `Shadcn-native Design CI for Tailwind apps`.
+- Kept the release compatible by preparing shadcn V2 outputs alongside the legacy Mémoire registry protocol instead of replacing existing commands.
+
+### Key Design Decisions
+- **Shadcn-native is the wedge** — The install path should match the ecosystem developers already use: `shadcn`, v0, AI editors, npm, and registry URLs.
+- **Bridge existing apps first** — Developers should be able to start from a real shadcn/Tailwind codebase, not a Figma-only workflow.
+- **Add V2 without breaking V1** — Old registry commands stay valid while shadcn-compatible artifacts become the new default output surface.
+
 ## v0.13.1 — 2026-04-26
 
 ### The fix

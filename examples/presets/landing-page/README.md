@@ -31,4 +31,4 @@ memi add HeroSection --from @memoire-examples/landing-page
 
 Source: [examples/presets/landing-page](https://github.com/sarveshsea/m-moire/tree/main/examples/presets/landing-page)
 
-Generated for Memoire v0.13.1.
+Generated for Memoire v0.14.1.

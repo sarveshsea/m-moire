@@ -7,13 +7,13 @@ Use this every Friday during the `0.13.1` launch window. Record the value, sourc
 - Weekly npm downloads: `66` for Apr 17-23, 2026
 - Monthly npm downloads: `1532` for Mar 25-Apr 23, 2026
 - npm latest before this roadmap: `0.12.3`
-- Repo target version: `0.13.1`
+- Repo target version: `0.14.1`
 - Primary CTA: `https://www.npmjs.com/package/@sarveshsea/memoire`
 - Search phrase: `Design CI for shadcn/Tailwind apps`
 
 ## Targets
 
-- Week 1: npm latest is `0.13.1`, README first screen has the marketplace quickstart, and weekly downloads stop declining.
+- Week 1: npm latest is `0.14.1`, README first screen has the marketplace quickstart, and weekly downloads stop declining.
 - Week 2: weekly downloads are `500+`, GitHub metadata matches the Design CI phrase, and `/components` has a non-empty fallback.
 - Week 4: weekly downloads are `1500+`, monthly downloads are `4000+`, and at least one community post sends measurable npm traffic.
 
