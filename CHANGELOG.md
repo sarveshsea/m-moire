@@ -16,6 +16,15 @@ This release makes Memoire a code-first Design CI tool for shadcn/Tailwind apps:
 - Added high-intent npm keywords for `design-ci`, UI quality, shadcn/Tailwind audits, token extraction, design tokens, tweakcn, and registry publishing.
 - Updated shipped examples, preview badges, plugin metadata, and release checks to the new release marker.
 - Rewrote the npm README, docs quickstart, launch copy, submission templates, and site SEO handoff around one npm-first conversion path.
+- Added a `0.13` code-first demo, no-Figma proof examples, weekly growth scorecard, and standalone social launch posts for X, shadcn, tweakcn, and dev-design audiences.
+
+### Performance
+- Fast-pathed global `memi --help` and `memi --version` before importing the engine or full command graph; benchmark median is now under `30ms` on the built CLI.
+- Added engine init profiles: `minimal`, `registry`, and `full`, so light commands can avoid notes, agents, and health loops.
+- Added a shared concurrent source scanner with deterministic traversal, ignore dirs, file budgets, URL timeouts, and bounded parallel reads.
+- Moved token extraction and diagnosis onto the shared scanner; `memi tokens --from ...` now avoids engine init unless `--save` needs registry persistence.
+- Added `scripts/bench-cli.mjs` and `npm run bench:cli` with gates for help, diagnosis, token extraction, and status.
+- Hardened pack dry-run checks with a temp-copy `npm run pack:dry-run` audit and a dry-run-safe prepare script.
 
 ### Commits
 | Hash | Message |
@@ -24,11 +33,27 @@ This release makes Memoire a code-first Design CI tool for shadcn/Tailwind apps:
 | `e2d1af1d` | docs(seo): rewrite npm conversion surface |
 | `f0e4059b` | docs(site): add seo and metadata handoff |
 | `c014eec0` | docs(launch): update growth copy |
+| `76becc99` | docs(changelog): start v0.13.0 |
+| `4fe07dc2` | chore(release): refresh plugin build metadata |
+| `be4428ae` | perf(cli): lazy-load command modules |
+| `84d27be5` | perf(engine): add init profiles |
+| `24675496` | perf(scan): share concurrent source scanner |
+| `322ce4c9` | perf(tokens): avoid full init for extraction |
+| `7b288433` | perf(diagnose): use shared scanner |
+| `7a0170f0` | test(bench): add cli performance gates |
+| `8a0f8d08` | chore(package): harden pack dry-run workflow |
+| `3d827ed1` | chore(release): refresh benchmark build metadata |
+| `c78dc1fa` | docs(demos): add 0.13 code-first demo |
+| `f93071ba` | docs(proof): add no-figma examples |
+| `0388202d` | docs(metrics): add weekly growth scorecard |
+| `9c11e99b` | docs(launch): add social posts |
 
 ### Key Design Decisions
 - **Prioritize code-first adoption** — Developers can start from an existing shadcn/Tailwind app without opening Figma.
 - **Use Design CI as the wedge** — Public copy should sell repeatable UI quality checks and registry publishing, not a broad AI design platform.
 - **Keep npm as the only primary CTA** — Until the deployed `/components` page is reliable, every growth surface sends traffic to `@sarveshsea/memoire`.
+- **Measure conversion weekly** — Download recovery is tracked by npm latest, weekly/monthly downloads, GitHub metadata, README CTA clarity, and website health.
+- **Treat performance as activation** — A sub-300ms help path and faster code scans make the first 60 seconds of adoption feel credible.
 
 ## v0.12.4 — 2026-04-16 (Growth surfaces)
 
