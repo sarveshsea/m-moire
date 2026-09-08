@@ -4,7 +4,14 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { defaultStudioConfig } from "../config.js";
 import type { StudioConfig, StudioHarnessConfig } from "../types.js";
-const mocks = vi.hoisted(() => ({ home: "", spawn: vi.fn(() => ({ status: 0, stdout: "", stderr: "" })) }));
+const mocks = vi.hoisted(() => ({ home: "", executablePath: null as string | null, spawn: vi.fn(() => ({ status: 0, stdout: "", stderr: "" })) }));
+vi.mock("node:fs", async original => {
+  const actual = await original<typeof import("node:fs")>();
+  return { ...actual, accessSync: (path: string, mode?: number) => {
+    if (mocks.executablePath === null) return actual.accessSync(path, mode);
+    if (path !== mocks.executablePath) throw new Error("Fixture command not found");
+  } };
+});
 vi.mock("node:child_process", () => ({ spawnSync: mocks.spawn }));
 vi.mock("node:os", async original => ({ ...await original<typeof import("node:os")>(), homedir: () => mocks.home }));
 import { buildHarnessCommand, classifyCliAuthResult, clearHarnessProbeCaches, harnessProbeCacheAgeMs, listHarnesses } from "../harnesses.js";
@@ -15,9 +22,10 @@ function single(patch: Partial<StudioHarnessConfig> = {}): StudioConfig {
 }
 async function executable(path: string) { await mkdir(join(path, ".."), { recursive: true }); await writeFile(path, "fixture text, never executed"); await chmod(path, 0o755); }
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), "memi-harness-release-")); mocks.home = join(root, "home"); config = defaultStudioConfig(root); clearHarnessProbeCaches(); mocks.spawn.mockClear().mockReturnValue({ status: 0, stdout: "", stderr: "" });
+  root = await mkdtemp(join(tmpdir(), "memi-harness-release-")); mocks.home = join(root, "home"); mocks.executablePath = null; config = defaultStudioConfig(root); clearHarnessProbeCaches(); mocks.spawn.mockClear().mockReturnValue({ status: 0, stdout: "", stderr: "" });
   for (const key of ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY", "FIGMA_TOKEN", "NODE_OPTIONS"]) vi.stubEnv(key, "");
   vi.stubEnv("PATH", join(root, "bin"));
+  vi.stubEnv("PATHEXT", ".EXE;.CMD;.BAT");
 });
 afterEach(async () => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllEnvs(); clearHarnessProbeCaches(); await rm(root, { recursive: true, force: true }); });
 
@@ -52,7 +60,7 @@ describe("harness probes and command preparation release behavior", () => {
     expect(result[0].authStatus).toBe(["shell", "local", "memoire"].includes(provider) ? "ready" : "not_required");
   });
   it("caches executable and auth probes, refreshes explicitly and expires on time", async () => {
-    const path = join(root, "bin", "fixture-unique-harness"); await executable(path);
+    const path = join(root, "bin", `fixture-unique-harness${process.platform === "win32" ? ".CMD" : ""}`); await executable(path);
     vi.useFakeTimers({ toFake: ["Date"] }); vi.setSystemTime(10000);
     const auth = vi.fn(() => ({ authStatus: "ready" as const, authMessage: "fixture" }));
     expect(harnessProbeCacheAgeMs()).toBe(0); expect(listHarnesses(single(), { probeAuth: auth })[0].resolvedPath).toBe(path);
@@ -63,9 +71,16 @@ describe("harness probes and command preparation release behavior", () => {
     clearHarnessProbeCaches(); expect(harnessProbeCacheAgeMs()).toBe(0);
   });
   it("resolves absolute commands and marks missing commands without probing auth", async () => {
-    const path = join(root, "bin", "fixture"); await executable(path);
+    const path = join(root, "bin", `fixture${process.platform === "win32" ? ".CMD" : ""}`); await executable(path);
     expect(listHarnesses(single({ command: path }))[0].installed).toBe(true);
     expect(listHarnesses(single({ command: join(root, "missing") }))[0]).toMatchObject({ installed: false, authStatus: "missing" }); expect(mocks.spawn).not.toHaveBeenCalled();
+  });
+  it("resolves native Windows absolute executable paths without appending PATH entries or suffixes", () => {
+    vi.spyOn(process, "platform", "get").mockReturnValue("win32");
+    const path = "C:\\fixture\\bin\\custom-harness.cmd";
+    mocks.executablePath = path;
+    expect(listHarnesses(single({ command: path }))[0]).toMatchObject({ installed: true, resolvedPath: path });
+    expect(mocks.spawn).not.toHaveBeenCalled();
   });
   it("honors Windows executable suffixes and auth invocation options", async () => {
     vi.spyOn(process, "platform", "get").mockReturnValue("win32"); vi.stubEnv("PATHEXT", ".EXE;.CMD");
