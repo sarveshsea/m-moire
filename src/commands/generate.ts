@@ -249,7 +249,7 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
             elapsedMs: Date.now() - startedAt,
           });
 
-          if (anyBlocked) process.exitCode = 1;
+          if (anyBlocked || payload.summary.failed > 0) process.exitCode = 1;
 
           if (opts.json) {
             console.log(JSON.stringify(payload, null, 2));

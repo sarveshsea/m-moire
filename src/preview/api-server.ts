@@ -308,8 +308,8 @@ export class PreviewApiServer {
               res.end(JSON.stringify({ ok: false, error: "Forbidden" }));
               return;
             }
-            const body = await readRequestBody(req);
             try {
+              const body = await readRequestBody(req);
               const { name, resolution } = JSON.parse(body);
               const resolved = this.engine.sync.resolveConflict(name, resolution);
               res.end(JSON.stringify({ ok: resolved, name, resolution }));
@@ -327,8 +327,8 @@ export class PreviewApiServer {
               res.end(JSON.stringify({ ok: false, error: "Forbidden" }));
               return;
             }
-            const body = await readRequestBody(req);
             try {
+              const body = await readRequestBody(req);
               const { action } = JSON.parse(body);
               // Fix #11 (MEDIUM): allowlist valid actions — reject unknown strings
               const ALLOWED_ACTIONS = new Set(["inspect", "pull-tokens", "pull-components", "page-tree", "stickies", "full-sync"]);
