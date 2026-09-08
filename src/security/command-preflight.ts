@@ -40,13 +40,22 @@ export async function preflightCommand(
 
   switch (path) {
     case "diagnose":
+      if (isRemoteUrl(invocation.args[0])) {
+        require(["network", "fetch the diagnosis URL"]);
+      }
+      if (invocation.options.changed) {
+        require(["shell", "resolve changed files with git"]);
+      }
       // Diagnose still writes its reports and history beneath the legacy
       // `.memoire/` tree. Local mode only permits `.memi/`, so keep diagnose
       // read-only until those report paths are migrated behind the broker.
       if (policy.profile === "locked" || policy.profile === "local") {
         overrides.write = false;
       } else if (invocation.options.write !== false) {
-        requireLocalWrite(["project-write", "write diagnosis reports"]);
+        requireLocalWrite(
+          ["project-write", "write diagnosis reports"],
+          ["source-content-persistence", "persist diagnosis source evidence"],
+        );
       }
       break;
     case "doctor":

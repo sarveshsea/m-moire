@@ -185,6 +185,14 @@ async function runTrustCoreArtifactSuite(options) {
 function lockedDenialScenarios(prompt) {
   return [
     {
+      args: ["--profile", "locked", "diagnose", "https://example.com", "--json"],
+      expected: { operation: "fetch the diagnosis URL", capability: "network" },
+    },
+    {
+      args: ["--profile", "locked", "diagnose", ".", "--changed", "--json"],
+      expected: { operation: "resolve changed files with git", capability: "shell" },
+    },
+    {
       args: ["--profile", "locked", "setup", "--json"],
       expected: { operation: "validate setup credentials", capability: "network" },
     },

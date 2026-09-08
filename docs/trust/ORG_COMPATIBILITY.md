@@ -1,6 +1,6 @@
 # Memi organization compatibility inventory
 
-Observed from the GitHub organization on 2026-08-31. This is a routing inventory,
+Refreshed from the GitHub organization on 2026-09-08 UTC. This is a routing inventory,
 not proof that every repository passed Trust Core. Private repositories are not
 listed in this public document and require an owner-maintained internal review.
 

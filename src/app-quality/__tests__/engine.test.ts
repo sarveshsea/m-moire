@@ -1,10 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
+import { afterEach, describe, expect, it } from "vitest";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { diagnoseAppQuality } from "../engine.js";
 
 describe("diagnoseAppQuality", () => {
+  afterEach(resetExecutionPolicyForTests);
   it("returns an explicit unassessed result for source repositories with no UI signal", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-app-quality-non-ui-"));
     try {
@@ -62,6 +64,7 @@ export default function Dashboard() {
 }
 `, "utf-8");
 
+      configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
       const diagnosis = await diagnoseAppQuality({ projectRoot: root, write: true });
 
       expect(diagnosis.summary.scannedFiles).toBeGreaterThan(0);

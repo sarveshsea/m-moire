@@ -14,6 +14,14 @@
 - Existing 2.7.9 binaries and npm artifacts must not be described as locked by
   default merely because the 2.8 source branch adds that behavior.
 
+## Coverage and current audit
+
+- The historical Trust Core coverage percentage applies to four selected modules,
+  not all executable source. The broader `test:core:coverage` gate measures the
+  source tree and requires 80% in all four metrics before publication.
+- See the [acceptance ledger](ACCEPTANCE_LEDGER.md) for the current audit,
+  independent scan blocker, product findings, and remaining release evidence.
+
 ## Boundary limitations
 
 - Execution policy reduces Memi's authority; it cannot secure a compromised OS,
@@ -32,6 +40,10 @@
   post-open containment and file identity checks. A detected parent race can
   leave an empty file, but the writer does not send receipt bytes through that
   unvalidated handle.
+- A terminated connected report writer can leave an empty `history.jsonl.lock`.
+  Further history writes time out after bounded retries. Confirm no writer is
+  active and inspect the lock before removing it; the engine never steals an
+  unverified lock automatically.
 - The legacy uninstall script is destructive and is not the Trust Core
   preserve-first uninstall path.
 

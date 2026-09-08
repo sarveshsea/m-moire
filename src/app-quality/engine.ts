@@ -1,4 +1,6 @@
-import { access, mkdir, writeFile } from "node:fs/promises";
+import { writeDiagnosisArtifact } from "./persistence.js";
+import { getExecutionPolicy } from "../security/execution-policy.js";
+import { access, mkdir } from "node:fs/promises";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import { performance } from "node:perf_hooks";
 import { scanSources, type ScannedSourceFile } from "../utils/source-scanner.js";
@@ -912,9 +914,15 @@ function buildDirections(
 
 async function writeDiagnosis(projectRoot: string, diagnosis: AppQualityDiagnosis): Promise<void> {
   const outDir = join(projectRoot, ".memoire", "app-quality");
+  const executionPolicy = getExecutionPolicy();
+  executionPolicy.assert("source-content-persistence", "persist diagnosis source evidence");
+  await executionPolicy.assertProjectWrite(outDir, "write diagnosis reports");
+  for (const name of ["diagnosis.json", "diagnosis.md", "history.jsonl"]) {
+    await executionPolicy.assertProjectWrite(join(outDir, name), "write diagnosis reports");
+  }
   await mkdir(outDir, { recursive: true });
-  await writeFile(join(outDir, "diagnosis.json"), JSON.stringify(diagnosis, null, 2) + "\n", "utf-8");
-  await writeFile(join(outDir, "diagnosis.md"), renderDiagnosisMarkdown(diagnosis), "utf-8");
+  await writeDiagnosisArtifact(join(outDir, "diagnosis.json"), JSON.stringify(diagnosis, null, 2) + "\n");
+  await writeDiagnosisArtifact(join(outDir, "diagnosis.md"), renderDiagnosisMarkdown(diagnosis));
   // Append to the score-history ledger — delivers the "track design debt over
   // time" this file has promised in nextActions since v2.0.
   const { appendHistory } = await import("./history.js");

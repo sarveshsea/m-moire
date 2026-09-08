@@ -70,7 +70,8 @@
     "test:trust-core:coverage": "vitest run --config vitest.trust-core.config.ts --coverage",
     "lint": "tsc --noEmit && tsc -p tsconfig.plugin.json --noEmit",
     "typecheck": "tsc --noEmit --strict && tsc -p tsconfig.plugin.json --noEmit",
-    "prepublishOnly": "npm run check:release && npm run security:audit && npm run typecheck && npm run test && npm run build && npm run test:trust-core:coverage && npm run smoke:trust-core -- --portable"
+    "prepublishOnly": "npm run check:release && npm run security:audit && npm run typecheck && npm run test:core:coverage && npm run build && npm run test:trust-core:coverage && npm run smoke:trust-core -- --portable",
+    "test:core:coverage": "vitest run --config vitest.core.config.ts --coverage"
   },
   "repository": {
     "type": "git",
@@ -142,6 +143,7 @@
     "docs/PROOF.md",
     "docs/DEPENDENCY_TRUST.md",
     "docs/trust/README.md",
+    "docs/trust/ACCEPTANCE_LEDGER.md",
     "docs/trust/THREAT_MODEL.md",
     "docs/trust/EGRESS_MAP.md",
     "docs/trust/DATA_RETENTION.md",
@@ -171,7 +173,7 @@
     "commander": "^12.1.0",
     "cross-spawn": "^7.0.6",
     "effect": "^3.21.2",
-    "fast-uri": "3.1.5",
+    "fast-uri": "3.1.7",
     "hono": "4.13.0",
     "ip-address": "10.4.0",
     "ora": "^8.1.0",

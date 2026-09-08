@@ -1,0 +1,42 @@
+# Trust Core acceptance ledger
+
+Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c47a8b549d`, PR #133. Public npm stable and GitHub release remain 2.7.9. The candidate is not published.
+
+| Requirement | Implementation and evidence | Remaining gate |
+| --- | --- | --- |
+| Locked deterministic diagnosis | Baseline 2,416 tests passed in a fresh checkout. Astra reproduced URL/DNS, Git subprocess, and direct report-persistence policy gaps with intercepted side effects. Regression fixes deny before side effects; the packed portable harness passes URL and Git denials. | Updated suite: 2,439 tests across 332 files pass locally. Cross-platform CI for the updated commit remains pending. |
+| Explicit connected grants | URL fetching and Git helpers check policy at their execution boundary; source reports require project-write and source-content-persistence. | Descriptor-based writes and quarantine cleanup have race regressions. Astra re-review found no remaining actionable issues in the reviewed patch and independently passed 29 targeted tests. No general security clearance. |
+| Zero production advisories | fast-uri updated from 3.1.5 to exact 3.1.7; full and production audit report zero known advisories. Isolated production install has 138 dependencies and no optional peers. | Refresh on the exact publication candidate; registry advisory state changes. |
+| 80% core coverage | The old 92.68% statement result measured four selected modules only. `test:core:coverage` now includes all `src/**/*.{ts,js}`, including unimported modules. | Measured: 64.43% statements, 55.10% branches, 74.29% functions, 66.03% lines. Publication is blocked; scoped Trust Core coverage is insufficient. |
+| Native Linux arm64 latency | Native runner job and same-commit reusable publication prerequisite added. QEMU remains conformance-only. | Successful native runner receipt for the release commit. Workflow source is not a performance result. |
+| npm package and offline budgets | Production shrinkwrap, explicit file allowlist, packed harness, and offline bundle workflows exist. | Local portable packed smoke and clean install pass; 61 files, about 619 KB packed and 51 MB installed. Native CI and signed public bundle digests remain required. |
+| Managed independent security scan | Attempt failed before workers started: “Deep Scan cannot safely start a read-only worker: the parent must provide a managed filesystem permission profile.” | Supported managed permission environment. No scan results exist from this attempt. |
+| Stable parity | Existing beta exception names stale reviewed-candidate-audit and swiftui-rendered-rerun evidence. | Refresh actual receipts; public gate must return `failures: []` and `parityEligible: true`. |
+| Public surface consistency | All 13 public organization repositories inventoried. Stable CLI/Homebrew 2.7.9 and Studio 2.5.0 checksums agree; stale profile, source links, focused mirrors and nonexistent Canvas download have scoped PRs; six are merged and native/proof checks are still pending for others. | Separate reviewed changes and publication receipts; CLI verification does not certify sibling products. |
+
+## Coverage scope
+
+`vitest.core.config.ts` extends the complete unit/integration test suite and measures executable TypeScript and JavaScript under `src/`. It excludes test directories, declarations, fixtures, generated code, and separately built Figma plugin targets (the latter also excluded in `tsconfig.build.json`). V8 does not count type-only syntax as executable statements. Release-tool JavaScript and platform E2E remain separate contracts, not part of this source coverage percentage. `prepublishOnly` enforces all four 80% thresholds rather than substituting the four-module boundary percentage.
+
+## Cost and usefulness findings
+
+Local diagnosis and context selection do not need a paid model. Astra observed the synthetic starter scan at 5 files / 7,793 bytes and 14 ms of analysis, with a 3,782-byte context payload. This is one local source-tree observation, not a benchmark or a public artifact guarantee. The historical study did not establish end-to-end agent cost savings.
+
+The starter returned zero findings but “usable but uneven” because unassessed categories lowered its score. A separate product change should distinguish assessed quality from missing evidence, then evaluate static `cn()`/`cva()` class extraction. Neither improvement is claimed as shipped here. Avoid making the next release larger before its existing permissions and packaging contract is proven.
+
+## Release handling
+
+Every engine change updates the changelog and generated preview. Every release candidate reruns source, packed-artifact, dependency, and native checks; version metadata and npm README are staged from the same source. npm packages are immutable: updating GitHub documentation cannot change the 2.7.9 npm README. Publish the next version only after its gates pass; keep `latest` at 2.7.9 during beta. Never bump a version or overwrite a release record merely to make surfaces look synchronized.
+
+## Local verification record
+
+The updated source suite passed all 2,439 tests. The source-wide coverage command
+exits nonzero because all four 80% thresholds fail; passing assertions does not
+mean passing the release gate. Source and artifact results are kept separate.
+The fresh-checkout baseline was 2,416 tests; newly exposed policy paths account
+for the additional regression work.
+
+A metadata receipt factory and explicit persisted receipt option exist, but the
+CLI's normal diagnosis output remains a useful source-bearing report, not a
+metadata-only receipt. Default stdout receipt behavior still needs a dedicated
+acceptance test and contract decision before claiming that requirement complete.

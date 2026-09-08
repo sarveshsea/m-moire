@@ -32,7 +32,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  trust-core:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/trust-core.yml
+    permissions:
+      contents: read
+
   publish:
+    needs: trust-core
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -129,10 +136,10 @@ jobs:
 
       - name: Run release gates
         run: |
-          npm run check:release
           npm run lint
-          npm test -- --run
-          npm run build
+          # Publication suppresses lifecycle scripts, so run the canonical gate
+          # explicitly, including dependency audit, coverage and packed smoke.
+          npm run prepublishOnly
 
       - name: Stage production-only npm package
         run: npm run stage:package

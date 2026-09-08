@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 import { afterEach, describe, expect, it } from "vitest";
 import { Command } from "commander";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
@@ -12,6 +13,7 @@ import {
 import { captureLogs, lastLog } from "./test-helpers.js";
 
 afterEach(() => {
+  resetExecutionPolicyForTests();
   process.exitCode = 0;
 });
 
@@ -32,6 +34,7 @@ export default function Page() {
 }
 
 async function runInitTeam(root: string): Promise<any> {
+  configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   const logs = captureLogs();
   const program = new Command();
   registerInitCommand(program, { config: { projectRoot: root } } as never);

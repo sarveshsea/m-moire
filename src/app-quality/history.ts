@@ -1,3 +1,4 @@
+import { withDiagnosisHistoryLock, writeDiagnosisArtifact } from "./persistence.js";
 /**
  * Score History — append-only ledger (.memoire/app-quality/history.jsonl) so
  * design debt is tracked over time, not just at a point in time. One JSON
@@ -8,7 +9,8 @@
  * different thresholds, or from partial scans, is noise dressed as signal.
  */
 
-import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { getExecutionPolicy } from "../security/execution-policy.js";
+import { mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
 import type { AppQualityDiagnosis } from "./engine.js";
@@ -41,6 +43,8 @@ export function historyPath(projectRoot: string): string {
 }
 
 function gitValue(args: string[], cwd: string): Promise<string | undefined> {
+  if (!getExecutionPolicy().allows("shell")) return Promise.resolve(undefined);
+  getExecutionPolicy().assert("shell", "read optional diagnosis git metadata");
   return new Promise((resolve) => {
     execFile("git", args, { cwd, encoding: "utf-8" }, (error, stdout) => {
       resolve(error ? undefined : stdout.trim() || undefined);
@@ -64,22 +68,20 @@ export function entryFromDiagnosis(diagnosis: AppQualityDiagnosis): HistoryEntry
 
 /** Append a run to the ledger, stamping git SHA/branch when available. */
 export async function appendHistory(projectRoot: string, diagnosis: AppQualityDiagnosis): Promise<HistoryEntry> {
+  const policy = getExecutionPolicy();
+  policy.assert("source-content-persistence", "persist diagnosis history");
+  await policy.assertProjectWrite(historyPath(projectRoot), "persist diagnosis history");
   const entry = entryFromDiagnosis(diagnosis);
   entry.sha = await gitValue(["rev-parse", "--short", "HEAD"], projectRoot);
   entry.branch = await gitValue(["rev-parse", "--abbrev-ref", "HEAD"], projectRoot);
 
   const path = historyPath(projectRoot);
   await mkdir(join(projectRoot, ".memoire", "app-quality"), { recursive: true });
-  await appendFile(path, `${JSON.stringify(entry)}\n`, "utf-8");
-  await rotateIfNeeded(path);
+  await withDiagnosisHistoryLock(path, () => writeDiagnosisArtifact(path, (current) => {
+    const lines = [...current.split("\n").filter(Boolean), JSON.stringify(entry)];
+    return `${lines.slice(-MAX_ENTRIES).join("\n")}\n`;
+  }));
   return entry;
-}
-
-async function rotateIfNeeded(path: string): Promise<void> {
-  const raw = await readFile(path, "utf-8").catch(() => "");
-  const lines = raw.split("\n").filter(Boolean);
-  if (lines.length <= MAX_ENTRIES) return;
-  await writeFile(path, `${lines.slice(-MAX_ENTRIES).join("\n")}\n`, "utf-8");
 }
 
 export async function readHistory(projectRoot: string): Promise<HistoryEntry[]> {

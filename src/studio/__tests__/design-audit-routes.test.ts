@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 // SPDX-License-Identifier: FSL-1.1-ALv2
 // Copyright 2026 Humyn LLC
 
@@ -10,10 +11,12 @@ import { StudioRuntimeServer } from "../server.js";
 const servers: StudioRuntimeServer[] = [];
 
 afterEach(async () => {
+  resetExecutionPolicyForTests();
   await Promise.all(servers.splice(0).map((server) => server.stop()));
 });
 
 async function writeAuditableFixture(root: string): Promise<void> {
+  configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   await mkdir(join(root, "src", "components", "ui"), { recursive: true });
   await mkdir(join(root, "src", "app", "dashboard"), { recursive: true });
   await writeFile(join(root, "package.json"), JSON.stringify({ dependencies: { next: "15.0.0", tailwindcss: "4.0.0" } }), "utf-8");

@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
+import { afterEach, describe, expect, it } from "vitest";
 import { Command } from "commander";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -9,6 +10,7 @@ import { captureLogs } from "./test-helpers.js";
 describe("memi report evidence propagation", () => {
   it("keeps wholly unassessed caps in freshly rebuilt UX and craft artifacts", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-report-unassessed-"));
+    configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
     try {
       await mkdir(join(root, "lib"), { recursive: true });
       await writeFile(join(root, "lib", "server.js"), "export const server = true;\n");
@@ -32,3 +34,5 @@ describe("memi report evidence propagation", () => {
     }
   });
 });
+
+afterEach(resetExecutionPolicyForTests);

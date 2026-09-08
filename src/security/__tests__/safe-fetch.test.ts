@@ -1,5 +1,6 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../execution-policy.js";
 import { Readable } from "node:stream";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import {
   fetchPublicResource,
@@ -8,6 +9,8 @@ import {
 } from "../safe-fetch.js";
 
 describe("safe public resource fetching", () => {
+  beforeEach(() => { configureExecutionPolicy({ projectRoot: process.cwd(), profile: "connected", allow: ["network"] }); });
+  afterEach(resetExecutionPolicyForTests);
   it("rejects a hostname when any resolved address is private", async () => {
     await expect(resolvePublicNetworkAddresses("mixed.example", async () => [
       { address: "93.184.216.34", family: 4 },

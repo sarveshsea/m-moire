@@ -7,6 +7,15 @@ GitHub: https://github.com/memi-design/memi
 Proof: https://github.com/memi-design/design-sandbox
 Craft skills (upstream): https://github.com/emilkowalski/skills
 
+## Release and cost boundary
+
+Public stable: 2.7.9. Trust Core 2.8.0-beta.1 is an unpublished candidate;
+never attribute its locked defaults to the stable artifact. Read
+https://github.com/memi-design/memi/blob/codex/2.8-trust-core/docs/trust/ACCEPTANCE_LEDGER.md
+before making release claims. Deterministic local diagnosis makes no model calls;
+end-to-end agent dollar savings have not been established. Installation requires
+registry access unless an independently verified offline bundle is used.
+
 ## Install
 
 ```bash

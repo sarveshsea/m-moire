@@ -12,6 +12,14 @@ This unreleased work is not part of the immutable 2.7.9 release. It becomes a
 public product claim only after the 2.8 candidate, cross-platform, security, and
 release gates pass.
 
+### Release audit follow-up (unreleased)
+
+- Close diagnosed URL, Git subprocess, and source-report capability gaps at their execution boundaries; keep optional Git history metadata subprocess-free without a shell grant.
+- Patch fast-uri to exact 3.1.7 and regenerate the production shrinkwrap; fresh full and production dependency audits report zero known advisories.
+- Require native Linux arm64 containment/performance verification before npm publication; execute lifecycle release gates explicitly when publishing with scripts disabled.
+- Add source-wide 80% coverage enforcement. The historical four-module Trust Core percentage is not source-wide coverage evidence.
+- Clarify deterministic model-call cost, stable/candidate availability, and public-surface limits in the README, agent guidance, and acceptance ledger. npm publication remains gated.
+
 ### Trust Core execution policy
 
 - `d452661e` — test: add RED contracts for Trust Core policy and receipts

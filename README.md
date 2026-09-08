@@ -46,6 +46,16 @@ Then ask:
 
 If Memi catches a real interface issue in your project, [share the finding](https://github.com/memi-design/memi/discussions/categories/show-and-tell). Real reports are the most useful signal for what to improve next.
 
+## Cost and offline operation
+
+Local source diagnosis uses deterministic rules: **no model call, API key, or model fee**. It checks the repository you provide and returns findings your agent can verify. Installation, CPU time, CI runners, and any agent you choose still have costs. The published research has not established an end-to-end dollar or token savings advantage.
+
+Start with one diagnosis, address the highest-confidence finding, and rerun the same check. Use `--agent-context` for a bounded file index instead of sending a whole repository to a model. Its routing is heuristic; a smaller context is not proof of a cheaper successful task. `--files` scopes reported findings without launching Git; it still scans the tree for aggregate statistics.
+
+**Release distinction:** npm stable is `2.7.9`. Trust Core `2.8.0-beta.1` is an **unpublished candidate** in [PR #133](https://github.com/memi-design/memi/pull/133). Its locked default and explicit capability contract do not apply retroactively to 2.7.9. Do not try to install an unpublished candidate from npm.
+
+The candidate prevents local diagnosis from writing project files by default, keeps paid integrations optional, and requires explicit grants for networking, subprocesses, and source report persistence. An npm install needs registry access; offline first-run claims require the separately verified bundle. See the [acceptance ledger](docs/trust/ACCEPTANCE_LEDGER.md), [known limitations](docs/trust/KNOWN_LIMITATIONS.md), and [release truth](docs/trust/RELEASE_TRUTH.md).
+
 ## Put the check on every pull request
 
 Copy [`examples/github-actions/memi-design.yml`](examples/github-actions/memi-design.yml) into your repository as `.github/workflows/memi-design.yml`. The starter is pinned to the reviewed public Action commit and gives reviewers:

@@ -59,11 +59,11 @@ describe("public package supply-chain defaults", () => {
     expect(pkg.dependencies.tar).toBe("7.5.22");
     expect(pkg.dependencies["@modelcontextprotocol/sdk"]).toBe("1.30.0");
     expect(pkg.dependencies["@hono/node-server"]).toBe("2.1.0");
-    expect(pkg.dependencies["fast-uri"]).toBe("3.1.5");
+    expect(pkg.dependencies["fast-uri"]).toBe("3.1.7");
     expect(pkg.dependencies.hono).toBe("4.13.0");
     expect(pkg.dependencies["ip-address"]).toBe("10.4.0");
     expect(lock.packages["node_modules/tar"]?.version).toBe("7.5.22");
-    expect(lock.packages["node_modules/fast-uri"]?.version).toBe("3.1.5");
+    expect(lock.packages["node_modules/fast-uri"]?.version).toBe("3.1.7");
     expect(lock.packages["node_modules/hono"]?.version).toBe("4.13.0");
     expect(lock.packages["node_modules/ip-address"]?.version).toBe("10.4.0");
     expect(lock.packages["node_modules/body-parser"]?.version).toBe("2.3.0");

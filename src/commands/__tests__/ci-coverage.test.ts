@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
+import { afterEach, describe, expect, it } from "vitest";
 import { Command } from "commander";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -10,6 +11,7 @@ describe("memi ci coverage gate", () => {
   it("fails when the repository is wholly unassessed", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-ci-unassessed-"));
     const previousExitCode = process.exitCode;
+    configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
     try {
       await mkdir(join(root, "lib"), { recursive: true });
       await writeFile(join(root, "lib", "server.js"), "export const server = true;\n");
@@ -32,3 +34,5 @@ describe("memi ci coverage gate", () => {
     }
   });
 });
+
+afterEach(resetExecutionPolicyForTests);
