@@ -10,7 +10,8 @@ import {
   assertMetadataOnlyReceipt,
   cleanHarnessEnvironment,
   createPackedInstallation,
-  installHarnessEnvironment,
+  resolveInstallHarnessEnvironment,
+  resolveNpmInvocation,
   runProcess,
 } from "./lib/trust-core-e2e.mjs";
 
@@ -296,16 +297,14 @@ async function verifyExplicitUpgradePreservesConfig({ artifact, currentVersion, 
   const configDir = join(homeRoot, ".memoire");
   const configPath = join(configDir, "config.json");
   const config = '{"company":"DualEntry","preserve":true}\n';
-  const npm = process.env.npm_execpath
-    ? { command: process.execPath, prefix: [process.env.npm_execpath] }
-    : { command: process.platform === "win32" ? "npm.cmd" : "npm", prefix: [] };
+  const npm = resolveNpmInvocation();
 
   try {
     await mkdir(configDir, { recursive: true });
     await writeFile(configPath, config, "utf8");
     await writeFile(join(consumer, "package.json"), '{"name":"memi-upgrade-contract","private":true}\n', "utf8");
     const env = {
-      ...installHarnessEnvironment(process.env),
+      ...await resolveInstallHarnessEnvironment(process.env, { npm }),
       HOME: homeRoot,
       USERPROFILE: homeRoot,
       PATH: process.env.PATH ?? "",

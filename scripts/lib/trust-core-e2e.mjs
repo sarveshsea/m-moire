@@ -231,9 +231,11 @@ export async function createPackedInstallation(options = {}) {
   const consumerRoot = join(tempRoot, "consumer");
   const npm = resolveNpmInvocation();
   const packageJson = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8"));
-  const env = installHarnessEnvironment(process.env);
 
   try {
+    // Use the invoking project context, not the generated package stage: its
+    // .npmrc may provide the cache restored earlier in the workflow.
+    const env = await resolveInstallHarnessEnvironment(process.env, { npm });
     await mkdir(consumerRoot, { recursive: true });
     await writeFile(join(consumerRoot, "package.json"), `${JSON.stringify({
       name: "memi-trust-core-consumer",
@@ -306,6 +308,31 @@ export async function createPackedInstallation(options = {}) {
     await rm(tempRoot, { recursive: true, force: true });
     throw error;
   }
+}
+
+// Resolve npmrc/default configuration while the original home and cwd are intact.
+// Only the effective cache path crosses into the sanitized installer environment.
+export async function resolveInstallHarnessEnvironment(source, options = {}) {
+  const npm = options.npm ?? resolveNpmInvocation();
+  let result;
+  try {
+    result = await runProcess(npm.command, [
+      ...npm.prefix, "config", "get", "cache",
+    ], {
+      cwd: options.cwd ?? process.cwd(),
+      env: source,
+      timeoutMs: Math.min(options.timeoutMs ?? 10_000, 10_000),
+      maxOutputBytes: 16_384,
+      label: "npm install cache configuration",
+    });
+  } catch {
+    throw new Error("npm install cache configuration failed");
+  }
+  const cache = result.stdout.trim();
+  if (result.exitCode !== 0 || !isAbsolute(cache) || /[\r\n\0]/.test(cache)) {
+    throw new Error("npm did not resolve a valid absolute install cache path");
+  }
+  return { ...cleanHarnessEnvironment(source), npm_config_cache: cache };
 }
 
 // Cache configuration belongs to package installation, never the locked runtime.

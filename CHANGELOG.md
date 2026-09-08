@@ -141,7 +141,7 @@ Development checkpoints (RED tests precede their implementation where noted):
 
 - `636e7a00` — fix: retry validated diagnosis lock handoffs
 - `b93d3762` — test: reproduce configured npm cache loss in isolated installs
-- Preserve npm cache configuration only during packed and upgrade installs, prefer verified cached packages with network fallback, and label install timeouts without changing runtime isolation or deadlines.
+- Preserve npm’s effective cache, including `.npmrc` configuration, before packed and upgrade installers isolate their environment. Only the cache path is forwarded; credentials remain excluded. Prefer verified cached packages with network fallback and label install timeouts without changing runtime isolation or deadlines.
 - Retain and validate the prior stable release identity when publishing a prerelease, so tagged beta artifacts continue to use `next` without promoting stable channels.
 - Verify released README content inside the integrity-checked npm tarball when registry metadata omits it; preserve required documentation, signatures, provenance and original publish-attempt checks.
 

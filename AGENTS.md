@@ -10,7 +10,7 @@
 5. **Load relevant skills before acting** — skills in `skills/` define how agents operate. Read the skill file that matches your task.
 
 ## What is Mémoire
-Memi supplies deterministic frontend evidence and interface checks to coding harnesses. The 2.8 candidate reads bounded repository inputs, normalizes host-supplied Figma/Paper references, and identifies existing components/tokens/stories. Locked stdio does not autodiscover Figma, start sockets, or write project state. npm stable remains 2.7.9; see docs/FRONTEND_WORKFLOW.md and docs/trust/ACCEPTANCE_LEDGER.md for candidate scope and gates.
+Memi supplies deterministic frontend evidence and interface checks to coding harnesses. The published 2.8.0-beta.1 beta on npm `next` reads bounded repository inputs, normalizes host-supplied Figma/Paper references, and identifies existing components/tokens/stories. Locked stdio does not autodiscover Figma, start sockets, or write project state. npm stable remains 2.7.9; see docs/FRONTEND_WORKFLOW.md and docs/trust/ACCEPTANCE_LEDGER.md for beta scope and remaining stable-release gates.
 
 ## Architecture
 | Directory | Purpose |
@@ -61,7 +61,7 @@ Storage: `.memoire/notes/{note-name}/note.json`
 
 ## Historical CLI Surface
 
-The table below describes legacy product areas, not the 2.8 support contract. Many paths are deliberately deferred in every profile; use docs/trust/COMMAND_SUPPORT.json. Begin candidate work with `memi agent brief . --frontend --json --intent "<task>"`, `memi diagnose . --no-write --json`, or the four locked MCP read tools. Do not replay unavailable recipes or add broad grants to bypass a denial.
+The table below describes legacy product areas, not the 2.8 support contract. Many paths are deliberately deferred in every profile; use docs/trust/COMMAND_SUPPORT.json. Begin beta work with `memi agent brief . --frontend --json --intent "<task>"`, `memi diagnose . --no-write --json`, or the four locked MCP read tools. Do not replay unavailable recipes or add broad grants to bypass a denial.
 
 | Command | Purpose |
 |---------|---------|
@@ -86,7 +86,7 @@ The table below describes legacy product areas, not the 2.8 support contract. Ma
 ## Skills
 | Skill | File | When to Load |
 |-------|------|-------------|
-| Frontend tooling | `skills/memoire-design-tooling/SKILL.md` | Default candidate workflow |
+| Frontend tooling | `skills/memoire-design-tooling/SKILL.md` | Default beta workflow |
 | SUPERPOWER | `skills/SUPERPOWER.md` | Inactive historical reference |
 | /figma-use | `skills/FIGMA_USE.md` | Any Figma canvas operation (base for all /figma-* skills) |
 | /figma-generate-design | `skills/FIGMA_GENERATE_DESIGN.md` | Creating new screens/pages from components |
