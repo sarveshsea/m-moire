@@ -88,3 +88,84 @@ describe('bounded frontend implementation evidence', () => {
     expect(first.retrieval.length).toBeGreaterThan(0);
   });
 });
+
+describe('frontend evidence structural and safety cases', () => {
+  it('retains requested prop values and token references instead of losing design intent', async () => {
+    const projectRoot = await fixture();
+    const result = await buildFrontendBrief({ projectRoot, intent: 'button', designEvidence: design('paper') });
+    expect(result.mappings[0]).toMatchObject({ requestedProps: { variant: 'primary' }, tokenRefs: ['--color-action'] });
+  });
+  it('resolves named export aliases, default exports and satisfies-wrapped story metadata', async () => {
+    const projectRoot = await fixture();
+    await writeFile(join(projectRoot, 'src/Alias.tsx'), `type Props = { size: 'small' | 'large'; count?: number }; const Internal = (props: Props) => <button/>; export { Internal as Alias }; export default Internal;`);
+    await writeFile(join(projectRoot, 'src/Alias.stories.tsx'), `import DefaultButton from './Alias'; const meta = { title:'Alias', component:DefaultButton } satisfies Meta; export default meta; export const Small = {};`);
+    const result = await buildFrontendBrief({ projectRoot, intent: 'Alias', designEvidence: { ...design('paper'), mappings: [{ path: 'src/Alias.tsx', exportName: 'Alias', props: { size: 'small', count: 'bad' } }] } });
+    expect(result.components.some(item => item.exportName === 'default')).toBe(true);
+    expect(result.mappings[0].status).toBe('conflict');
+    expect(result.stories).toContainEqual(expect.objectContaining({ componentExport: 'default', ref: 'src/Alias.stories.tsx#Small' }));
+  });
+  it('flags inherited APIs, computed props, barrel exports, parse failures and story filters as unassessed', async () => {
+    const projectRoot = await fixture();
+    await writeFile(join(projectRoot, 'src/Other.tsx'), `interface Props extends ExternalProps { label?: string }; export const Other = (props: Props) => <button/>; export * from './Button';`);
+    await writeFile(join(projectRoot, 'src/Other.stories.tsx'), `import { Other } from './Other'; export default { component: Other, excludeStories: ['Helper'] }; export const Helper = {};`);
+    await writeFile(join(projectRoot, 'src/Broken.tsx'), 'export const = ;');
+    const result = await buildFrontendBrief({ projectRoot, intent: 'Other', designEvidence: { ...design('paper'), mappings: [{ path: 'src/Other.tsx', exportName: 'Other', props: { label: 'ok' } }] } });
+    expect(result.mappings[0].status).toBe('unassessed');
+    expect(result.scan.complete).toBe(false);
+    expect(result.omissions.map(item => item.reason)).toEqual(expect.arrayContaining(['reexport-unassessed', 'parse-failure', 'story-filter-or-spread-unassessed']));
+  });
+  it('resolves DTCG aliases and reports token parse and unknown-format omissions', async () => {
+    const projectRoot = await fixture();
+    await writeFile(join(projectRoot, 'src/tokens.json'), JSON.stringify({ colors: { primary: { $type: 'color', $value: '#123456' }, alias: { $type: 'color', $value: '{colors.primary}' } } }));
+    await writeFile(join(projectRoot, 'src/bad-tokens.json'), '{');
+    await writeFile(join(projectRoot, 'src/theme.json'), '{"unsupported":true}');
+    const result = await buildFrontendBrief({ projectRoot, intent: 'tokens' });
+    expect(result.tokens).toContainEqual(expect.objectContaining({ name: 'colors/alias', value: '#123456' }));
+    expect(result.omissions.map(item => item.reason)).toEqual(expect.arrayContaining(['token-parse-failure', 'token-format-unassessed']));
+  });
+  it('reports conflicting CSS token values without guessing the requested mode', async () => {
+    const projectRoot = await fixture();
+    await writeFile(join(projectRoot, 'src/dark.css'), '.dark { --color-action: #ffffff; }');
+    const result = await buildFrontendBrief({ projectRoot, intent: 'button', designEvidence: design('figma') });
+    expect(result.mappings[0].status).toBe('conflict');
+  });
+  it('does not read directories reached through symlinks or hidden configuration', async () => {
+    const projectRoot = await fixture(); const outside = await fixture();
+    await symlink(join(outside, 'src'), join(projectRoot, 'linked'));
+    await mkdir(join(projectRoot, '.private'));
+    await writeFile(join(projectRoot, '.private/Private.tsx'), 'export function Private() {}');
+    const result = await buildFrontendBrief({ projectRoot, intent: 'button' });
+    expect(result.components.every(item => !item.path.startsWith('linked') && !item.path.includes('Private'))).toBe(true);
+    expect(result.omissions).toContainEqual({ path: 'linked', reason: 'symlink' });
+  });
+  it('reports the file ceiling and handles no source and no design mappings explicitly', async () => {
+    const projectRoot = await mkdtemp(join(tmpdir(), 'memi-empty-')); roots.push(projectRoot);
+    const empty = await buildFrontendBrief({ projectRoot, intent: 'empty', designEvidence: { source: 'paper', documentId: 'a', nodeId: 'b' } });
+    expect(empty.unresolved.join(' ')).toMatch(/No explicit code mappings/);
+    await Promise.all(Array.from({ length: 501 }, (_, i) => writeFile(join(projectRoot, `Item${i}.ts`), 'export const value = 1;')));
+    const result = await buildFrontendBrief({ projectRoot, intent: 'all' });
+    expect(result.scan.filesRead).toBe(500);
+    expect(result.scan.complete).toBe(false);
+    expect(result.omissions.some(item => item.reason === 'file-count-limit')).toBe(true);
+  });
+  it('rejects accessors without executing them and rejects class instances or excessive nesting', () => {
+    let calls = 0;
+    expect(() => normalizeDesignEvidence({ ...design('paper'), get properties() { calls++; return {}; } })).toThrow();
+    expect(calls).toBe(0);
+    expect(() => normalizeDesignEvidence(new Date())).toThrow();
+    expect(() => normalizeDesignEvidence({ ...design('figma'), properties: { x: () => 1 } })).toThrow();
+    let nested: unknown = {};
+    for (let i = 0; i < 15; i++) nested = { x: nested };
+    expect(() => normalizeDesignEvidence(nested)).toThrow();
+    expect(() => normalizeDesignEvidence({ ...design('figma'), properties: Object.fromEntries(Array.from({ length: 1025 }, (_, i) => [`x${i}`, true])) })).toThrow();
+  });
+  it('rejects invalid context bounds and keeps huge design identity inputs within budget', async () => {
+    const projectRoot = await fixture();
+    for (const maxBytes of [0, 2047, 16385, NaN, 3000.5]) await expect(buildFrontendBrief({ projectRoot, intent: 'x', maxBytes })).rejects.toThrow();
+    await expect(buildFrontendBrief({ projectRoot, intent: '' })).rejects.toThrow();
+    await expect(buildFrontendBrief({ projectRoot, intent: 'x'.repeat(1025) })).rejects.toThrow();
+    const result = await buildFrontendBrief({ projectRoot, intent: 'x'.repeat(1024), maxBytes: 2048, designEvidence: { ...design('paper'), documentId: 'a'.repeat(512), nodeId: 'b'.repeat(512), revision: 'c'.repeat(512) } });
+    expect(Buffer.byteLength(JSON.stringify(result))).toBeLessThanOrEqual(2048);
+    expect(result.omissions.some(item => item.reason === 'context-budget')).toBe(true);
+  });
+});
