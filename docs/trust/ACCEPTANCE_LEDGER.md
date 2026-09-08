@@ -12,7 +12,7 @@ Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c
 | npm package and offline budgets | Production shrinkwrap, explicit file allowlist, packed harness, and offline bundle workflows exist. | Local portable packed smoke and clean install pass; 61 files, about 619 KB packed and 51 MB installed. Native CI and signed public bundle digests remain required. |
 | Managed independent security scan | Attempt failed before workers started: “Deep Scan cannot safely start a read-only worker: the parent must provide a managed filesystem permission profile.” | Supported managed permission environment. No scan results exist from this attempt. |
 | Stable parity | Existing beta exception names stale reviewed-candidate-audit and swiftui-rendered-rerun evidence. | Refresh actual receipts; public gate must return `failures: []` and `parityEligible: true`. |
-| Public surface consistency | All 13 public organization repositories inventoried. Stable CLI/Homebrew 2.7.9 and Studio 2.5.0 checksums agree; stale profile, source links, focused mirrors and nonexistent Canvas download have scoped PRs; six are merged and native/proof checks are still pending for others. | Separate reviewed changes and publication receipts; CLI verification does not certify sibling products. |
+| Public surface consistency | All 13 public organization repositories inventoried. Stable CLI/Homebrew 2.7.9 and Studio 2.5.0 checksums agree; stale profile, source links, focused mirrors and nonexistent Canvas download have scoped PRs; eight are merged; sandbox documentation remains blocked by its existing dependency audit. The stable-branch README update is PR #135. | Separate reviewed changes and publication receipts; CLI verification does not certify sibling products. |
 
 ## Coverage scope
 
@@ -40,3 +40,15 @@ A metadata receipt factory and explicit persisted receipt option exist, but the
 CLI's normal diagnosis output remains a useful source-bearing report, not a
 metadata-only receipt. Default stdout receipt behavior still needs a dedicated
 acceptance test and contract decision before claiming that requirement complete.
+
+## Public documentation changes
+
+Merged after applicable checks: organization profile #7; Homebrew #5; Studio #26;
+Canvas #31; ripple proof #4; audit-frontend-design #2; enforce-design-ci #2;
+remember-design-system #2. Focused skill content comes from stable commit
+`70c9f4ad8b9823f67b5b16a06be9a42064aa6f04`, recorded in each source manifest.
+The sandbox docs PR #4 remains open: its existing production audit reports 22
+advisories (12 high, eight moderate, two low), so its proof did not execute.
+No runtime dependency or proof evidence was changed in that documentation PR.
+The stable CI skill still uses a mutable `@v2` action ref; preserve its provenance
+until a separately reviewed canonical-source pin and export update.

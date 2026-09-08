@@ -14,6 +14,8 @@ release gates pass.
 
 ### Release audit follow-up (unreleased)
 
+- `cbdef4cf` — fix: close diagnosis policy gaps and enforce release evidence
+
 - Close diagnosed URL, Git subprocess, and source-report capability gaps at their execution boundaries; keep optional Git history metadata subprocess-free without a shell grant.
 - Patch fast-uri to exact 3.1.7 and regenerate the production shrinkwrap; fresh full and production dependency audits report zero known advisories.
 - Require native Linux arm64 containment/performance verification before npm publication; execute lifecycle release gates explicitly when publishing with scripts disabled.
