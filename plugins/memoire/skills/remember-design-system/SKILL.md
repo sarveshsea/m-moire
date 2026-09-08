@@ -7,7 +7,7 @@ description: Use when an agent is about to build or refactor interface code and 
 
 Build design context from the repository instead of guessing from the prompt. This is a preflight for UI work, not a request to redesign the product.
 
-This workflow requires a reviewed local **2.8.0-beta.2 candidate** build; beta2 is unpublished. Check `memi --version` before using these recipes. Published npm beta **2.8.0-beta.1** remains on `next`; npm stable remains **2.7.9**. Beta1’s release record is unchanged. Native Windows package-path handling and macOS arm64 JSON output remain under corrective validation; see docs/trust/KNOWN_LIMITATIONS.md.
+This workflow targets **2.8.0-beta.2**. For an unpublished candidate, use a reviewed local build reporting that exact version. Check `memi --version` and exact npm registry availability before installing; when 2.8.0-beta.2 is available, install that exact version rather than a floating tag. The independent stable compatibility baseline is **2.7.9**. Check docs/CURRENT_RELEASE.md and docs/trust/KNOWN_LIMITATIONS.md for current publication state and artifact-specific native verification; npm availability alone does not establish native-binary success.
 
 ## Build The Brief
 

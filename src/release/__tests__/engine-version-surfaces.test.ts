@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
-const candidateVersion = "2.8.0-beta.1";
+const candidateVersion = "2.8.0-beta.2";
 const publicVersion = "2.7.9";
 const publicSourceCommit = "5fcbf39e1255af0c14c5a17ba6bde8cf1206e525";
 const publicReleaseRecord = {
@@ -18,7 +18,7 @@ async function readJson(path: string) {
   return JSON.parse(await readFile(join(root, path), "utf8"));
 }
 
-describe("2.8.0-beta.1 Trust Core candidate surfaces", () => {
+describe("current Trust Core release surfaces", () => {
   it("validates the declared release identity and retained stable evidence", async () => {
     const manifest = await readJson("release-manifest.json");
     const engine = manifest.releaseGroups.engine;
@@ -93,7 +93,7 @@ describe("2.8.0-beta.1 Trust Core candidate surfaces", () => {
     const publicationDate = engine.state === "published"
       ? new Date((await readJson(engine.releaseRecord.path)).publishedAt).toISOString().slice(0, 10)
       : undefined;
-    expectDocumentation(engine, changelog, currentRelease, publicationDate);
+    expectDocumentation(engine, changelog, currentRelease, publicationDate, engine.version);
   });
 });
 
@@ -106,24 +106,25 @@ function expectPublishedIdentity(engine: { version: string; sourceCommit: string
   expect(validateEngineReleaseRecord(record)).toEqual([]);
 }
 
-function expectDocumentation(engine: { state: string; sourceCommit: string | null }, changelog: string, currentRelease: string, publicationDate?: string) {
+function expectDocumentation(engine: { state: string; sourceCommit: string | null }, changelog: string, currentRelease: string, publicationDate?: string, version = "2.8.0-beta.1") {
   expect(["candidate", "published"]).toContain(engine.state);
   expect(currentRelease).toContain(`Release state: \`${engine.state}\``);
   if (engine.state === "candidate") {
-    expect(changelog).toContain("## Trust Core 2.8 development — Unreleased");
-    expect(changelog).not.toContain(`## v${candidateVersion} —`);
-    expect(currentRelease).toContain(`Engine candidate (unreleased) | \`${candidateVersion}\``);
+    expect(changelog).toContain(version === "2.8.0-beta.1" ? "## Trust Core 2.8 development — Unreleased" : `## Unreleased — ${version} candidate`);
+    expect(changelog).not.toContain(`## v${version} —`);
+    expect(currentRelease).toContain(`Engine candidate (unreleased) | \`${version}\``);
     expect(currentRelease).toContain("Source commit: Not assigned.");
     expect(currentRelease).toContain(`releases/tag/v${publicVersion}`);
     expect(currentRelease).toContain(`npx -y @memi-design/cli@${publicVersion}`);
-    expect(currentRelease).not.toContain(`npx -y @memi-design/cli@${candidateVersion}`);
+    expect(currentRelease).not.toContain(`npx -y @memi-design/cli@${version}`);
   } else {
     expect(publicationDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(changelog).toContain(`## v${candidateVersion} — ${publicationDate} — Published beta`);
+    expect(changelog).toContain(`## v${version} — ${publicationDate} — Published beta`);
     expect(changelog).not.toContain("## Trust Core 2.8 development — Unreleased");
+    expect(changelog).not.toContain(`## Unreleased — ${version} candidate`);
     expect(currentRelease).toContain(`Source commit: \`${engine.sourceCommit}\``);
-    expect(currentRelease).toContain(`releases/tag/v${candidateVersion}`);
-    expect(currentRelease).toContain(`npx -y @memi-design/cli@${candidateVersion}`);
+    expect(currentRelease).toContain(`releases/tag/v${version}`);
+    expect(currentRelease).toContain(`npx -y @memi-design/cli@${version}`);
     expect(currentRelease).not.toContain("Engine candidate (unreleased)");
   }
   expect(currentRelease).toContain("Do not announce parity until npm, GitHub, MCP, the Action, Studio, and the deployed website match their release groups.");
@@ -136,10 +137,10 @@ const publishedDocs = "Release state: `published`\nSource commit: `" + "a".repea
 describe("immutable candidate and synthetic published transition examples", () => {
   it("retains the immutable candidate identity independently of live release state", async () => {
     const candidate = { version: "2.8.0-beta.1", state: "candidate", sourceCommit: null, releaseRecord: null, previousPublicRelease: {version: "2.7.9", sourceCommit: "5fcbf39e1255af0c14c5a17ba6bde8cf1206e525", releaseRecord: {path: "release-artifacts/npm/2.7.9.release.json", sha256: "a04c63335fae7c7a1a2ac57d387a8647471742024c42e486159db4c0f1e78d0c"}} };
-    expect(candidate).toMatchObject({ version: candidateVersion, state: "candidate", sourceCommit: null, releaseRecord: null, previousPublicRelease: {version: publicVersion, sourceCommit: publicSourceCommit, releaseRecord: publicReleaseRecord} });
+    expect(candidate).toMatchObject({ version: "2.8.0-beta.1", state: "candidate", sourceCommit: null, releaseRecord: null, previousPublicRelease: {version: publicVersion, sourceCommit: publicSourceCommit, releaseRecord: publicReleaseRecord} });
     expect(candidate).not.toHaveProperty("supersededPartialReleases");
     const current = await readJson("release-manifest.json");
-    const fixture = {...current, releaseGroups: {...current.releaseGroups, engine: candidate}};
+    const fixture = {...current, releaseGroups: {...current.releaseGroups, engine: candidate}, surfaces: {...current.surfaces, githubRelease: {...current.surfaces.githubRelease, url: "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.1"}}};
     expect(validateReleaseManifest(fixture)).toEqual([]);
     expect(validateReleaseManifest({...fixture, releaseGroups: {...fixture.releaseGroups, engine: {...candidate, sourceCommit: "a".repeat(40)}}})).toContain("candidate engine release sourceCommit must be null");
   });

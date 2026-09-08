@@ -9,9 +9,9 @@ Use this as Apple-platform design and verification guidance. Pair it with an ins
 
 ## 2.8 beta availability
 
-This workflow requires a reviewed local **2.8.0-beta.2 candidate** build; beta2 is unpublished. Check `memi --version` before using these recipes. Published npm beta **2.8.0-beta.1** remains on `next`; npm stable remains **2.7.9**. Beta1’s release record is unchanged. Native Windows package-path handling and macOS arm64 JSON output remain under corrective validation; see docs/trust/KNOWN_LIMITATIONS.md.
+This workflow targets **2.8.0-beta.2**. For an unpublished candidate, use a reviewed local build reporting that exact version. Check `memi --version` and exact npm registry availability before installing; when 2.8.0-beta.2 is available, install that exact version rather than a floating tag. The independent stable compatibility baseline is **2.7.9**. Check docs/CURRENT_RELEASE.md and docs/trust/KNOWN_LIMITATIONS.md for current publication state and artifact-specific native verification; npm availability alone does not establish native-binary success.
 
-Memi's `ios brief` and `ios scaffold` commands are unavailable in 2.8.0-beta.1, including preview and write modes. Capability grants do not enable them. This skill does not provide an automatic SwiftUI scaffolding pipeline.
+Memi's `ios brief` and `ios scaffold` commands are unavailable in 2.8.0-beta.1 and 2.8.0-beta.2, including preview and write modes. Capability grants do not enable them. This skill does not provide an automatic SwiftUI scaffolding pipeline.
 
 With the exact beta running `memi --profile locked mcp start --no-figma`, the host may call the read-only `prepare_apple_design_brief` tool:
 

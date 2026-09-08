@@ -52,14 +52,15 @@ Local source diagnosis uses deterministic rules: **no model call, API key, or mo
 
 Start with one diagnosis, address the highest-confidence finding, and rerun the same check. Use `--agent-context` for a bounded file index instead of sending a whole repository to a model. Its routing is heuristic; a smaller context is not proof of a cheaper successful task. `--files` scopes reported findings without launching Git; it still scans the tree for aggregate statistics.
 
-**Beta2 preparation:** `2.8.0-beta.2` is an unpublished correction candidate. Use only a reviewed local build reporting that version to test the candidate; do not install beta2 from npm. Published npm beta `2.8.0-beta.1` remains available on `next`, and `latest` remains `2.7.9`. Beta1’s immutable record is retained. Native Windows package-path handling and macOS arm64 JSON output require fresh verification before corrected native downloads are claimed.
+**Beta installation:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Check exact registry availability before installing; when beta2 is available, use its exact version instead of a floating tag. The independent stable compatibility baseline is `2.7.9`. See [current release state](docs/CURRENT_RELEASE.md) for publication status and [known limitations](docs/trust/KNOWN_LIMITATIONS.md) for artifact-specific native verification.
 
-**Release channels:** npm `latest` remains `2.7.9`. Published beta `2.8.0-beta.1` is available on `next`, subject to the limitations below. Use an exact pin for the beta: `npx -y @memi-design/cli@2.8.0-beta.1 diagnose . --json --no-write --fail-on none`. The [immutable npm release record](release-artifacts/npm/2.8.0-beta.1.release.json) identifies its source and provenance. Its locked default and explicit capability contract do not apply retroactively to 2.7.9.
+**Release channels:** `latest` selects the stable channel and `next` selects the beta channel; inspect their current values rather than assuming they match this immutable package README. The [beta1 npm release record](release-artifacts/npm/2.8.0-beta.1.release.json) preserves its historical source and provenance. The 2.8 locked default and explicit capability contract do not apply retroactively to 2.7.9.
 
 ```bash
 npm view @memi-design/cli dist-tags --json
-# Once 2.8.0-beta.1 is listed in the registry:
-npx -y @memi-design/cli@2.8.0-beta.1 agent brief . --frontend --intent "Improve this interface" --json
+npm view @memi-design/cli@2.8.0-beta.2 version
+# Only after the exact version above is confirmed available:
+npx -y @memi-design/cli@2.8.0-beta.2 agent brief . --frontend --intent "Improve this interface" --json
 ```
 
 The beta keeps managed security review, SwiftUI parity, and full DesignWorkbench certification explicitly pending. It is not stable or employer-approved. Publication provenance and platform receipts belong to the exact released artifact.

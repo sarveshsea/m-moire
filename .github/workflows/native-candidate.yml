@@ -81,6 +81,10 @@ jobs:
       - name: Build candidate
         run: npm run build
 
+      - name: Capture Windows compiled module URL
+        if: runner.os == 'Windows'
+        run: node scripts/probe-compiled-module-url.mjs
+
       - name: Compile native binary
         run: node scripts/build-binary.mjs --target=${{ matrix.binaryTarget }}
 
