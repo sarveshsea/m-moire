@@ -14,7 +14,8 @@ const entry = resolve(process.argv[2] ?? join(root, "dist", "index.js"));
 await access(entry);
 const plugin = JSON.parse(await readFile(join(root, "plugins", "memoire", ".mcp.json"), "utf8")).mcpServers.memoire;
 assert.equal(plugin.command, "memi");
-assert.deepEqual(plugin.args, ["mcp", "start", "--no-figma"], "Bundled config must not grant implicit capabilities");
+assert.deepEqual(plugin.args, ["--profile", "locked", "mcp", "start", "--no-figma"], "Bundled config must explicitly select locked startup");
+assert(!Object.hasOwn(plugin, "env"), "Locked plugin startup must not request unused credentials");
 const scratch = await mkdtemp(join(tmpdir(), "memi-mcp-smoke-"));
 const project = join(scratch, "project");
 const home = join(scratch, "home");
@@ -48,9 +49,8 @@ const timer = setTimeout(() => { console.error("MCP stdio smoke timed out"); pro
 try {
   await client.connect(transport);
   const names = (await client.listTools()).tools.map((tool) => tool.name);
-  for (const name of ["prepare_design_agent_brief", "prepare_apple_design_brief", "prepare_frontend_brief", "diagnose_app_quality"]) {
-    assert(names.includes(name), `Required local tool missing: ${name}`);
-  }
+  assert.deepEqual([...names].sort(), ["prepare_design_agent_brief", "prepare_apple_design_brief", "prepare_frontend_brief", "diagnose_app_quality"].sort(),
+    "Default plugin must expose exactly the four audited local tools");
   assert(!names.includes("design_doc"), "Unaudited networking tool exposed by default");
   for (const name of ["prepare_design_agent_brief", "diagnose_app_quality"]) {
     const result = await client.callTool({ name, arguments: {} });
