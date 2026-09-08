@@ -1,0 +1,44 @@
+{
+  "sourceCheckpoint": "3308b20ee6fc0e114381217ed66eec12bcd9444b",
+  "tests": 4375,
+  "testFiles": 439,
+  "thresholds": {
+    "statements": 80,
+    "branches": 80,
+    "functions": 80,
+    "lines": 80
+  },
+  "scope": "Complete existing source include/exclude denominator, unchanged.",
+  "total": {
+    "lines": {
+      "total": 29992,
+      "covered": 26201,
+      "skipped": 0,
+      "pct": 87.35
+    },
+    "statements": {
+      "total": 33720,
+      "covered": 29002,
+      "skipped": 0,
+      "pct": 86
+    },
+    "functions": {
+      "total": 6081,
+      "covered": 5437,
+      "skipped": 0,
+      "pct": 89.4
+    },
+    "branches": {
+      "total": 24226,
+      "covered": 19470,
+      "skipped": 0,
+      "pct": 80.36
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  }
+}

@@ -1,0 +1,1 @@
+mcp stdio smoke: locked initialize/list/brief/diagnosis/denial/cancel/close passed (4 tools); no sentinel side effects
