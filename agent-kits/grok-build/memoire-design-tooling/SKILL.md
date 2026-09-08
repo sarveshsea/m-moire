@@ -53,3 +53,5 @@ Reuse local components and tokens according to the consumer project's convention
 6. Report commands, artifacts, files changed, and remaining assumptions.
 
 Do not claim visual correctness from source checks alone. When rendered behavior matters, verify the actual route at desktop and mobile viewports.
+
+Grok Build reference links are in [REFERENCES.md](REFERENCES.md). Older examples there do not override this candidate capability contract.

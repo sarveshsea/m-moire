@@ -6,7 +6,7 @@ Strong dependencies beat weak reinvention. Load these when the task needs more t
 
 | Surface | Install / URL | Role |
 | --- | --- | --- |
-| CLI + MCP | `npm i -g @memi-design/cli` · `memi mcp start --no-figma` | Evidence, tokens, audits, 40+ MCP tools |
+| CLI + MCP | Public npm stable: `2.7.9`; reviewed candidate: `memi --profile locked mcp start --no-figma` | Four default candidate read tools; legacy tools require explicit capabilities |
 | Agent kits | `memi agent install grok-build --project .` | `.grok/config.toml` + skills + `memoire.agent.yaml` |
 | Universal skills | `npx skills add memi-design/memi --skill memoire-design-tooling` | skills.sh / Agent Skills ecosystem |
 | GitHub Action | `uses: memi-design/memi@v2` | Deterministic design CI gate |
