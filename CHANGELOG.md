@@ -12,6 +12,85 @@ This unreleased work is not part of the immutable 2.7.9 release. It becomes a
 public product claim only after the 2.8 candidate, cross-platform, security, and
 release gates pass.
 
+### Frontend engineering candidate (unreleased)
+
+- Add a bounded repository-aware frontend brief across exports, props, CSS/DTCG tokens and CSF story references; normalize host-supplied Figma/Paper mappings without executing vendor data.
+- Make locked stdio useful with four read tools, cancellation, explicit root ownership, credential-free configurations and installed protocol checks.
+- Validate mapped reuse and stale/conflicting evidence; keep host-envelope guidance distinct from the registry generator's hard stop.
+- Contain source and metadata reads using file descriptors, reject links/identity changes, and bound traversal. Separate assessed quality, coverage, omissions and metadata receipts.
+- Exercise real Storybook component reuse with checked-in connector evidence, keyboard/theme/viewport tests, and a separate CI replay job. Paper screenshot parity remains unassessed.
+- Add cold-process and byte-budget measurements with honest narrow-input comparisons. No complete-task savings claim; full-source coverage and remaining release gates still block npm publication.
+- Replace unavailable candidate recipes and legacy default autonomy guidance with the actual capability contract, preserving consumer component and CSS conventions.
+
+Development checkpoints (RED tests precede their implementation where noted):
+
+- `80e38dc0` — test: reproduce frontend command compatibility and persistence gaps
+- `97beda0b` — test: reproduce locked MCP startup and discovery gaps
+- `2c66b418` — test: reproduce scan completeness and frontend quality gaps
+- `199920bb` — test: define bounded frontend evidence brief contracts
+- `33dcf086` — test: reproduce escaped and oversized context excerpt reads
+- `3338c5b2` — fix: restore explicit frontend command capabilities and safe output
+- `d8c048f0` — fix: bound context reads to validated workspace file handles
+- `95a23815` — test: reproduce frontend artifact and component reuse boundaries
+- `277b4ffb` — build: pin the frontend syntax parser in the production graph
+- `61ed9fe2` — test: require classification of every executable command
+- `0a58b6f1` — test: cover research persistence and harness evidence contracts
+- `465b6c24` — test: define repository grounded frontend brief CLI
+- `f7cb5b96` — fix: guard frontend artifacts and require mapped component reuse
+- `02a52962` — fix: make locked Codex MCP usable without side effects
+- `61048b0d` — fix: report assessed quality and source analysis completeness
+- `93d2e9d0` — test: require cooperative source scan cancellation
+- `70a355d7` — feat: resolve design evidence against repository components and stories
+- `a5b66b6e` — feat: expose bounded repository briefs to frontend agents
+- `51394185` — test: require frontend evidence through locked MCP
+- `ddf9aeb0` — fix: cancel local analysis cooperatively within the declared scan scope
+- `55504e08` — feat: serve repository frontend evidence through locked MCP
+- `a69f8588` — fix: cancel frontend evidence work and bound external input traversal
+- `eeae6a1f` — test: reject outside hardlinks and incomplete component mappings
+- `f0997b04` — test: reproduce shell injection in generated agent guidance
+- `88d941cb` — test: require private metadata receipts and truthful diagnosis output
+- `8067b1f9` — test: preserve explicit capability scope for MCP extensions
+- `11e7255a` — fix: reject escaped source links and incomplete design mappings
+- `76794662` — fix: quote agent guidance and contain MCP brief targets
+- `d5578067` — test: reproduce diagnosis source containment escapes
+- `87d4808f` — test: require assessed-only score labels in rendered reports
+- `29fe3488` — feat: emit source-free diagnosis receipts and assessment coverage
+- `e7d8169d` — test: reproduce readonly registry source escapes
+- `d76c5b54` — test: reproduce project context and snapshot read escapes
+- `0f019aaa` — test: require connected receipt-only diagnosis without write grants
+- `028ee7b6` — fix: contain and bound every local diagnosis source read
+- `b0dc9004` — fix: label assessed results and preserve receipt-only stdout
+- `b30f73f5` — fix: preserve MCP extension authority and verify installed discovery
+- `7c4314f5` — test: reject nonprimitive imported token extension values
+- `4af2d161` — fix: contain readonly project registry and snapshot inputs
+- `5b3c0ac9` — fix: classify legacy command support and preserve readonly receipts
+- `46c93335` — test: declare intentional write capabilities in integration fixtures
+- `b5efe4f7` — fix: reject unsupported DTCG token values
+- `d1fc3ee3` — test: define Storybook frontend workflow acceptance cases
+- `11b7a07f` — test: reject linked metadata reads and stale MCP setup claims
+- `fb507476` — test: define bounded frontend brief performance evidence
+- `d1158462` — test: bound source tree traversal before scanning
+- `966cefe1` — test: preserve Action versions and advertise actual MCP resources
+- `fe6fdd83` — fix: grant CI effects explicitly and include candidate release plan
+- `f6b8a32d` — test: verify mapped component reuse through a real Storybook consumer
+- `21337209` — fix: publish accurate locked MCP setup and frontend recipes
+- `ee69152c` — test: verify complete benchmark fixture integrity
+- `3f3c2917` — fix: contain policy baseline history and report reads
+- `cadc26fb` — fix: bound directory discovery before source scanning
+- `a3c85649` — test: reject credential-dependent defaults and stale corpus reuse
+- `9df240c5` — feat: measure bounded frontend briefs against frozen source fixtures
+- `056c52f3` — fix: make distributed MCP configurations explicitly locked
+- `257c828d` — fix: invalidate cached corpus files across source revisions
+- `ebdabbc1` — test: exercise real command research and Studio release boundaries
+- `8f017a14` — test: require real frontend workflow verification in CI
+- `c1d2e22f` — docs: explain actual 2.8 frontend workflows and release limits
+- `520b4f1f` — test: exercise legacy MCP handler and research command contracts
+- `d988a5a6` — feat: verify Figma and Paper mapped reuse in real Storybook
+- `4c9ff1a2` — fix: clarify candidate setup and mapping enforcement boundaries
+- `566b0d74` — test: exercise Figma transport lifecycle and restart cleanup
+- `8b2495ad` — docs: align shipped skills and harness mirrors with candidate capabilities
+- `d2a71798` — fix: clear Figma command reservations when restarting transport
+
 ### Release audit follow-up (unreleased)
 
 - `aeee0618` — fix: preserve exact Windows file identities during persistence
