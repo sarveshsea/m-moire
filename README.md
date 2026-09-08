@@ -64,7 +64,7 @@ The candidate prevents local diagnosis from writing project files by default, ke
 | --- | --- |
 | Diagnosis, agent briefs, token tools, Figma bridge, and skills already existed. | `agent brief --frontend` joins actual exports, props, CSS/DTCG tokens, and CSF stories in a 2–16 KiB JSON response. |
 | Harness configuration exposed a broad tool catalog. | Locked stdio starts without sockets or project writes; four read tools are available without grants. |
-| A design mapping could become stale or a generator warning could be ignored. | Explicit mappings are checked against current exports, required props, token references, and optional source hashes. Generator mappings block duplicate generation. |
+| A design mapping could become stale or a generator warning could be ignored. | Explicit mappings are checked against current exports, required props, token references, and optional source hashes. Registry specs marked as mapped block duplicate generation; a host envelope supplies reuse guidance. |
 | Paper had no dedicated integration. | Codex can supply selected Paper or Figma context through the same validated envelope; no extra model session or bundled connector is required. |
 | Static diagnosis could present unassessed categories as passing. | Quality scores cover assessed categories only; coverage and scan omissions are separate. Browser verification remains unassessed until actually run. |
 

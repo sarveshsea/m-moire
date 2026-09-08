@@ -44,7 +44,7 @@ memi agent brief . --frontend --intent "Implement the selected navigation using 
 
 Evidence is labeled `host-supplied`: Memi validates its structure and checks the code association, but does not authenticate a vendor document. Native Figma Code Connect is optional. A checked-in mapping can provide the association when Code Connect is unavailable; identify that fallback honestly. A valid mapping establishes reuse evidence, not visual parity. Missing required props, missing exports/tokens, and conflicting values must be resolved before implementation.
 
-The generator blocks a mapped component even with `--force`. The harness should import that existing component and compose it in a consumer. Memi does not intercept arbitrary edits made by Codex, so verify the resulting diff for duplicate definitions.
+An envelope mapping produces `mustReuse` guidance in the brief; this read-only operation does not update registry specs. Separately, the generator blocks a registry component spec marked `codeConnect.mapped`, even with `--force`. The harness should import the matched existing component and compose it in a consumer. Memi does not intercept arbitrary edits made by Codex, so verify the resulting diff for duplicate definitions.
 
 ## Codex MCP
 
