@@ -466,7 +466,7 @@ function buildOpportunities(themes: ResearchTheme[], findings: ResearchFinding[]
     })
     .filter((opportunity): opportunity is ResearchOpportunity => Boolean(opportunity))
     .sort((a, b) =>
-      comparePriority(b.priority, a.priority)
+      comparePriority(a.priority, b.priority)
       || compareConfidence(b.confidence, a.confidence)
       || b.sourceCount - a.sourceCount
       || a.title.localeCompare(b.title),
@@ -498,7 +498,7 @@ function buildRisks(themes: ResearchTheme[], findings: ResearchFinding[]): Resea
     })
     .filter((risk): risk is ResearchRisk => Boolean(risk))
     .sort((a, b) =>
-      comparePriority(b.severity, a.severity)
+      comparePriority(a.severity, b.severity)
       || b.sourceCount - a.sourceCount
       || a.title.localeCompare(b.title),
     );
