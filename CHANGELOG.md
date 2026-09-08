@@ -6,7 +6,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
-## v2.8.0-beta.1 — Published beta
+## v2.8.0-beta.1 — 2026-09-08 — Published beta
 
 Published to `next`; npm `latest` remains `2.7.9`. The [immutable npm release record](release-artifacts/npm/2.8.0-beta.1.release.json) records the actual publication timestamp, source, artifact digests and provenance.
 

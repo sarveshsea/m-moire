@@ -90,7 +90,10 @@ describe("2.8.0-beta.1 Trust Core candidate surfaces", () => {
     const engine = (await readJson("release-manifest.json")).releaseGroups.engine;
     const changelog = await readFile(join(root, "CHANGELOG.md"), "utf8");
     const currentRelease = await readFile(join(root, "docs/CURRENT_RELEASE.md"), "utf8");
-    expectDocumentation(engine, changelog, currentRelease);
+    const publicationDate = engine.state === "published"
+      ? new Date((await readJson(engine.releaseRecord.path)).publishedAt).toISOString().slice(0, 10)
+      : undefined;
+    expectDocumentation(engine, changelog, currentRelease, publicationDate);
   });
 });
 
@@ -103,19 +106,20 @@ function expectPublishedIdentity(engine: { version: string; sourceCommit: string
   expect(validateEngineReleaseRecord(record)).toEqual([]);
 }
 
-function expectDocumentation(engine: { state: string; sourceCommit: string | null }, changelog: string, currentRelease: string) {
+function expectDocumentation(engine: { state: string; sourceCommit: string | null }, changelog: string, currentRelease: string, publicationDate?: string) {
   expect(["candidate", "published"]).toContain(engine.state);
   expect(currentRelease).toContain(`Release state: \`${engine.state}\``);
   if (engine.state === "candidate") {
     expect(changelog).toContain("## Trust Core 2.8 development — Unreleased");
-    expect(changelog).not.toContain(`## v${candidateVersion} — Published`);
+    expect(changelog).not.toContain(`## v${candidateVersion} —`);
     expect(currentRelease).toContain(`Engine candidate (unreleased) | \`${candidateVersion}\``);
     expect(currentRelease).toContain("Source commit: Not assigned.");
     expect(currentRelease).toContain(`releases/tag/v${publicVersion}`);
     expect(currentRelease).toContain(`npx -y @memi-design/cli@${publicVersion}`);
     expect(currentRelease).not.toContain(`npx -y @memi-design/cli@${candidateVersion}`);
   } else {
-    expect(changelog).toMatch(/^## v2\.8\.0-beta\.1 — Published beta/m);
+    expect(publicationDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(changelog).toContain(`## v${candidateVersion} — ${publicationDate} — Published beta`);
     expect(changelog).not.toContain("## Trust Core 2.8 development — Unreleased");
     expect(currentRelease).toContain(`Source commit: \`${engine.sourceCommit}\``);
     expect(currentRelease).toContain(`releases/tag/v${candidateVersion}`);
@@ -141,11 +145,14 @@ describe("immutable candidate and synthetic published transition examples", () =
   });
   it("preserves the strict candidate documentation contract", () => {
     expectDocumentation({state: "candidate", sourceCommit: null}, "## Trust Core 2.8 development — Unreleased", candidateDocs);
-    expect(() => expectDocumentation({state: "candidate", sourceCommit: null}, "## v2.8.0-beta.1 — Published beta", publishedDocs)).toThrow();
+    expect(() => expectDocumentation({state: "candidate", sourceCommit: null}, "## v2.8.0-beta.1 — 2026-09-08 — Published beta", publishedDocs, "2026-09-08")).toThrow();
   });
   it("accepts published beta documentation and rejects candidate leftovers", () => {
-    expectDocumentation({state: "published", sourceCommit: "a".repeat(40)}, "## v2.8.0-beta.1 — Published beta", publishedDocs);
-    expect(() => expectDocumentation({state: "published", sourceCommit: "a".repeat(40)}, "## Trust Core 2.8 development — Unreleased", candidateDocs)).toThrow();
+    expectDocumentation({state: "published", sourceCommit: "a".repeat(40)}, "## v2.8.0-beta.1 — 2026-09-08 — Published beta", publishedDocs, "2026-09-08");
+    expect(() => expectDocumentation({state: "published", sourceCommit: "a".repeat(40)}, "## Trust Core 2.8 development — Unreleased", candidateDocs, "2026-09-08")).toThrow();
+  });
+  it("rejects a published heading with a different date from its record", () => {
+    expect(() => expectDocumentation({state: "published", sourceCommit: "a".repeat(40)}, "## v2.8.0-beta.1 — 2026-09-07 — Published beta", publishedDocs, "2026-09-08")).toThrow();
   });
   it("binds a synthetic published identity to validated record bytes", async () => {
     // Synthetic unit input only; the actual checkout must pass Git transition verification above.

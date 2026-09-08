@@ -18,20 +18,26 @@ const manifest = JSON.parse(
   };
 };
 
-const candidateVersion = manifest.releaseGroups.engine.version;
-const publicEngineVersion = manifest.releaseGroups.engine.state === "candidate"
-  ? manifest.releaseGroups.engine.previousPublicRelease?.version
-  : candidateVersion;
-if (!publicEngineVersion) {
-  throw new Error("Candidate manifest must identify its previous public release");
-}
 const studioVersion = manifest.releaseGroups.studio.version;
-const publicEngineSourceCommit = manifest.releaseGroups.engine.state === "candidate"
-  ? manifest.releaseGroups.engine.previousPublicRelease?.sourceCommit
-  : manifest.releaseGroups.engine.sourceCommit;
-if (!publicEngineSourceCommit) {
-  throw new Error("Published manifest must identify its immutable source commit");
+type EngineRelease = typeof manifest.releaseGroups.engine;
+
+// Stable integrations keep their reviewed version and source while npm next
+// publishes a prerelease. Publication alone does not move the stable channel.
+function stableIntegrationRelease(engine: EngineRelease) {
+  const release = engine.state === "candidate" || engine.version.includes("-")
+    ? engine.previousPublicRelease
+    : engine;
+  if (!release || release.version.includes("-")) {
+    throw new Error("Stable guidance requires a previous stable public release");
+  }
+  if (!release.sourceCommit || !/^[a-f0-9]{40}$/.test(release.sourceCommit)) {
+    throw new Error("Stable guidance requires an immutable source commit");
+  }
+  return { version: release.version, sourceCommit: release.sourceCommit };
 }
+const stableEngine = stableIntegrationRelease(manifest.releaseGroups.engine);
+const publicEngineVersion = stableEngine.version;
+const publicEngineSourceCommit = stableEngine.sourceCommit;
 const primaryStory = "the design layer for agentic ai";
 
 const engineDocs = [
@@ -81,6 +87,26 @@ const trustCoreDocs = [
   "docs/trust/RELEASE_TRUTH.md",
   "docs/trust/ORG_COMPATIBILITY.md",
 ] as const;
+
+describe("stable integration channel selection", () => {
+  const stable = { version: "2.7.9", sourceCommit: "a".repeat(40) };
+  it.each(["candidate", "published"])("keeps prerelease %s guidance on the prior stable source", state => {
+    expect(stableIntegrationRelease({ version: "2.8.0-beta.1", state, sourceCommit: "b".repeat(40), previousPublicRelease: stable })).toEqual(stable);
+  });
+  it("uses the newly published stable version and source", () => {
+    expect(stableIntegrationRelease({ version: "2.8.0", state: "published", sourceCommit: "b".repeat(40), previousPublicRelease: stable })).toEqual({ version: "2.8.0", sourceCommit: "b".repeat(40) });
+  });
+  it("keeps an unpublished stable candidate on the prior stable release", () => {
+    expect(stableIntegrationRelease({ version: "2.8.0", state: "candidate", previousPublicRelease: stable })).toEqual(stable);
+  });
+  it("rejects a prerelease without prior stable evidence", () => {
+    expect(() => stableIntegrationRelease({ version: "2.8.0-beta.1", state: "published", sourceCommit: "b".repeat(40) })).toThrow("previous stable public release");
+    expect(() => stableIntegrationRelease({ version: "2.8.0-beta.1", state: "published", previousPublicRelease: { ...stable, version: "2.7.9-beta.1" } })).toThrow("previous stable public release");
+  });
+  it.each(["main", "v2", "5fcbf39", ""])("rejects non-immutable stable source %s", sourceCommit => {
+    expect(() => stableIntegrationRelease({ version: "2.8.0-beta.1", state: "published", previousPublicRelease: { ...stable, sourceCommit } })).toThrow("immutable source commit");
+  });
+});
 
 describe("public documentation release truth", () => {
   it("derives verified public engine and Studio guidance from release-manifest.json", async () => {
@@ -199,11 +225,12 @@ describe("public documentation release truth", () => {
         /uses:\s+(?:actions\/[^@\s]+|github\/codeql-action\/[^@\s]+)@v\d+/,
       );
       expect(source, `${path} contains a mutable Memi action ref`).not.toMatch(
-        /uses:\s+sarveshsea\/memi@v(?:\d+(?:\.\d+){0,2})\b/,
+        /uses:\s+(?:sarveshsea|memi-design)\/memi@v(?:\d+(?:\.\d+){0,2})\b/,
       );
     }
 
     const ciRecipes = await readFile(join(root, "docs/CI_RECIPES.md"), "utf8");
+    expect(ciRecipes).toContain(`version: "${stableEngine.version}"`);
     for (const ref of expectedDocRefs) {
       expect(ciRecipes, `docs/CI_RECIPES.md should contain ${ref}`).toContain(ref);
     }

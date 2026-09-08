@@ -153,7 +153,9 @@ describe("packaged agent kits", () => {
     const hermesSkill = normalizeNewlines(await readFile(join(root, "agent-kits", "hermes", "memoire-design-tooling", "SKILL.md"), "utf-8"));
     const openClawSkill = normalizeNewlines(await readFile(join(root, "agent-kits", "openclaw", "memoire-design-tooling", "SKILL.md"), "utf-8"));
 
+    const canonical = normalizeNewlines(await readFile(join(root, "skills/memoire-design-tooling/SKILL.md"), "utf8"));
     for (const skill of [hermesSkill, openClawSkill]) {
+      expect(skill.slice(skill.indexOf("# Memi Design Tooling"))).toBe(canonical.slice(canonical.indexOf("# Memi Design Tooling")));
       expect(skill).toMatch(/^---\n/);
       expect(skill).toContain("name: memoire-design-tooling");
       expect(skill).toContain("description: Use when");
