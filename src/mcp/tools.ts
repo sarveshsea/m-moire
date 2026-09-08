@@ -59,8 +59,9 @@ import type { ResearchStore } from "../research/engine.js";
  * structured { isError: true } results instead of raw protocol errors —
  * agents can read the message and retry/adjust instead of failing opaquely.
  */
-function installSafeToolErrors(server: McpServer, excluded: ReadonlySet<string>): void {
-  const originalTool = (server.tool as (...args: unknown[]) => unknown).bind(server);
+function installSafeToolErrors(server: McpServer, excluded: ReadonlySet<string>): () => void {
+  const originalToolMethod = server.tool;
+  const originalTool = (originalToolMethod as (...args: unknown[]) => unknown).bind(server);
   (server as unknown as { tool: (...args: unknown[]) => unknown }).tool = (...args: unknown[]) => {
     if (typeof args[0] === "string" && excluded.has(args[0])) return;
     const cbIndex = args.length - 1;
@@ -78,6 +79,7 @@ function installSafeToolErrors(server: McpServer, excluded: ReadonlySet<string>)
     }
     return originalTool(...args);
   };
+  return () => { server.tool = originalToolMethod; };
 }
 
 /**
@@ -120,7 +122,15 @@ function requireFigma(engine: MemoireEngine): void {
 }
 
 export function registerTools(server: McpServer, engine: MemoireEngine, excluded: ReadonlySet<string> = new Set()): void {
-  installSafeToolErrors(server, excluded);
+  const restoreTool = installSafeToolErrors(server, excluded);
+  try {
+    registerLegacyTools(server, engine);
+  } finally {
+    restoreTool();
+  }
+}
+
+function registerLegacyTools(server: McpServer, engine: MemoireEngine): void {
   // ── pull_design_system ──────────────────────────────────
   server.tool(
     "pull_design_system",

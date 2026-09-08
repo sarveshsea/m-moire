@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { access, mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +12,9 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 // An installed tarball entry can be supplied to exercise the exact consumer bytes.
 const entry = resolve(process.argv[2] ?? join(root, "dist", "index.js"));
 await access(entry);
+const plugin = JSON.parse(await readFile(join(root, "plugins", "memoire", ".mcp.json"), "utf8")).mcpServers.memoire;
+assert.equal(plugin.command, "memi");
+assert.deepEqual(plugin.args, ["mcp", "start", "--no-figma"], "Bundled config must not grant implicit capabilities");
 const scratch = await mkdtemp(join(tmpdir(), "memi-mcp-smoke-"));
 const project = join(scratch, "project");
 const home = join(scratch, "home");
@@ -23,7 +26,7 @@ await writeFile(sentinel, sentinelSource());
 
 const transport = new StdioClientTransport({
   command: process.execPath,
-  args: ["--require", sentinel, entry, "mcp", "start", "--no-figma"],
+  args: ["--require", sentinel, entry, ...plugin.args],
   cwd: project,
   env: {
     PATH: process.env.PATH ?? "",
@@ -45,7 +48,7 @@ const timer = setTimeout(() => { console.error("MCP stdio smoke timed out"); pro
 try {
   await client.connect(transport);
   const names = (await client.listTools()).tools.map((tool) => tool.name);
-  for (const name of ["prepare_design_agent_brief", "prepare_apple_design_brief", "diagnose_app_quality"]) {
+  for (const name of ["prepare_design_agent_brief", "prepare_apple_design_brief", "prepare_frontend_brief", "diagnose_app_quality"]) {
     assert(names.includes(name), `Required local tool missing: ${name}`);
   }
   assert(!names.includes("design_doc"), "Unaudited networking tool exposed by default");
@@ -55,6 +58,9 @@ try {
     const body = JSON.parse(result.content[0].text);
     assert(name === "diagnose_app_quality" ? Array.isArray(body.issues) : typeof body.mission === "string");
   }
+  const frontend = await client.callTool({ name: "prepare_frontend_brief", arguments: { intent: "Improve the Save button" } });
+  assert(!frontend.isError, JSON.stringify(frontend));
+  assert.equal(JSON.parse(frontend.content[0].text).schemaVersion, "memi.frontend-brief.v1");
   const denied = await client.callTool({ name: "design_doc", arguments: { url: "https://example.com" } });
   assert(denied.isError && JSON.stringify(denied.content).includes("MEMI_CAPABILITY_DENIED"));
   const cancellation = new AbortController();
@@ -106,12 +112,14 @@ for (const name of ['writeFile', 'appendFile', 'mkdir', 'mkdtemp', 'rename', 'rm
 }
 fs.createWriteStream = () => deny('createWriteStream');
 function checkRead(path) {
+  if (path instanceof URL) path = require('node:url').fileURLToPath(path);
+  if (Buffer.isBuffer(path)) path = path.toString();
   if (typeof path !== 'string') return;
   const child = relative(process.env.HOME, resolve(path));
   if (child === '' || (!child.startsWith('..') && !require('node:path').isAbsolute(child))) deny('home state read');
 }
 for (const api of [fs, fsp]) {
-  for (const name of ['readFile', 'readFileSync', 'readdir', 'readdirSync']) {
+  for (const name of ['readFile', 'readFileSync', 'readdir', 'readdirSync', 'stat', 'statSync', 'lstat', 'lstatSync', 'access', 'accessSync', 'existsSync', 'realpath', 'realpathSync']) {
     if (!api[name]) continue;
     const original = api[name];
     api[name] = function(path, ...args) { checkRead(path); return original.call(this, path, ...args); };
