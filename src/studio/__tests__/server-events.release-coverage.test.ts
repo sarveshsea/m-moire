@@ -29,7 +29,12 @@ beforeEach(async () => {
   const config = defaultStudioConfig(root); await saveStudioConfig(root, config);
   server = new StudioRuntimeServer({ projectRoot: root, port: 0, telemetrySink: telemetry }); url = (await server.start()).url;
 });
-afterEach(async () => { await server.stop(); await rm(root, { recursive: true, force: true }); vi.clearAllMocks(); });
+afterEach(async () => {
+  await server.stop();
+  // Allow transient Windows directory locks to clear after the server stops.
+  await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+  vi.clearAllMocks();
+});
 async function start(extra: Record<string, unknown> = {}) {
   const response = await fetch(`${url}/api/sessions`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ harness: 'codex', cwd: root, prompt: 'Review the fixture', ...extra }) });
   expect(response.status).toBe(201); return (await response.json()).session;

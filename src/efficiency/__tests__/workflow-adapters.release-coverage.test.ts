@@ -27,9 +27,9 @@ const input = () => ({ workspaceRoot: root, prompt: 'Synthetic task', timeoutMs:
 describe('workflow adapter parsing and bounded process accounting', () => {
   it('selects explicit or platform-specific browser caches without mutating caller environment', () => {
     const base = { PATH: 'synthetic', PLAYWRIGHT_BROWSERS_PATH: '/explicit-cache' }; expect(buildPreparedToolEnvironment(base, '/isolated')).toMatchObject({ HOME: '/isolated', PLAYWRIGHT_BROWSERS_PATH: '/explicit-cache' }); expect(base).not.toHaveProperty('HOME');
-    expect(buildPreparedToolEnvironment({}, '/isolated', '/host', 'linux').PLAYWRIGHT_BROWSERS_PATH).toBe('/host/.cache/ms-playwright');
-    expect(buildPreparedToolEnvironment({}, '/isolated', '/host', 'win32').PLAYWRIGHT_BROWSERS_PATH).toBe('/host/AppData/Local/ms-playwright');
-    expect(buildPreparedToolEnvironment({ LOCALAPPDATA: '/local' }, '/isolated', '/host', 'win32').PLAYWRIGHT_BROWSERS_PATH).toBe('/local/ms-playwright');
+    expect(buildPreparedToolEnvironment({}, '/isolated', '/host', 'linux').PLAYWRIGHT_BROWSERS_PATH).toBe(join('/host', '.cache', 'ms-playwright'));
+    expect(buildPreparedToolEnvironment({}, '/isolated', '/host', 'win32').PLAYWRIGHT_BROWSERS_PATH).toBe(join('/host', 'AppData', 'Local', 'ms-playwright'));
+    expect(buildPreparedToolEnvironment({ LOCALAPPDATA: '/local' }, '/isolated', '/host', 'win32').PLAYWRIGHT_BROWSERS_PATH).toBe(join('/local', 'ms-playwright'));
   });
   it.each(['broken', '{}', 'null', '[]', '{"claudeAiOauth":[]}', '{"claudeAiOauth":{"accessToken":12}}', '{"claudeAiOauth":{"accessToken":"x","expiresAt":0}}'])('rejects unusable OAuth envelope %s', value => {
     expect(parseClaudeOAuthCredential(value, 1)).toBeNull();

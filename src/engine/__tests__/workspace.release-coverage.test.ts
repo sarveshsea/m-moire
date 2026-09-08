@@ -1,12 +1,12 @@
 import { mkdtemp, mkdir, readFile, writeFile, rm, readdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, resolve, parse } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkspaceManager } from '../workspace.js';
 vi.mock('../logger.js', () => ({ createLogger: () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn() }) }));
 let root: string, manager: WorkspaceManager;
-const project = '/fixture/project';
+const project = resolve('/fixture/project');
 const id = createHash('sha256').update(project).digest('hex').slice(0, 12);
 const timestamp = '2026-09-08T00:00:00.000Z';
 const generation = { timestamp, specName: 'button', status: 'success' as const, message: 'Generated', files: ['button.tsx'] };
@@ -29,7 +29,7 @@ describe('workspace persistence and recovery', () => {
     expect(await readdir(file())).not.toContain('.meta.json.tmp');
   });
   it('names filesystem root deterministically when no basename exists', async () => {
-    expect((await manager.getWorkspace('/')).name).toBe('unknown');
+    expect((await manager.getWorkspace(parse(project).root)).name).toBe('unknown');
   });
   it.each(['{', '{"version":2,"entries":{}}'])('recovers invalid registry %s and corrupt metadata', async contents => {
     await writeFile(join(root, 'registry.json'), contents); await seed(['meta.json'], '{');
@@ -54,9 +54,9 @@ describe('workspace persistence and recovery', () => {
     await expect(manager.getWorkspace(project)).rejects.toThrow();
   });
   it('removes only the requested workspace and registry membership', async () => {
-    await manager.getWorkspace(project); await manager.getWorkspace('/fixture/other');
+    await manager.getWorkspace(project); await manager.getWorkspace(resolve('/fixture/other'));
     await manager.cleanWorkspace(project);
-    expect((await manager.listWorkspaces()).map(value => value.path)).toEqual(['/fixture/other']);
+    expect((await manager.listWorkspaces()).map(value => value.path)).toEqual([resolve('/fixture/other')]);
     await expect(readFile(file('meta.json'))).rejects.toMatchObject({ code: 'ENOENT' });
   });
   it('propagates a registry write failure during cleanup', async () => {

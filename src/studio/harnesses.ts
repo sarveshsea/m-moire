@@ -346,7 +346,7 @@ function findHarness(config: StudioConfig, harnessId: StudioHarnessId): StudioHa
 }
 
 function resolveCommandFromPath(command: string): string | null {
-  if (command.includes("/")) return canExecute(command) ? command : null;
+  if (command.includes("/") || (process.platform === "win32" && command.includes("\\"))) return canExecute(command) ? command : null;
   const pathEntries = Array.from(new Set([
     ...(process.env.PATH ?? "").split(delimiter).filter(Boolean),
     join(homedir(), ".local", "bin"),

@@ -234,7 +234,7 @@ export function registerBenchmarkCommand(program: Command, engine: MemoireEngine
         throw new Error(`fixture is not declared by prospective plan: ${unexpected.taskId}`);
       }
       const taskRoot = resolve(opts.taskRoot);
-      const fixtures = await Promise.all(plan.tasks.map(async (task) => {
+      const fixtureResults = await Promise.allSettled(plan.tasks.map(async (task) => {
         const repository = rootsByTask.get(task.id);
         if (!repository) throw new Error(`fixture repository missing for task: ${task.id}`);
         const revision = await benchmarkRepositoryRevision(repository);
@@ -277,6 +277,12 @@ export function registerBenchmarkCommand(program: Command, engine: MemoireEngine
           nativeCaptureKinds,
         };
       }));
+      // Keep ownership of every started Git/file check until it settles. Early
+      // rejection would let callers remove a fixture while a child still uses it.
+      const fixtures = fixtureResults.map((result) => {
+        if (result.status === "rejected") throw result.reason;
+        return result.value;
+      });
       const checkedAt = opts.checkedAt ?? new Date().toISOString();
       if (Number.isNaN(Date.parse(checkedAt))) {
         throw new Error(`checked-at must be an ISO-8601 timestamp: ${checkedAt}`);

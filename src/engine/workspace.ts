@@ -6,7 +6,7 @@
 
 import { createHash } from "crypto";
 import { readFile, writeFile, readdir, mkdir, rm, rename } from "fs/promises";
-import { join, resolve } from "path";
+import { basename, join, resolve } from "path";
 import { homedir } from "os";
 import { createLogger } from "./logger.js";
 import { z } from "zod";
@@ -156,7 +156,7 @@ export class WorkspaceManager {
         log.warn({ err: err.message }, "Failed to load meta.json");
       }
       meta = {
-        name: resolved.split("/").pop() || "unknown",
+        name: basename(resolved) || "unknown",
         path: resolved,
         created: new Date().toISOString(),
         lastAccessed: new Date().toISOString(),
