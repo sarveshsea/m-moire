@@ -33,15 +33,12 @@ export function registerMcpCommand(program: Command, engine: MemoireEngine): voi
     .action(async (opts: { target: string; global?: boolean; install?: boolean }) => {
       const useGlobal = opts.global !== false;
       const cmd = useGlobal ? "memi" : "npx";
-      const args = useGlobal ? ["mcp", "start", "--no-figma"] : ["@memi-design/cli", "mcp", "start", "--no-figma"];
+      const lockedArgs = ["--profile", "locked", "mcp", "start", "--no-figma"];
+      const args = useGlobal ? lockedArgs : ["@memi-design/cli", ...lockedArgs];
 
       const serverConfig = {
         command: cmd,
         args,
-        env: {
-          FIGMA_TOKEN: "${FIGMA_TOKEN}",
-          FIGMA_FILE_KEY: "${FIGMA_FILE_KEY}",
-        },
       };
 
       // ── --install mode: write directly to config file ─────
@@ -95,7 +92,7 @@ export function registerMcpCommand(program: Command, engine: MemoireEngine): voi
           }
           console.log();
           console.log(chalk.dim("  Reload Claude Code / Cursor to pick up the new MCP server."));
-          console.log(chalk.dim("  Make sure FIGMA_TOKEN and FIGMA_FILE_KEY are in your environment."));
+          console.log(chalk.dim("  The locked server needs no Figma credentials or capability grants."));
           console.log();
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
@@ -116,7 +113,7 @@ export function registerMcpCommand(program: Command, engine: MemoireEngine): voi
           console.log();
           console.log(JSON.stringify(config, null, 2));
           console.log();
-          console.log("  Or install automatically:");
+          console.log("  Config installation is a separate write action requiring explicit capability grants:");
           console.log("    memi mcp config --install              (project .mcp.json)");
           console.log("    memi mcp config --install --global     (~/.claude/settings.json)");
           console.log();
@@ -131,47 +128,36 @@ export function registerMcpCommand(program: Command, engine: MemoireEngine): voi
           console.log();
           console.log(JSON.stringify(config, null, 2));
           console.log();
-          console.log("  Or install automatically:");
+          console.log("  Config installation is a separate write action requiring explicit capability grants:");
           console.log("    memi mcp config --install --target cursor");
           console.log();
           break;
         }
         default: {
           console.log(JSON.stringify({ mcpServers: { memoire: serverConfig } }, null, 2));
-          break;
+          return;
         }
       }
 
-      console.log(ui.section("AVAILABLE TOOLS"));
+      console.log(ui.section("DEFAULT MCP SURFACE"));
+      console.log("  4 locked tools — local reads without network, subprocesses, or report persistence");
       console.log();
       const tools = [
-        ["pull_design_system", "Pull tokens, components, styles from Figma"],
-        ["get_specs / get_spec", "List or read component/page/dataviz specs"],
-        ["create_spec", "Create or update a spec (JSON)"],
-        ["generate_code", "Generate code from a spec"],
-        ["get_tokens / update_token", "Read or modify design tokens"],
-        ["sync_design_tokens", "Map Figma tokens → Tailwind config"],
-        ["capture_screenshot", "Screenshot a Figma node (PNG/SVG)"],
-        ["get_selection", "Current Figma selection with properties"],
-        ["get_page_tree", "Figma page structure (pages, frames)"],
-        ["compose", "Natural language design intent orchestration"],
-        ["run_audit", "Design system quality audit"],
-        ["get_research", "Research store (insights, personas)"],
-        ["analyze_design", "AI vision analysis of Figma screenshots"],
-        ["measure_text", "Server-side text measurement"],
-        ["get_ai_usage", "Session token usage and cost"],
-        ["check_bridge_health", "Bridge latency diagnostics"],
-        ["design_doc", "Extract design system from any URL → DESIGN.md"],
+        ["prepare_design_agent_brief", "Bounded local design workflow guidance"],
+        ["prepare_apple_design_brief", "Apple guidance without running Xcode"],
+        ["diagnose_app_quality", "Read-only local source findings"],
+        ["prepare_frontend_brief", "Existing components, props, tokens, stories and supplied design evidence"],
       ];
       for (const [name, desc] of tools) {
         console.log(`  ${name.padEnd(28)} ${ui.dim(desc)}`);
       }
       console.log();
-      console.log(ui.section("RESOURCES (3)"));
+      console.log(ui.dim("  The legacy catalog requires the connected profile and explicit grants for every capability."));
+      console.log(ui.dim("  Keep the default client locked. Read responses may contain source evidence; they are not metadata-only receipts."));
       console.log();
-      console.log("  memoire://design-system     Current tokens, components, styles");
-      console.log("  memoire://specs/{name}       Individual spec by name");
-      console.log("  memoire://project            Project context and framework info");
+      console.log(ui.section("RESOURCES (1)"));
+      console.log();
+      console.log("  memoire://project            Project root and effective execution policy");
       console.log();
     });
 

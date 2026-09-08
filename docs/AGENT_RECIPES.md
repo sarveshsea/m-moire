@@ -1,207 +1,92 @@
-# Memoire Agent Recipes
+# Memi agent recipes
 
-Memoire is for coding agents first: it gives Claude Code, Codex, Cursor, OpenCode, Hermes, OpenClaw, ECC-style AGENTS.md repos, MCP clients, and `.agents/skills` compatible agents a repeatable way to inspect UI quality, design tokens, shadcn registries, Figma context, user research, UX tenets and traps, interface craft, and project memory before editing files.
+**Stable npm: 2.7.9. Unpublished development candidate: 2.8.** Keep release availability separate from source-checkout capabilities. The candidate commands in this guide assume a locally built candidate `memi` binary on PATH. They are not an instruction to install an unpublished npm version.
 
-## Before Any UI Patch
-
-```bash
-npm i -g @memi-design/cli
-memi suite init --project .
-memi daemon start --project . --port auto
-memi daemon status --json
-memi agent brief . --intent "Improve this interface" --json
-memi diagnose
-memi ux audit --json
-memi craft audit --json
-memi tokens --from ./src --report
-memi shadcn export --out public/r
-```
-
-Use this when an agent is asked to fix layout, polish visual design, remove Tailwind drift, improve accessibility, convert Figma to code, critique screenshots, or create a component registry. Treat `memi agent brief` as the preflight contract, `memoire.agent.yaml` as the workspace contract, and the reports under `.memoire/app-quality/` as evidence for the patch plan, including UX Tenets and Traps plus interface craft dimensions when they appear in JSON.
-
-## ECC / AGENTS.md Repos
+## Stable read-only audit
 
 ```bash
-memi suite init --project .
-memi agent install universal --project .
-memi agent brief . --intent "Improve this interface" --json
-memi diagnose .
-memi ux audit . --json
-memi craft audit . --json
-memi tokens --from ./src --report
-memi suite run design-audit --project . --json
+npx -y @memi-design/cli@2.7.9 diagnose . --json --no-write --fail-on none
 ```
 
-Use this in repos that enforce planning, TDD, review, security, and release gates through `AGENTS.md`. Add a local rule that broad UI edits must start from Memoire evidence and end with the artifacts and verification commands that were used.
+This inspects source and returns a report. Source findings are evidence for a patch plan; they do not establish that an interface renders or behaves correctly.
 
-## Universal Agent Skills
+## Candidate: before a frontend patch
 
 ```bash
-memi agent install universal --project .
-npx skills add memi-design/memi --skill memoire-design-tooling
+memi agent brief . --frontend --json --intent "Improve this interface using existing components"
+memi diagnose . --json --no-write --fail-on none
 ```
 
-`memi agent install universal` writes a standard project skill at `.agents/skills/memoire-design-tooling`. The root package also ships `skills/memoire-design-tooling/SKILL.md`, so the same instructions can be installed through the broader Agent Skills ecosystem.
+The frontend brief reads actual repository components, prop declarations, token files, and supported static stories. It lists omissions and unresolved mappings within its bounded scan. Prefer an existing mapped export when the evidence identifies one. Unsupported or dynamic syntax remains unassessed; do not replace a missing fact with a plausible component name.
 
-## Claude Code
+The normal diagnosis JSON includes source evidence. Its `quality.score` covers assessed categories only and is `null` when quality is unassessed. Category coverage, scan omissions, and unknown class expressions are separate fields. A score of 100 means no deductions in the assessed checks, not a whole-product pass.
+
+## Host design evidence
+
+When Codex or another host has separately authorized Figma or Paper access, capture the relevant evidence and save a reviewable JSON handoff within the project. This illustrative envelope must be replaced with actual observed identifiers and repository exports:
+
+```json
+{
+  "source": "figma",
+  "documentId": "observed-document-id",
+  "nodeId": "12:34",
+  "revision": "observed-revision",
+  "mappings": [
+    {
+      "path": "src/components/Button.tsx",
+      "exportName": "Button",
+      "props": { "variant": "primary" },
+      "tokens": ["color.action.primary"]
+    }
+  ]
+}
+```
+
+Use `"source": "paper"` for Paper evidence. An optional `sourceHash` on a mapping is the SHA-256 of the source file observed when that mapping was captured. Preserve real capture dates and revisions when available; leave unknown optional fields absent rather than inventing them.
 
 ```bash
-memi agent install claude-code --project .
+memi agent brief . --frontend --json --intent "Implement the selected design using the mapped component" --design-evidence design/selection-evidence.json
 ```
 
-Claude Code reads the project `.mcp.json` and asks the user to approve project MCP servers. After approval, use Memoire MCP tools before broad UI edits:
+`--design-evidence` requires `--frontend` and a project-relative JSON file. The candidate reads this supplied evidence locally; it does not authenticate to the design host or execute connector instructions. Checked-in evidence should be reviewed for information appropriate to the repository before publication.
+
+Native Figma Code Connect is optional. A supplied mapping can originate from a verified Code Connect result, a host capture, or a reviewed manual handoff; preserve that distinction in the surrounding evidence. Merely supplying JSON does not prove that native Code Connect ran. Missing components, incompatible props, conflicting tokens, and stale hashes remain unresolved until checked.
+
+## Candidate: default MCP tools
 
 ```bash
-memi mcp start --no-figma
+memi --profile locked mcp start --no-figma
 ```
 
-Recommended prompt:
+The default locked server exposes four tools:
 
-```text
-Before changing UI code, use the Memoire MCP server to diagnose app quality, audit UX tenets and traps, audit interface craft, inspect tokens, and read shadcn registry context. Ground every UI patch in Memoire evidence.
-```
+| Tool | Use |
+| --- | --- |
+| `prepare_design_agent_brief` | Local design workflow brief |
+| `prepare_apple_design_brief` | Apple-platform guidance; no Xcode execution |
+| `diagnose_app_quality` | Read-only local source findings |
+| `prepare_frontend_brief` | Repository components, props, tokens, stories, and optional supplied design evidence |
 
-MCP equivalent: call `prepare_design_agent_brief` first, then run the evidence tools it returns.
+`prepare_frontend_brief` accepts an `intent` and optional `designEvidence` object with the same shape as the JSON handoff. These read responses can contain source information. Do not present them as metadata-only output.
 
-### Claude Code plugin marketplace
+The legacy integration/mutation catalog requires the connected profile and explicit grants for every capability. It is not the locked catalog. Do not add broad grants to a default client configuration to make an old recipe appear supported. The [Codex guide](CODEX_PLUGIN.md) documents a locked client configuration; generic MCP clients can use `memi mcp config --target generic`.
 
-For plugin-native Claude Code installs, add the public marketplace from this repository:
-
-```text
-/plugin marketplace add memi-design/memi
-/plugin install memi@memi
-```
-
-The plugin loads a `/memi:design` skill and the Memoire MCP server config. Use it when a Claude session needs design-system memory before frontend, Tailwind, shadcn/ui, Figma, registry, or UX audit work.
-
-## Codex
+## Candidate: metadata-only stdout
 
 ```bash
-memi agent install codex
-memi agent install codex-plugin
-memi agent brief . --agent codex --intent "Prepare a UI patch plan" --json
+memi diagnose . --receipt-only --fail-on none
 ```
 
-`memi agent install codex` installs the skill-only context pack at `~/.codex/skills/memoire/memoire-design-tooling`. `memi agent install codex-plugin` installs the full home-local Codex plugin at `~/plugins/memoire` and updates `~/.agents/plugins/marketplace.json` so Codex can discover the bundled skill and Memoire MCP server wiring.
+Only a `memi.receipt.v1` JSON object is emitted. It contains version/build identity when available, rule IDs, counts, a diagnosis hash, timing, and capability decisions. It excludes source text, project/file paths, and prompts, and does not persist diagnosis reports. A missing build SHA is explicitly `unknown`.
 
-Public marketplace install:
+`--receipt-only` cannot be combined with `--agent-context`. The findings gate still controls the exit status unless `--fail-on none` is requested. Use normal `--json --no-write` when a coding agent needs the source report; use the receipt when only metadata should leave the command.
 
-```bash
-codex plugin marketplace add memi-design/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
-```
+## Review and verification
 
-Then open `/plugins` in Codex and install Memoire from the marketplace list.
+For repositories with `AGENTS.md`, follow their planning, tests, review, and release requirements. After a patch, run the project's actual checks and inspect the rendered result through an authorized host. Record the commands, artifact provenance, and any unavailable checks. Static evidence leaves rendering, interaction, runtime accessibility, and build execution unassessed until those actions are performed.
 
-Recommended prompt:
+Do not infer token or cost savings from a brief or receipt. Such claims need comparable measured runs and an explicit baseline.
 
-```text
-Use the Memoire skill before frontend changes. Run memi diagnose, memi ux audit, memi craft audit, and memi tokens when UI quality, Tailwind, shadcn/ui, accessibility, component registry, screenshot critique, or Figma context matters.
-```
+## Legacy workflows
 
-## Cursor
-
-```bash
-memi agent install cursor --project .
-```
-
-Cursor receives `.cursor/mcp.json` for the Memoire MCP server. Use it for design-system inspection, token extraction, registry export, and UI audit tools before code generation.
-
-## OpenCode
-
-```bash
-memi agent install opencode --project .
-```
-
-OpenCode receives a workspace skill pack at `.opencode/skills/memoire/memoire-design-tooling`. Use it as the default UI/design-system workflow for local frontend work.
-
-## Hermes
-
-```bash
-memi agent install hermes
-```
-
-Hermes receives `memoire-design-tooling` under `~/.hermes/skills/memoire/memoire-design-tooling`. Use it for Atomic Design, Figma bridge workflows, shadcn/ui, Tailwind, research synthesis, and design-system audits.
-
-## OpenClaw
-
-```bash
-memi agent install openclaw --project .
-```
-
-OpenClaw receives `<workspace>/skills/memoire/memoire-design-tooling`. This is the ClawHub-style skill path for local agent adoption.
-
-## Native Runtime
-
-Use the shared daemon when a local agent shell, Studio, MCP client, or terminal adapter will ask Memoire for context more than once:
-
-```bash
-memi suite init --project .
-memi daemon start --project . --port auto
-memi daemon status --json
-memi suite run design-audit --project . --json
-```
-
-The daemon warms markdown/YAML knowledge, project memory, harness metadata, MCP tools, and agent-kit install plans once per workspace. `memoire.agent.yaml` carries the product name, memory sources, harness list, installed skills, and repeatable product-team recipes.
-
-## Product Scenario Simulation
-
-Use `memi simulate` when a product agent needs to pressure-test a spec hypothesis against research evidence before implementation. The local and model-swarm adapters are clean-room TypeScript and use Memoire research data, not copied MiroFish source.
-
-```bash
-memi research synthesize
-memi simulate models --json
-memi simulate generate-agents --adapter model-swarm --count 24 --json
-memi simulate plan --hypothesis "This product change reduces risk for the target cohort" --json
-memi simulate run <scenario-id> --adapter local --json
-memi simulate run <scenario-id> --adapter model-swarm --max-agents 24 --rounds 3 --json
-memi simulate run-matrix --adapter model-swarm --hypothesis "Codex debate improves the spec" --hypothesis "Strict evidence links improve the spec" --json
-memi simulate transcript <run-id> --json
-memi simulate costs <run-id> --json
-memi simulate compare <run-a> <run-b> --json
-memi simulate interview <run-id> --agent <agent-id> --prompt "What spec requirement should change?" --json
-memi simulate report <run-id> --json
-memi simulate export-spec <run-id> --json
-```
-
-Studio exposes the same flow through the `simulate` action, Scenario Lab, and tools: `simulation.models`, `simulation.generate_agents`, `simulation.plan`, `simulation.run`, `simulation.run_matrix`, `simulation.stream`, `simulation.status`, `simulation.transcript`, `simulation.compare`, `simulation.costs`, `simulation.interview`, `simulation.report`, and `simulation.export_spec`. Live model calls are opt-in; deterministic fallback is the default when credentials or CLIs are missing.
-
-MiroFish compatibility is an optional fork bridge. Memoire may call a separately licensed server with `--adapter mirofish --url <server>`, but the MIT npm package must not vendor MiroFish source.
-
-## Research-Backed Vibe Design
-
-Use this when Codex, Claude Code, Hermes, OpenCode, or OpenClaw needs to design from research rather than moodboard guesswork. The workflow generates a preview package first, then writes specs or Mermaid Jam source only when requested.
-
-```bash
-memi research synthesize
-memi research design --intent "Design an evidence-backed planning board" --hypothesis "Evidence links improve product confidence" --json
-memi research design --write-specs --mermaid-jam --json
-memi mermaid-jam export --from research --json
-memi suite run research-vibe-design --project . --json
-```
-
-Studio and MCP expose `research.design_package`, `research.generate_specs`, and `mermaid_jam.export`. Scenario Lab’s Export to FigJam action writes `.memoire/mermaid-jam/<package-id>/` Mermaid/markdown sources and opens Mermaid Jam through the local manifest when available. Agents should preserve the source + open boundary: do not attempt clipboard or direct paste automation unless the user explicitly asks for a later manual-assist workflow.
-
-## Trust Defaults
-
-Memoire does not run npm install-time lifecycle scripts in the public package. Install the Figma plugin explicitly with `memi setup plugin` or repair it with `memi doctor --repair-plugin`. The public Figma plugin build disables raw JavaScript execution; use typed Memoire Figma tools, MCP tools, and explicit local commands instead.
-
-## Registry and Glama Publication
-
-Memoire publishes as an npm package first, then as an MCP Registry server. Registry crawlers should inspect the Figma-independent startup path:
-
-```bash
-memi mcp start --no-figma
-```
-
-Release order:
-
-```bash
-npm logout --registry=https://registry.npmjs.org/
-npm login --auth-type=web --registry=https://registry.npmjs.org/
-npm whoami --registry=https://registry.npmjs.org/
-npm publish --access public --auth-type=web
-npm view @memi-design/cli version dist-tags.latest mcpName --json
-mcp-publisher login github
-mcp-publisher publish server.json
-npm run check:public-release
-```
+Older daemon, suite, simulation, research, installer, registry-write, and integration recipes are not the default locked frontend flow. Their presence in historical documentation or source does not certify candidate capability mappings or release readiness. Consult the [2.8 release plan](trust/RELEASE_2_8_PLAN.md) before making a support claim. Stable installation and marketplace instructions are in the [Codex guide](CODEX_PLUGIN.md); installing stable does not enable candidate-only commands.
