@@ -91,3 +91,57 @@ it("rejects invalid workflow repetition before any provider execution", async ()
     "--repeat", "0", "--execute"])).rejects.toThrow("repeat must be positive");
   expect(execute).not.toHaveBeenCalled();
 });
+
+function workflowResult(accepted: boolean, measuredCost: boolean) {
+  return {
+    runId: 'local-test-run', sourceRevision: 'a'.repeat(40), evidenceDirectory: join(root, 'evidence'),
+    durationMs: 20, accepted, verification: [{ passed: accepted, durationMs: 5 }],
+    adapter: { exitCode: accepted ? 0 : 1, usage: { inputTokens: 100, cachedInputTokens: 20, outputTokens: 10, reasoningTokens: 2, estimatedCostUsd: measuredCost ? 0.1 : null }, tools: { calls: 1, errors: accepted ? 0 : 1, retries: 0 } },
+  };
+}
+function workflowArgs(task: string) {
+  return ['workflow-run', task, '--condition', 'baseline', '--provider', 'codex', '--repository', root,
+    '--evidence-root', join(root, 'evidence'), '--store-root', root, '--suite', 'suite', '--experiment', 'experiment', '--repeat', '2', '--execute'];
+}
+
+it.each([
+  ['codex', true, true, true], ['claude', true, false, false],
+  ['codex', false, false, false], ['claude', false, true, true],
+] as const)('records %s workflow accepted=%s with honest cost and quality metadata', async (provider, accepted, measuredCost, json) => {
+  const task = await fixture('workflow.json', workflow);
+  vi.spyOn(codexRunner, 'benchmarkRepositoryRevision').mockResolvedValue('a'.repeat(40));
+  const execute = vi.spyOn(workflowRunner, 'runWorkflowTrial').mockResolvedValue(workflowResult(accepted, measuredCost) as never);
+  const args = workflowArgs(task);
+  const output = await cli([...args, '--provider', provider, ...(json ? ['--json'] : [])]);
+  const record = JSON.parse(await readFile(join(root, 'evidence/run.json'), 'utf8'));
+  expect(record).toMatchObject({ repeat: 2, condition: 'baseline', harness: { id: provider, modelId: provider === 'codex' ? 'gpt-5.6-sol' : 'claude-sonnet-4-6' }, outcome: { accepted, testsPassed: accepted, qualityCeiling: 80, qualityEvidence: 'automated_acceptance' }, timing: { toolTimeMs: 5 } });
+  expect(record.usage.estimatedCostUsd).toBe(measuredCost ? 0.1 : null);
+  expect(record.evidenceRefs.some((ref: string) => ref.includes('unassessed'))).toBe(!measuredCost);
+  expect(execute).toHaveBeenCalledWith(expect.objectContaining({ routedContext: '', condition: 'baseline' }));
+  if (json) expect(JSON.parse(output.at(-1)!)).toMatchObject({ status: accepted ? 'accepted' : 'failed-quality-gate', route: null });
+  else expect(output.join('\n')).toContain(accepted ? 'Accepted' : 'Quality gate failed');
+});
+
+it.each([
+  [['--freeze', 'missing.json'], 'must be provided together'],
+  [['--trial', 'trial-1'], 'must be provided together'],
+  [['--evidence-draft', 'missing.json'], 'must be provided together'],
+  [['--artifact-root', 'artifacts'], 'must be provided together'],
+  [['--evidence-draft', 'missing.json', '--artifact-root', 'artifacts'], 'require a freeze'],
+  [['--recovery-probe'], 'requires the memi condition'],
+  [['--task-class', '  '], 'task-class'],
+] as const)('rejects incoherent workflow options %j before calling a provider', async (flags, reason) => {
+  const task = await fixture('workflow.json', workflow);
+  const execute = vi.spyOn(workflowRunner, 'runWorkflowTrial');
+  const revision = vi.spyOn(codexRunner, 'benchmarkRepositoryRevision');
+  await expect(cli([...workflowArgs(task), ...flags])).rejects.toThrow(reason);
+  expect(execute).not.toHaveBeenCalled();
+  expect(revision).not.toHaveBeenCalled();
+});
+
+it('requires explicit consent before reading a Codex task or invoking its runner', async () => {
+  const execute = vi.spyOn(codexRunner, 'runCodexCaseStudy');
+  await expect(cli(['codex-run', 'missing-task.json', '--condition', 'baseline', '--repository', root,
+    '--suite', 'suite', '--experiment', 'experiment', '--repeat', '1', '--evidence-dir', root, '--store-root', root])).rejects.toThrow('requires --execute');
+  expect(execute).not.toHaveBeenCalled();
+});

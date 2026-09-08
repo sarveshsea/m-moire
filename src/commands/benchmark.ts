@@ -589,6 +589,7 @@ function canonicalRepositoryOrigin(origin: string): string {
           "workflow-run requires --execute because it invokes a model and writes to a disposable clone",
         );
       }
+      const repeat = positiveInteger(opts.repeat, "repeat");
       const task = workflowTaskSchema.parse(
         JSON.parse(await readFile(resolve(taskPath), "utf8")),
       );
@@ -675,7 +676,7 @@ function canonicalRepositoryOrigin(origin: string): string {
           trialId: opts.trial,
           taskId: task.id,
           condition,
-          repeat: positiveInteger(opts.repeat, "repeat"),
+          repeat,
           provider,
           modelId,
           reasoningEffort: opts.reasoning,
@@ -822,7 +823,7 @@ function canonicalRepositoryOrigin(origin: string): string {
               runId: result.runId,
               trialId: frozenTrial.trialId,
               taskId: task.id,
-              repeat: positiveInteger(opts.repeat, "repeat"),
+              repeat,
               condition,
               repositoryRevision: result.sourceRevision,
               candidateArtifactSha256: freeze.candidate.artifactSha256,
@@ -861,7 +862,7 @@ function canonicalRepositoryOrigin(origin: string): string {
         experimentId: opts.experiment,
         suiteId: opts.suite,
         taskId: task.id,
-        repeat: positiveInteger(opts.repeat, "repeat"),
+        repeat,
         condition,
         invocation: "ci",
         repository: {

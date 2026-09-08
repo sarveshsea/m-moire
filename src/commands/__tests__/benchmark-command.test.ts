@@ -1467,3 +1467,77 @@ async function sealProspectiveV2Run(input: {
   await writeFile(runPath, JSON.stringify(record));
   return record;
 }
+
+describe('prospective preflight rejection boundaries', () => {
+  it.each([
+    ['legacy-plan', 'evidenceV2 enabled'], ['unexpected-fixture', 'not declared'],
+    ['missing-fixture', 'repository missing'], ['duplicate-fixture', 'must be unique'],
+    ['revision', 'revision mismatch'], ['dirty', 'must be clean'], ['origin', 'origin mismatch'],
+    ['task-id', 'task id mismatch'], ['capture', 'native capture missing'], ['timestamp', 'ISO-8601'],
+  ])('rejects %s without writing a ready receipt', async (scenario, reason) => {
+    const repository = await fixtureRepository('preflight-boundary');
+    const revision = (await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repository })).stdout.trim();
+    const base = prospectivePlanV2();
+    const plan = scenario === 'legacy-plan' ? prospectivePlan() : { ...base, tasks: [{ ...base.tasks[0], revision: scenario === 'revision' ? 'b'.repeat(40) : revision }] };
+    const mapping = { taskId: scenario === 'unexpected-fixture' ? 'extra-task' : 'web-task', repository, origin: scenario === 'origin' ? 'https://example.test/wrong.git' : 'https://example.test/preflight-boundary.git' };
+    const fixtures = scenario === 'duplicate-fixture' ? [mapping, mapping] : [mapping];
+    const planPath = join(projectRoot, 'preflight-plan.json');
+    const fixturePath = join(projectRoot, 'fixture-roots.json');
+    const taskRoot = join(projectRoot, 'tasks');
+    const out = join(projectRoot, 'ready.json');
+    await mkdir(taskRoot);
+    await writeFile(planPath, JSON.stringify(scenario === 'missing-fixture' ? { ...plan, tasks: [...plan.tasks, { ...base.tasks[0], id: 'second-task', revision }], runContract: { ...plan.runContract, matchedPairs: 2, trials: 4 }, creditPolicy: { ...plan.creditPolicy, independentRepeatInterimCreditCap: 12 } } : plan));
+    await writeFile(fixturePath, JSON.stringify({ schemaVersion: 1, fixtures }));
+    await writeFile(join(taskRoot, 'web-task.json'), JSON.stringify({
+      ...workflowTask(), id: scenario === 'task-id' ? 'wrong-task' : 'web-task',
+      nativeCaptures: scenario === 'capture' ? [] : [captureContract('screenshot', 'desktop.png'), captureContract('interaction-trace', 'flow.json'), captureContract('accessibility-tree', 'a11y.json')],
+    }));
+    if (scenario === 'dirty') await writeFile(join(repository, 'README.md'), 'modified\n');
+    const program = new Command(); program.exitOverride();
+    registerBenchmarkCommand(program, engine() as never);
+    await expect(program.parseAsync(['benchmark', 'prospective-preflight', planPath, '--fixtures', fixturePath, '--task-root', taskRoot, '--out', out,
+      ...(scenario === 'timestamp' ? ['--checked-at', 'invalid'] : []), '--json'], { from: 'user' })).rejects.toThrow(reason);
+    await expect(readFile(out)).rejects.toThrow();
+  });
+});
+
+describe('local evidence regrading', () => {
+  it.each([[true, true], [true, false], [false, true], [false, false]])('records an immutable amendment accepted=%s json=%s', async (accepted, json) => {
+    const repository = await fixtureRepository('regrade');
+    const revision = (await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repository })).stdout.trim();
+    const original = { ...run('baseline', 1, 1000, 1000), repository: { ...run('baseline', 1, 1000, 1000).repository, revision } };
+    const runPath = join(projectRoot, 'original.json');
+    const taskPath = join(projectRoot, 'case.json');
+    const responsePath = join(projectRoot, 'response.md');
+    const evidence = join(projectRoot, 'regrade-evidence');
+    await writeFile(runPath, JSON.stringify(original));
+    await writeFile(taskPath, JSON.stringify({ id: 'audit', intent: 'Inspect fixture', rubric: { minimumValidCitations: 1, requiredTerms: ['fixture'] } }));
+    await writeFile(responsePath, accepted ? 'fixture [source](README.md:1). Remaining gaps are unassessed. Verification commands:\n```sh\ncat README.md\n```' : 'No supported evidence.');
+    const program = new Command(); program.exitOverride();
+    registerBenchmarkCommand(program, engine() as never);
+    const logs = captureLogs();
+    await program.parseAsync(['benchmark', 'regrade', runPath, taskPath, '--repository', repository, '--response', responsePath, '--evidence-dir', evidence, '--store-root', projectRoot, '--grader-version', 'review/local', ...(json ? ['--json'] : [])], { from: 'user' });
+    const receipt = JSON.parse(await readFile(join(evidence, 'regrade-review-local.json'), 'utf8'));
+    const amendment = JSON.parse(await readFile(join(evidence, 'run-amendment-review-local.json'), 'utf8'));
+    expect(receipt.grade.accepted).toBe(accepted);
+    expect(amendment.outcome.accepted).toBe(accepted);
+    expect(amendment.runId).not.toBe(original.runId);
+    expect(JSON.parse(await readFile(runPath, 'utf8'))).toEqual(original);
+    if (json) expect(JSON.parse(lastLog(logs)).status).toBe(accepted ? 'accepted' : 'failed-quality-gate');
+    else expect(logs.flat().join('\n')).toContain(accepted ? 'Regrade accepted' : 'Regrade failed');
+  });
+
+  it.each(['revision', 'dirty'])('rejects %s repository before reading response evidence', async (scenario) => {
+    const repository = await fixtureRepository('regrade-preflight');
+    const revision = (await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repository })).stdout.trim();
+    const original = run('baseline', 1, 1000, 1000);
+    const runPath = join(projectRoot, 'original.json');
+    const taskPath = join(projectRoot, 'case.json');
+    await writeFile(runPath, JSON.stringify({ ...original, repository: { ...original.repository, revision: scenario === 'revision' ? 'b'.repeat(40) : revision } }));
+    await writeFile(taskPath, JSON.stringify({ id: 'audit', intent: 'Inspect', rubric: { minimumValidCitations: 1, requiredTerms: ['fixture'] } }));
+    if (scenario === 'dirty') await writeFile(join(repository, 'README.md'), 'dirty');
+    const program = new Command(); program.exitOverride();
+    registerBenchmarkCommand(program, engine() as never);
+    await expect(program.parseAsync(['benchmark', 'regrade', runPath, taskPath, '--repository', repository, '--response', 'missing-response.md', '--evidence-dir', join(projectRoot, 'evidence'), '--store-root', projectRoot], { from: 'user' })).rejects.toThrow(scenario === 'revision' ? 'revision mismatch' : 'source-clean');
+  });
+});
