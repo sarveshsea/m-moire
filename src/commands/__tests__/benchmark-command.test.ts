@@ -6,6 +6,7 @@ import { promisify } from "node:util";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
 import { registerBenchmarkCommand } from "../benchmark.js";
+import * as codexRunner from "../../efficiency/codex-runner.js";
 import type { BenchmarkRunRecord } from "../../efficiency/contracts.js";
 import {
   createEvidenceManifest,
@@ -1540,4 +1541,32 @@ describe('local evidence regrading', () => {
     registerBenchmarkCommand(program, engine() as never);
     await expect(program.parseAsync(['benchmark', 'regrade', runPath, taskPath, '--repository', repository, '--response', 'missing-response.md', '--evidence-dir', join(projectRoot, 'evidence'), '--store-root', projectRoot], { from: 'user' })).rejects.toThrow(scenario === 'revision' ? 'revision mismatch' : 'source-clean');
   });
+});
+
+
+it('drains active preflight repository checks before rejecting a missing fixture', async () => {
+  const base = prospectivePlanV2();
+  const plan = { ...base, tasks: [...base.tasks, { ...base.tasks[0], id: 'second-task' }],
+    runContract: { ...base.runContract, matchedPairs: 2, trials: 4 },
+    creditPolicy: { ...base.creditPolicy, independentRepeatInterimCreditCap: 12 } };
+  const planPath = join(projectRoot, 'drain-plan.json');
+  const fixturePath = join(projectRoot, 'drain-fixtures.json');
+  await writeFile(planPath, JSON.stringify(plan));
+  await writeFile(fixturePath, JSON.stringify({ schemaVersion: 1, fixtures: [{ taskId: 'web-task', repository: projectRoot, origin: 'https://example.test/fixture.git' }] }));
+  let finishProbe!: () => void;
+  const revision = vi.spyOn(codexRunner, 'benchmarkRepositoryRevision').mockImplementation(() => new Promise((_resolve, reject) => {
+    finishProbe = () => reject(new Error('Repository probe completed'));
+  }));
+  const program = new Command(); program.exitOverride();
+  registerBenchmarkCommand(program, engine() as never);
+  let settled = false;
+  const operation = program.parseAsync(['benchmark', 'prospective-preflight', planPath, '--fixtures', fixturePath, '--task-root', projectRoot], { from: 'user' })
+    .then(() => { settled = true; return null; }, (error: unknown) => { settled = true; return error; });
+  try {
+    await vi.waitFor(() => expect(revision).toHaveBeenCalledOnce());
+    expect(settled, 'preflight must retain ownership until its started Git probe settles').toBe(false);
+  } finally {
+    finishProbe?.();
+    await operation;
+  }
 });
