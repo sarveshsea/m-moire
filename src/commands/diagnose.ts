@@ -230,7 +230,7 @@ function positiveInteger(value: string, label: string): number {
 function printDiagnosis(diagnosis: AppQualityDiagnosis, wroteReports: boolean): void {
   console.log(ui.brand("Design engineering audit"));
   console.log(ui.dots("Target", diagnosis.target));
-  const score = diagnosis.quality?.score ?? (diagnosis.summary.scoreScope === "none" ? null : diagnosis.summary.score);
+  const score = diagnosis.quality ? diagnosis.quality.score : (diagnosis.summary.scoreScope === "none" ? null : diagnosis.summary.score);
   console.log(ui.dots("Assessed score", score === null ? "unassessed" : `${score}/100 (assessed checks only)`));
   if (diagnosis.quality) console.log(ui.dots("Category coverage", `${Math.round(diagnosis.quality.coverage * 100)}% — scanned files only`));
   if (diagnosis.scanCompleteness) {

@@ -69,11 +69,17 @@ export async function composeReport(options: ComposeReportOptions): Promise<Comp
     sections.push("diagnosis");
     const unassessed = diagnosis.unassessedDimensions ?? [];
     const coverage = diagnosis.sourceCoverage;
+    const assessedScore = diagnosis.quality ? diagnosis.quality.score
+      : diagnosis.summary.scoreScope === "none" ? null : diagnosis.summary.score;
+    const assessmentScope = diagnosis.quality
+      ? `Category coverage: ${Math.round(diagnosis.quality.coverage * 100)}% — assessed checks only; scanned files only`
+      : "Assessed checks only; coverage metadata unavailable";
     md.push(
       "",
       "## App Quality",
       "",
-      `Score: **${diagnosis.summary.score}/100** (${diagnosis.summary.verdict})`,
+      `Assessed score: **${assessedScore === null ? "unassessed" : `${assessedScore}/100`}** (${diagnosis.summary.verdict})`,
+      assessmentScope,
       `Policy: \`${diagnosis.policy?.hash ?? "default"}\` (${diagnosis.policy?.preset ?? "memi-recommended"})`,
       `Scanned: ${diagnosis.summary.scannedFiles} files`,
       ...(coverage ? [
@@ -105,7 +111,8 @@ export async function composeReport(options: ComposeReportOptions): Promise<Comp
     }
 
     body.push(htmlSection("App Quality", [
-      scoreRow(diagnosis.summary.score, diagnosis.summary.verdict),
+      scoreRow(assessedScore, diagnosis.summary.verdict),
+      `<p class="legend">${escapeHtml(assessmentScope)}</p>`,
       `<p class="meta">Policy <code>${escapeHtml(diagnosis.policy?.hash ?? "default")}</code> (${escapeHtml(diagnosis.policy?.preset ?? "memi-recommended")}) · ${diagnosis.summary.scannedFiles} files scanned${coverage ? ` · SwiftUI ${coverage.swiftui.scannedFiles} (${coverage.swiftui.analysis}) · Metal ${coverage.metal.scannedFiles} (${coverage.metal.analysis})` : ""}${suppressed ? ` · ${suppressed} baselined finding(s) suppressed from gating` : ""}</p>`,
       unassessed.length > 0
         ? `<p class="legend">Unassessed dimensions remain unverified: ${escapeHtml(unassessed.join(", "))}.</p>`
@@ -221,7 +228,8 @@ export async function composeReport(options: ComposeReportOptions): Promise<Comp
 
   md.push("", "---", "", "Every finding above cites its source and re-runs identically: checkers check, gates gate — no LLM in the enforcement path.", "");
 
-  const score = diagnosis?.summary.score ?? null;
+  const score = diagnosis?.quality ? diagnosis.quality.score
+    : diagnosis?.summary.scoreScope === "none" ? null : diagnosis?.summary.score ?? null;
   const html = htmlShell({
     title: "Design Health Report",
     generatedAt,
@@ -234,7 +242,8 @@ export async function composeReport(options: ComposeReportOptions): Promise<Comp
   return { html, markdown: md.join("\n"), score, generatedAt, sections, missing };
 }
 
-function scoreRow(score: number, verdict?: string): string {
+function scoreRow(score: number | null, verdict?: string): string {
+  if (score === null) return `<p class="score"><span class="score-num">unassessed</span>${verdict ? ` <span class="verdict">${escapeHtml(verdict)}</span>` : ""}</p>`;
   const color = score >= 90 ? "#3fb950" : score >= 75 ? "#d29922" : score >= 60 ? "#f0883e" : "#f85149";
   return `<p class="score"><span class="score-num" style="color:${color}">${score}</span><span class="score-denom">/100</span>${verdict ? ` <span class="verdict">${escapeHtml(verdict)}</span>` : ""}</p>`;
 }

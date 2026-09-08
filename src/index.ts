@@ -315,7 +315,7 @@ const engine = new MemoireEngine({
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-const jsonOutputRequested = process.argv.includes("--json");
+const jsonOutputRequested = process.argv.includes("--json") || process.argv.includes("--receipt-only");
 const mcpMode = process.argv.includes("mcp");
 
 // Listen for engine events and print them (suppressed in MCP mode — stdio is reserved for JSON-RPC)
