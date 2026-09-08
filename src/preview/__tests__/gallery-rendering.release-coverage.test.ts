@@ -21,3 +21,26 @@ it('ships executable gallery behavior inside the actual generated HTML', async (
   expect(browser.document.activeElement.id).toBe('cmd-input');
   for (let index = 0; index < 15; index++) await Promise.resolve();
 });
+
+it('renders empty research confidence as finite zero-width segments', () => {
+  const dom = render({ findings: [], themes: [], personas: [], sources: [] });
+  expect(dom.window.document.querySelector('#section-research').innerHTML).not.toContain('NaN');
+  expect([...dom.window.document.querySelectorAll('.res-conf-seg')].map((node: any) => node.style.width)).toEqual(['0%', '0%', '0%']);
+});
+
+it('renders escaped research findings, persona variants and source attribution', () => {
+  const dom = render({
+    findings: ['high', 'medium', 'low'].map((confidence, index) => ({ id: `finding-${index}`, statement: `<Finding ${index}>`, confidence, tags: ['<Tag>'], evidence: index ? [] : ['<Evidence>'], source: index ? '' : 'interview.txt' })),
+    themes: [{ name: '<Theme>', description: 'Frequent concern', frequency: 3, findingIds: [] }, { name: 'Secondary', description: 'Another', frequency: 1, findingIds: [] }],
+    personas: [50, 70, 90].map((frustration) => ({ name: `Reader ${frustration}`, role: 'Editor', quote: '<Quote>', experience: '3 years', bidVolume: 'Monthly', frustration, goals: ['<Goal>'], painPoints: ['<Pain>'], behaviors: ['Compare'], tools: ['<Tool>'] })),
+    sources: [{ name: '<Source>', type: 'interview', processedAt: '2026-09-01' }], quality: { overallScore: 75 },
+  });
+  const document = dom.window.document;
+  expect(document.querySelectorAll('.res-persona-name')).toHaveLength(3);
+  expect(document.querySelectorAll('.res-frust-fill')).toHaveLength(3);
+  expect(document.querySelector('.res-persona-list').textContent).toContain('<Goal>');
+  expect(document.querySelector('.res-source-name').textContent).toBe('<Source>');
+  expect(document.querySelector('#res-insights').textContent).toContain('<Finding 0>');
+  expect(document.querySelector('#res-insights').textContent).toContain('research');
+  expect(document.querySelector('tag,evidence,theme,quote,goal,pain,tool,source')).toBeNull();
+});
