@@ -1,7 +1,6 @@
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { gunzipSync } from "node:zlib";
-import { Header, Parser } from "tar";
 import { validateTarballBytes } from "./release-manifest.mjs";
 
 export const DEFAULT_README_PHRASE =
@@ -83,7 +82,7 @@ function validateReadmeContent(readme, expectedPhrase, expectedInstall) {
   assert(readme.includes(expectedInstall), `README missing install command: ${expectedInstall}`);
 }
 
-function validateTarFraming(bytes) {
+function validateTarFraming(bytes, Header) {
   let offset = 0;
   let entries = 0;
   while (offset + 512 <= bytes.length) {
@@ -107,7 +106,8 @@ function validateTarFraming(bytes) {
 export async function validatePublishedTarballReadme({ bytes, integrity, shasum, expectedPhrase, expectedInstall }) {
   const digests = validateTarballBytes({ bytes, integrity, shasum });
   const unpacked = gunzipSync(bytes, { maxOutputLength: 128 * 1024 * 1024 });
-  validateTarFraming(unpacked);
+  const { Header, Parser } = await import("tar");
+  validateTarFraming(unpacked, Header);
   const readmePath = "package/README.md";
   const maxReadmeBytes = 512 * 1024;
   let readme;
