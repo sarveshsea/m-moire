@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { assertSourceOutput, writeSourceArtifact } from "../security/source-output.js";
 import { join } from "node:path";
 import type { AppQualityIssue, AppQualitySeverity } from "../app-quality/engine.js";
 import {
@@ -485,11 +485,11 @@ function mergeScoreCaps(...groups: AuditScoreCap[][]): AuditScoreCap[] {
 
 export async function writeUxAuditReport(projectRoot: string, report: UxAuditReport): Promise<{ jsonPath: string; markdownPath: string }> {
   const outDir = join(projectRoot, ".memoire", "app-quality");
-  await mkdir(outDir, { recursive: true });
+  await assertSourceOutput(outDir);
   const jsonPath = join(outDir, "ux-audit.json");
   const markdownPath = join(outDir, "ux-audit.md");
-  await writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`, "utf-8");
-  await writeFile(markdownPath, renderUxAuditMarkdown(report), "utf-8");
+  await writeSourceArtifact(jsonPath, `${JSON.stringify(report, null, 2)}\n`);
+  await writeSourceArtifact(markdownPath, renderUxAuditMarkdown(report));
   return { jsonPath, markdownPath };
 }
 

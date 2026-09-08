@@ -55,7 +55,7 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
       const force = opts.force === true;
 
       try {
-        await engine.init();
+        await engine.initReadOnly();
         // Policy can promote skill-compliance findings to blocking severity;
         // the CLI flag is the per-run override on top of it.
         const { loadPolicy } = await import("../app-quality/policy.js");

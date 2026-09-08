@@ -1,3 +1,4 @@
+import { writeSourceArtifact } from "../security/source-output.js";
 /**
  * Registry — Manages specs, design system data, and generation state.
  * Persists to .memoire/ directory for cross-session continuity.
@@ -106,8 +107,8 @@ export class Registry extends EventEmitter {
     return this._designSystem;
   }
 
-  async load(): Promise<void> {
-    await mkdir(this.arkDir, { recursive: true });
+  async load(options: { readOnly?: boolean } = {}): Promise<void> {
+    if (!options.readOnly) await mkdir(this.arkDir, { recursive: true });
 
     // Load design system
     try {
@@ -249,19 +250,15 @@ export class Registry extends EventEmitter {
 
     this._designSystem = ds;
     const path = join(this.arkDir, "design-system.json");
-    const tmpPath = join(this.arkDir, ".design-system.json.tmp");
-    await writeFile(tmpPath, JSON.stringify(ds, null, 2));
-    await rename(tmpPath, path);
+    await writeSourceArtifact(path, JSON.stringify(ds, null, 2));
     this.emit("design-system-changed", { previous, current: ds });
   }
 
   async recordGeneration(state: GenerationState): Promise<void> {
     this.generations.set(state.specName, state);
     const path = join(this.arkDir, "generations.json");
-    const tmpPath = join(this.arkDir, ".generations.json.tmp");
     const all = Array.from(this.generations.values());
-    await writeFile(tmpPath, JSON.stringify(all, null, 2));
-    await rename(tmpPath, path);
+    await writeSourceArtifact(path, JSON.stringify(all, null, 2));
   }
 
   getGenerationState(specName: string): GenerationState | null {

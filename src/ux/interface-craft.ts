@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { assertSourceOutput, writeSourceArtifact } from "../security/source-output.js";
 import { join } from "node:path";
 import type { AppQualityIssue, AppQualitySeverity } from "../app-quality/engine.js";
 import {
@@ -422,11 +422,11 @@ export async function writeInterfaceCraftReport(
   report: InterfaceCraftReport,
 ): Promise<{ jsonPath: string; markdownPath: string }> {
   const outDir = join(projectRoot, ".memoire", "app-quality");
-  await mkdir(outDir, { recursive: true });
+  await assertSourceOutput(outDir);
   const jsonPath = join(outDir, "interface-craft.json");
   const markdownPath = join(outDir, "interface-craft.md");
-  await writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`, "utf-8");
-  await writeFile(markdownPath, renderInterfaceCraftMarkdown(report), "utf-8");
+  await writeSourceArtifact(jsonPath, `${JSON.stringify(report, null, 2)}\n`);
+  await writeSourceArtifact(markdownPath, renderInterfaceCraftMarkdown(report));
   return { jsonPath, markdownPath };
 }
 

@@ -32,7 +32,7 @@ export function registerDiffCommand(program: Command, engine: MemoireEngine) {
     .description("Show what changed since the last design system pull")
     .option("--json", "Output diff as JSON")
     .action(async (opts: { json?: boolean }) => {
-      await engine.init();
+      await engine.initReadOnly();
 
       const current = engine.registry.designSystem;
       const arkDir = join(engine.config.projectRoot, ".memoire");

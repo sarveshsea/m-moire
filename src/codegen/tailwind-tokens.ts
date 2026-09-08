@@ -6,7 +6,7 @@
  * with the broader design token ecosystem (200K+ weekly SD users).
  */
 
-import { writeFile, mkdir } from "fs/promises";
+import { assertSourceOutput, writeSourceArtifact } from "../security/source-output.js";
 import { join } from "path";
 import type { DesignToken } from "../engine/registry.js";
 import { exportTokens, generateTailwindExtend } from "../figma/tokens.js";
@@ -19,7 +19,7 @@ export async function writeTokenFiles(
   outputDir: string,
   formats: Set<string> = new Set(["css", "tailwind", "json"])
 ): Promise<{ css: string; tailwind: string; json: string }> {
-  await mkdir(outputDir, { recursive: true });
+  await assertSourceOutput(outputDir);
 
   let cssPath = "";
   let tailwindPath = "";
@@ -28,19 +28,19 @@ export async function writeTokenFiles(
   if (formats.has("css")) {
     const exported = exportTokens(tokens);
     cssPath = join(outputDir, "tokens.css");
-    await writeFile(cssPath, exported.css);
+    await writeSourceArtifact(cssPath, exported.css);
   }
 
   if (formats.has("tailwind")) {
     const tailwindCode = generateTailwindExtend(tokens);
     tailwindPath = join(outputDir, "memoire-tokens.ts");
-    await writeFile(tailwindPath, tailwindCode);
+    await writeSourceArtifact(tailwindPath, tailwindCode);
   }
 
   if (formats.has("json")) {
     const exported = exportTokens(tokens);
     jsonPath = join(outputDir, "tokens.json");
-    await writeFile(jsonPath, JSON.stringify(exported.json, null, 2));
+    await writeSourceArtifact(jsonPath, JSON.stringify(exported.json, null, 2));
   }
 
   return { css: cssPath, tailwind: tailwindPath, json: jsonPath };

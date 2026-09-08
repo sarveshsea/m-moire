@@ -231,7 +231,7 @@ export function registerAuditCommand(program: Command, engine: MemoireEngine): v
     .option("--component <name>", "Audit only specs matching this name (case-insensitive substring)")
     .option("--json", "Output audit results as JSON")
     .action(async (opts: { wcag?: boolean; unused?: boolean; skillCompliance?: boolean; researchTraceability?: boolean; target?: string; component?: string; json?: boolean }) => {
-      await engine.init();
+      await engine.initReadOnly();
 
       // ── Research traceability audit ───────────────────────────────
       if (opts.researchTraceability) {

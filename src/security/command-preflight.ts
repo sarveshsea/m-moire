@@ -19,6 +19,9 @@ type CapabilityRequirement = readonly [capability: MemiCapability, operation: st
 
 const READ_ONLY_COMMAND_PATHS: readonly string[] = Object.freeze([
   "status",
+  "agent.brief",
+  "audit",
+  "diff",
 ]);
 
 export async function preflightCommand(
@@ -39,24 +42,51 @@ export async function preflightCommand(
   }
 
   switch (path) {
+    case "ux.audit":
+    case "craft.audit":
     case "diagnose":
       if (isRemoteUrl(invocation.args[0])) {
         require(["network", "fetch the diagnosis URL"]);
       }
-      if (invocation.options.changed) {
+      if (invocation.options.changed && !(Array.isArray(invocation.options.files) && invocation.options.files.length > 0)) {
         require(["shell", "resolve changed files with git"]);
       }
       // Diagnose still writes its reports and history beneath the legacy
       // `.memoire/` tree. Local mode only permits `.memi/`, so keep diagnose
       // read-only until those report paths are migrated behind the broker.
       if (policy.profile === "locked" || policy.profile === "local") {
-        overrides.write = false;
+        if (invocation.options.write !== false || path === "diagnose") overrides.write = false;
       } else if (invocation.options.write !== false) {
         requireLocalWrite(
           ["project-write", "write diagnosis reports"],
           ["source-content-persistence", "persist diagnosis source evidence"],
         );
       }
+      break;
+    case "tokens":
+      if (isRemoteUrl(invocation.options.from)) require(["network", "extract tokens from a URL"]);
+      if (!invocation.options.json || invocation.options.save || invocation.options.report) {
+        require(
+          ["source-content-persistence", "persist token source evidence"],
+          ["project-write", "write token artifacts"],
+        );
+      }
+      break;
+    case "generate":
+      if (!invocation.options.preview) {
+        require(
+          ["source-content-persistence", "persist generated source code"],
+          ["project-write", "write generated code"],
+        );
+      }
+      break;
+    case "baseline.status":
+      if (isRemoteUrl(invocation.args[0])) require(["network", "scan baseline target URL"]);
+      break;
+    case "baseline.accept":
+    case "report":
+      if (isRemoteUrl(invocation.args[0])) require(["network", "scan report target URL"]);
+      require(["source-content-persistence", "persist report source evidence"], ["project-write", "write report artifacts"]);
       break;
     case "doctor":
       if (invocation.options.repairPlugin) {
@@ -121,13 +151,8 @@ export async function preflightCommand(
       break;
     case "mcp":
     case "mcp.start":
-      require(
-        ["network", "start the MCP server"],
-        ["project-write", "enable write-capable MCP tools"],
-        ["shell", "enable subprocess-capable MCP tools"],
-      );
       if (invocation.options.figma !== false) {
-        require(["figma", "enable Figma MCP tools"]);
+        require(["figma", "enable Figma MCP tools"], ["network", "connect Figma MCP tools"]);
       }
       break;
     case "mcp.config":
@@ -228,6 +253,8 @@ export async function preflightCommand(
       }
       break;
     case "ci":
+      if (isRemoteUrl(invocation.args[0])) require(["network", "scan CI target URL"]);
+      if (invocation.options.scope !== false) require(["shell", "resolve CI changed files with git"]);
       require(
         ["project-write", "write design CI artifacts"],
         ["source-content-persistence", "persist design CI source evidence"],
