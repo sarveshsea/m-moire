@@ -100,3 +100,10 @@ it('keeps conflict metadata and research confidence and coverage labels as text'
   expect(element('research-panel-body').querySelector('img')).toBeNull();
   expect(element('research-panel-body').textContent).toContain(markup);
 });
+
+it('treats malformed array-like research counts as untrusted text', () => {
+  const markup = '<img src=x onerror="window.__galleryInjected=true">';
+  browser.renderResearchPanel({ findings: { length: markup }, personas: { length: markup }, themes: [{ name: 'Theme', findingIds: { length: markup } }] });
+  expect(element('research-panel-body').querySelector('img')).toBeNull();
+  expect(element('research-panel-body').textContent).not.toContain('undefined');
+});
