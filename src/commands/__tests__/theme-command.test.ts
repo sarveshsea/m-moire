@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Command } from "commander";
 import { mkdir, rm, writeFile } from "fs/promises";
@@ -59,6 +60,7 @@ const tempDirs: string[] = [];
 async function createEngine(): Promise<{ engine: MemoireEngine; projectRoot: string; themePath: string }> {
   const projectRoot = join(tmpdir(), `memoire-theme-command-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   tempDirs.push(projectRoot);
+  configureExecutionPolicy({ projectRoot, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   await mkdir(projectRoot, { recursive: true });
   await writeFile(join(projectRoot, "package.json"), JSON.stringify({ name: "theme-command-test" }, null, 2));
   const themePath = join(projectRoot, "acme-theme.css");
@@ -69,6 +71,7 @@ async function createEngine(): Promise<{ engine: MemoireEngine; projectRoot: str
 }
 
 afterEach(async () => {
+  resetExecutionPolicyForTests();
   process.exitCode = 0;
   for (const dir of tempDirs.splice(0)) {
     await rm(dir, { recursive: true, force: true });

@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -52,9 +53,11 @@ describe("CodeGenerator quality gate", () => {
 
   beforeEach(async () => {
     outDir = await mkdtemp(join(tmpdir(), "memoire-quality-gate-test-"));
+    configureExecutionPolicy({ projectRoot: outDir, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   });
 
   afterEach(async () => {
+  resetExecutionPolicyForTests();
     await rm(outDir, { recursive: true, force: true });
   });
 

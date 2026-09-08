@@ -34,7 +34,7 @@ type FakeSpec = {
 
 function makeEngine(specs: FakeSpec[]) {
   return {
-    async init() {},
+    async initReadOnly() {},
     registry: {
       async load() {},
       async getAllSpecs() {

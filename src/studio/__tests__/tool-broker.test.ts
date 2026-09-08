@@ -180,6 +180,7 @@ describe("studio tool broker", () => {
 
   it("audits screenshot artifacts through UX tenets and traps", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-ux-tool-"));
+    configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
     try {
       const screenshotPath = join(root, ".memoire", "studio", "artifacts", "screen.png");
       await mkdir(join(screenshotPath, ".."), { recursive: true });
@@ -207,6 +208,7 @@ describe("studio tool broker", () => {
         },
       });
     } finally {
+      resetExecutionPolicyForTests();
       await rm(root, { recursive: true, force: true });
     }
   });

@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
 import { mkdir, readFile, rm, writeFile } from "fs/promises";
@@ -38,12 +39,14 @@ let cssPath = "";
 
 beforeEach(async () => {
   projectRoot = join(tmpdir(), `memoire-tokens-extract-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  configureExecutionPolicy({ projectRoot, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   await mkdir(projectRoot, { recursive: true });
   cssPath = join(projectRoot, "globals.css");
   await writeFile(cssPath, THEME_CSS, "utf-8");
 });
 
 afterEach(async () => {
+  resetExecutionPolicyForTests();
   process.exitCode = 0;
   vi.restoreAllMocks();
   await rm(projectRoot, { recursive: true, force: true });
@@ -81,7 +84,7 @@ describe("tokens --from", () => {
     const registry = JSON.parse(await readFile(join(projectRoot, ".memoire", "design-system.json"), "utf-8"));
 
     expect(payload.saved).toBe(true);
-    expect(initSpy).toHaveBeenCalledWith("registry");
+    expect(initSpy).not.toHaveBeenCalled();
     expect(registry.tokens.some((token: { cssVariable: string }) => token.cssVariable === "--background")).toBe(true);
     expect(registry.tokens.some((token: { collection: string }) => token.collection.startsWith("inferred-literal:"))).toBe(true);
   });

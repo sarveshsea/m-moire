@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 /**
  * `memi publish` success-message test — verifies the public npm package page
  * is printed in the human-readable success output and embeds the correct
@@ -20,6 +21,7 @@ async function createEngine(): Promise<{ engine: MemoireEngine; projectRoot: str
     `memoire-publish-msg-${Date.now()}-${Math.random().toString(36).slice(2)}`,
   );
   tempDirs.push(projectRoot);
+  configureExecutionPolicy({ projectRoot, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   await mkdir(projectRoot, { recursive: true });
   await writeFile(
     join(projectRoot, "package.json"),
@@ -40,6 +42,7 @@ async function createEngine(): Promise<{ engine: MemoireEngine; projectRoot: str
 }
 
 afterEach(async () => {
+  resetExecutionPolicyForTests();
   process.exitCode = 0;
   for (const dir of tempDirs.splice(0)) {
     await rm(dir, { recursive: true, force: true });
