@@ -14,6 +14,7 @@ Managed independent security scanning and the reviewed-candidate-audit and swift
 
 ### Frontend engineering beta
 
+- Include the five required command-bootstrap assets in native packages, retain the harness manifest in offline bundles, and verify a real locked diagnosis on each native release runner.
 - Add a bounded repository-aware frontend brief across exports, props, CSS/DTCG tokens and CSF story references; normalize host-supplied Figma/Paper mappings without executing vendor data.
 - Make locked stdio useful with four read tools, cancellation, explicit root ownership, credential-free configurations and installed protocol checks.
 - Validate mapped reuse and stale/conflicting evidence; keep host-envelope guidance distinct from the registry generator's hard stop.

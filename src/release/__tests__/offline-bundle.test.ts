@@ -39,6 +39,16 @@ describe("Trust Core offline bundle", () => {
     );
   });
 
+  it("rejects an offline bundle whose compiled stage lacks its bootstrap manifest", async () => {
+    const fixture = await createFixture("darwin-arm64");
+    await rm(join(fixture.binaryStageDir, "studio/harness-manifest.json"));
+    await expect(buildOfflineBundle({
+      root: fixture.root,
+      target: "darwin-arm64",
+      binaryStageDir: fixture.binaryStageDir,
+    })).rejects.toThrow("harness-manifest.json");
+  });
+
   it("builds a deterministic, self-describing archive without dev or secret content", async () => {
     const fixture = await createFixture("linux-arm64");
     const firstOutput = join(fixture.root, "output-a");
@@ -76,6 +86,7 @@ describe("Trust Core offline bundle", () => {
       `${prefix}offline-bundle.json`,
       `${prefix}SHA256SUMS.txt`,
       `${prefix}skills/SAFE.md`,
+      `${prefix}studio/harness-manifest.json`,
     ]));
     expect(entries.join("\n")).not.toMatch(/(?:^|\/)(?:\.env|src|node_modules|__tests__)(?:\/|$)/);
 
@@ -178,6 +189,8 @@ async function createFixture(target: keyof typeof OFFLINE_TARGETS) {
   await mkdir(join(binaryStageDir, "skills"), { recursive: true });
   await mkdir(join(binaryStageDir, "src"), { recursive: true });
   await mkdir(join(binaryStageDir, "node_modules", "dev-secret-package"), { recursive: true });
+  await mkdir(join(binaryStageDir, "studio"), { recursive: true });
+  await writeFile(join(binaryStageDir, "studio/harness-manifest.json"), "{}\n");
   await writeFile(join(binaryStageDir, contract.binary), "standalone executable", { mode: 0o755 });
   await writeFile(join(binaryStageDir, "skills", "SAFE.md"), "safe runtime skill\n");
   await writeFile(join(binaryStageDir, "src", "should-not-ship.ts"), "development source\n");

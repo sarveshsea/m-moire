@@ -251,15 +251,8 @@ jobs:
       - name: Build deterministic offline bundle
         run: node scripts/build-offline-bundle.mjs --target=${{ matrix.offlineTarget }}
 
-      - name: Smoke test
-        shell: bash
-        run: |
-          cd dist-bin/memi-${{ matrix.binaryTarget }}
-          if [ -f ./memi.exe ]; then
-            ./memi.exe --version
-          else
-            ./memi --version
-          fi
+      - name: Verify standalone version and locked diagnosis
+        run: node scripts/smoke-standalone.mjs dist-bin/memi-${{ matrix.binaryTarget }}
 
       - name: Attest offline bundle provenance
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3

@@ -117,6 +117,10 @@ export async function buildOfflineBundle({
 
   await copyRequiredFile(join(compiledStage, contract.binary), join(stageDir, contract.binary));
   await chmod(join(stageDir, contract.binary), 0o755);
+  await copyRequiredFile(
+    join(compiledStage, "studio", "harness-manifest.json"),
+    join(stageDir, "studio", "harness-manifest.json"),
+  );
   for (const relativePath of SIDECAR_DIRECTORIES) {
     const sourcePath = join(compiledStage, relativePath);
     if (!(await exists(sourcePath))) continue;
