@@ -135,6 +135,16 @@ function jsonTokens(source: FrontendSource, omissions: FrontendOmission[]): Fron
     if (!isDtcgDocument(value)) { omissions.push({ path: source.path, reason: 'token-format-unassessed' }); return []; }
     const parsed = fromDtcg(value);
     if (parsed.warnings.length) omissions.push({ path: source.path, reason: 'token-alias-or-type-unresolved' });
-    return parsed.tokens.flatMap(token => Object.entries(token.values).map(([mode, value]) => ({ path: source.path, name: token.name, value, mode })));
+    return parsed.tokens.flatMap(token => {
+      if (!token.values || typeof token.values !== 'object' || Array.isArray(token.values)) {
+        omissions.push({ path: source.path, reason: 'token-value-unassessed' }); return [];
+      }
+      return Object.entries(token.values).flatMap(([mode, value]) => {
+        if (typeof value !== 'string' && !(typeof value === 'number' && Number.isFinite(value))) {
+          omissions.push({ path: source.path, reason: 'token-value-unassessed' }); return [];
+        }
+        return [{ path: source.path, name: token.name, value, mode }];
+      });
+    });
   } catch { omissions.push({ path: source.path, reason: 'token-parse-failure' }); return []; }
 }
