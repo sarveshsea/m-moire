@@ -175,9 +175,10 @@ two-phase state machine:
    immutable release record. The record binds version, commit X, tarball
    digests, attestation, workflow run and attempt, CycloneDX SBOM digest, and
    npm's publish timestamp.
-4. Publish the GitHub tag and checksummed assets from X, move the reviewed
-   Action major tag to X, publish the matching MCP Registry record, and verify
-   the pinned Studio release.
+4. Preserve the existing public channels while preparing the provenance-bound
+   transition. For 2.8.0-beta.1, npm uses `next`, `latest` remains 2.7.9, and
+   GitHub uses a prerelease without stable Action, Homebrew, GHCR, or MCP
+   promotion.
 5. Download the workflow's release record to
    `release-artifacts/npm/<version>.release.json`. Configure the website's
    same-origin `releaseArtifactUrl`, then stage the post-publish manifest:
@@ -190,8 +191,12 @@ two-phase state machine:
 6. Commit that transition as Y. The transition gate requires the preceding
    manifest revision to be the same candidate version, proves X is an ancestor
    of Y, re-reads every version surface at X, and verifies the committed release
-   record hash. Generate the website artifact from Y, deploy it, and run
-   `npm run check:public-release`.
+   record hash. Tag the reviewed transition descendant Y, which contains the
+   published manifest, then build and verify checksummed native/offline assets.
+   For stable releases, promote the matching Action and MCP records, generate
+   the website artifact, deploy it, and run `npm run check:public-release`.
+   The current public gate enforces stable-channel parity; disclose its beta
+   limitations rather than moving stable channels to make it pass.
 7. Merge or announce only when the live gate independently verifies npm
    provenance, the exact GitHub tag and binary checksums, Action `v2`, the MCP
    Registry, Studio assets, and the deployed website artifact. Published engine

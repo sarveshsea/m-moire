@@ -137,6 +137,8 @@ Development checkpoints (RED tests precede their implementation where noted):
 - `1cac3f27` — test: reproduce asynchronous upgrade staging cleanup contract
 - `f43dd828` — fix: await upgrade archive cleanup and verify successful shell sessions
 
+- `07c4e316` — fix: preserve explicit beta contracts through publication
+
 ### Release audit follow-up (unreleased)
 
 - `aeee0618` — fix: preserve exact Windows file identities during persistence
