@@ -7,13 +7,25 @@ import { join } from 'node:path';
 import { create as createTar } from 'tar';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { registerUpgradeCommand } from '../upgrade.js';
-const fx = vi.hoisted(() => ({ root: '', standalone: true, chmodFailure: false, spawn: vi.fn(), fetch: vi.fn() }));
+const fx = vi.hoisted(() => ({ root: '', standalone: true, chmodFailure: false, spawn: vi.fn(), fetch: vi.fn(), cleanupWait: null as Promise<void> | null, cleanupStarted: false, cleanupError: null as Error | null, stagingDirs: [] as string[] }));
 vi.mock('../../utils/runtime.js', () => ({ isStandaloneBinary: () => fx.standalone }));
 vi.mock('../../utils/asset-path.js', () => ({ packageRoot: () => fx.root }));
 vi.mock('node:child_process', () => ({ spawnSync: fx.spawn }));
 vi.mock('node:fs', async original => {
   const fs = await original<typeof import('node:fs')>();
   return { ...fs, chmodSync: (...args: Parameters<typeof fs.chmodSync>) => { if (fx.chmodFailure) throw new Error('chmod denied'); return fs.chmodSync(...args); } };
+});
+vi.mock('node:fs/promises', async original => {
+  const fs = await original<typeof import('node:fs/promises')>();
+  return { ...fs, rm: async (...args: Parameters<typeof fs.rm>) => {
+    if (String(args[0]).includes('memi-upgrade-') && !String(args[0]).includes('memi-upgrade-handler-')) {
+      fx.stagingDirs.push(String(args[0]));
+      fx.cleanupStarted = true;
+      if (fx.cleanupWait) await fx.cleanupWait;
+      if (fx.cleanupError) throw fx.cleanupError;
+    }
+    return fs.rm(...args);
+  } };
 });
 let root: string, bytes: Buffer, logs: string[];
 const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform')!;
@@ -23,6 +35,7 @@ async function run(...args: string[]) { const p = new Command(); registerUpgrade
 function response(body: string | Buffer, status = 200) { return new Response(body as BodyInit, { status }); }
 function checksum() { return `${createHash('sha256').update(bytes).digest('hex')}  memi-linux-x64.tar.gz\n`; }
 beforeEach(async () => {
+  fx.cleanupWait = null; fx.cleanupStarted = false; fx.cleanupError = null; fx.stagingDirs = [];
   root = await mkdtemp(join(tmpdir(), 'memi-upgrade-handler-')); fx.root = join(root, 'installed'); fx.standalone = true; fx.chmodFailure = false; logs = [];
   await mkdir(fx.root); await writeFile(join(fx.root, 'memi'), 'old binary');
   await mkdir(join(root, 'memi-linux-x64')); await writeFile(join(root, 'memi-linux-x64/memi'), 'new binary');
@@ -36,7 +49,7 @@ beforeEach(async () => {
     const dest = args.at(-1)!; mkdirSync(join(dest, 'memi-linux-x64'), { recursive: true }); writeFileSync(join(dest, 'memi-linux-x64/memi'), 'new binary'); return { status: 0 };
   });
 });
-afterEach(async () => { Object.defineProperty(process, 'platform', originalPlatform); Object.defineProperty(process, 'arch', originalArch); vi.restoreAllMocks(); vi.unstubAllGlobals(); await rm(root, { recursive: true, force: true }); });
+afterEach(async () => { Object.defineProperty(process, 'platform', originalPlatform); Object.defineProperty(process, 'arch', originalArch); vi.restoreAllMocks(); vi.unstubAllGlobals(); fx.cleanupWait = null; fx.cleanupError = null; for (const dir of [...fx.stagingDirs]) await rm(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }); await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }); });
 describe('upgrade command download and replacement contract', () => {
   it('directs npm installations to npm without downloading or extracting', async () => {
     fx.standalone = false; await run(); expect(logs.join('\n')).toContain('npm i -g'); expect(fx.fetch).not.toHaveBeenCalled(); expect(fx.spawn).not.toHaveBeenCalled();
@@ -86,6 +99,28 @@ describe('upgrade command download and replacement contract', () => {
     fx.spawn.mockReturnValueOnce({ status: 0 }); await expect(run()).rejects.toThrow('extracted root not found');
     fx.chmodFailure = true; await expect(run()).rejects.toThrow('chmod denied');
     expect(await readFile(join(fx.root, 'memi'), 'utf8')).toBe('old binary'); expect((await readdir(root)).some(name => name.includes('backup'))).toBe(false);
+  });
+  it('waits for staging cleanup to finish before reporting the original extraction failure', async () => {
+    let releaseCleanup!: () => void;
+    fx.cleanupWait = new Promise<void>(resolve => { releaseCleanup = resolve; });
+    fx.spawn.mockReturnValueOnce({ status: 1 });
+    let settled = false;
+    const result = run().then(() => { settled = true; return null; }, error => { settled = true; return error as Error; });
+    try {
+      await vi.waitFor(() => expect(fx.cleanupStarted).toBe(true));
+      expect(settled).toBe(false);
+      expect(await readFile(join(fx.root, 'memi'), 'utf8')).toBe('old binary');
+    } finally {
+      releaseCleanup();
+    }
+    expect((await result)?.message).toContain('extract failed');
+    await expect(readdir(fx.stagingDirs[0])).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+  it('surfaces a terminal staging cleanup failure instead of silently discarding it', async () => {
+    fx.cleanupError = Object.assign(new Error('staging cleanup remained locked'), { code: 'ENOTEMPTY' });
+    fx.spawn.mockReturnValueOnce({ status: 1 });
+    await expect(run()).rejects.toMatchObject({ message: 'staging cleanup remained locked', code: 'ENOTEMPTY' });
+    expect(await readFile(join(fx.root, 'memi'), 'utf8')).toBe('old binary');
   });
   it('does not extract a checksum-valid archive with an unexpected root', async () => {
     await createTar({ file: join(root, 'wrong.tar.gz'), gzip: true, cwd: root }, ['installed']); bytes = await readFile(join(root, 'wrong.tar.gz'));
