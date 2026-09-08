@@ -55,7 +55,12 @@ export async function withDiagnosisHistoryLock<T>(path: string, update: () => Pr
   policy.assert("source-content-persistence", operation);
   for (let attempt = 0; attempt < 100; attempt++) {
     const handle = await policy.openProjectWriteExclusive(lockPath, operation).catch(async error => {
-      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      const failure = error as NodeJS.ErrnoException;
+      // A prior owner may release the lock between its existence check and
+      // realpath. Restart acquisition with all containment checks intact.
+      const releasedDuringCheck = failure.code === "ENOENT"
+        && failure.syscall === "realpath" && failure.path === lockPath;
+      if (failure.code !== "EEXIST" && !releasedDuringCheck) throw error;
       await new Promise(resolve => setTimeout(resolve, 20));
       return undefined;
     });
