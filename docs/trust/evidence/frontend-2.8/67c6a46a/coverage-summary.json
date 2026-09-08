@@ -1,0 +1,44 @@
+{
+  "sourceCheckpoint": "67c6a46a06ef51d534cbd49fc993d87e6e3ef8a0",
+  "testFiles": 439,
+  "testsPassed": 4371,
+  "metrics": {
+    "lines": {
+      "total": 29989,
+      "covered": 26200,
+      "skipped": 0,
+      "pct": 87.36
+    },
+    "statements": {
+      "total": 33716,
+      "covered": 29000,
+      "skipped": 0,
+      "pct": 86.01
+    },
+    "functions": {
+      "total": 6080,
+      "covered": 5437,
+      "skipped": 0,
+      "pct": 89.42
+    },
+    "branches": {
+      "total": 24221,
+      "covered": 19466,
+      "skipped": 0,
+      "pct": 80.36
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "thresholds": {
+    "statements": 80,
+    "branches": 80,
+    "functions": 80,
+    "lines": 80
+  },
+  "denominator": "unchanged vitest.core.config.ts executable source inclusion"
+}
