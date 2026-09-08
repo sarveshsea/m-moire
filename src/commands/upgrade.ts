@@ -10,7 +10,7 @@
 import type { Command } from "commander";
 import { createHash } from "node:crypto";
 import { chmodSync, createWriteStream, existsSync, mkdirSync, renameSync, rmSync } from "node:fs";
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -341,7 +341,7 @@ export function registerUpgradeCommand(program: Command, _engine: MemoireEngine)
           throw err;
         }
       } finally {
-        rmSync(stagingDir, { recursive: true, force: true });
+        await rm(stagingDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
       }
     });
 }
