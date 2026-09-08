@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { StudioRuntimeServer } from "../server.js";
@@ -81,5 +81,98 @@ describe("Studio HTTP resource and validation boundaries", () => {
     expect(response.status).toBeGreaterThanOrEqual(400);
     expect(await response.json()).toMatchObject({ call: { status: "failed", error: expect.stringContaining("disabled") } });
     expect(await (await request("/api/tools/calls/disabled-proof")).json()).toMatchObject({ call: { status: "failed" } });
+  });
+});
+
+describe('Studio HTTP persistence roundtrips', () => {
+  it('roundtrips UTF-8 attachments as metadata and exact raw bytes', async () => {
+    const response = await request('/api/attachments/capture', 'POST', { kind: 'text', name: 'notes.txt', mimeType: 'text/plain', source: 'paste', text: 'Research résumé' });
+    expect(response.status).toBe(200);
+    const { attachment } = await response.json();
+    expect(attachment.size).toBe(Buffer.byteLength('Research résumé'));
+    expect(await (await request(`/api/attachments/${attachment.id}`)).json()).toMatchObject({ attachment: { text: 'Research résumé' } });
+    const raw = await request(`/api/attachments/${attachment.id}?raw=1`);
+    expect(raw.headers.get('content-type')).toBe('text/plain');
+    expect(await raw.text()).toBe('Research résumé');
+  });
+  it('preserves image bytes and generates the matching raw preview URL', async () => {
+    const { attachment } = await (await request('/api/attachments/capture', 'POST', { kind: 'image', name: 'proof.png', mimeType: 'image/png', source: 'paste', dataUrl: 'data:image/png;base64,AQID' })).json();
+    expect(attachment.previewUrl).toBe(`/api/attachments/${attachment.id}?raw=1`);
+    expect([...new Uint8Array(await (await request(attachment.previewUrl)).arrayBuffer())]).toEqual([1, 2, 3]);
+  });
+  it('creates, edits, archives and restores an auditable changelog entry', async () => {
+    const response = await request('/api/design-changelog', 'POST', { title: 'Navigation decision', summary: 'Document hierarchy', bodyMarkdown: 'Evidence from the local fixture' });
+    expect(response.status).toBe(200);
+    const { entry } = await response.json();
+    expect(await (await request(`/api/design-changelog/${entry.id}`, 'PATCH', { title: 'Updated decision' })).json()).toMatchObject({ entry: { title: 'Updated decision' } });
+    expect(await (await request(`/api/design-changelog/${entry.id}`, 'DELETE')).json()).toMatchObject({ entry: { status: 'archived' } });
+    expect(await (await request(`/api/design-changelog/${entry.id}/restore`, 'POST', {})).json()).toMatchObject({ entry: { status: 'active' } });
+    const markdown = await request('/api/design-changelog?format=markdown');
+    expect(markdown.headers.get('content-type')).toContain('text/markdown');
+    expect(await markdown.text()).toContain('Updated decision');
+  });
+  it('does not invent changelog evidence for an empty capture', async () => {
+    expect(await (await request('/api/design-changelog/capture', 'POST', {})).json()).toMatchObject({ captured: false, entry: null });
+  });
+  it('creates, updates and deletes an inactive automation without running it', async () => {
+    const response = await request('/api/automations', 'POST', { name: 'Fixture review', prompt: 'Review fixture', cwd: root, enabled: false });
+    expect(response.status).toBe(201);
+    const { automation } = await response.json();
+    expect(await (await request(`/api/automations/${automation.id}`)).json()).toMatchObject({ automation: { name: 'Fixture review' } });
+    const patched = await request(`/api/automations/${automation.id}`, 'PATCH', { name: 'Revised review' });
+    expect(patched.status).toBe(200);
+    expect(await patched.json()).toMatchObject({ automation: { name: 'Revised review' } });
+    expect(await (await request(`/api/automations/${automation.id}/runs`)).json()).toEqual({ runs: [] });
+    expect(await (await request(`/api/automations/${automation.id}`, 'DELETE')).json()).toEqual({ deleted: true });
+    expect((await request(`/api/automations/${automation.id}`)).status).toBe(404);
+  });
+  it('rejects workspace listing outside configured roots', async () => {
+    const response = await request(`/api/workspace?path=${encodeURIComponent(join(root, '..'))}`);
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({ error: expect.stringContaining('not allowed') });
+  });
+  it('rejects a session outside configured roots before starting any harness', async () => {
+    const response = await request('/api/sessions', 'POST', { cwd: join(root, '..'), prompt: 'Should never run' });
+    expect(response.status).toBe(403);
+    expect(await (await request('/api/sessions')).json()).toEqual({ sessions: [] });
+  });
+  it('sets preflight response without executing the endpoint', async () => {
+    const response = await request('/api/sessions', 'OPTIONS');
+    expect(response.status).toBe(204);
+    expect(await response.text()).toBe('');
+  });
+  it.each(['/api/logs/missing', '/api/sessions/missing/trace', '/api/sessions/missing/events?limit=2', '/api/sessions/missing/events?limit=invalid'])('reports absent persisted session data at %s', async path => {
+    const response = await request(path); expect(response.status).toBe(404);
+    expect(await response.json()).toMatchObject({ error: expect.stringContaining('Unknown') });
+  });
+  it('captures a local markdown corpus and returns its persisted status', async () => {
+    const response = await request('/api/markdown-corpus/setup', 'POST', { catalog: [{ owner: 'fixture', repo: 'metadata', license: 'MIT', policy: 'metadata-only' }] });
+    expect(response.status).toBe(200);
+    const status = await response.json(); expect(status).toMatchObject({ status: 'ready', repos: [{ files: 0 }] });
+    expect(await (await request('/api/markdown-corpus/status')).json()).toEqual(status);
+  });
+  it('analyzes inline markdown as a real flow candidate', async () => {
+    const response = await request('/api/markdown-corpus/analyze', 'POST', { source: '# Checkout\n- Review cart\n- Confirm purchase' });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ candidates: [{ kind: 'checklist-to-flow', cleanSource: expect.stringContaining('Confirm purchase') }] });
+  });
+  it('rejects knowledge captures lacking an event', async () => {
+    const response = await request('/api/knowledge/capture', 'POST', {}); expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: 'Knowledge capture requires an event' });
+  });
+  it('returns malformed request failures without closing the server', async () => {
+    const response = await fetch(`${baseUrl}/api/attachments/capture`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{broken' });
+    expect(response.status).toBeGreaterThanOrEqual(400);
+    expect(await response.json()).toMatchObject({ error: expect.any(String) });
+    expect((await request('/api/config')).status).toBe(200);
+  });
+});
+
+
+describe('Studio attachment session path boundary', () => {
+  it('rejects traversal session IDs before writing outside the attachments directory', async () => {
+    const response = await request('/api/attachments/capture', 'POST', { kind: 'text', name: 'proof.txt', mimeType: 'text/plain', source: 'paste', text: 'Bounded fixture evidence', sessionId: '../../../escaped-attachments' });
+    expect(response.status).toBe(400);
+    await expect(readdir(join(root, 'escaped-attachments'))).rejects.toMatchObject({ code: 'ENOENT' });
   });
 });
