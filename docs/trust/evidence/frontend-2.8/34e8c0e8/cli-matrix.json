@@ -1,0 +1,1419 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "34e8c0e8dd9275b0de808e1fbd9a4e31a784b098",
+  "artifactVersion": "2.8.0-beta.1",
+  "entrySha256": "6a0c1be2d70627ee38c1f0714d6b9593d64c6841df2ab835fb7512b65518ae1c",
+  "tarballSha256": "599cbc3c48b41a6c47571177f9510a5d9fe8588d0a4d154940e6307a2c5ad005",
+  "testedAt": "2026-09-08T15:53:13.037Z",
+  "cases": 51,
+  "passed": 51,
+  "failed": 0,
+  "scope": "Installed frozen artifact CLI invocation and fixture file effects; no process or network syscall instrumentation.",
+  "results": [
+    {
+      "id": "locked-brief",
+      "profile": "locked",
+      "args": [
+        "agent",
+        "brief",
+        ".",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 5353,
+      "stderrBytes": 0,
+      "stdoutSha256": "f0945902c495b907c373f8d690bc172f54f2f5f83f3fba1af06c4dcbc57a1cf4",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-tokens-json",
+      "profile": "locked",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 4363,
+      "stderrBytes": 0,
+      "stdoutSha256": "15d33b45432f3af90ed0250b540edea944f7ba51c6ca792f19d14cd56f356d44",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-ux-read",
+      "profile": "locked",
+      "args": [
+        "ux",
+        "audit",
+        ".",
+        "--json",
+        "--no-write"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 8238,
+      "stderrBytes": 0,
+      "stdoutSha256": "b2b59c7bd9f89e8804d1875ae72e41ad7e846ac25325f79d6bfd503a1850756d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-craft-read",
+      "profile": "locked",
+      "args": [
+        "craft",
+        "audit",
+        ".",
+        "--json",
+        "--no-write"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 6961,
+      "stderrBytes": 0,
+      "stdoutSha256": "48835469f0b5408cd56ee9b56400b5795007a72a41880e5133e14b648f13a72b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-generate-preview",
+      "profile": "locked",
+      "args": [
+        "generate",
+        "Button",
+        "--preview",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 1584,
+      "stderrBytes": 0,
+      "stdoutSha256": "1d8573fee5bfa2a1b14fcd3b6d19ea40ae569f36e40aadac73c6f538f3077a5f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-receipt-only",
+      "profile": "locked",
+      "args": [
+        "diagnose",
+        ".",
+        "--receipt-only",
+        "--json",
+        "--fail-on",
+        "none"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 1895,
+      "stderrBytes": 0,
+      "stdoutSha256": "2e3f7cb4eddeb32ffeb4093b907e85f8a34dc6a111ddb5b14ec57e0950694cf3",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-tokens-report-denied",
+      "profile": "locked",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json",
+        "--report"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 403,
+      "stderrBytes": 0,
+      "stdoutSha256": "a9e5eb8e26f7016a138622951785905a033b2c0ee3c2af299e3f17a77e6872de",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-url-denied",
+      "profile": "locked",
+      "args": [
+        "diagnose",
+        "https://example.com",
+        "--no-write",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 334,
+      "stderrBytes": 0,
+      "stdoutSha256": "552bea1c6c069c6e58e1c20db83bd5075879accf414201768b544481bb5e3219",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-changed-denied",
+      "profile": "locked",
+      "args": [
+        "diagnose",
+        ".",
+        "--changed",
+        "--no-write",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 342,
+      "stderrBytes": 0,
+      "stdoutSha256": "ec0b8f68cecd24eb39c01af8f905bfa9f0cc04685da996e01eaff1768259acbb",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-files-override-changed",
+      "profile": "locked",
+      "args": [
+        "diagnose",
+        ".",
+        "--changed",
+        "--files",
+        "src/Page.tsx",
+        "--no-write",
+        "--json",
+        "--fail-on",
+        "none"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 15949,
+      "stderrBytes": 0,
+      "stdoutSha256": "a2dd8904e502e525e8d723b627f264e2ff9580a15637c0413c3aa249e42af8ea",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-brief",
+      "profile": "local",
+      "args": [
+        "agent",
+        "brief",
+        ".",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 5352,
+      "stderrBytes": 0,
+      "stdoutSha256": "21cc8b1919d13ca4b0d70c01b9e25ebeb335607f0856fb0a9dbfab7b874f9441",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-tokens-json",
+      "profile": "local",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 4363,
+      "stderrBytes": 0,
+      "stdoutSha256": "15d33b45432f3af90ed0250b540edea944f7ba51c6ca792f19d14cd56f356d44",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-ux-read",
+      "profile": "local",
+      "args": [
+        "ux",
+        "audit",
+        ".",
+        "--json",
+        "--no-write"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 8238,
+      "stderrBytes": 0,
+      "stdoutSha256": "d4a266870f1868cfe2eb1effe0fbd4e95a306447e94b5ad36bad8faffadddc08",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-craft-read",
+      "profile": "local",
+      "args": [
+        "craft",
+        "audit",
+        ".",
+        "--json",
+        "--no-write"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 6961,
+      "stderrBytes": 0,
+      "stdoutSha256": "3a19e436a703070d52f3af856e4413cc268357b9bc1f98f6cecf25b7990ae2f2",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-generate-preview",
+      "profile": "local",
+      "args": [
+        "generate",
+        "Button",
+        "--preview",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 1584,
+      "stderrBytes": 0,
+      "stdoutSha256": "1d8573fee5bfa2a1b14fcd3b6d19ea40ae569f36e40aadac73c6f538f3077a5f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-receipt-only",
+      "profile": "local",
+      "args": [
+        "diagnose",
+        ".",
+        "--receipt-only",
+        "--json",
+        "--fail-on",
+        "none"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 1926,
+      "stderrBytes": 0,
+      "stdoutSha256": "d717ddf1da3437384732c2c7246d926a9389cb7ac11396d6c7c72706b998be79",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-tokens-report-denied",
+      "profile": "local",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json",
+        "--report"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 401,
+      "stderrBytes": 0,
+      "stdoutSha256": "1ce7d22ca17de23c2e5fc8e5dcb92e114eba3c6908ae7007aec75814455da6cb",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-url-denied",
+      "profile": "local",
+      "args": [
+        "diagnose",
+        "https://example.com",
+        "--no-write",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 332,
+      "stderrBytes": 0,
+      "stdoutSha256": "009580ec31f485a711a41482594aa57f1c5e59c9feb3af338e4e4beb5ed582e5",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-changed-denied",
+      "profile": "local",
+      "args": [
+        "diagnose",
+        ".",
+        "--changed",
+        "--no-write",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 340,
+      "stderrBytes": 0,
+      "stdoutSha256": "c83eff64f1602d6f36b5f785b23323141f62cb6bc1f9a5db8cc9b9780718e88b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-files-override-changed",
+      "profile": "local",
+      "args": [
+        "diagnose",
+        ".",
+        "--changed",
+        "--files",
+        "src/Page.tsx",
+        "--no-write",
+        "--json",
+        "--fail-on",
+        "none"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 15949,
+      "stderrBytes": 0,
+      "stdoutSha256": "1dd8a4b5118f6899b34d51db6b679c9caf6627acb25662d1c1113ea8b9a83f5b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-brief",
+      "profile": "connected",
+      "args": [
+        "agent",
+        "brief",
+        ".",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 5356,
+      "stderrBytes": 0,
+      "stdoutSha256": "354a4e3f41347a3dac24ee265d46548a5ad610357e3084313ff783f98f6c22af",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-tokens-json",
+      "profile": "connected",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 4363,
+      "stderrBytes": 0,
+      "stdoutSha256": "15d33b45432f3af90ed0250b540edea944f7ba51c6ca792f19d14cd56f356d44",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-ux-read",
+      "profile": "connected",
+      "args": [
+        "ux",
+        "audit",
+        ".",
+        "--json",
+        "--no-write"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 8238,
+      "stderrBytes": 0,
+      "stdoutSha256": "0b680cc038b45d2654e14e1f0b561aa2c9fb02bd32d195d3f5b538a03256c98d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-craft-read",
+      "profile": "connected",
+      "args": [
+        "craft",
+        "audit",
+        ".",
+        "--json",
+        "--no-write"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 6961,
+      "stderrBytes": 0,
+      "stdoutSha256": "f29b1390f6beeaff3a8a399c08f698f03e259348b42279a35bf1ae9e565315fb",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-generate-preview",
+      "profile": "connected",
+      "args": [
+        "generate",
+        "Button",
+        "--preview",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 1584,
+      "stderrBytes": 0,
+      "stdoutSha256": "1d8573fee5bfa2a1b14fcd3b6d19ea40ae569f36e40aadac73c6f538f3077a5f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-receipt-only",
+      "profile": "connected",
+      "args": [
+        "diagnose",
+        ".",
+        "--receipt-only",
+        "--json",
+        "--fail-on",
+        "none"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 1898,
+      "stderrBytes": 0,
+      "stdoutSha256": "132a9905382c33683e858b8d30a12e923603e6b56cdcb8ccc222b93d3cfd07b9",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-tokens-report-denied",
+      "profile": "connected",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json",
+        "--report"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 409,
+      "stderrBytes": 0,
+      "stdoutSha256": "3fd71d4aa873a270e35ea50380cf080c193bded5ab7b7955f891c00516a77a1d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-url-denied",
+      "profile": "connected",
+      "args": [
+        "diagnose",
+        "https://example.com",
+        "--no-write",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 340,
+      "stderrBytes": 0,
+      "stdoutSha256": "b21a1da7eea50968ae1fb5c9f89b74c5c6521207ae3aff33170c04f611276650",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-changed-denied",
+      "profile": "connected",
+      "args": [
+        "diagnose",
+        ".",
+        "--changed",
+        "--no-write",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 348,
+      "stderrBytes": 0,
+      "stdoutSha256": "56d92cf33b848e7b295030b8f08cfff5701e2bb68ff854107dfe579d63edf54b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-files-override-changed",
+      "profile": "connected",
+      "args": [
+        "diagnose",
+        ".",
+        "--changed",
+        "--files",
+        "src/Page.tsx",
+        "--no-write",
+        "--json",
+        "--fail-on",
+        "none"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 15949,
+      "stderrBytes": 0,
+      "stdoutSha256": "d570d2716cfbda9ea2f4eacf96536d4bf9531cabe282f4fe41cf8b7e8a496121",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-ux-write",
+      "profile": "connected",
+      "args": [
+        "ux",
+        "audit",
+        ".",
+        "--json"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "allowed-write",
+      "exitCode": 0,
+      "stdoutBytes": 8238,
+      "stderrBytes": 0,
+      "stdoutSha256": "6a5e79941ad37b283c02153b34fb6653a4016998d8f9bea2995b7d635fe7aba0",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 2,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-craft-write",
+      "profile": "connected",
+      "args": [
+        "craft",
+        "audit",
+        ".",
+        "--json"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "allowed-write",
+      "exitCode": 0,
+      "stdoutBytes": 6961,
+      "stderrBytes": 0,
+      "stdoutSha256": "5509e70672e4235836f788b2d321eda00d890416688f09a3c69c127f9aeeac7c",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 2,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-tokens-report",
+      "profile": "connected",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json",
+        "--report"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "allowed-write",
+      "exitCode": 0,
+      "stdoutBytes": 4701,
+      "stderrBytes": 0,
+      "stdoutSha256": "e45da7733548bf67fee15eb08aa58766f18860971cee6e46d060f5d428e1985e",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 2,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-tokens-save",
+      "profile": "connected",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json",
+        "--save"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "allowed-write",
+      "exitCode": 0,
+      "stdoutBytes": 4362,
+      "stderrBytes": 0,
+      "stdoutSha256": "e08ee888642bda03f4ef12eecfc1648abbb1dd66c6a9ab22fd349e0d2b3c3eb7",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 1,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-generate-write",
+      "profile": "connected",
+      "args": [
+        "generate",
+        "Button",
+        "--json"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "allowed-write",
+      "exitCode": 0,
+      "stdoutBytes": 547,
+      "stderrBytes": 0,
+      "stdoutSha256": "a6cf5812ed75c2ae608ff83e13e7611210a08ab84df2463594b4c66dbc9f87e0",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 4,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-missing-source-grant",
+      "profile": "connected",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json",
+        "--save"
+      ],
+      "grants": [
+        "project-write"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 409,
+      "stderrBytes": 0,
+      "stdoutSha256": "3fd71d4aa873a270e35ea50380cf080c193bded5ab7b7955f891c00516a77a1d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-missing-write-grant",
+      "profile": "connected",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--json",
+        "--save"
+      ],
+      "grants": [
+        "source-content-persistence"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 354,
+      "stderrBytes": 0,
+      "stdoutSha256": "70860158b5eb6adc6a63be9c9d50ef31111d777b47693892f6a736cf1817a24d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-output-escape",
+      "profile": "connected",
+      "args": [
+        "tokens",
+        "--from",
+        "src",
+        "--output",
+        "../escape",
+        "--json",
+        "--report"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 372,
+      "stderrBytes": 0,
+      "stdoutSha256": "d95b9b009b745ba402717713965bf23eb40406ee15889ead716822281bc762bd",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-target-escape",
+      "profile": "locked",
+      "args": [
+        "diagnose",
+        "../",
+        "--no-write",
+        "--json"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 156,
+      "stderrBytes": 0,
+      "stdoutSha256": "13c13596b5f41f4d24494447fda96a6518a72181e43d1e1ce642117868b0a136",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-loopback-url",
+      "profile": "connected",
+      "args": [
+        "tokens",
+        "--from",
+        "http://127.0.0.1",
+        "--json"
+      ],
+      "grants": [
+        "network"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 0,
+      "stderrBytes": 29386,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "f1f413a6dc2fd1b98d172afda04f1930a9ea5d8429c65b1e42f6f1c96180a46d",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "deferred-ios",
+      "profile": "connected",
+      "args": [
+        "ios",
+        "brief",
+        "--json"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 731,
+      "stderrBytes": 0,
+      "stdoutSha256": "c6af6279f09cccf0ef9c4cf17ab3d0f5e243423cfe5e683fb6e0d38bc2b5b30d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "deferred-spec",
+      "profile": "connected",
+      "args": [
+        "spec",
+        "component",
+        "Button"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 0,
+      "stderrBytes": 699,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "8e8b1d9a57607ab446bca972fecaf23f212dea9218880ef0e7b982fd349f08a5",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "deferred-extract-alias",
+      "profile": "connected",
+      "args": [
+        "extract",
+        "https://example.com"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 0,
+      "stderrBytes": 691,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "2c6705ba23f9dd86f4cf6bd24a34095e192e6807d4cd74bbe1a9198a6f8ccee5",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "deferred-dashboard-alias",
+      "profile": "connected",
+      "args": [
+        "dash"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 0,
+      "stderrBytes": 689,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "0587f091928d7f4901e3334798edbfb8a0307d8bb62d45192529962c78bd0621",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "deferred-fix",
+      "profile": "connected",
+      "args": [
+        "fix",
+        "plan",
+        "--json"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 729,
+      "stderrBytes": 0,
+      "stdoutSha256": "16c5a1bb3c98421f871caa0dce5f79bef921ecd0893f104e83a554f2a3ef93f0",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-source-symlink",
+      "profile": "locked",
+      "args": [
+        "diagnose",
+        ".",
+        "--no-write",
+        "--json",
+        "--fail-on",
+        "none"
+      ],
+      "grants": [],
+      "expected": "allowed-read",
+      "exitCode": 0,
+      "stdoutBytes": 16083,
+      "stderrBytes": 0,
+      "stdoutSha256": "a071d898a86e9f03af590159914220f4717c9841c6404fb1b1faddb7814d5a87",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-metadata-receipt",
+      "profile": "local",
+      "args": [
+        "--receipt",
+        ".memi/matrix.json",
+        "diagnose",
+        ".",
+        "--receipt-only",
+        "--json",
+        "--fail-on",
+        "none"
+      ],
+      "grants": [],
+      "expected": "allowed-write",
+      "exitCode": 0,
+      "stdoutBytes": 1926,
+      "stderrBytes": 0,
+      "stdoutSha256": "5d0ae9f379042b22bcb8b4c463c05d856be9ec4628a0962e47532fa6e502bd7b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 1,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "local-missing-receipt-parent",
+      "profile": "local",
+      "args": [
+        "--receipt",
+        ".memi/receipts/matrix.json",
+        "diagnose",
+        ".",
+        "--receipt-only",
+        "--json",
+        "--fail-on",
+        "none"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 2278,
+      "stderrBytes": 0,
+      "stdoutSha256": "e2ea0fd0c8de998d5e490439e631041bc6ff9811b199aef0deb01fe549301078",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "locked-preview-denied",
+      "profile": "locked",
+      "args": [
+        "preview",
+        "--build-only"
+      ],
+      "grants": [],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 0,
+      "stderrBytes": 322,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "fe8ba709db0abfff2634bcb9ff0dabff2ba4673c01aea2dcc74949b6b907d401",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-preview-server-denied",
+      "profile": "connected",
+      "args": [
+        "preview"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "denied",
+      "exitCode": 1,
+      "stdoutBytes": 0,
+      "stderrBytes": 320,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "310f5b7f9593cd90b751089c7e098ac7ba2138db301b5a7c95bf8953bf26a892",
+      "changedFileCount": 0,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    },
+    {
+      "id": "connected-preview-build",
+      "profile": "connected",
+      "args": [
+        "preview",
+        "--build-only"
+      ],
+      "grants": [
+        "project-write",
+        "source-content-persistence"
+      ],
+      "expected": "allowed-write",
+      "exitCode": 0,
+      "stdoutBytes": 354,
+      "stderrBytes": 0,
+      "stdoutSha256": "c4830b9bdb16ffdd5cac9a599fee66eaf7081d9412d1ee364d68dc0847a2e03e",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedFileCount": 6,
+      "assertions": {
+        "terminated": true,
+        "exit": true,
+        "effect": true,
+        "denial": true,
+        "custom": true
+      },
+      "pass": true
+    }
+  ]
+}

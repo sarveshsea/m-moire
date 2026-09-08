@@ -42,3 +42,6 @@ research/store.v2.json
 # Claude Code local settings (ignore) but track rules
 .claude/*
 !.claude/rules/
+
+# Local coverage reports contain workstation paths.
+/coverage/

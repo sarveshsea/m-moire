@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "memi.frontend-benchmark.v1",
+  "generatedAt": "2026-09-08T15:40:11.394Z",
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.22.3",
+    "linuxArm64Process": false,
+    "runnerArchitecture": null,
+    "nativeLinuxArm64": false
+  },
+  "artifact": {
+    "entryName": "index.js",
+    "entrySha256": "9aabb1e97e1ea6ebc931c944c135248cf7a6e4f26c2bd999d86c43d8479ae60a",
+    "adjacentRuntimeSha256": "9aabb1e97e1ea6ebc931c944c135248cf7a6e4f26c2bd999d86c43d8479ae60a",
+    "qualification": "Launcher and adjacent runtime digests; attach published package/source provenance separately."
+  },
+  "method": "Fresh stdio server process per trial; initialize, list tools and first useful brief. No warmups. Filesystem caches are not flushed. Negative checks use separate fresh processes.",
+  "fixture": {
+    "version": "memi.frontend-benchmark-fixture.v1",
+    "fingerprint": "db03ceb272603de4e51f9cc8a8107353250dadcae0d3d1f7388ccdf9a7ed6967",
+    "eligibleFiles": 500,
+    "componentFiles": 479,
+    "storyFiles": 20,
+    "tokenDefinitions": 100,
+    "evidenceBytes": 323
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "status": "passed",
+      "durationMs": 599.12325,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    },
+    {
+      "trial": 2,
+      "status": "passed",
+      "durationMs": 675.90125,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    },
+    {
+      "trial": 3,
+      "status": "passed",
+      "durationMs": 580.7255420000001,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    },
+    {
+      "trial": 4,
+      "status": "passed",
+      "durationMs": 577.5300000000002,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    },
+    {
+      "trial": 5,
+      "status": "passed",
+      "durationMs": 575.4514589999999,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    },
+    {
+      "trial": 6,
+      "status": "passed",
+      "durationMs": 576.6339170000001,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    },
+    {
+      "trial": 7,
+      "status": "passed",
+      "durationMs": 540.4601659999998,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    },
+    {
+      "trial": 8,
+      "status": "passed",
+      "durationMs": 525.7749170000006,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    },
+    {
+      "trial": 9,
+      "status": "passed",
+      "durationMs": 526.7454589999998,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    },
+    {
+      "trial": 10,
+      "status": "passed",
+      "durationMs": 514.3231249999999,
+      "payloadBytes": 13600,
+      "payloadSha256": "37d0560ed61e07b5863fbc8b5b2e22872e8e26a240594ee33f0b9c8f6bcf6330",
+      "stderrBytes": 0
+    }
+  ],
+  "negativeCases": [
+    {
+      "name": "stale-mapping",
+      "status": "passed",
+      "durationMs": 516.7456670000001,
+      "payloadBytes": 13751,
+      "payloadSha256": "cc03401a85cad6a418e7301ca7b3e8a49d4fa74617829dda6430570cb57aae29",
+      "stderrBytes": 0
+    },
+    {
+      "name": "missing-export",
+      "status": "passed",
+      "durationMs": 589.4968750000007,
+      "payloadBytes": 13805,
+      "payloadSha256": "ab991b2191cea1ee9dc08232983635189c2c80a879b6e74a80a28325299fa118",
+      "stderrBytes": 0
+    }
+  ],
+  "summary": {
+    "trials": 10,
+    "failures": 0,
+    "medianMs": 576.042688,
+    "p95Ms": 675.90125,
+    "maxMs": 675.90125,
+    "thresholds": {
+      "medianMs": 5000,
+      "payloadBytes": 16384
+    },
+    "passed": true,
+    "bytes": {
+      "rawEligibleSourceBytes": 126406,
+      "selectedMappedInputBytes": 5664,
+      "successfulBriefBytes": [
+        13600,
+        13600,
+        13600,
+        13600,
+        13600,
+        13600,
+        13600,
+        13600,
+        13600,
+        13600
+      ]
+    },
+    "modelCost": {
+      "status": "unassessed",
+      "reason": "No model or paid connector is invoked. Source-byte differences do not establish complete-task token or dollar savings."
+    },
+    "cpuAndMemory": {
+      "status": "unassessed",
+      "reason": "Portable child-process resource usage is not collected by this stdio harness."
+    }
+  },
+  "homeUnchanged": true,
+  "projectUnchanged": true,
+  "passed": true,
+  "qualification": "Synthetic offline local-context observation. Native eligibility additionally requires CI-reported ARM64 host architecture; architecture alone cannot exclude emulation. This does not establish live connector support, rendered correctness, complete-task savings, or the native release gate on a different environment."
+}

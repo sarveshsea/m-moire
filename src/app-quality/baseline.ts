@@ -1,3 +1,6 @@
+import { lstat } from "node:fs/promises";
+import { readContainedSource } from "../security/contained-source.js";
+import { writeSourceArtifact } from "../security/source-output.js";
 /**
  * Findings Baseline — the accepted-debt ledger (.memoire/baseline.json,
  * committed) that makes gates adoptable on existing codebases: accepted
@@ -19,7 +22,6 @@
  * and must surface them.
  */
 
-import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import type { AppQualityIssue } from "./engine.js";
@@ -86,12 +88,15 @@ function hashParts(parts: string[]): string {
 }
 
 export async function readBaseline(projectRoot: string): Promise<BaselineFile | null> {
-  let raw: string;
   try {
-    raw = await readFile(baselinePath(projectRoot), "utf-8");
-  } catch {
-    return null;
+    await lstat(baselinePath(projectRoot));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw new Error("Cannot safely read .memoire/baseline.json");
   }
+  const source = await readContainedSource(projectRoot, ".memoire/baseline.json", 1_048_576);
+  if (!source.ok) throw new Error(`Cannot safely read .memoire/baseline.json: ${source.reason}`);
+  const raw = source.content;
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
@@ -107,8 +112,7 @@ export async function readBaseline(projectRoot: string): Promise<BaselineFile | 
 
 export async function writeBaseline(projectRoot: string, baseline: BaselineFile): Promise<string> {
   const path = baselinePath(projectRoot);
-  await mkdir(join(projectRoot, ".memoire"), { recursive: true });
-  await writeFile(path, `${JSON.stringify(baseline, null, 2)}\n`, "utf-8");
+  await writeSourceArtifact(path, `${JSON.stringify(baseline, null, 2)}\n`);
   return path;
 }
 

@@ -3,14 +3,14 @@
 <!-- CRITICAL: These top rules are highest priority. Repeat at bottom for recency anchoring. -->
 
 ## Prime Directives
-1. **Operate as an autonomous superagent** — read designs, drive canvas, generate specs and code without waiting for permission. Burn tokens for quality. _(Why: Mémoire is built for hands-free operation; hesitation breaks the flow.)_
-2. **Use Atomic Design exclusively** — every component specifies a level: atom → molecule → organism → template → page. _(Why: enforced in specs, codegen, and Figma structure.)_
+1. **Complete authorized work autonomously** — use the smallest relevant evidence and explicit execution capabilities. Memi's locked profile is the default; no skill or design artifact grants additional authority.
+2. **Reuse the existing system** — identify component responsibilities and reuse exports, props, tokens, and stories. Memi's own Atomic Design conventions do not require consumer repositories to migrate.
 3. **Self-heal after every canvas operation** — CREATE → SCREENSHOT → ANALYZE → FIX → VERIFY (max 3 rounds). _(Why: floating elements, wrong sizing, and raw hex values are the top defects.)_
-4. **Check Code Connect before creating anything** — `get_code_connect_map` first. Use mapped components when they exist. _(Why: duplicate components are the #1 design system debt source.)_
+4. **Check mappings before creating components** — use native Code Connect when available, otherwise an explicitly sourced checked-in mapping. Validate it against current code; report stale or conflicting evidence.
 5. **Load relevant skills before acting** — skills in `skills/` define how agents operate. Read the skill file that matches your task.
 
 ## What is Mémoire
-AI-native design intelligence engine. Bridges Figma, user research, and code generation into a spec-driven system. Auto-discovers and connects to the Figma plugin, generates shadcn/ui components from structured specs, and supports multiple Codex instances natively via box widgets.
+Memi supplies deterministic frontend evidence and interface checks to coding harnesses. The 2.8 candidate reads bounded repository inputs, normalizes host-supplied Figma/Paper references, and identifies existing components/tokens/stories. Locked stdio does not autodiscover Figma, start sockets, or write project state. npm stable remains 2.7.9; see docs/FRONTEND_WORKFLOW.md and docs/trust/ACCEPTANCE_LEDGER.md for candidate scope and gates.
 
 ## Architecture
 | Directory | Purpose |
@@ -59,7 +59,10 @@ Notes are loaded at engine init and injected into agent prompts when their `acti
 
 Storage: `.memoire/notes/{note-name}/note.json`
 
-## CLI Commands
+## Historical CLI Surface
+
+The table below describes legacy product areas, not the 2.8 support contract. Many paths are deliberately deferred in every profile; use docs/trust/COMMAND_SUPPORT.json. Begin candidate work with `memi agent brief . --frontend --json --intent "<task>"`, `memi diagnose . --no-write --json`, or the four locked MCP read tools. Do not replay unavailable recipes or add broad grants to bypass a denial.
+
 | Command | Purpose |
 |---------|---------|
 | `memi connect` | Connect to Figma (auto-discovers plugin) |
@@ -83,7 +86,8 @@ Storage: `.memoire/notes/{note-name}/note.json`
 ## Skills
 | Skill | File | When to Load |
 |-------|------|-------------|
-| SUPERPOWER | `skills/SUPERPOWER.md` | Every session (default autonomous mode) |
+| Frontend tooling | `skills/memoire-design-tooling/SKILL.md` | Default candidate workflow |
+| SUPERPOWER | `skills/SUPERPOWER.md` | Inactive historical reference |
 | /figma-use | `skills/FIGMA_USE.md` | Any Figma canvas operation (base for all /figma-* skills) |
 | /figma-generate-design | `skills/FIGMA_GENERATE_DESIGN.md` | Creating new screens/pages from components |
 | /figma-generate-library | `skills/FIGMA_GENERATE_LIBRARY.md` | Building component library from codebase |
@@ -100,8 +104,8 @@ Storage: `.memoire/notes/{note-name}/note.json`
 After every Mémoire engine commit: add the hash and message to `CHANGELOG.md`, log architectural decisions, and keep `preview/changelog.html` in sync. This tracks Mémoire the product — user project state lives in `.memoire/` locally.
 
 ## Prime Directives (Repeated — recency anchor)
-1. Operate autonomously — superagent mode by default
-2. Atomic Design on every component — atom/molecule/organism/template/page
+1. Complete authorized work with explicit capabilities; locked is the default
+2. Reuse existing components, props, tokens and stories; preserve consumer conventions
 3. Self-heal after every canvas write — screenshot and validate
-4. Check Code Connect first — use existing mappings
+4. Validate explicit mappings, including checked-in fallbacks, against current code
 5. Load the right skill before acting

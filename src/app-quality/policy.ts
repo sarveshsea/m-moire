@@ -8,7 +8,8 @@
  * meaningful between runs with the same policy hash.
  */
 
-import { readFile } from "node:fs/promises";
+import { lstat } from "node:fs/promises";
+import { readContainedSource } from "../security/contained-source.js";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import type { AppQualityIssue, AppQualitySeverity } from "./engine.js";
@@ -150,12 +151,15 @@ export function defaultPolicy(): ResolvedPolicy {
  */
 export async function loadPolicy(projectRoot: string): Promise<ResolvedPolicy> {
   const path = join(projectRoot, POLICY_FILE_NAME);
-  let raw: string;
   try {
-    raw = await readFile(path, "utf-8");
-  } catch {
-    return defaultPolicy();
+    await lstat(path);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return defaultPolicy();
+    throw new Error(`Cannot safely read ${POLICY_FILE_NAME}`);
   }
+  const source = await readContainedSource(projectRoot, POLICY_FILE_NAME, 262_144);
+  if (!source.ok) throw new Error(`Cannot safely read ${POLICY_FILE_NAME}: ${source.reason}`);
+  const raw = source.content;
 
   let parsed: unknown;
   try {

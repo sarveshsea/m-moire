@@ -254,12 +254,13 @@ export function parseClaudeStreamJson(jsonl: string): Readonly<{
   let errors = 0;
   for (const line of jsonl.split(/\r?\n/)) {
     if (!line.trim()) continue;
-    let event: Record<string, unknown>;
+    let event: Record<string, unknown> | null;
     try {
-      event = JSON.parse(line) as Record<string, unknown>;
+      event = asRecord(JSON.parse(line));
     } catch {
       continue;
     }
+    if (!event) continue;
     if (typeof event.error === "string") {
       failure = event.error;
     }

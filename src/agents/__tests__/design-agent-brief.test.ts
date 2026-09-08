@@ -70,7 +70,7 @@ describe("design agent brief", () => {
     expect(brief.evidenceCommands.map((command) => command.command)).toEqual(expect.arrayContaining([
       "memi design-doc https://example.com --spec",
       "memi research synthesize",
-      "memi research design --intent \"Research-backed redesign from Figma\" --write-specs --mermaid-jam --json",
+      "memi research design --intent 'Research-backed redesign from Figma' --write-specs --mermaid-jam --json",
       "memi pull --rest",
     ]));
     expect(brief.compatibility.installs).toEqual(expect.arrayContaining([

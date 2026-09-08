@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
 import { registerGenerateCommand } from "../generate.js";
@@ -5,6 +6,7 @@ import { captureLogs, lastLog } from "./test-helpers.js";
 import type { CodegenResult } from "../../codegen/generator.js";
 
 afterEach(() => {
+  resetExecutionPolicyForTests();
   vi.restoreAllMocks();
   process.exitCode = 0;
 });
@@ -163,11 +165,12 @@ function makeGenerateEngine(input?: {
   specs?: Array<{ name: string }>;
   generateFromSpec?: (name: string) => Promise<CodegenResult>;
 }) {
+  configureExecutionPolicy({ projectRoot: process.cwd(), profile: "connected", allow: ["project-write", "source-content-persistence"] });
   return {
-    async init() {},
+    async initReadOnly() {},
     // loadPolicy(projectRoot) falls back to the default policy when no
     // memoire.policy.json exists at this path.
-    config: { projectRoot: "/nonexistent-memoire-test-root" },
+    config: { projectRoot: process.cwd() },
     codegen: {
       setOptions() {},
     },

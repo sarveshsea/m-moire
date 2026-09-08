@@ -1,0 +1,30 @@
+:root {
+  --off-white: #f7f7f7;
+  --nav-tab-width: 182px;
+  --nav-tab-height: 25px;
+  --nav-tab-padding: 5px;
+  --nav-tab-radius: 5px;
+  --font-size-ui: 12px;
+  --font-ui: Inter, sans-serif;
+  --surface-dark: #202020;
+  --surface-light: #f7f7f7;
+  --foreground-dark: #f7f7f7;
+  --foreground-light: #202020;
+  --selected-dark: #363636;
+  --selected-light: #dedede;
+  --focus-dark: #96b8ff;
+  --focus-light: #225bc1;
+}
+/* Light and interaction states are authored fixture extensions, not Figma observations. */
+[data-theme="dark"] {
+  --surface: var(--surface-dark);
+  --foreground: var(--foreground-dark);
+  --selected: var(--selected-dark);
+  --focus: var(--focus-dark);
+}
+[data-theme="light"] {
+  --surface: var(--surface-light);
+  --foreground: var(--foreground-light);
+  --selected: var(--selected-light);
+  --focus: var(--focus-light);
+}

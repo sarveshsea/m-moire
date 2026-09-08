@@ -111,7 +111,13 @@ export async function validateCommunityNoteDir(
     }
   }
 
-  for (const file of await listRelativeFiles(noteDir).catch(() => [])) {
+  let files: string[] = [];
+  try {
+    files = await listRelativeFiles(noteDir);
+  } catch (error) {
+    issues.push({ level: "error", message: error instanceof Error ? error.message : String(error) });
+  }
+  for (const file of files) {
     if (!isSafeRelativePath(file)) {
       issues.push({ level: "error", path: file, message: `Note file contains path traversal or an unsafe path: ${file}` });
     }

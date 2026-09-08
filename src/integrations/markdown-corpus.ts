@@ -357,7 +357,9 @@ async function reuseExistingFile(
   previous: CorpusManifest | null,
   manifest: CorpusManifest,
 ): Promise<boolean> {
-  const prior = previous?.files.find((file) => file.path === rel);
+  // A matching local hash proves integrity only for the same resolved upstream commit.
+  if (!previous || manifest.commit === "metadata-only" || previous.commit !== manifest.commit) return false;
+  const prior = previous.files.find((file) => file.path === rel);
   if (!prior) return false;
   const existingPath = resolve(destination, rel);
   if (!isSubpath(existingPath, destination)) return false;

@@ -444,13 +444,13 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
         issues: issues.filter((issue) => issue.level === "error"),
         warnings: issues.filter((issue) => issue.level === "warning"),
       };
+      if (payload.issues.length > 0) process.exitCode = 1;
       if (opts.json) {
         console.log(JSON.stringify(payload, null, 2));
         return;
       }
       for (const issue of [...payload.issues, ...payload.warnings]) console.log(`${issue.level}: ${issue.name}: ${issue.message}`);
       if (payload.issues.length === 0 && payload.warnings.length === 0) console.log("Notes doctor passed.");
-      if (payload.issues.length > 0) process.exitCode = 1;
     });
 
   // ── remove ─────────────────────────────────────────────

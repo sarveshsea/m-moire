@@ -10,61 +10,53 @@ metadata:
     related_skills: [software-development, design, figma]
 ---
 
-# memi Design Tooling
+# Memi Design Tooling
 
-## Overview
-memi is the local interface-understanding layer for agent work. Use it before coding UI from scratch when a task needs warmed project memory, Figma state, user research evidence, UX tenets and traps, interface craft critique, design-system rules, tokens, shadcn/ui generation, Tailwind cleanup, accessibility checks, or Atomic Design specs.
+Memi gives coding agents repository-specific interface evidence before they edit UI. Start with the smallest workflow that answers the task; Figma, global installation, and a daemon are optional.
 
-## When to Use
-- User asks Hermes to design, audit, inspect, generate, or repair a UI.
-- The repo has Tailwind, shadcn/ui, Figma, component specs, design tokens, or `.memoire/` project memory.
-- The task needs a design decision, component hierarchy, accessibility review, or research-backed product flow.
+## Choose A Workflow
 
-Do not use this skill for unrelated backend-only work unless the backend change directly supports a design or research workflow.
+- Before reviewing or changing frontend UI: use `audit-frontend-design`.
+- Before building from an existing product system: use `remember-design-system`.
+- When adding deterministic pull-request gates: use `enforce-design-ci`.
+- For native SwiftUI, SwiftData, App Intents, or Apple-platform verification: use `build-swiftui-interface`.
+- For Figma, research, scaffolding, registry publishing, or multi-agent work: continue below.
 
-## Quick Commands
+Install one focused skill directly:
+
 ```bash
-npm i -g @memi-design/cli
-memi suite init --project .
-memi daemon start --project . --port auto
-memi daemon status --json
-memi agent install --dry-run --json
-memi agent brief . --agent hermes --intent "Audit this interface" --json
-memi status
-memi diagnose .
-memi ux audit . --json
-memi craft audit . --json
-memi tokens --from ./src --report
-memi shadcn export --out public/r
-memi mcp start --no-figma
-memi suite run design-audit --project . --json
-memi suite run research-vibe-design --project . --json
-memi research design --write-specs --mermaid-jam --json
-memi mermaid-jam export --from research --json
-memi compose "Audit this interface and propose an Atomic Design fix plan"
-memi generate
-memi studio web
+npx skills add memi-design/memi --skill audit-frontend-design
 ```
 
-## Interface Understanding Workflow
-1. Check whether `memi` is available with `memi status`. If it is missing, install it with `npm i -g @memi-design/cli`.
-2. Initialize or read `memoire.agent.yaml`; this is the workspace suite manifest for memory sources, harnesses, skills, and product-team recipes.
-3. Generate a Hermes-oriented brief with `memi agent brief . --agent hermes --intent "<task>" --json`; use its evidence commands and cost controls as the run contract.
-4. Prefer the warmed daemon path: `memi daemon start --project . --port auto`, then `memi daemon status --json`.
-5. Inspect existing project context before making UI changes: `.memoire/`, specs, tokens, README/AGENTS files, `memoire.agent.yaml`, runtime routes, screenshots, user research, and Figma connection state.
-6. Keep components in Atomic Design levels: atom, molecule, organism, template, page.
-7. Prefer shadcn/ui primitives and Tailwind utilities. Do not introduce CSS modules or styled-components for memi-generated components.
-8. Use `memi diagnose .`, `memi ux audit . --json`, `memi craft audit . --json`, `memi audit`, `memi design-doc <url>`, `memi suite run <recipe>`, or `memi compose "<intent>"` when the work needs evidence instead of taste.
-9. Treat UX Tenets and Traps as the review layer for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.
-10. Treat Interface Craft as the polish layer for focusing mechanism, visual hierarchy, spacing rhythm, color intentionality, component cohesion, responsive resilience, and user context.
-11. For research-backed vibe design, use `memi research synthesize`, `memi simulate plan`, `memi research design`, `research.design_package`, `research.generate_specs`, and `mermaid_jam.export` to create specs and FigJam source before implementation.
-12. If Figma is connected, use typed memi/Figma actions for token pulls, component inspection, screenshot capture, and sync before creating replacement UI.
-13. End with a concise result: design decision, files changed, commands run, artifacts produced, assumptions, and next verification step.
+This candidate skill requires a reviewed local 2.8 build. npm stable remains 2.7.9; do not install unpublished 2.8 from npm. Check `memi --version` first.
 
-## Common Mistakes
-- Starting from code before checking design memory or Figma state.
-- Creating component names without an Atomic Design level.
-- Rebuilding a component that already has a shadcn/ui or Code Connect equivalent.
-- Treating memi output as optional copy instead of the source of design evidence.
-- Skipping `memi craft audit`, then making hierarchy and polish decisions from taste alone.
-- Skipping `memi agent brief` and losing the cost, compatibility, and handoff contract.
+## Compact Preflight
+
+```bash
+memi agent brief . --frontend --intent "<interface task>" --max-bytes 16384 --json
+```
+
+Read cited source files when the bounded brief lacks necessary evidence. Optional `--design-evidence design/selected-node.json` accepts normalized Figma/Paper data supplied by the harness; missing mappings and verification stay explicit.
+
+## Local Checks And MCP
+
+```bash
+memi diagnose . --json --no-write --fail-on none
+memi diagnose . --receipt-only --fail-on none
+memi --profile locked mcp start --no-figma
+```
+
+Locked MCP exposes four read tools: prepare_frontend_brief, prepare_design_agent_brief, prepare_apple_design_brief, and diagnose_app_quality. The frontend tool supplies actual repository evidence. Many legacy CLI and write tools remain unavailable; capability grants do not unlock deferred command paths. Keep connector calls, project edits, and browser execution in the harness's reviewed workflow.
+
+Reuse local components and tokens according to the consumer project's conventions. Source-bearing JSON is working context; receipt-only is a separate metadata output. See docs/FRONTEND_WORKFLOW.md for the candidate evidence schema and actual verification flow.
+
+## Evidence Contract
+
+1. Read local instructions and existing product-system files first.
+2. Collect the minimum evidence that can change the implementation.
+3. Cite `file:line` findings and existing components or tokens.
+4. Make scoped edits.
+5. Re-run the same deterministic checks.
+6. Report commands, artifacts, files changed, and remaining assumptions.
+
+Do not claim visual correctness from source checks alone. When rendered behavior matters, verify the actual route at desktop and mobile viewports.

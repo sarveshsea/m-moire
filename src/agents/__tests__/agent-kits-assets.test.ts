@@ -112,11 +112,12 @@ describe("packaged agent kits", () => {
     const codexSkill = await readFile(join(root, "agent-kits", "codex", "memoire-design-tooling", "SKILL.md"), "utf-8");
     const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
 
-    expect(pkg.files).toContain("skills");
+    expect(pkg.files).toContain("skills/memoire-design-tooling/SKILL.md");
     expect(rootSkill).toBe(codexSkill);
     expect(rootSkill).toContain("name: memoire-design-tooling");
-    expect(rootSkill).toContain("memi agent install --dry-run --json");
-    expect(rootSkill).toContain("memi mcp start --no-figma");
+    expect(rootSkill).toContain("--frontend");
+    expect(rootSkill).toContain("--receipt-only");
+    expect(rootSkill).toContain("memi --profile locked mcp start --no-figma");
   });
 
   it("ships focused zero-setup skills for the four core design-agent jobs", async () => {
@@ -136,7 +137,9 @@ describe("packaged agent kits", () => {
       const lines = skill.split("\n");
 
       expect(skill).toMatch(new RegExp(`^---\\nname: ${name}\\ndescription: Use when `));
-      expect(skill).toContain(`npx -y @memi-design/cli@${pkg.version}`);
+      expect(skill).not.toContain(`npx -y @memi-design/cli@${pkg.version}`);
+      expect(skill).toContain("2.7.9");
+      expect(skill).toMatch(/candidate|Candidate/);
       expect(skill).not.toContain("npm i -g");
       expect(skill).not.toContain("daemon start");
       expect(lines.length).toBeLessThanOrEqual(95);
@@ -155,8 +158,10 @@ describe("packaged agent kits", () => {
       expect(skill).toContain("name: memoire-design-tooling");
       expect(skill).toContain("description: Use when");
       expect(skill).toMatch(/\n---\n\n# Memi Design Tooling/);
-      expect(skill).toContain(`npx -y @memi-design/cli@${pkg.version}`);
-      expect(skill).toContain("memoire.agent.yaml");
+      expect(skill).not.toContain(`npx -y @memi-design/cli@${pkg.version}`);
+      expect(skill).toContain("2.7.9");
+      expect(skill).toMatch(/candidate|Candidate/);
+      expect(skill).toContain("--frontend");
       expect(skill).not.toContain("npm i -g");
       expect(skill).not.toContain("daemon start");
       expect(skill).toContain("memi");
@@ -168,9 +173,11 @@ describe("packaged agent kits", () => {
   it("keeps the npm runtime focused while retaining core skills and evidence", async () => {
     const pkg = JSON.parse(await readFile(join(process.cwd(), "package.json"), "utf-8"));
     expect(pkg.files).toEqual(expect.arrayContaining([
-      "dist",
-      "skills",
-      "mcpb",
+      "dist/index.js",
+      "dist/index.d.ts",
+      "skills/memoire-design-tooling/SKILL.md",
+      "mcpb/manifest.json",
+      "mcpb/server/index.cjs",
       "schemas/memi-runtime-trace-v1.schema.json",
       "docs/case-studies/memi-2.7-six-repo/README.md",
       "docs/case-studies/memi-2.7-six-repo/results.json",
@@ -189,8 +196,8 @@ describe("packaged agent kits", () => {
     const root = process.cwd();
     const claude = JSON.parse(await readFile(join(root, "agent-kits", "mcp", "claude-code", "mcp.json"), "utf-8"));
     const cursor = JSON.parse(await readFile(join(root, "agent-kits", "mcp", "cursor", "mcp.json"), "utf-8"));
-    expect(claude.mcpServers.memoire.args).toEqual(["mcp", "start", "--no-figma"]);
-    expect(cursor.mcpServers.memoire.args).toEqual(["mcp", "start", "--no-figma"]);
+    expect(claude.mcpServers.memoire.args).toEqual(["--profile", "locked", "mcp", "start", "--no-figma"]);
+    expect(cursor.mcpServers.memoire.args).toEqual(["--profile", "locked", "mcp", "start", "--no-figma"]);
   });
 
   it("ships a Codex plugin manifest, MCP config, and synced skill", async () => {
@@ -227,12 +234,10 @@ describe("packaged agent kits", () => {
     expect(manifest.interface.screenshots).toBeUndefined();
     expect(mcpConfig.mcpServers.memoire).toMatchObject({
       command: "memi",
-      args: ["mcp", "start", "--no-figma"],
-      env: {
-        FIGMA_TOKEN: "${FIGMA_TOKEN}",
-        FIGMA_FILE_KEY: "${FIGMA_FILE_KEY}",
-      },
+      args: ["--profile", "locked", "mcp", "start", "--no-figma"],
+
     });
+    expect(mcpConfig.mcpServers.memoire.env).toBeUndefined();
     expect(pluginSkill).toBe(codexSkill);
     for (const skillName of ["audit-frontend-design", "remember-design-system", "enforce-design-ci", "build-swiftui-interface"]) {
       const focusedPluginSkill = await readFile(join(root, "plugins", "memoire", "skills", skillName, "SKILL.md"), "utf-8");
@@ -251,7 +256,9 @@ describe("packaged agent kits", () => {
     for (const skillName of skillNames) {
       const skill = await readFile(join(root, "plugins", "memi-claude", "skills", skillName, "SKILL.md"), "utf-8");
       expect(skill).toContain(`name: ${skillName}`);
-      expect(skill).toContain(`npx -y @memi-design/cli@${pkg.version}`);
+      expect(skill).not.toContain(`npx -y @memi-design/cli@${pkg.version}`);
+      expect(skill).toContain("2.7.9");
+      expect(skill).toMatch(/candidate|Candidate/);
       expect(skill).not.toContain("npm i -g");
       expect(skill).not.toContain("daemon start");
     }

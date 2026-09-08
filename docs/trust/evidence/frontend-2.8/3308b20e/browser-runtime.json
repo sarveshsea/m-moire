@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-09-08T16:09:11.887Z",
+  "sourceCheckpoint": "3308b20ee6fc0e114381217ed66eec12bcd9444b",
+  "packageArtifact": "memi-design-cli-2.8.0-beta.1.tgz",
+  "packageSha256": "d83dad22e42f486dc3957c75de38a89453355115bc032179ad422ebbb24ee721",
+  "installedEntry": "index.js",
+  "entrySha256": "0c65c8c2cd878971df5540d569bde7b52164d7bdc9f35c0e4881c6ea67274b5d",
+  "nodeVersion": "v22.22.3",
+  "chromiumVersion": "147.0.7727.15",
+  "playwrightChromiumExecutable": "Google Chrome for Testing",
+  "browserGcDisabled": true,
+  "fixturePackage": {
+    "name": "@memi/frontend-workflow-fixture",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+      "storybook": "storybook dev --ci --no-open --host 127.0.0.1 --port 6017",
+      "build": "storybook build --output-dir .dist/storybook",
+      "typecheck": "tsc --noEmit",
+      "test": "playwright test"
+    },
+    "dependencies": {
+      "@fontsource/inter": "5.2.8",
+      "react": "19.2.4",
+      "react-dom": "19.2.4"
+    },
+    "devDependencies": {
+      "@playwright/test": "1.59.1",
+      "@storybook/react-vite": "10.6.0",
+      "@types/node": "22.19.11",
+      "@types/react": "19.2.18",
+      "@types/react-dom": "19.2.7",
+      "storybook": "10.6.0",
+      "typescript": "5.9.3",
+      "vite": "6.4.3"
+    }
+  }
+}

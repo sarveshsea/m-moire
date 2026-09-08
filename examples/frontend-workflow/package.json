@@ -1,0 +1,27 @@
+{
+  "name": "@memi/frontend-workflow-fixture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "storybook": "storybook dev --ci --no-open --host 127.0.0.1 --port 6017",
+    "build": "storybook build --output-dir .dist/storybook",
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@fontsource/inter": "5.2.8",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.59.1",
+    "@storybook/react-vite": "10.6.0",
+    "@types/node": "22.19.11",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "storybook": "10.6.0",
+    "typescript": "5.9.3",
+    "vite": "6.4.3"
+  }
+}

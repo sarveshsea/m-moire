@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "artifactVersion": "2.8.0-beta.1",
+  "mode": "portable",
+  "performance": {
+    "performanceMode": "enforced",
+    "enforced": true,
+    "versionMs": 24.6,
+    "lockedDiagnoseMs": 325.6
+  },
+  "denials": [
+    {
+      "operation": "fetch the diagnosis URL",
+      "capability": "network"
+    },
+    {
+      "operation": "resolve changed files with git",
+      "capability": "shell"
+    },
+    {
+      "operation": "validate setup credentials",
+      "capability": "network"
+    },
+    {
+      "operation": "check npm for updates",
+      "capability": "network"
+    },
+    {
+      "operation": "install a Memoire Note",
+      "capability": "project-write"
+    },
+    {
+      "operation": "run model composition",
+      "capability": "network"
+    },
+    {
+      "operation": "open a registry URL",
+      "capability": "browser"
+    },
+    {
+      "operation": "connect to Figma",
+      "capability": "figma"
+    },
+    {
+      "operation": "install agent integration files",
+      "capability": "dynamic-install"
+    }
+  ],
+  "containment": {
+    "insideMemoire": true,
+    "traversalDenied": true,
+    "symlinkDenied": true
+  },
+  "upgrade": {
+    "checked": true,
+    "from": "2.7.9",
+    "to": "2.8.0-beta.1",
+    "configPreserved": true
+  },
+  "environment": {
+    "networkExpected": "denied-by-policy",
+    "filesystemMutationDetected": false,
+    "osReadOnlyEnforced": true,
+    "subprocessPath": "empty"
+  }
+}

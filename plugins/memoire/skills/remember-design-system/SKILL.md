@@ -7,27 +7,30 @@ description: Use when an agent is about to build or refactor interface code and 
 
 Build design context from the repository instead of guessing from the prompt. This is a preflight for UI work, not a request to redesign the product.
 
+This skill targets a reviewed local 2.8 candidate. Check `memi --version`; npm stable 2.7.9 does not have `--frontend`. Do not install unpublished versions from npm.
+
 ## Build The Brief
 
 Translate the user's task into a short intent, then run from the repository root:
 
 ```bash
-npx -y @memi-design/cli@2.7.9 agent brief . --intent "<user's interface task>" --detail compact --json
+memi agent brief . --frontend --intent "<user's interface task>" --max-bytes 16384 --json
 ```
 
-If the task changes colors, spacing, typography, radii, or shadows, add token evidence:
+The frontend brief already includes bounded token and story evidence. For a selected Figma or Paper node, use the harness connector and supply its normalized evidence:
 
 ```bash
-npx -y @memi-design/cli@2.7.9 tokens --from ./src --report --json
+memi agent brief . --frontend --intent "<task>" --design-evidence design/selected-node.json --json
 ```
 
 ## Apply The Memory
 
-1. Prefer existing components and shadcn primitives over new abstractions.
+1. Prefer existing components and the project's conventions. Do not impose a new component library or CSS framework.
 2. Map every new component to atom, molecule, organism, template, or page.
 3. Reuse semantic CSS variables and Tailwind theme tokens. Do not introduce raw hex values when a token exists.
 4. Preserve route, state, loading, empty, error, focus, and responsive behavior identified by the brief.
-5. Expand to `--detail standard` only when compact output omits evidence needed for the edit.
+5. Resolve stale/conflicting mappings and missing required props before editing. Read cited source files when the bounded brief omits needed details.
+6. Treat inferred story IDs and host-supplied mappings as evidence, not rendered verification. Run the actual project tests.
 
 ## Handoff
 

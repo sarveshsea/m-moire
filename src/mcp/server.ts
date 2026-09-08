@@ -9,7 +9,10 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { MemoireEngine } from "../engine/core.js";
-import { registerTools } from "./tools.js";
+import { registerReadTools, READ_TOOL_NAMES } from "./read-tools.js";
+import { registerFrontendTools } from "./frontend-tools.js";
+import { installPolicyToolDispatcher } from "./policy-tools.js";
+import { getExecutionPolicy, MEMI_CAPABILITIES } from "../security/execution-policy.js";
 import { registerResources } from "./resources.js";
 import { createLogger } from "../engine/logger.js";
 import { getMemoirePackageVersion } from "../utils/package-version.js";
@@ -21,7 +24,7 @@ export interface McpServerOptions {
   connectFigma?: boolean;
 }
 
-export function createMemoireMcpServer(engine: MemoireEngine): McpServer {
+export async function createMemoireMcpServer(engine: MemoireEngine): Promise<McpServer> {
   const server = new McpServer(
     {
       name: "memoire",
@@ -36,17 +39,27 @@ export function createMemoireMcpServer(engine: MemoireEngine): McpServer {
   );
 
   registerResources(server, engine);
-  registerTools(server, engine);
+  registerReadTools(server, engine);
+  registerFrontendTools(server, engine.config.projectRoot);
+  // The legacy catalog spans integrations, processes and persistence. Until its
+  // tools have narrower audited mappings, it requires every explicit capability.
+  const legacyAllowed = MEMI_CAPABILITIES.every((capability) => getExecutionPolicy().allows(capability));
+  if (legacyAllowed) {
+    const { registerTools } = await import("./tools.js");
+    registerTools(server, engine, READ_TOOL_NAMES);
+  }
+  if (!legacyAllowed) installPolicyToolDispatcher(server);
 
   return server;
 }
 
 export async function startStdioMcpServer(engine: MemoireEngine, connectFigma = true): Promise<void> {
-  // Initialize the engine (project detection, registry load, notes)
-  await engine.init();
+  // Stdio startup must not initialize workspace, home state, queues or peers.
 
   // Attempt Figma connection (non-fatal — tools that need it will error clearly)
   if (connectFigma) {
+    getExecutionPolicy().assert("figma", "MCP Figma bridge startup");
+    getExecutionPolicy().assert("network", "MCP Figma bridge startup");
     try {
       await engine.connectFigma();
       log.info("Figma bridge started");
@@ -55,7 +68,7 @@ export async function startStdioMcpServer(engine: MemoireEngine, connectFigma = 
     }
   }
 
-  const server = createMemoireMcpServer(engine);
+  const server = await createMemoireMcpServer(engine);
   const transport = new StdioServerTransport();
 
   log.info("Starting MCP server on stdio");

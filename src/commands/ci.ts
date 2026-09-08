@@ -1,3 +1,5 @@
+import { assertSourceOutput, writeSourceArtifact } from "../security/source-output.js";
+import { writeDiagnosisArtifact } from "../app-quality/persistence.js";
 /**
  * `memi ci` — the one-command design gate for CI:
  *
@@ -111,12 +113,12 @@ export function registerCiCommand(program: Command, engine: MemoireEngine): void
 
         // 6. Outputs.
         const sarifPath = resolve(projectRoot, opts.sarif ?? join(".memoire", "app-quality", "memi-results.sarif"));
-        await mkdir(dirname(sarifPath), { recursive: true });
+        await assertSourceOutput(sarifPath);
         const sarif = toSarif(gating, {
           toolVersion: getMemoirePackageVersion(),
           failOn: failOn as AppQualitySeverity | "none",
         });
-        await writeFile(sarifPath, `${JSON.stringify(sarif, null, 2)}\n`, "utf-8");
+        await writeSourceArtifact(sarifPath, `${JSON.stringify(sarif, null, 2)}\n`);
 
         const summaryMarkdown = renderStepSummary({
           score: diagnosis.summary.score,
@@ -131,7 +133,12 @@ export function registerCiCommand(program: Command, engine: MemoireEngine): void
           unassessedDimensions: diagnosis.unassessedDimensions,
         });
         if (process.env.GITHUB_STEP_SUMMARY) {
-          await appendFile(process.env.GITHUB_STEP_SUMMARY, summaryMarkdown, "utf-8").catch(() => {});
+          try {
+            await assertSourceOutput(process.env.GITHUB_STEP_SUMMARY);
+            await writeDiagnosisArtifact(process.env.GITHUB_STEP_SUMMARY, current => current + summaryMarkdown);
+          } catch (error) {
+            console.warn(`Skipped GitHub step summary outside the permitted project boundary or unavailable for writing: ${error instanceof Error ? error.message : String(error)}. summaryMarkdown remains in JSON output.`);
+          }
         }
 
         let reportPaths: { htmlPath: string; badgePath?: string } | undefined;
@@ -141,12 +148,12 @@ export function registerCiCommand(program: Command, engine: MemoireEngine): void
           const composed = await composeReport({ projectRoot });
           const outDir = join(projectRoot, ".memoire", "app-quality");
           const htmlPath = join(outDir, "design-health.html");
-          await writeFile(htmlPath, composed.html, "utf-8");
-          await writeFile(join(outDir, "design-health.md"), composed.markdown, "utf-8");
+          await writeSourceArtifact(htmlPath, composed.html);
+          await writeSourceArtifact(join(outDir, "design-health.md"), composed.markdown);
           let badgePath: string | undefined;
           if (composed.score !== null) {
             badgePath = join(outDir, "design-health-badge.svg");
-            await writeFile(badgePath, renderBadgeSvg({ score: composed.score }), "utf-8");
+            await writeSourceArtifact(badgePath, renderBadgeSvg({ score: composed.score }));
           }
           reportPaths = { htmlPath, badgePath };
         }
@@ -168,6 +175,7 @@ export function registerCiCommand(program: Command, engine: MemoireEngine): void
           scope: scopeFiles ? { base: scopeBase, changedFiles: scopeFiles.size } : undefined,
           suppressedByBaseline,
           sarifPath,
+          summaryMarkdown,
           report: reportPaths,
         };
 

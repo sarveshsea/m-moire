@@ -1,3 +1,5 @@
+import { readContainedSource } from "../security/contained-source.js";
+import { withDiagnosisHistoryLock, writeDiagnosisArtifact } from "./persistence.js";
 /**
  * Score History — append-only ledger (.memoire/app-quality/history.jsonl) so
  * design debt is tracked over time, not just at a point in time. One JSON
@@ -8,7 +10,9 @@
  * different thresholds, or from partial scans, is noise dressed as signal.
  */
 
-import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { getExecutionPolicy } from "../security/execution-policy.js";
+import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
 import type { AppQualityDiagnosis } from "./engine.js";
@@ -41,6 +45,8 @@ export function historyPath(projectRoot: string): string {
 }
 
 function gitValue(args: string[], cwd: string): Promise<string | undefined> {
+  if (!getExecutionPolicy().allows("shell")) return Promise.resolve(undefined);
+  getExecutionPolicy().assert("shell", "read optional diagnosis git metadata");
   return new Promise((resolve) => {
     execFile("git", args, { cwd, encoding: "utf-8" }, (error, stdout) => {
       resolve(error ? undefined : stdout.trim() || undefined);
@@ -53,7 +59,7 @@ export function entryFromDiagnosis(diagnosis: AppQualityDiagnosis): HistoryEntry
   for (const issue of diagnosis.issues) severityCounts[issue.severity] += 1;
   return {
     at: diagnosis.generatedAt,
-    scope: diagnosis.scope ? "scoped" : "full",
+    scope: diagnosis.scope || diagnosis.scanCompleteness?.complete === false ? "scoped" : "full",
     policyHash: diagnosis.policy?.hash,
     coverageFingerprint: sourceCoverageFingerprint(diagnosis),
     score: diagnosis.summary.score,
@@ -64,26 +70,26 @@ export function entryFromDiagnosis(diagnosis: AppQualityDiagnosis): HistoryEntry
 
 /** Append a run to the ledger, stamping git SHA/branch when available. */
 export async function appendHistory(projectRoot: string, diagnosis: AppQualityDiagnosis): Promise<HistoryEntry> {
+  const policy = getExecutionPolicy();
+  policy.assert("source-content-persistence", "persist diagnosis history");
+  await policy.assertProjectWrite(historyPath(projectRoot), "persist diagnosis history");
   const entry = entryFromDiagnosis(diagnosis);
   entry.sha = await gitValue(["rev-parse", "--short", "HEAD"], projectRoot);
   entry.branch = await gitValue(["rev-parse", "--abbrev-ref", "HEAD"], projectRoot);
 
   const path = historyPath(projectRoot);
   await mkdir(join(projectRoot, ".memoire", "app-quality"), { recursive: true });
-  await appendFile(path, `${JSON.stringify(entry)}\n`, "utf-8");
-  await rotateIfNeeded(path);
+  await withDiagnosisHistoryLock(path, () => writeDiagnosisArtifact(path, (current) => {
+    const lines = [...current.split("\n").filter(Boolean), JSON.stringify(entry)];
+    return `${lines.slice(-MAX_ENTRIES).join("\n")}\n`;
+  }));
   return entry;
 }
 
-async function rotateIfNeeded(path: string): Promise<void> {
-  const raw = await readFile(path, "utf-8").catch(() => "");
-  const lines = raw.split("\n").filter(Boolean);
-  if (lines.length <= MAX_ENTRIES) return;
-  await writeFile(path, `${lines.slice(-MAX_ENTRIES).join("\n")}\n`, "utf-8");
-}
-
 export async function readHistory(projectRoot: string): Promise<HistoryEntry[]> {
-  const raw = await readFile(historyPath(projectRoot), "utf-8").catch(() => "");
+  const source = await readContainedSource(projectRoot, ".memoire/app-quality/history.jsonl", 8_388_608);
+  if (!source.ok) return [];
+  const raw = source.content;
   const entries: HistoryEntry[] = [];
   for (const line of raw.split("\n")) {
     const trimmed = line.trim();
@@ -153,7 +159,13 @@ export function renderTrend(
 
 function sourceCoverageFingerprint(diagnosis: AppQualityDiagnosis): string {
   const target = diagnosis.summary.scanTarget ?? diagnosis.target;
-  const scanContext = `target=${target}|scanLimit=${diagnosis.summary.scanLimit ?? "legacy"}`;
+  const scoreModel = diagnosis.quality ? "assessed-categories-v1" : "legacy-zero-filled";
+  const completeness = diagnosis.scanCompleteness;
+  const omissionHash = createHash("sha256").update(JSON.stringify(completeness?.omissions ?? [])).digest("hex").slice(0, 16);
+  const extraction = diagnosis.classExtraction;
+  const scanContext = `target=${target}|scanLimit=${diagnosis.summary.scanLimit ?? "legacy"}`
+    + `|scoreModel=${scoreModel}|complete=${completeness?.complete ?? "legacy"}|omissions=${omissionHash}`
+    + `|classParseFailures=${extraction?.parseFailures ?? 0}|dynamicClasses=${extraction?.unknownExpressions ?? 0}`;
   if (!diagnosis.sourceCoverage) return `${scanContext}|legacy:unknown`;
   const entries = Object.entries(diagnosis.sourceCoverage).map(([platform, coverage]) => {
     const dimensions = [...coverage.assessedDimensions].sort().join(",");

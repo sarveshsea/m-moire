@@ -1,0 +1,39 @@
+{
+  "scope": "vitest.core.config.ts unchanged full executable src denominator",
+  "tests": 3273,
+  "testFiles": 383,
+  "assertionsPassed": true,
+  "releaseGatePassed": false,
+  "coverage": {
+    "lines": {
+      "total": 29856,
+      "covered": 22250,
+      "skipped": 0,
+      "pct": 74.52
+    },
+    "statements": {
+      "total": 33551,
+      "covered": 24572,
+      "skipped": 0,
+      "pct": 73.23
+    },
+    "functions": {
+      "total": 6062,
+      "covered": 4909,
+      "skipped": 0,
+      "pct": 80.97
+    },
+    "branches": {
+      "total": 24051,
+      "covered": 15868,
+      "skipped": 0,
+      "pct": 65.97
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  }
+}

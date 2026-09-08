@@ -1,0 +1,17 @@
+{
+  "scope": "Synthetic Storybook consumer using installed frozen CLI; separate from static brief verification.",
+  "stats": {
+    "startTime": "2026-09-08T15:52:53.672Z",
+    "duration": 9510.750999999998,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "artifactSha256": "599cbc3c48b41a6c47571177f9510a5d9fe8588d0a4d154940e6307a2c5ad005",
+  "screenshots": {
+    "mapped-workspace.png": "e5dae3ea1bf9a09609600f4d74b5b40bf8d1e539c4ff3824b0ba614805c41c64",
+    "dark-320-selected.png": "ca9ff2e2a4d29809f0d94cae0f22f8065670c066008ffd7857fa8e74baf2e36d",
+    "light-320-default.png": "3fa6960cd997c31c4ef38806606f64ed7fce5b2758dedd242667a5d3b7b1752f"
+  }
+}

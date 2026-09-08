@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "artifactVersion": "2.8.0-beta.1",
+  "mode": "portable",
+  "performance": {
+    "performanceMode": "enforced",
+    "enforced": true,
+    "versionMs": 34.7,
+    "lockedDiagnoseMs": 531.4
+  },
+  "denials": [
+    {
+      "operation": "fetch the diagnosis URL",
+      "capability": "network"
+    },
+    {
+      "operation": "resolve changed files with git",
+      "capability": "shell"
+    },
+    {
+      "operation": "validate setup credentials",
+      "capability": "network"
+    },
+    {
+      "operation": "check npm for updates",
+      "capability": "network"
+    },
+    {
+      "operation": "install a Memoire Note",
+      "capability": "project-write"
+    },
+    {
+      "operation": "run model composition",
+      "capability": "network"
+    },
+    {
+      "operation": "open a registry URL",
+      "capability": "browser"
+    },
+    {
+      "operation": "connect to Figma",
+      "capability": "figma"
+    },
+    {
+      "operation": "install agent integration files",
+      "capability": "dynamic-install"
+    }
+  ],
+  "containment": {
+    "insideMemoire": true,
+    "traversalDenied": true,
+    "symlinkDenied": true
+  },
+  "upgrade": {
+    "checked": false,
+    "reason": "preinstalled artifact did not expose its tarball"
+  },
+  "environment": {
+    "networkExpected": "denied-by-policy",
+    "filesystemMutationDetected": false,
+    "osReadOnlyEnforced": true,
+    "subprocessPath": "empty"
+  }
+}

@@ -10,6 +10,10 @@ context:
 
 # /figma-prototype — Create Interactive Prototypes
 
+## 2.8 beta scope
+
+This is optional reference guidance, not an automatic Memi workflow. Figma tool names and canvas examples require an installed external provider and the host's authorization; locked Memi MCP does not expose them. Deferred CLI commands remain unavailable even with capability grants. For supported local context, use `memi --profile locked agent brief . --json`; for static frontend inspection, use `memi --profile locked diagnose . --no-write --json --fail-on none`. Neither command certifies the external workflow below.
+
 > Build interactive prototypes in Figma with flows, transitions, and user journey mapping. Generates prototype HTML for testing. Requires /figma-use.
 
 ## Freedom Level: High
@@ -20,7 +24,7 @@ Full creative freedom for interactions and flows. Must use existing components a
 - Creating clickable prototypes for user testing
 - Demonstrating user flows (onboarding, checkout, auth)
 - Building interactive presentations for stakeholders
-- Generating standalone HTML prototypes via `memi prototype`
+- Planning a prototype for an authorized external provider or repository workflow
 
 ## Workflow
 
@@ -97,11 +101,9 @@ trigger.reactions = [{
 ### Step 5: Self-Healing Validation
 Run the self-healing loop from `/figma-use` for each screen. Additionally: verify all interactions connect, no dead-end screens, consistent transition types within each flow.
 
-### Step 6: Generate Prototype HTML
-```
-memi prototype → generates prototype/prototype.html
-```
-This creates a standalone HTML file with all screens and click-through navigation, viewable in any browser.
+### Step 6: Share the Prototype
+
+Use the external provider's supported prototype sharing workflow, or the repository's authorized HTML implementation workflow. Memi's `prototype` command is unavailable in this beta; no standalone HTML export is promised.
 
 ## Flow Layout in Figma
 ```
@@ -120,18 +122,9 @@ Spacing: 200px between screens (horizontal)
 Connection lines: use FigJam connectors or annotation arrows
 ```
 
-## Spec Integration
-Each screen in the prototype should have a PageSpec:
-```
-memi spec page Welcome
-memi spec page FeatureHighlight
-memi spec page Dashboard
-```
+## Handoff
 
-The prototype flow itself is captured in an IA spec:
-```
-memi ia create OnboardingFlow
-```
+Document each screen, state, route, and transition in the repository's approved format. Memi's `spec page` and `ia create` commands are unavailable in this beta.
 
 ## Anti-Patterns
 - Dead-end screens with no navigation
@@ -139,4 +132,4 @@ memi ia create OnboardingFlow
 - Missing back/cancel actions
 - Screens not built from reusable components
 - Floating screens outside the flow Section
-- Not generating the HTML prototype for stakeholder review
+- Sharing a prototype without identifying which interactions were verified

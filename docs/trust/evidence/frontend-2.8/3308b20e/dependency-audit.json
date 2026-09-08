@@ -1,0 +1,22 @@
+{
+  "sourceCheckpoint": "3308b20ee6fc0e114381217ed66eec12bcd9444b",
+  "scope": "npm audit including development dependencies; advisory database observation, not independent code security review.",
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 143,
+      "dev": 235,
+      "optional": 92,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 377
+    }
+  }
+}

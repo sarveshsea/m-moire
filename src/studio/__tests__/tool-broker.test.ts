@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 import { StudioBrowserAdapter } from "../browser-adapter.js";
 import { defaultStudioConfig } from "../config.js";
 import { StudioToolBroker } from "../tool-broker.js";
@@ -134,6 +135,11 @@ describe("studio tool broker", () => {
   it("captures browser screenshots as artifacts through injected Playwright runtime", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-browser-"));
     try {
+      configureExecutionPolicy({
+        projectRoot: root,
+        profile: "connected",
+        allow: ["host-integration-code"],
+      });
       const browser = new StudioBrowserAdapter({
         projectRoot: root,
         playwrightLoader: async () => ({
@@ -167,12 +173,14 @@ describe("studio tool broker", () => {
         artifactPath: expect.stringMatching(/screenshot.*\.png$/),
       });
     } finally {
+      resetExecutionPolicyForTests();
       await rm(root, { recursive: true, force: true });
     }
   });
 
   it("audits screenshot artifacts through UX tenets and traps", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-ux-tool-"));
+    configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
     try {
       const screenshotPath = join(root, ".memoire", "studio", "artifacts", "screen.png");
       await mkdir(join(screenshotPath, ".."), { recursive: true });
@@ -200,6 +208,7 @@ describe("studio tool broker", () => {
         },
       });
     } finally {
+      resetExecutionPolicyForTests();
       await rm(root, { recursive: true, force: true });
     }
   });

@@ -1,3 +1,4 @@
+import { getExecutionPolicy } from "./execution-policy.js";
 import type { LookupAddress } from "node:dns";
 import { lookup as dnsLookup } from "node:dns/promises";
 import { request as httpRequest, type IncomingHttpHeaders, type IncomingMessage } from "node:http";
@@ -37,6 +38,7 @@ export async function resolvePublicNetworkAddresses(
   rawHostname: string,
   resolver: PublicDnsResolver = dnsLookup,
 ): Promise<LookupAddress[]> {
+  getExecutionPolicy().assert("network", "resolve a public URL hostname");
   const hostname = rawHostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
   if (isPrivateOrLocalHostname(hostname)) {
     throw new Error(`Public URL resolved to a private, local, or loopback address: ${rawHostname}`);
@@ -90,6 +92,7 @@ export async function fetchPublicResource(
   input: string,
   options: PublicFetchOptions,
 ): Promise<PublicFetchResponse> {
+  getExecutionPolicy().assert("network", "fetch a public URL");
   const maxRedirects = options.maxRedirects ?? DEFAULT_MAX_REDIRECTS;
   let currentUrl = parsePublicHttpUrl(input);
 

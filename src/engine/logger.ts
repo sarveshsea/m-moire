@@ -7,6 +7,7 @@ import pino from "pino";
 let prettyTransport: ReturnType<typeof pino.transport> | undefined;
 
 export function shouldUsePrettyTransport(): boolean {
+  if (process.argv.includes("mcp")) return false;
   if (process.env.NODE_ENV === "production") return false;
   if (process.env.NODE_ENV === "test") return false;
   if (process.env.VITEST === "true") return false;
@@ -20,14 +21,18 @@ export function shouldUsePrettyTransport(): boolean {
 function getPrettyTransport() {
   if (!shouldUsePrettyTransport()) return undefined;
   if (!prettyTransport) {
-    prettyTransport = pino.transport({
-      target: "pino-pretty",
-      options: {
-        colorize: true,
-        translateTime: "HH:MM:ss",
-        ignore: "pid,hostname",
-      },
-    });
+    try {
+      prettyTransport = pino.transport({
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+          translateTime: "HH:MM:ss",
+          ignore: "pid,hostname",
+        },
+      });
+    } catch {
+      return undefined;
+    }
   }
   return prettyTransport;
 }
@@ -37,6 +42,7 @@ export function createLogger(name: string) {
     name,
     level: process.env.MEMOIRE_LOG_LEVEL ?? process.env.NOCHE_LOG_LEVEL ?? "warn",
   };
+  if (process.argv.includes("mcp")) return pino(options, pino.destination(2));
   const transport = getPrettyTransport();
   return transport ? pino(options, transport) : pino(options);
 }

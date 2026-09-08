@@ -186,7 +186,21 @@ export class ClaudeCodeDriver extends BaseHarnessDriver {
       return;
     }
 
-    const obj = parsed as Record<string, unknown>;
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      this.emitDiagnostic(stream === "stderr" ? "error" : "warn", "invalid object frame from claude-code");
+      return;
+    }
+
+    try {
+      this.handleFrame(parsed as Record<string, unknown>, stream);
+    } catch {
+      // Provider frames are untrusted; a malformed ID or value must not
+      // escape the transport listener or prevent subsequent valid frames.
+      this.emitDiagnostic(stream === "stderr" ? "error" : "warn", "invalid event frame from claude-code");
+    }
+  }
+
+  private handleFrame(obj: Record<string, unknown>, stream: "stdout" | "stderr"): void {
     const type = String(obj["type"] ?? "");
 
     switch (type) {
@@ -269,7 +283,7 @@ export class ClaudeCodeDriver extends BaseHarnessDriver {
         break;
       }
       default:
-        this.emitDiagnostic(stream === "stderr" ? "error" : "warn", `unknown claude-code event type: ${type}`, parsed);
+        this.emitDiagnostic(stream === "stderr" ? "error" : "warn", `unknown claude-code event type: ${type}`, obj);
     }
   }
 

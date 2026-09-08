@@ -1,0 +1,7 @@
+{
+  "scope": "Synthetic component catalog frozen before mapped reuse task; fingerprints only, not run results.",
+  "sourceHashes": {
+    "src/Button.tsx": "93eb952e7b392098f99a8a795c419f6d53c279cb7039edc6a0b8713c38183b83",
+    "src/SideNavTab.tsx": "3cae960f4d0b60ca8581358cac06c0afa9cfa568dc10a0ae5498dd37e1880602"
+  }
+}

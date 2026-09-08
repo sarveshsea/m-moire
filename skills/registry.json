@@ -1,42 +1,51 @@
 {
-  "version": "2.7.9",
-  "description": "Mémoire skill registry — defines available skills, activation contexts, and dependencies",
-  "defaultSkill": "SUPERPOWER",
+  "version": "2.8.0-beta.1",
+  "description": "Memi skill registry \u2014 audited frontend default and optional reference guidance",
+  "defaultSkill": "memoire-design-tooling",
   "skills": [
+    {
+      "id": "memoire-design-tooling",
+      "name": "memoire-design-tooling",
+      "file": "skills/memoire-design-tooling/SKILL.md",
+      "description": "Audited 2.8 beta frontend context and static inspection workflow.",
+      "activateOn": "always",
+      "freedomLevel": "read-only",
+      "prerequisite": null
+    },
     {
       "id": "superpower",
       "name": "SUPERPOWER",
       "file": "skills/SUPERPOWER.md",
-      "description": "Autonomous superagent — default mode. Drives canvas, orchestrates agents, generates specs and production code.",
-      "activateOn": "always",
-      "freedomLevel": "maximum",
-      "chains": ["figma-use", "figma-generate-library", "figma-generate-design", "figma-audit"]
+      "description": "Historical workflow reference; inactive in 2.8 beta.",
+      "activateOn": "manual-reference",
+      "freedomLevel": "reference",
+      "chains": []
     },
     {
       "id": "figma-use",
       "name": "/figma-use",
       "file": "skills/FIGMA_USE.md",
-      "description": "Foundational Figma canvas skill — MCP tool decision tree, Auto Layout, variables, self-healing loop, Code Connect. Load before any /figma-* skill.",
+      "description": "Optional reference; external tools require separate host authorization. Foundational Figma canvas skill \u2014 MCP tool decision tree, Auto Layout, variables, self-healing loop, Code Connect. Load before any /figma-* skill.",
       "activateOn": "figma-canvas-operation",
-      "freedomLevel": "high",
+      "freedomLevel": "reference",
       "prerequisite": null
     },
     {
       "id": "figma-generate-design",
       "name": "/figma-generate-design",
       "file": "skills/FIGMA_GENERATE_DESIGN.md",
-      "description": "Create new screens and pages using existing components and design tokens. Prefers use_figma for design-aware writes.",
+      "description": "Optional reference; external tools require separate host authorization. Create new screens and pages using existing components and design tokens. Prefers use_figma for design-aware writes.",
       "activateOn": "design-creation",
-      "freedomLevel": "high",
+      "freedomLevel": "reference",
       "prerequisite": "figma-use"
     },
     {
       "id": "figma-generate-library",
       "name": "/figma-generate-library",
       "file": "skills/FIGMA_GENERATE_LIBRARY.md",
-      "description": "Create Figma component library from codebase with Code Connect parity. Uses batch operations for speed.",
+      "description": "Optional reference; external tools require separate host authorization. Create Figma component library from codebase with Code Connect parity. Uses batch operations for speed.",
       "activateOn": "library-creation",
-      "freedomLevel": "high",
+      "freedomLevel": "reference",
       "prerequisite": "figma-use"
     },
     {
@@ -61,25 +70,25 @@
       "id": "figma-prototype",
       "name": "/figma-prototype",
       "file": "skills/FIGMA_PROTOTYPE.md",
-      "description": "Create interactive prototypes with flows, transitions, and user journey mapping. Generates standalone HTML prototype.",
+      "description": "Optional reference; external tools require separate host authorization. Create interactive prototypes with flows, transitions, and user journey mapping. Generates standalone HTML prototype.",
       "activateOn": "prototype-creation",
-      "freedomLevel": "high",
+      "freedomLevel": "reference",
       "prerequisite": "figma-use"
     },
     {
       "id": "multi-agent",
       "name": "/multi-agent",
       "file": "skills/MULTI_AGENT.md",
-      "description": "Parallel agent orchestration with box widgets, coordinated handoffs, and error recovery across ports 9223-9232.",
+      "description": "Optional reference; external tools require separate host authorization. Parallel agent orchestration with box widgets, coordinated handoffs, and error recovery across ports 9223-9232.",
       "activateOn": "multi-instance",
-      "freedomLevel": "high",
+      "freedomLevel": "reference",
       "prerequisite": "figma-use"
     },
     {
       "id": "atomic-design",
       "name": "Atomic Design",
       "file": "skills/ATOMIC_DESIGN.md",
-      "description": "Complete Atomic Design methodology reference — atoms through pages, token architecture, component API design, shadcn/ui mappings.",
+      "description": "Complete Atomic Design methodology reference \u2014 atoms through pages, token architecture, component API design, shadcn/ui mappings.",
       "activateOn": "component-creation",
       "freedomLevel": "reference",
       "prerequisite": null
@@ -88,27 +97,27 @@
       "id": "dashboard-from-research",
       "name": "Dashboard from Research",
       "file": "skills/DASHBOARD_FROM_RESEARCH.md",
-      "description": "Transform research data (Excel, CSV, stickies) into interactive dashboards with dataviz specs and generated code.",
+      "description": "Optional reference; external tools require separate host authorization. Transform research data (Excel, CSV, stickies) into interactive dashboards with dataviz specs and generated code.",
       "activateOn": "research-to-dashboard",
-      "freedomLevel": "high",
+      "freedomLevel": "reference",
       "prerequisite": null
     },
     {
       "id": "design-extract",
       "name": "Design Extract",
       "file": "skills/DESIGN_EXTRACT.md",
-      "description": "Extract any website's design system from its public URL — colors, typography, spacing, shadows, component patterns. Outputs DESIGN.md with Tailwind config.",
+      "description": "Optional reference; external tools require separate host authorization. Extract any website's design system from its public URL \u2014 colors, typography, spacing, shadows, component patterns. Outputs DESIGN.md with Tailwind config.",
       "activateOn": "design-extraction",
-      "freedomLevel": "high",
+      "freedomLevel": "reference",
       "prerequisite": null
     },
     {
       "id": "build-swiftui-interface",
       "name": "Build SwiftUI Interface",
       "file": "skills/build-swiftui-interface/SKILL.md",
-      "description": "Prepare, scaffold, implement, and verify native SwiftUI features with Apple-platform design and Xcode evidence.",
+      "description": "Apple-platform implementation guidance; Memi ios commands are unavailable in 2.8 beta.",
       "activateOn": "apple-platform-interface",
-      "freedomLevel": "guarded",
+      "freedomLevel": "reference",
       "prerequisite": null
     }
   ],
@@ -124,6 +133,7 @@
     "research-to-dashboard": "Transforming research data into visual dashboards",
     "design-extraction": "Extracting design systems from URLs or websites",
     "apple-platform-interface": "Creating or reviewing SwiftUI, SwiftData, App Intents, or Apple-platform interface code",
-    "docker-environment": "Project contains Dockerfile, docker-compose.yml, or .devcontainer/"
+    "docker-environment": "Project contains Dockerfile, docker-compose.yml, or .devcontainer/",
+    "manual-reference": "Inactive unless explicitly requested as historical reference"
   }
 }

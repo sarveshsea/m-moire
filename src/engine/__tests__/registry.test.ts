@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdir, rm, readFile, writeFile, readdir } from "fs/promises";
 import { join } from "path";
@@ -11,12 +12,14 @@ let registry: Registry;
 
 beforeEach(async () => {
   testDir = join(tmpdir(), `memoire-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  configureExecutionPolicy({ projectRoot: testDir, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   arkDir = join(testDir, ".memoire");
   await mkdir(arkDir, { recursive: true });
   registry = new Registry(arkDir);
 });
 
 afterEach(async () => {
+  resetExecutionPolicyForTests();
   await rm(testDir, { recursive: true, force: true });
 });
 

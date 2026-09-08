@@ -255,6 +255,12 @@ export class MemoireEngine extends EventEmitter {
    * Idempotent — safe to call multiple times; subsequent calls are no-ops unless they
    * request a heavier profile than the one already loaded.
    */
+  /** Load repository context without environment injection, persistence, or background tasks. */
+  async initReadOnly(): Promise<void> {
+    this._project = await detectProject(this.config.projectRoot);
+    await this.registry.load({ readOnly: true });
+  }
+
   async init(profile: MemoireInitProfile = "full"): Promise<void> {
     if (INIT_PROFILE_RANK[this._initProfile] >= INIT_PROFILE_RANK[profile]) return;
 

@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
+import { afterEach, describe, expect, it } from "vitest";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -7,6 +8,7 @@ import { entryFromDiagnosis, historyPath } from "../../app-quality/history.js";
 import { composeReport } from "../report-html.js";
 
 describe("composeReport score trend honesty", () => {
+  afterEach(resetExecutionPolicyForTests);
   it("filters the SVG trend to comparable coverage fingerprints", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-report-html-trend-"));
     try {
@@ -17,6 +19,7 @@ export default function Page() {
 }
 `, "utf-8");
 
+      configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
       const diagnosis = await diagnoseAppQuality({ projectRoot: root, write: true });
       const current = entryFromDiagnosis(diagnosis);
       const comparable = {
@@ -68,10 +71,14 @@ import PackageDescription
 let package = Package(name: "WebCompanion", targets: [])
 `, "utf-8");
 
+      configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
       const diagnosis = await diagnoseAppQuality({ projectRoot: root, write: true });
       const report = await composeReport({ projectRoot: root });
 
-      expect(diagnosis.summary.score).toBeLessThan(100);
+      expect(diagnosis.summary.score).toBe(100);
+      expect(diagnosis.quality.coverage).toBeLessThan(1);
+      expect(report.markdown).toContain("assessed checks only");
+      expect(report.markdown).toContain("Category coverage:");
       expect(diagnosis.unassessedDimensions).toContain("swift:source-analysis");
       expect(report.markdown).toContain("swift:source-analysis");
       expect(report.markdown).toContain("Unassessed dimensions remain unverified");

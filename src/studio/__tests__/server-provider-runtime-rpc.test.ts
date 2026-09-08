@@ -143,8 +143,7 @@ describe("studio provider runtime RPC", () => {
             ? {
                 ...harness,
                 enabled: true,
-                command: process.execPath,
-                commandTemplates: { ...harness.commandTemplates, raw: ["-e", "process.exit(0)"] },
+                command: "sh",
               }
             : harness),
       });
@@ -154,7 +153,7 @@ describe("studio provider runtime RPC", () => {
       const session = await server.startSession({
         harness: "shell",
         cwd: root,
-        prompt: "emit shutdown evidence",
+        prompt: "true",
         action: "raw",
       });
       await waitForSession(server, session.id);
@@ -216,12 +215,19 @@ async function stopServersAndRemove(root: string): Promise<void> {
 }
 
 async function waitForSession(server: StudioRuntimeServer, sessionId: string): Promise<void> {
-  for (let i = 0; i < 60; i += 1) {
+  // Cold shell startup on Windows CI can exceed three seconds.
+  const deadline = Date.now() + 15_000;
+  while (Date.now() < deadline) {
     const session = server.getSession(sessionId);
-    if (session && session.status !== "running") return;
+    if (session && session.status !== "running") {
+      expect(session.status, `Studio session exited with code ${session.exitCode}`).toBe("completed");
+      expect(session.exitCode).toBe(0);
+      return;
+    }
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
-  throw new Error("timed out waiting for Studio session");
+  const session = server.getSession(sessionId);
+  throw new Error(`timed out waiting for Studio session: status=${session?.status ?? "missing"}, exitCode=${session?.exitCode ?? "null"}`);
 }
 
 async function waitFor(predicate: () => boolean): Promise<void> {

@@ -1,53 +1,11 @@
-# Design Extract
+# Design Extraction Reference
 
-Extract any website's design system from its public URL. No login, no API key, no Figma.
+## 2.8 beta availability
 
-## When to use
+`design-doc` and its `extract` alias are unavailable in 2.8.0-beta.1, regardless of profile or capability grants. The locked Memi MCP surface does not expose `design_doc`. There is no certified URL-to-DESIGN.md replacement in this beta.
 
-- User pastes a URL and wants to understand its visual design
-- User wants to replicate a site's look and feel
-- User asks "what design system does X use?"
-- User wants a DESIGN.md for AI context
-- User wants to match an existing site's tokens in their own project
+For an authorized external browser or design tool workflow, inspect the supplied page and identify CSS variables, colors, fonts, spacing, radii, shadows, and reusable components. Attribute observed values to their source and separate observations from inferred design rules. Dynamic pages may require runtime inspection; HTML and linked CSS alone do not establish the rendered result.
 
-## How it works
+A useful design reference can document semantic colors, typography, spacing, surfaces, component states, and a clearly labeled configuration sketch. Do not guarantee a token count, elapsed time, or complete coverage for an arbitrary website. Save a reference only within the host's authorized write scope.
 
-1. Fetch the URL's HTML and all linked stylesheets
-2. Parse CSS for: custom properties, colors, fonts, spacing, radii, shadows
-3. Send extracted raw data to Claude for structured synthesis
-4. Output a `DESIGN.md` with: color system, typography, spacing, borders, component patterns, Tailwind config sketch
-
-## Usage
-
-```bash
-# CLI
-memi design-doc https://linear.app
-memi design-doc https://stripe.com --spec    # also write a DesignSpec JSON
-memi extract https://vercel.com              # alias
-
-# MCP tool
-design_doc({ url: "https://linear.app" })
-```
-
-## Output format
-
-The DESIGN.md contains:
-
-- **Color System** -- palette with semantic names (primary, bg, fg, muted, accent)
-- **Typography** -- font stacks, size scale, weight usage
-- **Spacing** -- scale (4px/8px grid or other rhythm)
-- **Borders & Surfaces** -- radii, shadows, border styles
-- **Component Patterns** -- inferred from DOM (buttons, cards, inputs, nav)
-- **Tailwind Config Sketch** -- partial `tailwind.config.js` with extend values
-
-## Success criteria
-
-- Extraction completes in under 30 seconds for any public URL
-- Output contains at least 10 distinct design tokens
-- Tailwind config sketch is valid JavaScript
-- DESIGN.md is immediately usable as AI prompt context
-
-## Limitations
-
-- Does not work on pure client-side rendered apps (CSR) that inject all styles via JS at runtime
-- Works on: static sites, SSR (Next.js, Remix, SvelteKit), and any site that serves CSS in `<link>` or `<style>` tags
+For a local project, `memi --profile locked agent brief . --json` provides supported source-bounded context. It does not extract a website or generate DESIGN.md.

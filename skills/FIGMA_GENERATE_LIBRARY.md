@@ -11,6 +11,10 @@ context:
 
 # /figma-generate-library — Create Component Library from Codebase
 
+## 2.8 beta scope
+
+This is optional reference guidance, not an automatic Memi workflow. Figma tool names and canvas examples require an installed external provider and the host's authorization; locked Memi MCP does not expose them. Deferred CLI commands remain unavailable even with capability grants. For supported local context, use `memi --profile locked agent brief . --json`; for static frontend inspection, use `memi --profile locked diagnose . --no-write --json --fail-on none`. Neither command certifies the external workflow below.
+
 > Generate Figma components from your React/shadcn codebase, establishing Code Connect for perfect design-code parity. Requires /figma-use.
 
 ## Freedom Level: High
@@ -20,7 +24,7 @@ Full creative freedom for visual representation, but component structure must mi
 ## Prerequisites
 - `/figma-use` foundational skill loaded
 - Codebase has shadcn/ui or similar component library
-- `memi connect` active
+- An external Figma provider connected and authorized by the host
 - `figma_search_components` called this session
 
 ## Workflow
@@ -128,13 +132,9 @@ add_code_connect_map:
   LoginForm → generated/components/LoginForm/LoginForm.tsx
 ```
 
-### Step 7: Generate Mémoire Specs
-For each component created:
-```
-memi spec component Button
-memi spec component FormField
-memi spec component LoginForm
-```
+### Step 7: Document Component Contracts
+
+Record component names, states, properties, tokens, and verified source mappings in the host's approved handoff format. Memi's `spec component` command is unavailable in this beta.
 
 ## shadcn/ui → Figma Mapping
 

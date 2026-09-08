@@ -7,6 +7,8 @@
  */
 
 import { z } from "zod";
+import { getExecutionPolicy, MEMI_CAPABILITIES } from "../security/execution-policy.js";
+import { toolError } from "./policy-tools.js";
 import { stat } from "node:fs/promises";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { MemoireEngine } from "../engine/core.js";
@@ -57,24 +59,27 @@ import type { ResearchStore } from "../research/engine.js";
  * structured { isError: true } results instead of raw protocol errors —
  * agents can read the message and retry/adjust instead of failing opaquely.
  */
-function installSafeToolErrors(server: McpServer): void {
-  const originalTool = (server.tool as (...args: unknown[]) => unknown).bind(server);
+function installSafeToolErrors(server: McpServer, excluded: ReadonlySet<string>): () => void {
+  const originalToolMethod = server.tool;
+  const originalTool = (originalToolMethod as (...args: unknown[]) => unknown).bind(server);
   (server as unknown as { tool: (...args: unknown[]) => unknown }).tool = (...args: unknown[]) => {
+    if (typeof args[0] === "string" && excluded.has(args[0])) return;
     const cbIndex = args.length - 1;
     const cb = args[cbIndex];
     if (typeof cb === "function") {
       const name = typeof args[0] === "string" ? args[0] : "tool";
       args[cbIndex] = async (...cbArgs: unknown[]) => {
         try {
+          for (const capability of MEMI_CAPABILITIES) getExecutionPolicy().assert(capability, `MCP legacy tool ${name}`);
           return await (cb as (...a: unknown[]) => unknown)(...cbArgs);
         } catch (err) {
-          const message = err instanceof Error ? err.message : String(err);
-          return { isError: true, content: [{ type: "text", text: `${name} failed: ${message}` }] };
+          return toolError(err);
         }
       };
     }
     return originalTool(...args);
   };
+  return () => { server.tool = originalToolMethod; };
 }
 
 /**
@@ -116,8 +121,16 @@ function requireFigma(engine: MemoireEngine): void {
   }
 }
 
-export function registerTools(server: McpServer, engine: MemoireEngine): void {
-  installSafeToolErrors(server);
+export function registerTools(server: McpServer, engine: MemoireEngine, excluded: ReadonlySet<string> = new Set()): void {
+  const restoreTool = installSafeToolErrors(server, excluded);
+  try {
+    registerLegacyTools(server, engine);
+  } finally {
+    restoreTool();
+  }
+}
+
+function registerLegacyTools(server: McpServer, engine: MemoireEngine): void {
   // ── pull_design_system ──────────────────────────────────
   server.tool(
     "pull_design_system",

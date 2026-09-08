@@ -1,0 +1,722 @@
+{
+  "generatedAt": "2026-09-08T15:41:44.836Z",
+  "installedEntry": "installed @memi-design/cli/dist/index.js",
+  "sourceHashes": {
+    "src/Button.tsx": "93eb952e7b392098f99a8a795c419f6d53c279cb7039edc6a0b8713c38183b83",
+    "src/SideNavTab.tsx": "3cae960f4d0b60ca8581358cac06c0afa9cfa568dc10a0ae5498dd37e1880602"
+  },
+  "receipts": [
+    {
+      "source": "figma",
+      "result": {
+        "schemaVersion": "memi.frontend-brief.v1",
+        "intent": "Reuse SideNavTab for the workspace sidebar",
+        "design": {
+          "source": "figma",
+          "documentId": "PhJjGL4bfxRRgxYYhfdeLJ",
+          "nodeId": "5:452",
+          "fingerprint": "f7d8475992000cfa9a81806d3bcbe0482c29f735b215b01f9fc0b87a31216ae2",
+          "acquisition": "host-supplied",
+          "adapterVersion": "1"
+        },
+        "components": [
+          {
+            "path": "src/SideNavTab.tsx",
+            "exportName": "SideNavTab",
+            "import": "import { SideNavTab } from './src/SideNavTab';",
+            "sourceHash": "3cae960f4d0b60ca8581358cac06c0afa9cfa568dc10a0ae5498dd37e1880602",
+            "props": [
+              {
+                "name": "label",
+                "required": true,
+                "type": "String"
+              },
+              {
+                "name": "selected",
+                "required": false,
+                "type": "Boolean"
+              },
+              {
+                "name": "disabled",
+                "required": false,
+                "type": "Boolean"
+              },
+              {
+                "name": "onActivate",
+                "required": false,
+                "type": "FunctionType"
+              }
+            ],
+            "propsComplete": true,
+            "line": 10
+          },
+          {
+            "path": "playwright.config.ts",
+            "exportName": "default",
+            "import": "import Component from './playwright.config';",
+            "sourceHash": "5b282357ccc45a212a8a4bbcfc4e49cea5459f0982ae2214e0a99681f3cf1b0b",
+            "props": [],
+            "propsComplete": false,
+            "line": 2
+          },
+          {
+            "path": "src/Button.tsx",
+            "exportName": "Button",
+            "import": "import { Button } from './src/Button';",
+            "sourceHash": "93eb952e7b392098f99a8a795c419f6d53c279cb7039edc6a0b8713c38183b83",
+            "props": [
+              {
+                "name": "label",
+                "required": true,
+                "type": "String"
+              },
+              {
+                "name": "disabled",
+                "required": false,
+                "type": "Boolean"
+              },
+              {
+                "name": "pressed",
+                "required": false,
+                "type": "Boolean"
+              },
+              {
+                "name": "className",
+                "required": false,
+                "type": "String"
+              },
+              {
+                "name": "onActivate",
+                "required": false,
+                "type": "FunctionType"
+              }
+            ],
+            "propsComplete": true,
+            "line": 9
+          },
+          {
+            "path": "src/WorkspaceSidebar.tsx",
+            "exportName": "WorkspaceSidebar",
+            "import": "import { WorkspaceSidebar } from './src/WorkspaceSidebar';",
+            "sourceHash": "68eab0765b6006048dec8949e52a73be7a505191f3295dcd6835e5850fe869ab",
+            "props": [],
+            "propsComplete": true,
+            "line": 5
+          }
+        ],
+        "tokens": [
+          {
+            "path": "src/tokens.css",
+            "name": "--off-white",
+            "value": "#f7f7f7",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--nav-tab-width",
+            "value": "182px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--nav-tab-height",
+            "value": "25px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--nav-tab-padding",
+            "value": "5px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--nav-tab-radius",
+            "value": "5px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--font-size-ui",
+            "value": "12px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--font-ui",
+            "value": "Inter, sans-serif",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--surface-dark",
+            "value": "#202020",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--surface-light",
+            "value": "#f7f7f7",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--foreground-dark",
+            "value": "#f7f7f7",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--foreground-light",
+            "value": "#202020",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--selected-dark",
+            "value": "#363636",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--selected-light",
+            "value": "#dedede",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--focus-dark",
+            "value": "#96b8ff",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--focus-light",
+            "value": "#225bc1",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--surface",
+            "value": "var(--surface-dark)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--foreground",
+            "value": "var(--foreground-dark)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--selected",
+            "value": "var(--selected-dark)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--focus",
+            "value": "var(--focus-dark)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--surface",
+            "value": "var(--surface-light)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--foreground",
+            "value": "var(--foreground-light)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--selected",
+            "value": "var(--selected-light)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--focus",
+            "value": "var(--focus-light)",
+            "mode": "unassessed"
+          }
+        ],
+        "stories": [
+          {
+            "path": "src/Button.stories.tsx",
+            "exportName": "Default",
+            "ref": "src/Button.stories.tsx#Default",
+            "componentPath": "src/Button.tsx",
+            "componentExport": "Button",
+            "id": "atoms-button--default",
+            "status": "inferred"
+          },
+          {
+            "path": "src/Button.stories.tsx",
+            "exportName": "Disabled",
+            "ref": "src/Button.stories.tsx#Disabled",
+            "componentPath": "src/Button.tsx",
+            "componentExport": "Button",
+            "id": "atoms-button--disabled",
+            "status": "inferred"
+          },
+          {
+            "path": "src/SideNavTab.stories.tsx",
+            "exportName": "Default",
+            "ref": "src/SideNavTab.stories.tsx#Default",
+            "componentPath": "src/SideNavTab.tsx",
+            "componentExport": "SideNavTab",
+            "id": "molecules-sidenavtab--default",
+            "status": "inferred"
+          },
+          {
+            "path": "src/SideNavTab.stories.tsx",
+            "exportName": "Selected",
+            "ref": "src/SideNavTab.stories.tsx#Selected",
+            "componentPath": "src/SideNavTab.tsx",
+            "componentExport": "SideNavTab",
+            "id": "molecules-sidenavtab--selected",
+            "status": "inferred"
+          },
+          {
+            "path": "src/SideNavTab.stories.tsx",
+            "exportName": "Disabled",
+            "ref": "src/SideNavTab.stories.tsx#Disabled",
+            "componentPath": "src/SideNavTab.tsx",
+            "componentExport": "SideNavTab",
+            "id": "molecules-sidenavtab--disabled",
+            "status": "inferred"
+          },
+          {
+            "path": "src/SideNavTab.stories.tsx",
+            "exportName": "Keyboard",
+            "ref": "src/SideNavTab.stories.tsx#Keyboard",
+            "componentPath": "src/SideNavTab.tsx",
+            "componentExport": "SideNavTab",
+            "id": "molecules-sidenavtab--keyboard",
+            "status": "inferred"
+          },
+          {
+            "path": "src/WorkspaceSidebar.stories.tsx",
+            "exportName": "MappedReuse",
+            "ref": "src/WorkspaceSidebar.stories.tsx#MappedReuse",
+            "componentPath": "src/WorkspaceSidebar.tsx",
+            "componentExport": "WorkspaceSidebar",
+            "id": "workflows-workspacesidebar--mapped-reuse",
+            "status": "inferred"
+          }
+        ],
+        "mappings": [
+          {
+            "path": "src/SideNavTab.tsx",
+            "exportName": "SideNavTab",
+            "status": "observed",
+            "issues": [],
+            "storyRefs": [
+              "src/SideNavTab.stories.tsx#Default",
+              "src/SideNavTab.stories.tsx#Selected",
+              "src/SideNavTab.stories.tsx#Disabled",
+              "src/SideNavTab.stories.tsx#Keyboard"
+            ],
+            "mustReuse": true,
+            "requestedProps": {
+              "label": "File",
+              "selected": false,
+              "disabled": false
+            },
+            "tokenRefs": [
+              "--off-white",
+              "--nav-tab-width",
+              "--nav-tab-height",
+              "--nav-tab-padding",
+              "--nav-tab-radius",
+              "--font-size-ui"
+            ]
+          }
+        ],
+        "scan": {
+          "complete": true,
+          "filesRead": 11,
+          "bytesRead": 13042,
+          "fingerprint": "b910e320ad13f267ed4131feaa71e3eeb510e9d8d3515359460b29f7414e208d"
+        },
+        "omissions": [],
+        "retrieval": [],
+        "unresolved": [
+          "Some component APIs require source inspection; external types and computed props are unassessed.",
+          "Imports are relative to the repository root; adapt to the destination module. Story IDs are inferred until checked against a Storybook index."
+        ],
+        "verification": {
+          "status": "unassessed",
+          "reason": "Static discovery only. Run authorized repository tests and rendered accessibility/interaction checks; no tool execution is implied."
+        },
+        "limits": {
+          "maxBytes": 16384,
+          "maxFiles": 500,
+          "maxBytesPerFile": 750000,
+          "maxTotalBytes": 10000000,
+          "omittedItems": 0
+        }
+      }
+    },
+    {
+      "source": "paper",
+      "result": {
+        "schemaVersion": "memi.frontend-brief.v1",
+        "intent": "Reuse SideNavTab for the workspace sidebar",
+        "design": {
+          "source": "paper",
+          "documentId": "01M20P1EY87M83ZRZC2D1077D0",
+          "nodeId": "2-0",
+          "fingerprint": "d6b5eed335a7485bf7658a76bcbd5cb1f224063f331c741e48ae1f2ad8ba0895",
+          "acquisition": "host-supplied",
+          "adapterVersion": "1"
+        },
+        "components": [
+          {
+            "path": "src/SideNavTab.tsx",
+            "exportName": "SideNavTab",
+            "import": "import { SideNavTab } from './src/SideNavTab';",
+            "sourceHash": "3cae960f4d0b60ca8581358cac06c0afa9cfa568dc10a0ae5498dd37e1880602",
+            "props": [
+              {
+                "name": "label",
+                "required": true,
+                "type": "String"
+              },
+              {
+                "name": "selected",
+                "required": false,
+                "type": "Boolean"
+              },
+              {
+                "name": "disabled",
+                "required": false,
+                "type": "Boolean"
+              },
+              {
+                "name": "onActivate",
+                "required": false,
+                "type": "FunctionType"
+              }
+            ],
+            "propsComplete": true,
+            "line": 10
+          },
+          {
+            "path": "playwright.config.ts",
+            "exportName": "default",
+            "import": "import Component from './playwright.config';",
+            "sourceHash": "5b282357ccc45a212a8a4bbcfc4e49cea5459f0982ae2214e0a99681f3cf1b0b",
+            "props": [],
+            "propsComplete": false,
+            "line": 2
+          },
+          {
+            "path": "src/Button.tsx",
+            "exportName": "Button",
+            "import": "import { Button } from './src/Button';",
+            "sourceHash": "93eb952e7b392098f99a8a795c419f6d53c279cb7039edc6a0b8713c38183b83",
+            "props": [
+              {
+                "name": "label",
+                "required": true,
+                "type": "String"
+              },
+              {
+                "name": "disabled",
+                "required": false,
+                "type": "Boolean"
+              },
+              {
+                "name": "pressed",
+                "required": false,
+                "type": "Boolean"
+              },
+              {
+                "name": "className",
+                "required": false,
+                "type": "String"
+              },
+              {
+                "name": "onActivate",
+                "required": false,
+                "type": "FunctionType"
+              }
+            ],
+            "propsComplete": true,
+            "line": 9
+          },
+          {
+            "path": "src/WorkspaceSidebar.tsx",
+            "exportName": "WorkspaceSidebar",
+            "import": "import { WorkspaceSidebar } from './src/WorkspaceSidebar';",
+            "sourceHash": "68eab0765b6006048dec8949e52a73be7a505191f3295dcd6835e5850fe869ab",
+            "props": [],
+            "propsComplete": true,
+            "line": 5
+          }
+        ],
+        "tokens": [
+          {
+            "path": "src/tokens.css",
+            "name": "--off-white",
+            "value": "#f7f7f7",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--nav-tab-width",
+            "value": "182px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--nav-tab-height",
+            "value": "25px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--nav-tab-padding",
+            "value": "5px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--nav-tab-radius",
+            "value": "5px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--font-size-ui",
+            "value": "12px",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--font-ui",
+            "value": "Inter, sans-serif",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--surface-dark",
+            "value": "#202020",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--surface-light",
+            "value": "#f7f7f7",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--foreground-dark",
+            "value": "#f7f7f7",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--foreground-light",
+            "value": "#202020",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--selected-dark",
+            "value": "#363636",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--selected-light",
+            "value": "#dedede",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--focus-dark",
+            "value": "#96b8ff",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--focus-light",
+            "value": "#225bc1",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--surface",
+            "value": "var(--surface-dark)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--foreground",
+            "value": "var(--foreground-dark)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--selected",
+            "value": "var(--selected-dark)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--focus",
+            "value": "var(--focus-dark)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--surface",
+            "value": "var(--surface-light)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--foreground",
+            "value": "var(--foreground-light)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--selected",
+            "value": "var(--selected-light)",
+            "mode": "unassessed"
+          },
+          {
+            "path": "src/tokens.css",
+            "name": "--focus",
+            "value": "var(--focus-light)",
+            "mode": "unassessed"
+          }
+        ],
+        "stories": [
+          {
+            "path": "src/Button.stories.tsx",
+            "exportName": "Default",
+            "ref": "src/Button.stories.tsx#Default",
+            "componentPath": "src/Button.tsx",
+            "componentExport": "Button",
+            "id": "atoms-button--default",
+            "status": "inferred"
+          },
+          {
+            "path": "src/Button.stories.tsx",
+            "exportName": "Disabled",
+            "ref": "src/Button.stories.tsx#Disabled",
+            "componentPath": "src/Button.tsx",
+            "componentExport": "Button",
+            "id": "atoms-button--disabled",
+            "status": "inferred"
+          },
+          {
+            "path": "src/SideNavTab.stories.tsx",
+            "exportName": "Default",
+            "ref": "src/SideNavTab.stories.tsx#Default",
+            "componentPath": "src/SideNavTab.tsx",
+            "componentExport": "SideNavTab",
+            "id": "molecules-sidenavtab--default",
+            "status": "inferred"
+          },
+          {
+            "path": "src/SideNavTab.stories.tsx",
+            "exportName": "Selected",
+            "ref": "src/SideNavTab.stories.tsx#Selected",
+            "componentPath": "src/SideNavTab.tsx",
+            "componentExport": "SideNavTab",
+            "id": "molecules-sidenavtab--selected",
+            "status": "inferred"
+          },
+          {
+            "path": "src/SideNavTab.stories.tsx",
+            "exportName": "Disabled",
+            "ref": "src/SideNavTab.stories.tsx#Disabled",
+            "componentPath": "src/SideNavTab.tsx",
+            "componentExport": "SideNavTab",
+            "id": "molecules-sidenavtab--disabled",
+            "status": "inferred"
+          },
+          {
+            "path": "src/SideNavTab.stories.tsx",
+            "exportName": "Keyboard",
+            "ref": "src/SideNavTab.stories.tsx#Keyboard",
+            "componentPath": "src/SideNavTab.tsx",
+            "componentExport": "SideNavTab",
+            "id": "molecules-sidenavtab--keyboard",
+            "status": "inferred"
+          },
+          {
+            "path": "src/WorkspaceSidebar.stories.tsx",
+            "exportName": "MappedReuse",
+            "ref": "src/WorkspaceSidebar.stories.tsx#MappedReuse",
+            "componentPath": "src/WorkspaceSidebar.tsx",
+            "componentExport": "WorkspaceSidebar",
+            "id": "workflows-workspacesidebar--mapped-reuse",
+            "status": "inferred"
+          }
+        ],
+        "mappings": [
+          {
+            "path": "src/SideNavTab.tsx",
+            "exportName": "SideNavTab",
+            "status": "observed",
+            "issues": [],
+            "storyRefs": [
+              "src/SideNavTab.stories.tsx#Default",
+              "src/SideNavTab.stories.tsx#Selected",
+              "src/SideNavTab.stories.tsx#Disabled",
+              "src/SideNavTab.stories.tsx#Keyboard"
+            ],
+            "mustReuse": true,
+            "requestedProps": {
+              "label": "File",
+              "selected": false,
+              "disabled": false
+            },
+            "tokenRefs": [
+              "--off-white",
+              "--nav-tab-width",
+              "--nav-tab-height",
+              "--nav-tab-padding",
+              "--nav-tab-radius",
+              "--font-size-ui"
+            ]
+          }
+        ],
+        "scan": {
+          "complete": true,
+          "filesRead": 11,
+          "bytesRead": 13042,
+          "fingerprint": "b910e320ad13f267ed4131feaa71e3eeb510e9d8d3515359460b29f7414e208d"
+        },
+        "omissions": [],
+        "retrieval": [],
+        "unresolved": [
+          "Some component APIs require source inspection; external types and computed props are unassessed.",
+          "Imports are relative to the repository root; adapt to the destination module. Story IDs are inferred until checked against a Storybook index."
+        ],
+        "verification": {
+          "status": "unassessed",
+          "reason": "Static discovery only. Run authorized repository tests and rendered accessibility/interaction checks; no tool execution is implied."
+        },
+        "limits": {
+          "maxBytes": 16384,
+          "maxFiles": 500,
+          "maxBytesPerFile": 750000,
+          "maxTotalBytes": 10000000,
+          "omittedItems": 0
+        }
+      }
+    }
+  ]
+}

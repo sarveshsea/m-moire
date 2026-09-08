@@ -10,7 +10,7 @@ import {
   type TokenExtractionSource,
 } from "../tokens/extractor.js";
 import { scanSources } from "../utils/source-scanner.js";
-import { writeFile, mkdir } from "fs/promises";
+import { assertSourceOutput, writeSourceArtifact } from "../security/source-output.js";
 import { join } from "path";
 
 const SUPPORTED_SOURCE_EXTENSIONS = new Set([
@@ -66,9 +66,11 @@ export function registerTokensCommand(program: Command, engine: MemoireEngine) {
       shadcn?: boolean;
       json?: boolean;
     }) => {
+      if (opts.save) await assertSourceOutput(join(engine.config.projectRoot, ".memoire", "design-system.json"));
+      if (!opts.json || opts.report) await assertSourceOutput(join(engine.config.projectRoot, opts.output));
       if (opts.from) {
         if (opts.save) {
-          await engine.init("registry");
+          await engine.initReadOnly();
         }
 
         const sources = await collectTokenSources(opts.from, engine.config.projectRoot);
@@ -126,7 +128,7 @@ export function registerTokensCommand(program: Command, engine: MemoireEngine) {
         return;
       }
 
-      await engine.init("registry");
+      await engine.initReadOnly();
       const ds = engine.registry.designSystem;
       if (ds.tokens.length === 0) {
         if (opts.json) {
@@ -158,11 +160,11 @@ async function writeExtractionReport(
   sourceLabel: string,
 ): Promise<{ json: string; markdown: string }> {
   const outputDir = join(engine.config.projectRoot, output);
-  await mkdir(outputDir, { recursive: true });
+  await assertSourceOutput(outputDir);
   const jsonPath = join(outputDir, "token-extraction.report.json");
   const markdownPath = join(outputDir, "token-extraction.report.md");
-  await writeFile(jsonPath, JSON.stringify(report, null, 2));
-  await writeFile(markdownPath, renderTokenExtractionMarkdown(report, sourceLabel));
+  await writeSourceArtifact(jsonPath, JSON.stringify(report, null, 2));
+  await writeSourceArtifact(markdownPath, renderTokenExtractionMarkdown(report, sourceLabel));
   return { json: jsonPath, markdown: markdownPath };
 }
 
@@ -186,15 +188,15 @@ async function exportTokens(
   if (formats.has("style-dictionary")) {
     const sdTokens = exportToStyleDictionary(tokens);
     const sdPath = join(outputDir, "tokens.style-dictionary.json");
-    await mkdir(outputDir, { recursive: true });
-    await writeFile(sdPath, JSON.stringify(sdTokens, null, 2));
+    await assertSourceOutput(outputDir);
+    await writeSourceArtifact(sdPath, JSON.stringify(sdTokens, null, 2));
     console.log(`  Style Dictionary: ${sdPath}`);
   }
 
   if (opts.shadcn) {
     const mapping = generateShadcnTokenMapping(tokens);
     const mappingPath = join(outputDir, "shadcn-tokens.css");
-    await writeFile(mappingPath, mapping);
+    await writeSourceArtifact(mappingPath, mapping);
     console.log(`  shadcn:           ${mappingPath}`);
   }
 

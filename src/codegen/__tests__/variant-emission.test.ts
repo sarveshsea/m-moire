@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -49,9 +50,11 @@ describe("CodeGenerator variant emission", () => {
 
   beforeEach(async () => {
     outDir = await mkdtemp(join(tmpdir(), "memoire-variant-test-"));
+    configureExecutionPolicy({ projectRoot: outDir, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   });
 
   afterEach(async () => {
+  resetExecutionPolicyForTests();
     await rm(outDir, { recursive: true, force: true });
   });
 

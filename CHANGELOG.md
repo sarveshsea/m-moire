@@ -6,6 +6,317 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
+## Trust Core 2.8 development — Unreleased
+
+This unreleased work is not part of the immutable 2.7.9 release. It becomes a
+public product claim only after the 2.8 candidate, cross-platform, security, and
+release gates pass.
+
+### Frontend engineering candidate (unreleased)
+
+- Add a bounded repository-aware frontend brief across exports, props, CSS/DTCG tokens and CSF story references; normalize host-supplied Figma/Paper mappings without executing vendor data.
+- Make locked stdio useful with four read tools, cancellation, explicit root ownership, credential-free configurations and installed protocol checks.
+- Validate mapped reuse and stale/conflicting evidence; keep host-envelope guidance distinct from the registry generator's hard stop.
+- Contain source and metadata reads using file descriptors, reject links/identity changes, and bound traversal. Separate assessed quality, coverage, omissions and metadata receipts.
+- Exercise real Storybook component reuse with checked-in connector evidence, keyboard/theme/viewport tests, and a separate CI replay job. Paper screenshot parity remains unassessed.
+- Add cold-process and byte-budget measurements with honest narrow-input comparisons. No complete-task savings claim; full-source coverage now passes; remaining release gates still block npm publication.
+- Replace unavailable candidate recipes and legacy default autonomy guidance with the actual capability contract, preserving consumer component and CSS conventions.
+
+Development checkpoints (RED tests precede their implementation where noted):
+
+- `80e38dc0` — test: reproduce frontend command compatibility and persistence gaps
+- `97beda0b` — test: reproduce locked MCP startup and discovery gaps
+- `2c66b418` — test: reproduce scan completeness and frontend quality gaps
+- `199920bb` — test: define bounded frontend evidence brief contracts
+- `33dcf086` — test: reproduce escaped and oversized context excerpt reads
+- `3338c5b2` — fix: restore explicit frontend command capabilities and safe output
+- `d8c048f0` — fix: bound context reads to validated workspace file handles
+- `95a23815` — test: reproduce frontend artifact and component reuse boundaries
+- `277b4ffb` — build: pin the frontend syntax parser in the production graph
+- `61ed9fe2` — test: require classification of every executable command
+- `0a58b6f1` — test: cover research persistence and harness evidence contracts
+- `465b6c24` — test: define repository grounded frontend brief CLI
+- `f7cb5b96` — fix: guard frontend artifacts and require mapped component reuse
+- `02a52962` — fix: make locked Codex MCP usable without side effects
+- `61048b0d` — fix: report assessed quality and source analysis completeness
+- `93d2e9d0` — test: require cooperative source scan cancellation
+- `70a355d7` — feat: resolve design evidence against repository components and stories
+- `a5b66b6e` — feat: expose bounded repository briefs to frontend agents
+- `51394185` — test: require frontend evidence through locked MCP
+- `ddf9aeb0` — fix: cancel local analysis cooperatively within the declared scan scope
+- `55504e08` — feat: serve repository frontend evidence through locked MCP
+- `a69f8588` — fix: cancel frontend evidence work and bound external input traversal
+- `eeae6a1f` — test: reject outside hardlinks and incomplete component mappings
+- `f0997b04` — test: reproduce shell injection in generated agent guidance
+- `88d941cb` — test: require private metadata receipts and truthful diagnosis output
+- `8067b1f9` — test: preserve explicit capability scope for MCP extensions
+- `11e7255a` — fix: reject escaped source links and incomplete design mappings
+- `76794662` — fix: quote agent guidance and contain MCP brief targets
+- `d5578067` — test: reproduce diagnosis source containment escapes
+- `87d4808f` — test: require assessed-only score labels in rendered reports
+- `29fe3488` — feat: emit source-free diagnosis receipts and assessment coverage
+- `e7d8169d` — test: reproduce readonly registry source escapes
+- `d76c5b54` — test: reproduce project context and snapshot read escapes
+- `0f019aaa` — test: require connected receipt-only diagnosis without write grants
+- `028ee7b6` — fix: contain and bound every local diagnosis source read
+- `b0dc9004` — fix: label assessed results and preserve receipt-only stdout
+- `b30f73f5` — fix: preserve MCP extension authority and verify installed discovery
+- `7c4314f5` — test: reject nonprimitive imported token extension values
+- `4af2d161` — fix: contain readonly project registry and snapshot inputs
+- `5b3c0ac9` — fix: classify legacy command support and preserve readonly receipts
+- `46c93335` — test: declare intentional write capabilities in integration fixtures
+- `b5efe4f7` — fix: reject unsupported DTCG token values
+- `d1fc3ee3` — test: define Storybook frontend workflow acceptance cases
+- `11b7a07f` — test: reject linked metadata reads and stale MCP setup claims
+- `fb507476` — test: define bounded frontend brief performance evidence
+- `d1158462` — test: bound source tree traversal before scanning
+- `966cefe1` — test: preserve Action versions and advertise actual MCP resources
+- `fe6fdd83` — fix: grant CI effects explicitly and include candidate release plan
+- `f6b8a32d` — test: verify mapped component reuse through a real Storybook consumer
+- `21337209` — fix: publish accurate locked MCP setup and frontend recipes
+- `ee69152c` — test: verify complete benchmark fixture integrity
+- `3f3c2917` — fix: contain policy baseline history and report reads
+- `cadc26fb` — fix: bound directory discovery before source scanning
+- `a3c85649` — test: reject credential-dependent defaults and stale corpus reuse
+- `9df240c5` — feat: measure bounded frontend briefs against frozen source fixtures
+- `056c52f3` — fix: make distributed MCP configurations explicitly locked
+- `257c828d` — fix: invalidate cached corpus files across source revisions
+- `ebdabbc1` — test: exercise real command research and Studio release boundaries
+- `8f017a14` — test: require real frontend workflow verification in CI
+- `c1d2e22f` — docs: explain actual 2.8 frontend workflows and release limits
+- `520b4f1f` — test: exercise legacy MCP handler and research command contracts
+- `d988a5a6` — feat: verify Figma and Paper mapped reuse in real Storybook
+- `4c9ff1a2` — fix: clarify candidate setup and mapping enforcement boundaries
+- `566b0d74` — test: exercise Figma transport lifecycle and restart cleanup
+- `8b2495ad` — docs: align shipped skills and harness mirrors with candidate capabilities
+- `d2a71798` — fix: clear Figma command reservations when restarting transport
+
+- `2a6d0e44` — docs: record frontend engine implementation checkpoints
+- `8f113110` — ci: verify stacked 2.8 candidate pull requests
+- `34e2ee50` — test: validate truthful candidate and stable skill distribution
+- `f0245e2f` — fix: validate candidate skills and run portable distribution tests
+- `536436ce` — docs: retain frozen frontend candidate verification receipts
+- `6c34964e` — test: reject attachment session traversal through the HTTP API
+- `6e347d62` — test: reject readonly audit mutations and gallery content injection
+- `a038d7da` — test: keep gallery metadata inert across both renderers
+- `56eb3c2b` — test: reject malformed gallery collection metadata
+- `52eb0950` — test: enforce attachment authority and bounded Studio file responses
+- `9d4c175e` — test: verify onboarding upgrade and orchestration command behavior
+- `ba456a8a` — test: add a development-only DOM runtime for gallery behavior
+- `29de55b4` — test: preserve binary bytes within descriptor-contained reads
+- `e7b18833` — test: reject external research roots before filesystem probes
+- `d68782cb` — test: reject malformed driver frames and inherited dispatch keys
+- `2e52168a` — test: report gallery request failures without throwing
+- `a72f6caf` — test: reject invalid tool frames and preserve validation priority
+- `c6d22945` — fix: keep audits read-only and render connector metadata safely
+- `8785843c` — fix: fail unsafe note admission and rank research by severity
+- `2916a64b` — test: reject cross-drive workspace directory access
+- `68f729d6` — test: validate benchmark repetition before provider execution
+- `06a82154` — fix: recover harness streams after malformed provider frames
+- `097c9a8c` — test: bound attachment transport and verify storage authority
+- `4b257c70` — test: reject oversized indexes and malformed workflow log frames
+- `53a2177f` — fix: contain Studio attachment and workspace reads
+- `5485a53c` — fix: validate benchmark inputs before execution and tolerate empty frames
+- `f496bdef` — test: preserve failure status and ordinary research filter text
+- `deba7b37` — test: execute the script embedded in generated gallery HTML
+- `f390f29c` — test: cover registry installation and reject malformed Codex frames
+- `1defed7a` — test: render empty gallery confidence without NaN
+- `277d719a` — fix: report batch failures and contain interrupted preview requests
+- `0f3bb361` — test: preserve notes admission failures in JSON mode
+- `9d8879bd` — fix: recover Codex sessions from malformed event frames
+- `053c138a` — fix: initialize rendered galleries and preserve research filter values
+- `d9c30cef` — test: verify daemon lifecycle and assessed evidence aggregation
+
+- Harden Studio attachment storage and workspace reads, preserve binary data, reject cross-drive escapes, and bound attachment transport/index sizes.
+- Keep research audits read-only, make failed batch/JSON workflows return failure, and validate benchmark repetition before provider execution.
+- Recover all four harness drivers from malformed event frames; render the actual gallery client and preserve punctuation in research tag filters.
+
+- `76af919b` — test: drain started preflight probes before rejecting a fixture
+- `246dfc45` — test: resolve native Windows executable paths without PATH search
+- `053f8a0a` — fix: resolve Windows harness paths and await preflight cleanup
+- `1cac3f27` — test: reproduce asynchronous upgrade staging cleanup contract
+- `f43dd828` — fix: await upgrade archive cleanup and verify successful shell sessions
+
+### Release audit follow-up (unreleased)
+
+- `aeee0618` — fix: preserve exact Windows file identities during persistence
+- Preserve exact BigInt file identities for Windows report writes and lock/receipt validation; reject adjacent-ID substitutions without rounding.
+
+- `cbdef4cf` — fix: close diagnosis policy gaps and enforce release evidence
+
+- Close diagnosed URL, Git subprocess, and source-report capability gaps at their execution boundaries; keep optional Git history metadata subprocess-free without a shell grant.
+- Patch fast-uri to exact 3.1.7 and regenerate the production shrinkwrap; fresh full and production dependency audits report zero known advisories.
+- Require native Linux arm64 containment/performance verification before npm publication; execute lifecycle release gates explicitly when publishing with scripts disabled.
+- Add source-wide 80% coverage enforcement. The historical four-module Trust Core percentage is not source-wide coverage evidence.
+- Clarify deterministic model-call cost, stable/candidate availability, and public-surface limits in the README, agent guidance, and acceptance ledger. npm publication remains gated.
+
+### Trust Core execution policy
+
+- `d452661e` — test: add RED contracts for Trust Core policy and receipts
+- `9b90fc76` — feat: add Trust Core execution policy and receipts
+- `04a195fe` — test: reproduce locked CLI preflight and doctor mutations
+- `623f03c7` — feat: preflight risky commands and make doctor read-only
+- `5b5bed4b` — feat: enforce Trust Core policy across CLI startup
+- `82c1a278` — fix: emit structured CLI policy denials
+- `f5ef708e` — fix: fail closed on downstream command authority
+- `949ec739` — test: cover Trust Core capability boundaries
+- `a8d832be` — test: reject symlinked receipt leaves
+- `67ac83bd` — test: reproduce trust receipt and optional peer gaps
+- `f33879d9` — test: enforce optional peer execution grants
+- `0dcd24b8` — fix: harden receipt and optional peer boundaries
+- `5ba4bb94` — test: preserve locked CSV parsing
+- `c746b746` — test: reproduce remaining trust boundary races
+- `98830cdd` — fix: close residual trust boundary races
+- `2f259c8f` — test: reproduce prefixed updater routing drift
+- `e1d07881` — fix: preserve resolved updater routing and version
+- `a5c2eee6` — test: reproduce fail-open command preflight
+- `323e2711` — fix: fail closed on unmapped CLI commands
+- `fc3a3bf4` — test: tighten preflight side-effect mappings
+- `0890d554` — fix: gate preflight initialization side effects
+- `e844d15d` — test: cover preflight authority escalation
+- `d9cc8cc7` — fix: close preflight authority escalation paths
+- Makes `locked` the default offline profile, limits `local` writes to the real
+  project `.memi/` directory, and requires explicit per-invocation grants in
+  `connected` mode.
+- Adds metadata-only execution receipts, structured
+  `MEMI_CAPABILITY_DENIED` errors, read-only locked diagnostics, and exact
+  resolved-version self-updates.
+- Replaces the command-preflight default allow path with an explicit read-only
+  allowlist and option-sensitive capability mappings. Studio browser, runtime,
+  and harness commands plus preview, publish, research, pull, sync, and export
+  now deny before handler execution unless the current profile has the mapped
+  authority; unmapped command paths deny in every profile. User-selected
+  publish and export destinations remain inside the connected project root,
+  GitHub-backed Note installation requires subprocess authority, and brokered
+  Studio runs require the browser and Figma grants they expose.
+- Binds receipt authorization to an exclusive file handle, revalidates the
+  opened path before writing, rejects symlinked policy roots and parent or leaf
+  substitution, and never recursively creates attacker-swappable ancestors.
+- Separates execution of consumer-resolved optional peers from installation:
+  Anthropic, Playwright, XLSX, and native canvas code require the explicit
+  per-run `host-integration-code` grant while retaining exact install guidance.
+- Keeps pure web-research planning read-only in `locked`, and removes Figma
+  bridge authority from REST-only pull and publication paths that use the
+  network API without executing plugin actions.
+
+### Offline distribution lane
+
+- Adds deterministic secondary `tar.gz` bundles for Darwin arm64/x64, Linux
+  arm64/x64, and Windows x64 without replacing the existing release assets.
+- Each archive carries a standalone CLI runtime, a minimal runtime manifest,
+  product and third-party notices, a deterministic CycloneDX 1.5 SBOM, internal
+  file checksums, and an adjacent archive checksum.
+- Release jobs pin the Bun compiler, reject unsupported target names, build the
+  Linux arm64 artifact on a native runner, and are configured to sign each
+  offline archive with a GitHub OIDC provenance attestation before upload.
+- Runtime sidecars are copied through an explicit allowlist; symbolic links,
+  unsupported files, secret filenames, development directories, and
+  development-only shrinkwrap entries fail closed or remain outside the bundle.
+
+### Commits
+
+| Commit | Change |
+|---|---|
+| `fd53d516` | test: define deterministic offline bundle contract |
+| `45879268` | test: require signed self-describing offline assets |
+| `f1ead6f9` | feat: add deterministic signed offline bundles |
+| `39174def` | test: reject unsafe offline bundle paths |
+| `201538e6` | fix: reject unsafe offline bundle paths |
+
+### Startup-safe package boundary
+
+- Ships an explicit additive npm allowlist and a production-only shrinkwrap
+  that excludes development tooling and optional integrations.
+- Moves Anthropic, native canvas, Playwright, pretty logging, and spreadsheet
+  readers behind optional peer dependencies with pinned installation guidance.
+- Gates the packed artifact at 1.5 MB compressed, 3 MB unpacked, and 100 files;
+  gates a script-disabled clean install at 60 MB with zero known production
+  advisories and no development or optional-integration packages.
+- Pins MCPB and Smithery release helpers to exact versions instead of resolving
+  moving `latest` tags.
+- Ships the bounded Trust Core employer-review packet inside the npm artifact so
+  offline reviewers receive the same threat, egress, retention, and release-truth evidence.
+- Pins the skills and preset metadata shipped with the beta artifact to
+  `2.8.0-beta.1` while the public Action and default activation path remain on
+  verified `2.7.9`.
+- Keeps Codex and Claude skill mirrors byte-aligned with the beta package and
+  validates prerelease version markers without relaxing stable release checks.
+- Synchronizes the general Codex, Claude, Hermes, OpenClaw, OpenCode, and Grok
+  kit commands with the beta artifact so repository-wide consumers do not fall
+  back to 2.7.9 accidentally.
+- Derives the production shrinkwrap only by pruning the checked-in source lock;
+  no release build performs a fresh semver resolution, and staging rejects any
+  package entry that is not the exact source-lock production subset.
+
+### Prerelease channel isolation
+
+- `6667620c` — test: reproduce brittle prerelease channel routing
+- `59bcb635` — fix: generalize prerelease channel routing
+- Routes every valid SemVer prerelease, including later beta and release
+  candidate versions, through npm `next` while preserving npm `latest` at the
+  manifest's `previousPublicRelease`.
+- Drives npm tags, GitHub prerelease/latest state, and stable promotion
+  eligibility from one fail-closed release-channel helper. Invalid SemVer never
+  reaches publish, and prereleases skip Docker and Homebrew stable promotions.
+
+### Trust Core verification gates
+
+- Adds a packed-artifact sandbox harness for locked diagnosis, capability
+  denials, metadata-only receipt privacy, `.memi` containment, explicit 2.7.9
+  upgrade preservation, hostile output, timeouts, and interrupted processes.
+- Enforces 80% minimum line, branch, function, and statement coverage across
+  the executable Trust Core policy, receipt, preflight, and verification scope.
+- Extends clean-install verification across Node 20, 22, and 24 on Ubuntu,
+  macOS, and Windows, with separate non-root, read-only, networkless Linux
+  amd64 and arm64 runtime contracts.
+- Runtime trust claims are tested against the packed consumer artifact, and
+  performance, policy, privacy, containment, and platform failures block release.
+- Rebuilds the publishable runtime before standalone artifact smoke so stale
+  compiled output cannot eagerly load an absent optional integration.
+- Makes coverage and packed-artifact verification mandatory in the npm
+  prepublish gate, rejects symlinked receipt leaves, strips non-allowlisted
+  subprocess environment variables, and verifies zero locked-mode fixture
+  mutations on every supported host.
+- Makes local smoke, prepublish, and networkless container verification pack and
+  install the exact `.dist/npm-package` artifact used by the publish workflow.
+- Keeps the Linux arm64 QEMU job as a bounded behavioral conformance gate while
+  labeling its timings non-gating; published startup budgets remain enforced on
+  native runners, avoiding false failures from emulation overhead.
+- Keeps Windows verification shell-free by invoking npm's JavaScript entrypoint
+  through Node, and tests non-portable bundle names without asking Windows to
+  create paths its filesystem rejects before the safety validator can run.
+- Adds a tiny published CLI launcher that answers version-only invocations
+  before loading the full engine bundle, preserving the one-second cold-start
+  budget on slower Windows Node runtimes without weakening the gate.
+- Waits for interrupted verification subprocesses to close before reporting
+  their terminal error, so Windows releases process handles before fixture
+  cleanup begins instead of intermittently failing with `EBUSY`.
+- Serializes same-process skill-fitness writers before the existing
+  cross-process lock and atomically vacates token-owned locks before bounded,
+  non-recursive cleanup, closing a Windows release-contention gap without
+  weakening exact-route uniqueness or deleting unexpected files.
+
+### Packaging trust follow-up commits
+
+| Commit | Change |
+|---|---|
+| `80631837` | test: reproduce Trust Core artifact drift |
+| `bb306ebf` | fix: verify staged Trust Core artifact |
+
+### Architectural decision
+
+- The npm CLI remains the single core package. Integrations that are not needed
+  for offline diagnosis must be installed explicitly and are loaded only when
+  their feature is invoked with the `host-integration-code` capability. That
+  grant authorizes already-installed host code; `dynamic-install` remains a
+  separate capability and is not implied.
+- Source builds retain a full development shrinkwrap for reproducible `npm ci`;
+  pack, SBOM, clean-install, and trusted publish gates use a disposable stage
+  that substitutes the separately generated production shrinkwrap.
+- npm and GitHub release automation share one strict SemVer channel classifier;
+  prerelease public-state preservation is sourced from the release manifest,
+  not duplicated workflow string comparisons.
+
 ## v2.7.9 — 2026-08-08 — Published
 
 ### Final 2.7 stabilization

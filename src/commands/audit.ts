@@ -231,13 +231,13 @@ export function registerAuditCommand(program: Command, engine: MemoireEngine): v
     .option("--component <name>", "Audit only specs matching this name (case-insensitive substring)")
     .option("--json", "Output audit results as JSON")
     .action(async (opts: { wcag?: boolean; unused?: boolean; skillCompliance?: boolean; researchTraceability?: boolean; target?: string; component?: string; json?: boolean }) => {
-      await engine.init();
+      await engine.initReadOnly();
 
       // ── Research traceability audit ───────────────────────────────
       if (opts.researchTraceability) {
         const { buildTraceabilityReport } = await import("../research/traceability.js");
         const { loadPolicy } = await import("../app-quality/policy.js");
-        await engine.research.load();
+        await engine.research.load({ readOnly: true, projectRoot: engine.config.projectRoot });
         const specs = await engine.registry.getAllSpecs();
         const report = buildTraceabilityReport(specs, engine.research.getStore().findings);
         const policy = await loadPolicy(engine.config.projectRoot);

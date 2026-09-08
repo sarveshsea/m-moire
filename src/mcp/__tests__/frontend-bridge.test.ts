@@ -1,0 +1,14 @@
+import { afterEach, expect, it } from 'vitest';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { createMemoireMcpServer } from '../server.js';
+import { MemoireEngine } from '../../engine/core.js';
+import { configureExecutionPolicy,resetExecutionPolicyForTests } from '../../security/execution-policy.js';
+const cleanup:Array<()=>Promise<unknown>>=[];
+afterEach(async()=>{for(const fn of cleanup.reverse()) await fn();cleanup.length=0;resetExecutionPolicyForTests();});
+async function fixture(){const root=await mkdtemp(join(tmpdir(),'memi-frontend-mcp-'));cleanup.push(()=>rm(root,{recursive:true,force:true}));await writeFile(join(root,'Button.tsx'),'export function Button({disabled}:{disabled?:boolean}){return <button disabled={disabled}/>;}');configureExecutionPolicy({projectRoot:root});const server=await createMemoireMcpServer(new MemoireEngine({projectRoot:root}));const client=new Client({name:'frontend-bridge-test',version:'1'});const [a,b]=InMemoryTransport.createLinkedPair();await Promise.all([server.connect(a),client.connect(b)]);cleanup.push(()=>server.close(),()=>client.close());return client;}
+it('exposes bounded repository evidence through the actual locked MCP dispatcher',async()=>{const client=await fixture();expect((await client.listTools()).tools.map(t=>t.name)).toContain('prepare_frontend_brief');const result=await client.callTool({name:'prepare_frontend_brief',arguments:{intent:'Button',maxBytes:2048,designEvidence:{source:'figma',documentId:'synthetic',nodeId:'button',mappings:[{path:'Button.tsx',exportName:'Button'}]}}});expect(result.isError).not.toBe(true);const text=(result.content as Array<{text:string}>)[0].text;expect(Buffer.byteLength(text)).toBeLessThanOrEqual(2048);expect(JSON.parse(text).mappings[0].mustReuse).toBe(true);});
+it('does not let a caller replace the workspace or supply a verification verdict',async()=>{const client=await fixture();for(const args of [{intent:'Button',projectRoot:'/private'},{intent:'Button',designEvidence:{source:'paper',documentId:'x',nodeId:'x',verification:{status:'passed'},mappings:[]}}]){const result=await client.callTool({name:'prepare_frontend_brief',arguments:args});expect(result.isError).toBe(true);}});

@@ -280,6 +280,8 @@ export class MemoireWsServer extends EventEmitter {
       pending.reject(new Error("Server shutting down"));
       this.pendingCommands.delete(id);
     }
+    // A stopped server may be started again; no rejected read remains in flight.
+    this.inFlightMethods.clear();
 
     if (this.wss) {
       for (const client of this.clients.values()) {

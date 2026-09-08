@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 /**
  * End-to-end pipeline test — init → auto-spec → generate → verify output.
  *
@@ -25,6 +26,7 @@ afterAll(() => process.setMaxListeners(originalMax));
 
 beforeEach(async () => {
   testDir = join(tmpdir(), `memoire-e2e-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  configureExecutionPolicy({ projectRoot: testDir, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   await mkdir(testDir, { recursive: true });
 
   engine = new MemoireEngine({ projectRoot: testDir });
@@ -33,6 +35,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  resetExecutionPolicyForTests();
   engine.removeAllListeners();
   await rm(testDir, { recursive: true, force: true });
 });

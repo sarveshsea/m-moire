@@ -9,6 +9,7 @@
  * not proportional speedup.
  */
 
+import { getExecutionPolicy } from "../security/execution-policy.js";
 import { execFile } from "node:child_process";
 
 export interface GitScopeOptions {
@@ -27,6 +28,7 @@ export interface GitScope {
 }
 
 function git(args: string[], cwd: string): Promise<string> {
+  getExecutionPolicy().assert("shell", "resolve changed files with git");
   return new Promise((resolve, reject) => {
     execFile("git", args, { cwd, encoding: "utf-8", maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) {
@@ -45,6 +47,7 @@ function git(args: string[], cwd: string): Promise<string> {
  * in CI), this throws with a fix hint instead of returning an empty scope.
  */
 export async function resolveGitScope(options: GitScopeOptions): Promise<GitScope> {
+  getExecutionPolicy().assert("shell", "resolve changed files with git");
   const { projectRoot, base } = options;
 
   let mergeBase: string;

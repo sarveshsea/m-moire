@@ -200,7 +200,21 @@ export abstract class AbstractJsonLineDriver extends BaseHarnessDriver {
       return;
     }
 
-    const obj = parsed as Record<string, unknown>;
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      this.emitDiagnostic(stream === "stderr" ? "error" : "warn", `invalid object frame from ${this.binding().processName}`);
+      return;
+    }
+
+    try {
+      this.handleFrame(parsed as Record<string, unknown>, stream);
+    } catch {
+      // Provider frames are untrusted; a malformed ID or value must not
+      // escape the transport listener or prevent subsequent valid frames.
+      this.emitDiagnostic(stream === "stderr" ? "error" : "warn", `invalid event frame from ${this.binding().processName}`);
+    }
+  }
+
+  private handleFrame(obj: Record<string, unknown>, stream: "stdout" | "stderr"): void {
     const binding = this.binding();
     const tag = String(obj[binding.discriminatorField] ?? "");
     const result = binding.emit(this, tag, obj);
@@ -209,7 +223,7 @@ export abstract class AbstractJsonLineDriver extends BaseHarnessDriver {
       this.emitDiagnostic(
         stream === "stderr" ? "error" : "warn",
         `unknown ${binding.processName} event ${binding.discriminatorField}: ${tag}`,
-        parsed,
+        obj,
       );
     }
   }
@@ -306,6 +320,7 @@ export function defaultCodexShapedEmit(
   tag: string,
   raw: Record<string, unknown>,
 ): "handled" | "unknown" {
+  if (!Object.prototype.hasOwnProperty.call(codexShapedEmit, tag)) return "unknown";
   const handler = (codexShapedEmit as Record<string, (s: AbstractJsonLineDriver, r: Record<string, unknown>) => void>)[tag];
   if (!handler) return "unknown";
   handler(self, raw);

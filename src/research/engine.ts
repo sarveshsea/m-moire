@@ -9,8 +9,9 @@
  */
 
 import { createHash } from "crypto";
-import { mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
-import { join } from "path";
+import { lstat, mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
+import { readContainedSource } from "../security/contained-source.js";
+import { isAbsolute, join, relative, sep } from "path";
 import type { MemoireEvent } from "../engine/core.js";
 import { createLogger } from "../engine/logger.js";
 import type { StickyNote } from "../figma/bridge.js";
@@ -328,7 +329,11 @@ export class ResearchEngine {
     this.config = config;
   }
 
-  async load(): Promise<void> {
+  async load(options?: { readOnly: true; projectRoot: string }): Promise<void> {
+    if (options?.readOnly) {
+      await this.loadReadOnly(options.projectRoot);
+      return;
+    }
     await mkdir(this.config.outputDir, { recursive: true });
 
     const storePath = join(this.config.outputDir, STORE_FILENAME);
@@ -356,6 +361,32 @@ export class ResearchEngine {
       this.refreshComputedState();
       this.syncCounters();
     }
+  }
+
+  /** Inspect bounded project-owned research without initialization or migration writes. */
+  private async loadReadOnly(projectRoot: string): Promise<void> {
+    const read = async (filename: string): Promise<string | undefined> => {
+      const path = join(this.config.outputDir, filename);
+      const relativePath = relative(projectRoot, path);
+      const reference = relativePath.split(sep).join("/");
+      if (isAbsolute(relativePath) || reference.split("/").includes("..") || reference.includes("\\") || reference.includes("\0")) {
+        throw new Error("Cannot safely read research metadata: outside-workspace");
+      }
+      try { await lstat(path); }
+      catch (error) {
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+        throw new Error("Cannot safely read research metadata");
+      }
+      const source = await readContainedSource(projectRoot, reference, 1_048_576);
+      if (!source.ok) throw new Error(`Cannot safely read research metadata: ${source.reason}`);
+      return source.content;
+    };
+    const current = await read(STORE_FILENAME);
+    const legacy = current === undefined ? await read(LEGACY_STORE_FILENAME) : undefined;
+    this.store = current !== undefined ? normalizeResearchStore(JSON.parse(current))
+      : legacy !== undefined ? migrateLegacyStore(JSON.parse(legacy)) : createEmptyStore();
+    this.refreshComputedState();
+    this.syncCounters();
   }
 
   async fromStickies(stickies: StickyNote[]): Promise<ParsedResearch> {

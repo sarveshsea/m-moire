@@ -119,6 +119,7 @@ runs:
       id: design-ci
       shell: bash
       env:
+        INPUT_VERSION: "${{ inputs.version }}"
         DO_NOT_TRACK: "1"
         MEMI_TELEMETRY_DISABLED: "1"
         INPUT_FAIL_ON: "${{ inputs['fail-on'] }}"
@@ -128,7 +129,14 @@ runs:
       run: |
         set -euo pipefail
 
-        args=(ci)
+        # 2.8 gates report persistence and Git execution explicitly. Installing
+        # this CI action opts into these local effects, without network grants.
+        IFS=. read -r version_major version_minor version_rest <<< "$INPUT_VERSION"
+        args=()
+        if (( 10#$version_major > 2 || (10#$version_major == 2 && 10#$version_minor >= 8) )); then
+          args+=(--profile connected --allow project-write --allow source-content-persistence --allow shell)
+        fi
+        args+=(ci)
         [[ -n "$INPUT_FAIL_ON" ]] && args+=(--fail-on "$INPUT_FAIL_ON")
         [[ -n "$INPUT_BASE" ]] && args+=(--base "$INPUT_BASE")
         [[ "$INPUT_REPORT" == "true" ]] && args+=(--report)

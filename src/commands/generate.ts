@@ -1,3 +1,5 @@
+import { getExecutionPolicy } from "../security/execution-policy.js";
+import { assertSourceOutput } from "../security/source-output.js";
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import type { CodegenResult, Finding } from "../codegen/generator.js";
@@ -44,24 +46,28 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
     .description("Generate code from a spec (or all specs if no name given)")
     .option("-a, --all", "Generate all specs")
     .option("--json", "Output generate results as JSON")
+    .option("--critique", "Request optional AI layout critique (requires an explicit network grant)")
     .option("--preview", "Show generated code diff without writing files")
     .option("--no-stories", "Skip Storybook story generation")
     .option("--framework <framework>", "Output framework: react (default), vue, svelte")
     .option("-f, --force", "Write files despite critical quality-gate findings")
     .option("--strict-skill-compliance", "Promote atomic/motion skill-compliance findings to critical (blocking) severity")
-    .action(async (specName: string | undefined, opts: { all?: boolean; json?: boolean; preview?: boolean; stories?: boolean; framework?: string; force?: boolean; strictSkillCompliance?: boolean }) => {
+    .action(async (specName: string | undefined, opts: { all?: boolean; json?: boolean; preview?: boolean; critique?: boolean; stories?: boolean; framework?: string; force?: boolean; strictSkillCompliance?: boolean }) => {
       const startedAt = Date.now();
       const generateAll = Boolean(opts.all || !specName);
       const force = opts.force === true;
 
       try {
-        await engine.init();
+        if (!opts.preview) await assertSourceOutput(engine.config.projectRoot);
+        if (opts.critique) getExecutionPolicy().assert("network", "request an AI layout critique");
+        await engine.initReadOnly();
         // Policy can promote skill-compliance findings to blocking severity;
         // the CLI flag is the per-run override on top of it.
         const { loadPolicy } = await import("../app-quality/policy.js");
         const policy = await loadPolicy(engine.config.projectRoot);
         // Apply --no-stories flag — Commander's --no-X flags set opts.X to false
         engine.codegen.setOptions({
+          layoutCritique: opts.critique === true,
           noStories: opts.stories === false,
           framework: (opts.framework as "react" | "vue" | "svelte") || "react",
           strictSkillCompliance: opts.strictSkillCompliance === true || policy.skillComplianceSeverity === "critical",
@@ -243,7 +249,7 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
             elapsedMs: Date.now() - startedAt,
           });
 
-          if (anyBlocked) process.exitCode = 1;
+          if (anyBlocked || payload.summary.failed > 0) process.exitCode = 1;
 
           if (opts.json) {
             console.log(JSON.stringify(payload, null, 2));

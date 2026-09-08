@@ -10,6 +10,10 @@ context:
 
 # /figma-use — Foundational Figma Canvas Skill
 
+## 2.8 beta scope
+
+This is optional reference guidance, not an automatic Memi workflow. Figma tool names and canvas examples require an installed external provider and the host's authorization; locked Memi MCP does not expose them. Deferred CLI commands remain unavailable even with capability grants. For supported local context, use `memi --profile locked agent brief . --json`; for static frontend inspection, use `memi --profile locked diagnose . --no-write --json --fail-on none`. Neither command certifies the external workflow below.
+
 > Base skill for all Figma operations. Teaches agents how Figma works — structure, Auto Layout, variables, MCP tools, and the mandatory self-healing loop. Load this before any /figma-* skill.
 
 ## Freedom Level: High

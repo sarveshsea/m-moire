@@ -128,7 +128,7 @@ function buildEvidenceCommands(input: {
   intent: string;
   mode: DesignAgentBriefMode;
 }): DesignAgentBriefCommand[] {
-  const targetArg = input.target;
+  const targetArg = shellArgument(input.target);
   const commands: DesignAgentBriefCommand[] = [
     {
       id: "diagnose",
@@ -177,7 +177,7 @@ function buildEvidenceCommands(input: {
   if (isUrl(input.target)) {
     commands.push({
       id: "design-doc",
-      command: `memi design-doc ${input.target} --spec`,
+      command: `memi design-doc ${targetArg} --spec`,
       why: "Extract route-level design-system evidence and a spec from the public surface.",
       cost: "model-optional",
     });
@@ -193,7 +193,7 @@ function buildEvidenceCommands(input: {
       },
       {
         id: "research-design",
-        command: `memi research design --intent ${JSON.stringify(input.intent)} --write-specs --mermaid-jam --json`,
+        command: `memi research design --intent ${shellArgument(input.intent)} --write-specs --mermaid-jam --json`,
         why: "Turn research into Atomic Design specs and FigJam-ready planning source.",
         cost: "model-optional",
       },
@@ -245,4 +245,10 @@ function isUrl(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** POSIX shell recipe rendering: JSON quoting still executes $() and backticks. */
+function shellArgument(value: string): string {
+  if (/^[A-Za-z0-9_./:@%+=,-]+$/.test(value)) return value;
+  return "'" + value.replace(/'/g, "'\"'\"'") + "'";
 }

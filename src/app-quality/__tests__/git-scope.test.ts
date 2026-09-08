@@ -1,3 +1,4 @@
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 import { afterEach, describe, expect, it } from "vitest";
 import { execFile } from "node:child_process";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
@@ -10,6 +11,7 @@ const execFileAsync = promisify(execFile);
 const temporaryDirectories: string[] = [];
 
 afterEach(async () => {
+  resetExecutionPolicyForTests();
   await Promise.all(temporaryDirectories.splice(0).map((directory) =>
     rm(directory, { recursive: true, force: true }),
   ));
@@ -71,6 +73,7 @@ describe("git audit scope", () => {
 async function makeRepository(): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), "memi-git-scope-"));
   temporaryDirectories.push(root);
+  configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["shell"] });
   await mkdir(join(root, "src"), { recursive: true });
   await git(root, "init", "-b", "main");
   await git(root, "config", "user.name", "Memi Test");
