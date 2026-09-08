@@ -2,9 +2,10 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { existsSync, realpathSync } from "node:fs";
 import { readdir, stat, readFile, writeFile } from "node:fs/promises";
-import { basename, join, relative, resolve, sep } from "node:path";
+import { basename, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { readContainedSource } from "../security/contained-source.js";
 import { spawnPortable } from "../utils/subprocess.js";
 import { buildHarnessCommand, clearHarnessProbeCaches, harnessProbeCacheAgeMs, listHarnesses } from "./harnesses.js";
 import { loadStudioConfig, saveStudioConfig } from "./config.js";
@@ -52,7 +53,7 @@ import {
   updateDesignChangelogEntry,
 } from "./design-changelog.js";
 import { acceptDesignAuditBaseline, getLatestDesignAudit, runDesignAudit } from "./design-audit-store.js";
-import { captureStudioAttachment, getStudioAttachment } from "./attachment-store.js";
+import { captureStudioAttachment, getStudioAttachment, readStudioAttachmentBytes } from "./attachment-store.js";
 import { readResolvedAsset } from "./design-system-resolver.js";
 import { shouldCaptureDesignSystemArtifactEvent } from "./design-system-artifacts.js";
 import { collectDesignSystemTrace } from "./design-system-trace.js";
@@ -1126,7 +1127,7 @@ export class StudioRuntimeServer {
         this.sendJSON(res, 200, await analyzeMarkdownForFigJam({
           projectRoot: this.projectRoot,
           sourcePath: body.sourcePath,
-          source: body.source,
+          source: await this.readMarkdownInput(body),
         }));
       } catch (error) {
         const statusCode = typeof (error as { statusCode?: unknown }).statusCode === "number"
@@ -1143,7 +1144,7 @@ export class StudioRuntimeServer {
         const analysis = await analyzeMarkdownForFigJam({
           projectRoot: this.projectRoot,
           sourcePath: body.sourcePath,
-          source: body.source,
+          source: await this.readMarkdownInput(body),
         });
         this.sendJSON(res, 200, {
           status: analysis.status,
@@ -1295,7 +1296,7 @@ export class StudioRuntimeServer {
 
     if (req.method === "POST" && url.pathname === "/api/attachments/capture") {
       try {
-        const body = await readJSON<StudioAttachmentCaptureRequest>(req);
+        const body = await readJSON<StudioAttachmentCaptureRequest>(req, 12_000_000);
         this.sendJSON(res, 200, { attachment: await captureStudioAttachment(this.projectRoot, body) });
       } catch (error) {
         this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
@@ -1305,17 +1306,29 @@ export class StudioRuntimeServer {
 
     const attachmentMatch = url.pathname.match(/^\/api\/attachments\/([^/]+)$/);
     if (req.method === "GET" && attachmentMatch) {
-      const attachment = await getStudioAttachment(this.projectRoot, decodeURIComponent(attachmentMatch[1]));
-      if (!attachment) {
-        this.sendJSON(res, 404, { error: `Unknown attachment: ${decodeURIComponent(attachmentMatch[1])}` });
+      try {
+        const attachment = await getStudioAttachment(this.projectRoot, decodeURIComponent(attachmentMatch[1]));
+        if (!attachment) {
+          this.sendJSON(res, 404, { error: `Unknown attachment: ${decodeURIComponent(attachmentMatch[1])}` });
+          return;
+        }
+        if (url.searchParams.get("raw") === "1" && attachment.path) {
+          const bytes = await readStudioAttachmentBytes(this.projectRoot, attachment);
+          const safeMime = /^(?:image\/(?:png|jpeg|gif|webp)|text\/plain)$/.test(attachment.mimeType)
+            ? attachment.mimeType : "application/octet-stream";
+          res.writeHead(200, {
+            "content-type": safeMime,
+            "x-content-type-options": "nosniff",
+            ...(safeMime === "application/octet-stream" ? { "content-disposition": "attachment" } : {}),
+          });
+          res.end(bytes);
+          return;
+        }
+        this.sendJSON(res, 200, { attachment });
         return;
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
       }
-      if (url.searchParams.get("raw") === "1" && attachment.path) {
-        res.writeHead(200, { "content-type": attachment.mimeType || "application/octet-stream" });
-        res.end(await readFile(attachment.path));
-        return;
-      }
-      this.sendJSON(res, 200, { attachment });
       return;
     }
 
@@ -1483,7 +1496,11 @@ export class StudioRuntimeServer {
     }
 
     if (req.method === "GET" && url.pathname === "/api/workspace") {
-      await this.handleWorkspace(url, res);
+      try {
+        await this.handleWorkspace(url, res);
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
       return;
     }
 
@@ -1562,6 +1579,29 @@ export class StudioRuntimeServer {
     });
   }
 
+  private async readWorkspaceSource(path: string): Promise<string> {
+    const config = await this.getConfig();
+    const requested = resolve(path);
+    const root = config.workspaceRoots.find(candidate => isInWorkspace(requested, [candidate]));
+    if (!root) throw Object.assign(new Error("Source path is not allowed"), { statusCode: 403 });
+    const result = await readContainedSource(root, relative(resolve(root), requested).split(sep).join("/"), 10_000_000);
+    if (!result.ok) throw Object.assign(new Error("Source is not a contained readable file"), { statusCode: 403 });
+    return result.content;
+  }
+
+  private async readMarkdownInput(body: { sourcePath?: string; source?: string }): Promise<string> {
+    if (body.source !== undefined) {
+      if (typeof body.source !== "string" || Buffer.byteLength(body.source) > 10_000_000) {
+        throw Object.assign(new Error("Invalid or oversized markdown source"), { statusCode: 400 });
+      }
+      return body.source;
+    }
+    if (body.sourcePath !== undefined && typeof body.sourcePath !== "string") {
+      throw Object.assign(new Error("Invalid markdown source path"), { statusCode: 400 });
+    }
+    return this.readWorkspaceSource(resolve(this.projectRoot, body.sourcePath ?? "inline.md"));
+  }
+
   private async handleWorkspace(url: URL, res: ServerResponse): Promise<void> {
     const config = await this.getConfig();
     const requested = resolve(url.searchParams.get("path") ?? this.projectRoot);
@@ -1575,7 +1615,7 @@ export class StudioRuntimeServer {
         path: requested,
         type: "file",
         name: basename(requested),
-        content: await readFile(requested, "utf-8"),
+        content: await this.readWorkspaceSource(requested),
       });
       return;
     }
@@ -2199,9 +2239,22 @@ function waitForChildShutdown(child: ChildProcessWithoutNullStreams): Promise<vo
   });
 }
 
-async function readJSON<T>(req: IncomingMessage): Promise<T> {
+async function readJSON<T>(req: IncomingMessage, maxBytes = Number.POSITIVE_INFINITY): Promise<T> {
   const chunks: Buffer[] = [];
-  for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  let bytes = 0;
+  let exceeded = false;
+  for await (const chunk of req) {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    bytes += buffer.byteLength;
+    if (bytes > maxBytes) {
+      exceeded = true;
+      chunks.length = 0;
+    } else if (!exceeded) {
+      chunks.push(buffer);
+    }
+  }
+  // Drain oversized requests without retaining them, so callers receive JSON rather than a reset socket.
+  if (exceeded) throw Object.assign(new Error("Request exceeds byte limit"), { statusCode: 413 });
   const raw = Buffer.concat(chunks).toString("utf-8");
   if (!raw.trim()) return {} as T;
   return JSON.parse(raw) as T;
@@ -2254,7 +2307,7 @@ function isSubpath(path: string, root: string): boolean {
   const normalizedPath = canonicalPath(path);
   const normalizedRoot = canonicalPath(root);
   const rel = relative(normalizedRoot, normalizedPath);
-  return rel === "" || (!rel.startsWith("..") && !rel.includes(`..${sep}`) && rel !== "..");
+  return rel === "" || (!isAbsolute(rel) && !rel.startsWith("..") && !rel.includes(`..${sep}`) && rel !== "..");
 }
 
 function canonicalPath(path: string): string {

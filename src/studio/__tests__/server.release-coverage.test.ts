@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { mkdir, mkdtemp, readdir, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { StudioRuntimeServer } from "../server.js";
@@ -328,6 +328,8 @@ describe('Studio attachment request budget', () => {
     const response = await request('/api/attachments/capture', 'POST', { kind: 'text', name: 'too-large.txt', source: 'paste', mimeType: 'text/plain', text: 'Small source', padding: 'x'.repeat(12_000_001) });
     expect(response.status).toBe(413);
     expect(await response.json()).toMatchObject({ error: expect.stringContaining('byte limit') });
+    const index = await readFile(join(root, '.memoire', 'studio', 'attachments', 'index.json'), 'utf8').catch(() => '[]');
+    expect(index).not.toContain('too-large.txt');
     expect((await request('/api/config')).status).toBe(200);
   });
 });

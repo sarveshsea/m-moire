@@ -5,8 +5,15 @@ import { isAbsolute, relative, resolve } from "node:path";
 export type SourceReadOmission = "outside-workspace" | "symlink" | "file-byte-limit" | "unreadable" | "changed-file";
 export type ContainedSource = { ok: true; content: string } | { ok: false; reason: SourceReadOmission };
 
-/** Read a bounded regular file after checking the opened descriptor's authority. */
+export type ContainedBytes = { ok: true; bytes: Buffer } | { ok: false; reason: SourceReadOmission };
+
 export async function readContainedSource(rootPath: string, inputPath: string, maxBytes = 262_144, signal?: AbortSignal): Promise<ContainedSource> {
+  const result = await readContainedBytes(rootPath, inputPath, maxBytes, signal);
+  return result.ok ? { ok: true, content: result.bytes.toString("utf8") } : result;
+}
+
+/** Read a bounded regular file after checking the opened descriptor's authority. */
+export async function readContainedBytes(rootPath: string, inputPath: string, maxBytes = 262_144, signal?: AbortSignal): Promise<ContainedBytes> {
   assertSourceNotAborted(signal);
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 10_000_000) throw new Error("Invalid source byte limit");
   if (!inputPath || isAbsolute(inputPath) || inputPath.includes("\\") || inputPath.includes("\0")) {
@@ -48,7 +55,7 @@ export async function readContainedSource(rootPath: string, inputPath: string, m
         after.size !== opened.size || after.mtimeNs !== opened.mtimeNs || after.ctimeNs !== opened.ctimeNs ||
         afterName.isSymbolicLink() || afterName.dev !== opened.dev || afterName.ino !== opened.ino ||
         await realpath(candidate) !== canonical) return { ok: false, reason: "changed-file" };
-    return { ok: true, content: buffer.subarray(0, offset).toString("utf8") };
+    return { ok: true, bytes: buffer.subarray(0, offset) };
   } catch {
     assertSourceNotAborted(signal);
     return { ok: false, reason: "unreadable" };
