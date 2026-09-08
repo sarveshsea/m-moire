@@ -3,25 +3,22 @@
   "provenance": {
     "repository": "https://github.com/memi-design/memi",
     "path": "release-manifest.json",
-    "sourceCommit": "371be3d09edf770880cfec48f079b5423fa558be",
-    "sourceUrl": "https://raw.githubusercontent.com/memi-design/memi/371be3d09edf770880cfec48f079b5423fa558be/release-manifest.json",
-    "manifestSha256": "d3df03d6b0b59792663129157c21d74f63133096f14ea5b5538b3ea758208f0a"
+    "sourceCommit": "575db72859e85ecefb1ed8599f0a1fe60f840748",
+    "sourceUrl": "https://raw.githubusercontent.com/memi-design/memi/575db72859e85ecefb1ed8599f0a1fe60f840748/release-manifest.json",
+    "manifestSha256": "9d9dd9c02226158def50dba2157a23eba1410cd11d3461842e1688bfa3f48714"
   },
   "orchestration": {
     "schemaVersion": 1,
     "updatedAt": "2026-09-08",
     "releaseGroups": {
       "engine": {
-        "version": "2.8.0-beta.1",
-        "state": "published",
-        "sourceCommit": "71d17ecb8b44a39d81e18a831155eb010779bdfe",
-        "releaseRecord": {
-          "path": "release-artifacts/npm/2.8.0-beta.1.release.json",
-          "sha256": "2d5b4713c99b65faf933c62338b496d880f11c05f2fdc7574467681ffe9a064e"
-        },
+        "version": "2.8.0-beta.2",
+        "state": "candidate",
+        "sourceCommit": null,
+        "releaseRecord": null,
         "verification": {
           "eligibleForParity": false,
-          "reason": "npm publish provenance is recorded; independent public-surface parity verification is pending"
+          "reason": "Beta2 candidate: Windows native package-path correction and macOS arm64 output investigation require fresh artifact validation. Beta1 remains published on npm; stable remains 2.7.9."
         },
         "previousPublicRelease": {
           "version": "2.7.9",
@@ -53,7 +50,7 @@
         "releaseGroup": "engine",
         "repository": "memi-design/memi",
         "tagPrefix": "v",
-        "url": "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.1"
+        "url": "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.2"
       },
       "githubAction": {
         "releaseGroup": "engine",
@@ -81,13 +78,13 @@
     }
   },
   "publicTruth": {
-    "source": "currentRelease",
+    "source": "previousPublicRelease",
     "engine": {
-      "version": "2.8.0-beta.1",
-      "sourceCommit": "71d17ecb8b44a39d81e18a831155eb010779bdfe",
+      "version": "2.7.9",
+      "sourceCommit": "5fcbf39e1255af0c14c5a17ba6bde8cf1206e525",
       "packageName": "@memi-design/cli",
       "npmUrl": "https://www.npmjs.com/package/@memi-design/cli",
-      "githubReleaseUrl": "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.1"
+      "githubReleaseUrl": "https://github.com/memi-design/memi/releases/tag/v2.7.9"
     }
   },
   "release": {
@@ -95,25 +92,18 @@
     "updatedAt": "2026-09-08",
     "releaseGroups": {
       "engine": {
-        "version": "2.8.0-beta.1",
-        "state": "published",
-        "sourceCommit": "71d17ecb8b44a39d81e18a831155eb010779bdfe",
+        "version": "2.7.9",
+        "state": "historical",
+        "sourceCommit": "5fcbf39e1255af0c14c5a17ba6bde8cf1206e525",
         "releaseRecord": {
-          "path": "release-artifacts/npm/2.8.0-beta.1.release.json",
-          "sha256": "2d5b4713c99b65faf933c62338b496d880f11c05f2fdc7574467681ffe9a064e"
+          "path": "release-artifacts/npm/2.7.9.release.json",
+          "sha256": "a04c63335fae7c7a1a2ac57d387a8647471742024c42e486159db4c0f1e78d0c"
         },
         "verification": {
           "eligibleForParity": false,
-          "reason": "npm publish provenance is recorded; independent public-surface parity verification is pending"
+          "reason": "2.7.9 remains public while 2.8.0-beta.2 is an unpublished candidate"
         },
-        "previousPublicRelease": {
-          "version": "2.7.9",
-          "sourceCommit": "5fcbf39e1255af0c14c5a17ba6bde8cf1206e525",
-          "releaseRecord": {
-            "path": "release-artifacts/npm/2.7.9.release.json",
-            "sha256": "a04c63335fae7c7a1a2ac57d387a8647471742024c42e486159db4c0f1e78d0c"
-          }
-        }
+        "plannedSuccessor": "2.8.0-beta.2"
       },
       "studio": {
         "version": "2.5.0",
@@ -136,7 +126,7 @@
         "releaseGroup": "engine",
         "repository": "memi-design/memi",
         "tagPrefix": "v",
-        "url": "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.1"
+        "url": "https://github.com/memi-design/memi/releases/tag/v2.7.9"
       },
       "githubAction": {
         "releaseGroup": "engine",

@@ -9,7 +9,7 @@ branding:
 
 inputs:
   version:
-    description: "Exact @memi-design/cli version. Defaults to the reviewed 2.7.9 stable pin; ranges and dist-tags are rejected."
+    description: "Exact @memi-design/cli version. Defaults to the reviewed 2.7.9 pin; ranges and dist-tags are rejected."
     required: false
     default: "2.7.9"
   fail-on:

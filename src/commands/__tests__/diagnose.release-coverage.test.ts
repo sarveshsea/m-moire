@@ -10,7 +10,7 @@ import { buildBaseline } from "../../app-quality/baseline.js";
 import { entryFromDiagnosis } from "../../app-quality/history.js";
 let root: string;
 let log: ReturnType<typeof vi.spyOn>;
-beforeEach(async () => { root = await mkdtemp(join(tmpdir(), "memi-diagnose-release-")); configureExecutionPolicy({ projectRoot: root }); log = vi.spyOn(console, "log").mockImplementation(() => {}); });
+beforeEach(async () => { root = await mkdtemp(join(tmpdir(), "memi-diagnose-release-")); configureExecutionPolicy({ projectRoot: root }); log = vi.spyOn(console, "log").mockImplementation(() => {}); vi.spyOn(process.stdout, "write").mockImplementation(((chunk: unknown, callback?: (error?: Error | null) => void) => { console.log(String(chunk).replace(/\n$/, "")); callback?.(); return true; }) as typeof process.stdout.write); });
 afterEach(async () => { process.exitCode = 0; vi.unstubAllEnvs(); vi.restoreAllMocks(); resetExecutionPolicyForTests(); await rm(root, { recursive: true, force: true }); });
 async function file(path: string, content: string) { const { dirname } = await import("node:path"); await mkdir(dirname(join(root, path)), { recursive: true }); await writeFile(join(root, path), content); }
 async function debt() { await file("src/Page.tsx", 'export function Page(){return <div className="bg-[#123456] text-[#abcdef] border-[#343434] shadow-[#555555] outline-[#454545]"><button className="p-1">Go</button><input /></div>}'); }

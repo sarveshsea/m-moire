@@ -8,12 +8,17 @@ import { vi } from "vitest";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
-/** Capture all console.log calls into a string array. Silences console.error. */
+/** Capture console and awaited JSON stdout writes. Silences console.error. */
 export function captureLogs(): string[] {
   const logs: string[] = [];
   vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {
     logs.push(args.join(" "));
   });
+  vi.spyOn(process.stdout, "write").mockImplementation(((chunk: unknown, callback?: (error?: Error | null) => void) => {
+    logs.push(String(chunk).replace(/\n$/, ""));
+    callback?.();
+    return true;
+  }) as typeof process.stdout.write);
   vi.spyOn(console, "error").mockImplementation(() => {});
   return logs;
 }

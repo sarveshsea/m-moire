@@ -10,9 +10,9 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 Beta2 is not published. npm `next` still provides beta1 and `latest` remains 2.7.9; beta1’s immutable npm bytes, record and tag are preserved.
 
-- Prepare the native Windows package-path correction; regression and packed-native validation are pending.
-- Investigate truncated macOS arm64 JSON output; a complete-output regression and fresh native verification are required before claiming resolution.
-- Keep corrected native downloads gated on the new artifact. Beta1 npm publication does not establish native-binary success.
+- Resolve Bun virtual package paths on Windows and share that detection with the logger, so native commands find their sidecars and avoid an unsupported pretty-logging transport. Focused regressions pass; fresh native platform validation remains required.
+- Await complete JSON writes for `diagnose` and `agent brief`, including frontend, ordinary and error brief results, while preserving payloads and newlines and handling stream failures. The former 8,192-byte truncation reproduces under Node 20; corrected diagnosis and 25 KB brief runs pass locally. Other commands are outside this correction.
+- Require five native compiled-package checks before publication and retain the native release checks before upload. Add a bounded npm metadata visibility wait before the single signature-verification install; publication is never retried. Beta1 npm publication does not establish native-binary success.
 
 ## v2.8.0-beta.1 — 2026-09-08 — Published beta
 
