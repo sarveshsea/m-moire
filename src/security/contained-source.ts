@@ -6,7 +6,8 @@ export type SourceReadOmission = "outside-workspace" | "symlink" | "file-byte-li
 export type ContainedSource = { ok: true; content: string } | { ok: false; reason: SourceReadOmission };
 
 /** Read a bounded regular file after checking the opened descriptor's authority. */
-export async function readContainedSource(rootPath: string, inputPath: string, maxBytes = 262_144): Promise<ContainedSource> {
+export async function readContainedSource(rootPath: string, inputPath: string, maxBytes = 262_144, signal?: AbortSignal): Promise<ContainedSource> {
+  assertSourceNotAborted(signal);
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 10_000_000) throw new Error("Invalid source byte limit");
   if (!inputPath || isAbsolute(inputPath) || inputPath.includes("\\") || inputPath.includes("\0")) {
     return { ok: false, reason: "outside-workspace" };
@@ -14,6 +15,7 @@ export async function readContainedSource(rootPath: string, inputPath: string, m
   let handle: FileHandle | undefined;
   try {
     const root = await realpath(rootPath);
+    assertSourceNotAborted(signal);
     const candidate = resolve(root, inputPath);
     if (!within(root, candidate)) return { ok: false, reason: "outside-workspace" };
     const named = await lstat(candidate, { bigint: true });
@@ -33,6 +35,7 @@ export async function readContainedSource(rootPath: string, inputPath: string, m
     const buffer = Buffer.alloc(maxBytes + 1);
     let offset = 0;
     while (offset < buffer.length) {
+      assertSourceNotAborted(signal);
       const { bytesRead } = await handle.read(buffer, offset, buffer.length - offset, offset);
       if (bytesRead === 0) break;
       offset += bytesRead;
@@ -40,11 +43,14 @@ export async function readContainedSource(rootPath: string, inputPath: string, m
     if (offset > maxBytes) return { ok: false, reason: "file-byte-limit" };
     const after = await handle.stat({ bigint: true });
     const afterName = await lstat(candidate, { bigint: true });
-    if (after.size !== opened.size || after.mtimeNs !== opened.mtimeNs || after.ctimeNs !== opened.ctimeNs ||
+    assertSourceNotAborted(signal);
+    if (after.dev !== opened.dev || after.ino !== opened.ino || after.nlink !== 1n || afterName.nlink !== 1n ||
+        after.size !== opened.size || after.mtimeNs !== opened.mtimeNs || after.ctimeNs !== opened.ctimeNs ||
         afterName.isSymbolicLink() || afterName.dev !== opened.dev || afterName.ino !== opened.ino ||
         await realpath(candidate) !== canonical) return { ok: false, reason: "changed-file" };
     return { ok: true, content: buffer.subarray(0, offset).toString("utf8") };
   } catch {
+    assertSourceNotAborted(signal);
     return { ok: false, reason: "unreadable" };
   } finally {
     await handle?.close();
@@ -54,4 +60,8 @@ export async function readContainedSource(rootPath: string, inputPath: string, m
 function within(root: string, file: string): boolean {
   const part = relative(root, file);
   return part !== "" && part !== ".." && !part.startsWith("../") && !part.startsWith("..\\") && !isAbsolute(part);
+}
+
+function assertSourceNotAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) { const error = new Error("Source read cancelled."); error.name = "AbortError"; throw error; }
 }

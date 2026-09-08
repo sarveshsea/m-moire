@@ -1,7 +1,7 @@
-import { constants } from 'node:fs';
-import { lstat, open, readdir, realpath } from 'node:fs/promises';
+import { lstat, readdir, realpath } from 'node:fs/promises';
 import { extname, join, relative, resolve, sep } from 'node:path';
 import { fingerprint } from './evidence.js';
+import { readContainedSource } from '../security/contained-source.js';
 import type { FrontendOmission } from './types.js';
 export const SOURCE_LIMITS = { maxFiles: 500, maxBytesPerFile: 750000, maxTotalBytes: 10000000 } as const;
 export interface FrontendSource { path: string; content: string; hash: string; }
@@ -51,27 +51,17 @@ export async function readFrontendSources(projectRoot: string, signal?: AbortSig
 }
 class SourceOmission extends Error { constructor(readonly reason: string) { super(reason); } }
 async function readBoundedSource(root: string, absolute: string, remaining: number, signal?: AbortSignal) {
-  const actual = await realpath(absolute);
-  if (actual !== absolute || !actual.startsWith(root + sep)) throw new SourceOmission('symlink');
-  const handle = await open(absolute, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
-  try {
-    const stat = await handle.stat({ bigint: true });
-    const current = await lstat(absolute, { bigint: true });
-    if (!stat.isFile() || stat.ino === 0n || stat.ino !== current.ino || stat.dev !== current.dev || current.isSymbolicLink() || await realpath(absolute) !== absolute) throw new SourceOmission('changed-file');
-    if (stat.size > BigInt(SOURCE_LIMITS.maxBytesPerFile)) throw new SourceOmission('file-byte-limit');
-    if (stat.size > BigInt(remaining)) throw new SourceOmission('total-byte-limit');
-    const buffer = Buffer.alloc(Number(stat.size) + 1);
-    let offset = 0;
-    while (offset < buffer.length) {
-      assertNotAborted(signal);
-      const { bytesRead } = await handle.read(buffer, offset, buffer.length - offset, offset);
-      if (!bytesRead) break;
-      offset += bytesRead;
-    }
-    const after = await handle.stat({ bigint: true });
-    if (offset !== Number(stat.size) || after.size !== stat.size || after.mtimeNs !== stat.mtimeNs) throw new SourceOmission('changed-file');
-    return { content: buffer.subarray(0, offset).toString('utf8') };
-  } finally { await handle.close(); }
+  assertNotAborted(signal);
+  const named = await lstat(absolute, { bigint: true });
+  if (named.isSymbolicLink()) throw new SourceOmission('symlink');
+  if (!named.isFile()) throw new SourceOmission('unreadable-file');
+  if (named.nlink !== 1n) throw new SourceOmission('hardlink');
+  if (named.size > BigInt(SOURCE_LIMITS.maxBytesPerFile)) throw new SourceOmission('file-byte-limit');
+  if (named.size > BigInt(remaining)) throw new SourceOmission('total-byte-limit');
+  const source = await readContainedSource(root, relative(root, absolute).split(sep).join('/'), Math.min(SOURCE_LIMITS.maxBytesPerFile, remaining), signal);
+  assertNotAborted(signal);
+  if (!source.ok) throw new SourceOmission(source.reason);
+  return { content: source.content };
 }
 
 export function assertNotAborted(signal?: AbortSignal): void {

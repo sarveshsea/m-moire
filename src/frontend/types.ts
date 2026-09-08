@@ -13,7 +13,7 @@ export interface FrontendMapping {
 }
 export interface FrontendBrief {
   schemaVersion: 'memi.frontend-brief.v1'; intent: string;
-  design: { source: 'figma' | 'paper'; documentId: string; nodeId: string; revision?: string; fingerprint: string; acquisition: 'host-supplied'; adapterVersion: '1'; } | null;
+  design: { source: 'figma' | 'paper'; documentId?: string; nodeId?: string; revision?: string; fingerprint: string; acquisition: 'host-supplied'; adapterVersion: '1'; } | null;
   components: FrontendComponent[]; tokens: FrontendToken[]; stories: FrontendStory[]; mappings: FrontendMapping[];
   scan: { complete: boolean; filesRead: number; bytesRead: number; fingerprint: string; };
   omissions: FrontendOmission[]; retrieval: string[]; unresolved: string[];

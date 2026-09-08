@@ -218,3 +218,11 @@ describe('frontend release security regressions', () => {
     expect(result.mappings[0].issues.join(' ')).toContain('secret: required prop missing');
   });
 });
+
+it('never substitutes truncated strings for design source identities when context is omitted', async () => {
+  const projectRoot = await fixture();
+  const result = await buildFrontendBrief({ projectRoot, intent: 'x'.repeat(1024), maxBytes: 2048, designEvidence: { ...design('paper'), documentId: 'a'.repeat(512), nodeId: 'b'.repeat(512), revision: 'c'.repeat(512) } });
+  expect(result.design?.documentId === undefined || result.design.documentId === 'a'.repeat(512)).toBe(true);
+  expect(result.design?.nodeId === undefined || result.design.nodeId === 'b'.repeat(512)).toBe(true);
+  expect(result.design?.revision === undefined || result.design.revision === 'c'.repeat(512)).toBe(true);
+});

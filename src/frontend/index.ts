@@ -52,6 +52,9 @@ function resolveMappings(evidence: DesignEvidence | undefined, components: Front
     }
     if (!component) issues.push('Mapped export is absent or unsupported in the current bounded repository scan.');
     if (component && mapping.sourceHash && component.sourceHash !== mapping.sourceHash) issues.push('Code fingerprint differs from the supplied mapping.');
+    for (const prop of component?.props ?? []) {
+      if (prop.required && !(prop.name in mapping.props)) issues.push(`${prop.name}: required prop missing.`);
+    }
     for (const [key, value] of Object.entries(mapping.props)) {
       const prop = component?.props.find(item => item.name === key);
       if (!prop) issues.push(`${key}: ${component?.propsComplete ? 'unsupported prop' : 'prop unassessed'}.`);
@@ -78,8 +81,8 @@ function boundBrief(input: FrontendBrief, maxBytes: number): FrontendBrief {
         brief = { ...brief, omissions: [{ path: '.', reason: 'context-budget' }], retrieval: ['.'], unresolved: ['Context omitted. Inspect source and resolve mappings before implementation; verification remains unassessed.'] };
         continue;
       }
-      if (brief.intent.length > 80 || (brief.design && (brief.design.documentId.length > 80 || brief.design.nodeId.length > 80 || (brief.design.revision?.length ?? 0) > 80))) {
-        brief = { ...brief, intent: brief.intent.slice(0, 80), design: brief.design ? { ...brief.design, documentId: brief.design.documentId.slice(0, 80), nodeId: brief.design.nodeId.slice(0, 80), revision: brief.design.revision?.slice(0, 80) } : null };
+      if (brief.intent.length > 80 || (brief.design && ((brief.design.documentId?.length ?? 0) > 80 || (brief.design.nodeId?.length ?? 0) > 80 || (brief.design.revision?.length ?? 0) > 80))) {
+        brief = { ...brief, intent: brief.intent.slice(0, 80), design: brief.design ? { source: brief.design.source, fingerprint: brief.design.fingerprint, acquisition: brief.design.acquisition, adapterVersion: brief.design.adapterVersion } : null };
         continue;
       }
       throw new Error('Brief metadata cannot fit the requested byte budget.');
