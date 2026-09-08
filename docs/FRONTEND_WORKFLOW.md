@@ -2,6 +2,14 @@
 
 This workflow requires a reviewed local build or installed candidate tarball. npm stable remains 2.7.9; do not try to install unpublished 2.8 from npm. From the Memi checkout, run `npm ci`, `npm run build`, and `npm run stage:package` for development. Use the packed-install smoke before treating that build as distribution evidence.
 
+## What changes from 2.7
+
+The 2.8 candidate adds a repository-aware evidence step before implementation. An agent can identify actual exports, props, tokens, and stories, associate selected host-supplied design context with an existing component, and see missing or conflicting evidence before editing. The four locked MCP tools expose this read workflow without starting the legacy integration surface. These are candidate capabilities; installing npm stable 2.7.9 does not enable them.
+
+The regression suites verify concrete corrections as well as new functionality: diagnosis separates assessed quality from incomplete scans, bounded readers reject unsafe file associations, malformed workflow frames no longer abort otherwise readable logs, and installed-note community validation returns a failing exit code in JSON mode. These checks establish their tested behavior, not whole-product security or successful completion of an arbitrary design task.
+
+The first packed frontend checks used source `2a6d0e44`. That artifact is now historical and superseded for release by subsequent defensive runtime fixes. Keep its receipts intact; rebuild and rerun packed checks on the corrected source before distributing it. The [verification record](trust/FRONTEND_2_8_VERIFICATION.md) separates artifact-bound results from later source tests. Full-source coverage, platform checks, independent review, and publication retain their separate gates.
+
 ## Start from the actual repository
 
 With the candidate `memi` executable available, run inside the consumer repository:
@@ -15,7 +23,7 @@ memi diagnose . --receipt-only --fail-on none
 
 The frontend brief reads bounded project inputs without executing repository code. It finds actual React/TypeScript exports and local props, CSS custom properties and scalar DTCG tokens, and CSF story references. Paths are relative to the selected project. It reports incomplete discovery, unresolved props, token modes, aliases, or story associations rather than inventing them. Story IDs inferred from static CSF are not proof that Storybook registered or rendered them. TypeScript path aliases, barrel resolution, inherited external props, and arbitrary dynamic expressions can remain unresolved.
 
-`diagnose --json` is source-bearing working context returned to the harness. `--receipt-only` is a separate metadata-only JSON output, including failures, and does not write reports. A score covers assessed categories only. Scan coverage, unsupported expressions, and omitted files must accompany any quality claim.
+`diagnose --json` is source-bearing working context returned to the harness. `--receipt-only` is a separate metadata-only JSON output, including failures, and does not write reports. A score covers assessed categories only; an unassessed score is `null`, and 100 means no findings in the assessed checks. Scan coverage, unsupported expressions, and omitted files must accompany any quality claim. Static literal classes in `cn`, `clsx`, and `cva` can be checked without executing JavaScript; dynamic expressions remain unknown. File, byte, traversal-entry, and depth limits can make discovery incomplete. Configured exclusions define the eligible scope; an eligible file omitted by a limit or read failure cannot count as successfully scanned.
 
 ## Connect Figma or Paper through the harness
 
@@ -64,7 +72,7 @@ Legacy tools are advertised only when every required capability is explicitly gr
 4. Rerun deterministic diagnosis and inspect the diff for new duplicate components.
 5. Report executed commands, source fingerprints, screenshots, and unresolved checks. The brief's `verification` stays `unassessed`; external test receipts provide separate evidence.
 
-The private [frontend fixture](https://github.com/memi-design/memi/tree/codex/2.8-frontend-engine/examples/frontend-workflow) uses real React and Storybook with a synthetic pre-existing component catalog, explicit mappings, and browser tests. Its results apply to that fixture and the pinned tool versions. It is not evidence that an arbitrary user repository passed.
+The repository [frontend fixture](https://github.com/memi-design/memi/tree/codex/2.8-frontend-engine/examples/frontend-workflow) uses real React and Storybook with a synthetic pre-existing component catalog, explicit mappings, and browser tests. Its results apply to that fixture and the pinned tool versions. It is not evidence that an arbitrary user repository passed.
 
 CI report generation intentionally writes source-bearing reports and may invoke Git:
 

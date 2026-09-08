@@ -15,10 +15,10 @@ The `codex/2.8-frontend-engine` branch extends the Trust Core baseline. These ar
 | Quality and receipts | Assessed categories separated from coverage; AST literal class extraction; scan omissions; metadata-only `--receipt-only` stdout including failure. | Source checks cannot establish rendered quality. |
 | Live design workflow | Real selected Figma node and token retrieved; native Code Connect unavailable so explicit checked-in mapping used. Disposable Paper file created/read through live MCP; both map to the same synthetic existing component. | Paper screenshot tool returned black images; no Paper pixel-parity pass. The fixture/browser results do not certify arbitrary projects. |
 | Cost/performance | Reproducible 500-file/20-story/100-token offline MCP benchmark; broad and narrow raw-input comparisons; no model calls. | Final artifact trials and native arm64 gate; no complete-task dollar or token savings claim. |
-| Full-source coverage | Meaningful command, integration and failure-path tests added without shrinking coverage scope. | Last intermediate snapshot: 69.23% statements, 62.63% branches, 77.41% functions, 70.43% lines. All four remain below 80%; refresh after final edits. |
+| Full-source coverage | Meaningful command, integration and failure-path tests added without shrinking coverage scope. | See the canonical [verification record](FRONTEND_2_8_VERIFICATION.md) for the latest measured source and coverage. All four 80% gates still apply; passing assertions alone does not satisfy them. |
 | Distribution | README, candidate recipes, MCP configurations and canonical skills updated with actual capability/availability distinctions. | Public package, native CI, parity and signed artifact gates remain blocking; do not update npm latest from local green tests. |
 
-See [frontend workflow](../FRONTEND_WORKFLOW.md), [fixture](../../examples/frontend-workflow/README.md), and the branch PR for current validation. Exact final artifact measurements belong in a separate verification record once run.
+See the [frontend workflow](../FRONTEND_WORKFLOW.md), [fixture](../../examples/frontend-workflow/README.md), and [PR #137](https://github.com/memi-design/memi/pull/137) for implementation scope. The [verification record](FRONTEND_2_8_VERIFICATION.md) is authoritative for measured source and artifact results. The original artifact at `2a6d0e44` is historical and superseded for release by subsequent defensive runtime corrections; its receipts cannot validate later bytes.
 
 ## Preserved Trust Core baseline audit
 
@@ -42,9 +42,9 @@ The following rows and observations describe the earlier PR #133 baseline and ar
 
 ## Cost and usefulness findings
 
-Local diagnosis and context selection do not need a paid model. Astra observed the synthetic starter scan at 5 files / 7,793 bytes and 14 ms of analysis, with a 3,782-byte context payload. This is one local source-tree observation, not a benchmark or a public artifact guarantee. The historical study did not establish end-to-end agent cost savings.
+Local diagnosis and context selection do not need a paid model. At the preserved Trust Core baseline, Astra observed the synthetic starter scan at 5 files / 7,793 bytes and 14 ms of analysis, with a 3,782-byte context payload. This is one local source-tree observation, not a benchmark or a public artifact guarantee. The historical study did not establish end-to-end agent cost savings.
 
-The starter returned zero findings but “usable but uneven” because unassessed categories lowered its score. A separate product change should distinguish assessed quality from missing evidence, then evaluate static `cn()`/`cva()` class extraction. Neither improvement is claimed as shipped here. Avoid making the next release larger before its existing permissions and packaging contract is proven.
+At that baseline, the starter returned zero findings but “usable but uneven” because unassessed categories lowered its score. The frontend candidate now separates assessed quality from missing evidence and extracts static literal classes in `cn`, `clsx`, and `cva` through AST analysis. Regression tests verify nullable unassessed scores, assessed-only verdicts, explicit scan omissions, and dynamic-expression unknowns. These are implemented candidate corrections, not changes to the published 2.7.9 artifact or proof of rendered quality. Comparative history also checks the scoring model and scan completeness before treating results as comparable.
 
 ## Release handling
 
@@ -52,16 +52,17 @@ Every engine change updates the changelog and generated preview. Every release c
 
 ## Local verification record
 
-The updated source suite passed all 2,447 tests. The source-wide coverage command
-exits nonzero because all four 80% thresholds fail; passing assertions does not
-mean passing the release gate. Source and artifact results are kept separate.
-The fresh-checkout baseline was 2,416 tests; newly exposed policy paths account
-for the additional regression work.
+Current test counts, coverage metrics, source checkpoints, and packed digests live
+in the [verification record](FRONTEND_2_8_VERIFICATION.md). The earlier baseline
+numbers above remain historical. Source-suite success and artifact validation
+are separate; later runtime fixes require a rebuilt package and renewed checks.
 
-A metadata receipt factory and explicit persisted receipt option exist, but the
-CLI's normal diagnosis output remains a useful source-bearing report, not a
-metadata-only receipt. Default stdout receipt behavior still needs a dedicated
-acceptance test and contract decision before claiming that requirement complete.
+The explicit `diagnose --receipt-only` contract is implemented and covered by
+privacy and failure-exit tests. It emits only metadata JSON, including failure
+receipts, without source, private paths, prompt strings, or default persistence.
+It is mutually exclusive with `--agent-context`. Normal diagnosis remains a
+useful source-bearing report; it does not become a metadata receipt merely by
+selecting `--json`. The metadata-only mode preserves configured failure gates.
 
 ## Public documentation changes
 

@@ -31,7 +31,8 @@ jobs:
           npx playwright install --with-deps chromium
       - run: npm run check:release
       - run: npm run lint
-      - run: npm test -- --run
+      - name: Full source tests and coverage
+        run: npm run test:core:coverage
       - run: npm run build
       - name: Verify plugin bundle version matches package.json
         run: |

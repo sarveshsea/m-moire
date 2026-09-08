@@ -2,7 +2,7 @@
 
 This is a development receipt, not a publication or security certification. [PR #137](https://github.com/memi-design/memi/pull/137) builds on the Trust Core candidate. npm `latest` was checked and remains **2.7.9**. All 13 public organization repositories were inspected for release claims; none described 2.8 as released. Website changelog freshness and the existing sandbox documentation PR remain separate public-surface work.
 
-## Frozen package
+## Historical package — superseded for release readiness
 
 Source checkpoint: `2a6d0e449743fc8ca59d9f209d48de56c5d7198b`.
 
@@ -12,7 +12,7 @@ Source checkpoint: `2a6d0e449743fc8ca59d9f209d48de56c5d7198b`.
 - Installed production tree: **55,883,130 bytes**; fresh install audited **zero vulnerabilities**.
 - Package budgets pass with the existing 10% compressed headroom rule; installed tree stays below 60 MB.
 
-Subsequent workflow, test, and harness-reference changes are not part of this tarball. A publication run must rebuild from its approved source and retain the new artifact digest. This locally retained tarball is not an npm or signed offline release.
+Subsequent workflow, test, harness-reference, and defensive runtime corrections are not part of this tarball. The attachment, renderer, read-only audit, and provider-frame fixes require a new package and replay before release readiness can be assessed. A publication run must rebuild from its approved source and retain the new artifact digest. This locally retained tarball is not an npm or signed offline release.
 
 ## Executed checks
 
@@ -26,7 +26,7 @@ Subsequent workflow, test, and harness-reference changes are not part of this ta
 | Real Storybook | Typecheck, production build and **17/17 Chromium tests** passed, with no skipped or flaky cases. Keyboard, focus, disabled/selected state, themes, and 320/1024 px viewports. [Browser summary](evidence/frontend-2.8/browser-summary.json). |
 | Mapping reuse | Figma and Paper envelopes resolve to the same unchanged `SideNavTab`; complete 11-file fixture scan, four story references, no duplicate export. [Receipt](evidence/frontend-2.8/installed-mapping.json). |
 
-The source suite was rerun after the frozen package build. No runtime change occurred between the package checkpoint and that run; later harness references and workflow trigger changes are recorded in Git. Candidate checker updates have separate focused tests and require remote CI before merge.
+These results describe the historical checkpoint only. Later runtime corrections supersede this artifact for release readiness. The next frozen package must repeat installed CLI, MCP, browser, budget, and platform checks; results from the earlier digest cannot certify new bytes.
 
 ## What the live tools established
 

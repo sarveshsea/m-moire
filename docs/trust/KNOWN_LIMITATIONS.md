@@ -22,6 +22,15 @@
 - See the [acceptance ledger](ACCEPTANCE_LEDGER.md) for the current audit,
   independent scan blocker, product findings, and remaining release evidence.
 
+- The original frontend tarball at source `2a6d0e44` predates subsequent
+  defensive runtime corrections. Its checks remain historical evidence for that
+  digest and do not validate the corrected source. A new packed artifact and
+  matching checks are required; see the [verification record](FRONTEND_2_8_VERIFICATION.md).
+- Assessed quality and scan completeness are separate. A score of 100 does not
+  certify unassessed categories, dynamic class expressions, omitted files, or
+  rendered behavior. File, byte, traversal-entry, and depth limits remain bounded;
+  discovery must report when those limits prevent a complete eligible scan.
+
 ## Boundary limitations
 
 - Execution policy reduces Memi's authority; it cannot secure a compromised OS,

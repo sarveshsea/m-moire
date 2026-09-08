@@ -91,6 +91,46 @@ Development checkpoints (RED tests precede their implementation where noted):
 - `8b2495ad` — docs: align shipped skills and harness mirrors with candidate capabilities
 - `d2a71798` — fix: clear Figma command reservations when restarting transport
 
+- `2a6d0e44` — docs: record frontend engine implementation checkpoints
+- `8f113110` — ci: verify stacked 2.8 candidate pull requests
+- `34e2ee50` — test: validate truthful candidate and stable skill distribution
+- `f0245e2f` — fix: validate candidate skills and run portable distribution tests
+- `536436ce` — docs: retain frozen frontend candidate verification receipts
+- `6c34964e` — test: reject attachment session traversal through the HTTP API
+- `6e347d62` — test: reject readonly audit mutations and gallery content injection
+- `a038d7da` — test: keep gallery metadata inert across both renderers
+- `56eb3c2b` — test: reject malformed gallery collection metadata
+- `52eb0950` — test: enforce attachment authority and bounded Studio file responses
+- `9d4c175e` — test: verify onboarding upgrade and orchestration command behavior
+- `ba456a8a` — test: add a development-only DOM runtime for gallery behavior
+- `29de55b4` — test: preserve binary bytes within descriptor-contained reads
+- `e7b18833` — test: reject external research roots before filesystem probes
+- `d68782cb` — test: reject malformed driver frames and inherited dispatch keys
+- `2e52168a` — test: report gallery request failures without throwing
+- `a72f6caf` — test: reject invalid tool frames and preserve validation priority
+- `c6d22945` — fix: keep audits read-only and render connector metadata safely
+- `8785843c` — fix: fail unsafe note admission and rank research by severity
+- `2916a64b` — test: reject cross-drive workspace directory access
+- `68f729d6` — test: validate benchmark repetition before provider execution
+- `06a82154` — fix: recover harness streams after malformed provider frames
+- `097c9a8c` — test: bound attachment transport and verify storage authority
+- `4b257c70` — test: reject oversized indexes and malformed workflow log frames
+- `53a2177f` — fix: contain Studio attachment and workspace reads
+- `5485a53c` — fix: validate benchmark inputs before execution and tolerate empty frames
+- `f496bdef` — test: preserve failure status and ordinary research filter text
+- `deba7b37` — test: execute the script embedded in generated gallery HTML
+- `f390f29c` — test: cover registry installation and reject malformed Codex frames
+- `1defed7a` — test: render empty gallery confidence without NaN
+- `277d719a` — fix: report batch failures and contain interrupted preview requests
+- `0f3bb361` — test: preserve notes admission failures in JSON mode
+- `9d8879bd` — fix: recover Codex sessions from malformed event frames
+- `053c138a` — fix: initialize rendered galleries and preserve research filter values
+- `d9c30cef` — test: verify daemon lifecycle and assessed evidence aggregation
+
+- Harden Studio attachment storage and workspace reads, preserve binary data, reject cross-drive escapes, and bound attachment transport/index sizes.
+- Keep research audits read-only, make failed batch/JSON workflows return failure, and validate benchmark repetition before provider execution.
+- Recover all four harness drivers from malformed event frames; render the actual gallery client and preserve punctuation in research tag filters.
+
 ### Release audit follow-up (unreleased)
 
 - `aeee0618` — fix: preserve exact Windows file identities during persistence
