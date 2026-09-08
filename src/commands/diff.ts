@@ -7,8 +7,7 @@
 
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
-import { readFile } from "fs/promises";
-import { join } from "path";
+import { readContainedSource } from "../security/contained-source.js";
 import { ui } from "../tui/format.js";
 import type { DesignToken, DesignComponent, DesignSystem } from "../engine/registry.js";
 
@@ -35,14 +34,15 @@ export function registerDiffCommand(program: Command, engine: MemoireEngine) {
       await engine.initReadOnly();
 
       const current = engine.registry.designSystem;
-      const arkDir = join(engine.config.projectRoot, ".memoire");
 
       // Load previous snapshot
       let previous: DesignSystem | null = null;
       try {
-        const snapPath = join(arkDir, "design-system.prev.json");
-        const raw = await readFile(snapPath, "utf-8");
-        previous = JSON.parse(raw);
+        const source = await readContainedSource(engine.config.projectRoot, ".memoire/design-system.prev.json", 750_000);
+        if (source.ok) {
+          const parsed = JSON.parse(source.content, (key, value) => ["__proto__", "constructor", "prototype"].includes(key) ? undefined : value);
+          if (parsed && Array.isArray(parsed.tokens) && Array.isArray(parsed.components)) previous = parsed;
+        }
       } catch {
         // No previous snapshot — first pull
       }

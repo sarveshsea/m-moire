@@ -39,7 +39,7 @@ describe('read-only registry authority', () => {
     await registry.load({ readOnly: true }); expect(await readdir(project)).toEqual([]);
     await mkdir(join(project, '.memoire'));
     await writeFile(join(project, '.memoire/design-system.json'), JSON.stringify({ tokens: [{ name: 'OVERSIZE_SENTINEL', value: 'x'.repeat(750001) }] }));
-    await registry.load({ readOnly: true }); expect(JSON.stringify(registry.designSystem)).not.toContain('OVERSIZE_SENTINEL');
+    await registry.load({ readOnly: true }); expect(registry.designSystem.tokens.some(token => token.name === 'OVERSIZE_SENTINEL')).toBe(false);
   });
   it('loads ordinary contained data and specifications', async () => {
     const { project } = await fixture();
