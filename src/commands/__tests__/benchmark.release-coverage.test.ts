@@ -4,6 +4,8 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { registerBenchmarkCommand } from "../benchmark.js";
+import * as codexRunner from "../../efficiency/codex-runner.js";
+import * as workflowRunner from "../../efficiency/workflow-runner.js";
 let root: string;
 let init: ReturnType<typeof vi.fn>;
 beforeEach(async () => { root = await mkdtemp(join(tmpdir(), "memi-benchmark-release-")); init = vi.fn(async () => {}); });
@@ -73,4 +75,19 @@ describe("benchmark CLI input and evidence contracts", () => {
     expect(json.metrics).toMatchObject({ successfulFirstAudits: 0, repeatAuditProjects: 0, ciReuseProjects: 0 });
     expect((await cli(["retention"])).join("\n")).toContain("MEMI ADOPTION");
   });
+});
+
+
+it("rejects invalid workflow repetition before any provider execution", async () => {
+  const task = await fixture("workflow.json", workflow);
+  vi.spyOn(codexRunner, "benchmarkRepositoryRevision").mockResolvedValue("a".repeat(40));
+  const execute = vi.spyOn(workflowRunner, "runWorkflowTrial").mockResolvedValue({
+    runId: "local-test-run", sourceRevision: "a".repeat(40), evidenceDirectory: join(root, "evidence"),
+    durationMs: 1, accepted: true, verification: [{ passed: true, durationMs: 1 }],
+    adapter: { exitCode: 0, usage: { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, reasoningTokens: 0, estimatedCostUsd: null }, tools: { calls: 0, errors: 0, retries: 0 } },
+  } as never);
+  await expect(cli(["workflow-run", task, "--condition", "baseline", "--provider", "codex", "--repository", root,
+    "--evidence-root", join(root, "evidence"), "--store-root", root, "--suite", "suite", "--experiment", "experiment",
+    "--repeat", "0", "--execute"])).rejects.toThrow("repeat must be positive");
+  expect(execute).not.toHaveBeenCalled();
 });
