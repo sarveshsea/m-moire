@@ -148,7 +148,7 @@ describe("broker failure boundaries", () => {
     const search = await broker.call({ toolId: "workspace.search", input: { query: "FINDABILITY" } });
     expect(search).toMatchObject({ status: "completed", data: { matches: [{ path: join(root, "nested", "tokens.ts") }] } });
     const byName = await broker.call({ toolId: "workspace.search", input: { path: root, query: "tokens" } });
-    expect(byName).toMatchObject({ data: { matches: [{ match: "nested/tokens.ts" }] } });
+    expect(byName).toMatchObject({ data: { matches: [{ match: join("nested", "tokens.ts") }] } });
     expect(await broker.call({ toolId: "workspace.read", input: { path: root } })).toMatchObject({ data: { type: "directory", entries: expect.arrayContaining([expect.objectContaining({ name: "nested", type: "directory" })]) } });
     const outside = await mkdtemp(join(tmpdir(), "memi-broker-outside-")); dirs.push(outside);
     await symlink(outside, join(root, "escape"));

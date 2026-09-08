@@ -1,8 +1,17 @@
-import { chmod, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import * as scanner from "../source-scanner.js";
+// POSIX mode bits do not make a file unreadable on Windows. Inject the same
+// open failure on every host so this checks omission reporting, not chmod.
+vi.mock("node:fs/promises", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs/promises")>();
+  return { ...actual, open: async (...args: Parameters<typeof actual.open>) => {
+    if (String(args[0]).endsWith("secret.tsx")) throw Object.assign(new Error("Permission denied"), { code: "EACCES" });
+    return actual.open(...args);
+  } };
+});
 const roots: string[] = [];
 async function root() { const path = await mkdtemp(join(tmpdir(), "memi-completeness-")); roots.push(path); return path; }
 afterEach(async () => { await Promise.all(roots.splice(0).map(path => rm(path, { recursive: true, force: true }))); });
@@ -21,10 +30,9 @@ describe("source scan completeness", () => {
     const path = await root();
     await writeFile(join(path, "large.tsx"), "x".repeat(100));
     await writeFile(join(path, "secret.tsx"), "<div />");
-    await chmod(join(path, "secret.tsx"), 0);
     await mkdir(join(path, "generated"));
     await writeFile(join(path, "generated/ignored.tsx"), "<div />");
-    try {
+    {
       const result = await scanner.scanSourcesWithMetadata({ projectRoot: path, extensions: ["tsx"], maxBytesPerFile: 30, excludePath: p => p === "generated" });
       expect(result.completeness.complete).toBe(false);
       expect(result.completeness.omissions).toEqual(expect.arrayContaining([
@@ -32,6 +40,6 @@ describe("source scan completeness", () => {
         expect.objectContaining({ path: "secret.tsx", reason: "unreadable" }),
         expect.objectContaining({ path: "generated", reason: "excluded" }),
       ]));
-    } finally { await chmod(join(path, "secret.tsx"), 0o600); }
+    }
   });
 });

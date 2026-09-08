@@ -1,11 +1,14 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const action = readFileSync('action.yml', 'utf8');
 const run = action.split('    - name: Run memi design CI')[1].split('    - name: Inspect generated artifacts')[0];
 const script = run.split('      run: |\n')[1].split('\n').map(line => line.replace(/^        /, '')).join('\n');
-const invoke = (version: string, target = '') => execFileSync('/bin/bash', ['-c', `memi() { printf '%s\\n' "$@"; }\n${script}`], {
+const gitBash = join(process.env.ProgramFiles ?? 'C:\\Program Files', 'Git', 'bin', 'bash.exe');
+const bash = process.platform === 'win32' && existsSync(gitBash) ? gitBash : 'bash';
+const invoke = (version: string, target = '') => execFileSync(bash, ['-c', `memi() { printf '%s\\n' "$@"; }\n${script}`], {
   env: { ...process.env, INPUT_VERSION: version, INPUT_FAIL_ON: 'high', INPUT_BASE: 'origin/main', INPUT_TARGET: target, INPUT_REPORT: 'true' },
   encoding: 'utf8',
 }).trim().split('\n');
