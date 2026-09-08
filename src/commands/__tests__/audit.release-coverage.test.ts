@@ -1,8 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
-import { mkdtemp, mkdir, writeFile, readdir, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, writeFile, readFile, readdir, rm, symlink, link } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { lstat as researchLstat } from "fs/promises";
+import { ResearchEngine } from "../../research/engine.js";
+vi.mock("fs/promises", async importOriginal => {
+  const actual = await importOriginal<typeof import("fs/promises")>();
+  return { ...actual, lstat: vi.fn(actual.lstat) };
+});
 import { MemoireEngine } from "../../engine/core.js";
 import { registerAuditCommand } from "../audit.js";
 import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
@@ -71,4 +77,44 @@ describe("audit release command branches", () => {
     expect(parsed()).toMatchObject({ totalSpecs: 0, failed: false });
     expect(await readdir(root)).toEqual([]);
   });
+  it.each(["symlink", "hardlink"])("rejects %s research-store content before reporting it", async kind => {
+    const outside = await mkdtemp(join(tmpdir(), "memi-research-outside-"));
+    try {
+      await mkdir(join(root, "research")); const source = join(outside, "store.json"); await writeFile(source, '{"findings":[{"id":"OUTSIDE_SENTINEL"}]}');
+      if (kind === "symlink") await symlink(source, join(root, "research/store.v2.json"));
+      else await link(source, join(root, "research/store.v2.json"));
+      await expect(run(["--research-traceability", "--json"])).rejects.toThrow("Cannot safely read research metadata");
+      expect(log.mock.calls.flat().join(" ")).not.toContain("OUTSIDE_SENTINEL");
+    } finally { await rm(outside, { recursive: true, force: true }); }
+  });
+  it("rejects oversized and malformed current research stores", async () => {
+    await mkdir(join(root, "research")); await writeFile(join(root, "research/store.v2.json"), "x".repeat(1_048_577));
+    await expect(run(["--research-traceability"])).rejects.toThrow("file-byte-limit");
+    await writeFile(join(root, "research/store.v2.json"), "{"); await expect(run(["--research-traceability"])).rejects.toThrow();
+  });
+  it("reads legacy research without persisting a migrated store", async () => {
+    await mkdir(join(root, "research")); const legacy = JSON.stringify({ sources: [], insights: [] }); await writeFile(join(root, "research/insights.json"), legacy);
+    expect(await run(["--research-traceability"])).toContain("nothing to verify");
+    expect(await readdir(join(root, "research"))).toEqual(["insights.json"]); expect(await readFile(join(root, "research/insights.json"), "utf8")).toBe(legacy);
+  });
+  it("reports unbacked and stale citations and applies strict policy", async () => {
+    await spec("Unbacked"); await spec("Stale", good, { researchBacking: ["missing-finding"] });
+    await mkdir(join(root, "research")); await writeFile(join(root, "research/store.v2.json"), JSON.stringify({ version: 2, findings: [] }));
+    let output = await run(["--research-traceability"]); expect(output).toContain("no research backing"); expect(output).toContain("stale citation(s)"); expect(process.exitCode ?? 0).toBe(0);
+    await writeFile(join(root, "memoire.policy.json"), JSON.stringify({ schemaVersion: 1, preset: "strict" }));
+    output = await run(["--research-traceability"]); expect(output).toContain("strict policy"); expect(process.exitCode).toBe(1);
+    await run(["--research-traceability", "--json"]); expect(parsed()).toMatchObject({ failed: true, staleCitations: 1 });
+  });
+
+  it("rejects an outside research output directory before probing its files", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "memi-outside-config-"));
+    try {
+      await writeFile(join(outside, "store.v2.json"), "{}");
+      vi.mocked(researchLstat).mockClear();
+      const research = new ResearchEngine({ outputDir: outside });
+      await expect(research.load({ readOnly: true, projectRoot: root })).rejects.toThrow("Cannot safely read research metadata");
+      expect(researchLstat).not.toHaveBeenCalled();
+    } finally { await rm(outside, { recursive: true, force: true }); }
+  });
+
 });
