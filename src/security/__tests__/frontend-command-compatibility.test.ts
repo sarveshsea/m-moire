@@ -71,3 +71,16 @@ describe("R01 direct handlers retain policy boundaries", () => {
     await expect(access(join(root, "generated"))).rejects.toThrow();
   });
 });
+
+
+describe("diagnosis receipt-only admission", () => {
+  it("keeps connected receipt-only diagnosis read-only without write grants", async () => {
+    const policy = createExecutionPolicy({ projectRoot: "/workspace", profile: "connected" });
+    await expect(preflightCommand(policy, invoke("diagnose", { receiptOnly: true }))).resolves.toEqual({ optionOverrides: { write: false } });
+  });
+  it("still denies URL and changed effects for receipt-only diagnosis", async () => {
+    const policy = createExecutionPolicy({ projectRoot: "/workspace" });
+    await expect(preflightCommand(policy, invoke("diagnose", { receiptOnly: true }, ["https://example.com"]))).rejects.toMatchObject({ capability: "network" });
+    await expect(preflightCommand(policy, invoke("diagnose", { receiptOnly: true, changed: true }))).rejects.toMatchObject({ capability: "shell" });
+  });
+});
