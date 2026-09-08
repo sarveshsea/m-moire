@@ -184,7 +184,20 @@ export class CodexDriver extends BaseHarnessDriver {
       return;
     }
 
-    const obj = parsed as Record<string, unknown>;
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      this.emitDiagnostic(stream === "stderr" ? "error" : "warn", "invalid object frame from codex");
+      return;
+    }
+
+    try {
+      this.handleFrame(parsed as Record<string, unknown>, stream);
+    } catch {
+      // Provider frames are untrusted; malformed fields must not escape the listener.
+      this.emitDiagnostic(stream === "stderr" ? "error" : "warn", "invalid event frame from codex");
+    }
+  }
+
+  private handleFrame(obj: Record<string, unknown>, stream: "stdout" | "stderr"): void {
     const kind = String(obj["kind"] ?? "");
 
     switch (kind) {
@@ -247,7 +260,7 @@ export class CodexDriver extends BaseHarnessDriver {
         });
         break;
       default:
-        this.emitDiagnostic(stream === "stderr" ? "error" : "warn", `unknown codex event kind: ${kind}`, parsed);
+        this.emitDiagnostic(stream === "stderr" ? "error" : "warn", `unknown codex event kind: ${kind}`, obj);
     }
   }
 
