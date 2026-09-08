@@ -25,5 +25,8 @@ describe("MCP configuration truth", () => {
     expect(text).not.toContain("FIGMA_TOKEN");
     expect(text).not.toContain("generate_code");
     expect(text).not.toContain("pull_design_system");
+    expect(text).not.toContain("memoire://design-system");
+    expect(text).not.toContain("memoire://specs");
+    expect(text).toContain("memoire://project");
   });
 });
