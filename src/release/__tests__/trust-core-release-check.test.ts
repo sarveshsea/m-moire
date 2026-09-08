@@ -15,12 +15,16 @@ describe("Trust Core candidate release-check policy", () => {
     const result = spawnSync(process.execPath, [join(process.cwd(), "scripts", "check-release.mjs")], {
       cwd: process.cwd(),
       encoding: "utf8",
+      // This integration invokes the complete multi-process release checker.
+      timeout: 120_000,
       env: {
         ...process.env,
         SKIP_PACK_GATE: "1",
       },
     });
     const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+    expect(result.error).toBeUndefined();
+    expect(result.status, output).toBe(0);
 
     expect(output).not.toContain(
       "CHANGELOG.md starts at v2.7.9 but package.json is 2.8.0-beta.1",
@@ -31,7 +35,7 @@ describe("Trust Core candidate release-check policy", () => {
     expect(output).toContain(
       "TRUST_CORE_BETA_PENDING_DESIGNWORKBENCH_EVIDENCE: reviewed-candidate-audit and swiftui-rendered-rerun must be refreshed before stable",
     );
-  });
+  }, 130_000);
 
   it("accepts only an honestly labeled candidate top heading", () => {
     expect(evaluateChangelogGate({
