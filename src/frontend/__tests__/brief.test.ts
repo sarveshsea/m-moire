@@ -226,3 +226,11 @@ it('never substitutes truncated strings for design source identities when contex
   expect(result.design?.nodeId === undefined || result.design.nodeId === 'b'.repeat(512)).toBe(true);
   expect(result.design?.revision === undefined || result.design.revision === 'c'.repeat(512)).toBe(true);
 });
+
+it('rejects nonprimitive DTCG extension values instead of returning unschematized source objects', async () => {
+  const projectRoot = await fixture();
+  await writeFile(join(projectRoot, 'src/tokens.json'), JSON.stringify({ color: { $type: 'color', $value: '#fff', $extensions: { 'cv.memoire': { values: { default: { unexpected: 'SOURCE_OBJECT' } } } } } }));
+  const result = await buildFrontendBrief({ projectRoot, intent: 'tokens' });
+  expect(result.tokens.every(token => typeof token.value === 'string' || typeof token.value === 'number')).toBe(true);
+  expect(result.omissions).toContainEqual({ path: 'src/tokens.json', reason: 'token-value-unassessed' });
+});
