@@ -36,9 +36,13 @@ export function registerReadTools(server: McpServer, engine: MemoireEngine): voi
       mode: z.literal("local").default("local"),
     },
     capabilities: [],
-    handler: async (input) => ({ content: [{ type: "text", text: JSON.stringify(buildDesignAgentBrief({
-      ...input, projectRoot: engine.config.projectRoot,
-    })) }] }),
+    handler: async (input, signal) => {
+      const target = await localProjectTarget(engine.config.projectRoot, input.target);
+      signal.throwIfAborted();
+      return { content: [{ type: "text", text: JSON.stringify(buildDesignAgentBrief({
+        ...input, target, projectRoot: engine.config.projectRoot,
+      })) }] };
+    },
   });
   registerPolicyTool(server, {
     name: "prepare_apple_design_brief",
@@ -65,7 +69,7 @@ export function registerReadTools(server: McpServer, engine: MemoireEngine): voi
       signal.throwIfAborted();
       const { diagnoseAppQuality } = await import("../app-quality/engine.js");
       const result = await diagnoseAppQuality({
-        projectRoot: await realpath(engine.config.projectRoot), target: safeTarget, maxFiles, write: false,
+        projectRoot: await realpath(engine.config.projectRoot), target: safeTarget, maxFiles, write: false, signal,
         scope: files?.length ? { files } : undefined,
       });
       return { content: [{ type: "text", text: JSON.stringify(result) }] };

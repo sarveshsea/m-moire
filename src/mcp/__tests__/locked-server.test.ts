@@ -70,10 +70,12 @@ describe("locked MCP read surface", () => {
   it("rejects URL diagnosis and out-of-project file reads before performing work", async () => {
     const { engine } = await fixture();
     const client = await connect(engine);
-    for (const target of ["https://example.com", tmpdir()]) {
-      const result = await client.callTool({ name: "diagnose_app_quality", arguments: { target } });
-      expect(result.isError).toBe(true);
-      expect(JSON.stringify(result.content)).toContain("MEMI_CAPABILITY_DENIED");
+    for (const name of ["diagnose_app_quality", "prepare_design_agent_brief"]) {
+      for (const target of ["https://example.com", tmpdir()]) {
+        const result = await client.callTool({ name, arguments: { target } });
+        expect(result.isError).toBe(true);
+        expect(JSON.stringify(result.content)).toContain("MEMI_CAPABILITY_DENIED");
+      }
     }
   });
 
