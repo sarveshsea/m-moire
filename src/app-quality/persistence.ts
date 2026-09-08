@@ -16,16 +16,16 @@ export async function writeDiagnosisArtifact(
   const handle = await open(path, constants.O_RDWR | constants.O_CREAT | noFollow | (typeof content === "function" ? constants.O_APPEND : 0), 0o600);
   try {
     await policy.assertProjectWrite(path, operation);
-    const [opened, pathname] = await Promise.all([handle.stat(), lstat(path)]);
+    const [opened, pathname] = await Promise.all([handle.stat({ bigint: true }), lstat(path, { bigint: true })]);
     if (!opened.isFile() || !pathname.isFile() || pathname.isSymbolicLink()
-      || opened.dev !== pathname.dev || opened.ino !== pathname.ino || opened.nlink !== 1
-      || !Number.isSafeInteger(opened.ino) || opened.ino <= 0 || !Number.isSafeInteger(opened.dev)) {
+      || opened.dev !== pathname.dev || opened.ino !== pathname.ino || opened.nlink !== 1n
+      || opened.ino <= 0n || opened.dev < 0n) {
       throw new MemiCapabilityDeniedError({ profile: policy.profile, capability: "project-write", operation });
     }
     let output = content;
     if (typeof content === "function") {
-      if (opened.size > 8 * 1024 * 1024) throw new Error("Diagnosis history exceeds the 8 MiB read limit");
-      const buffer = Buffer.alloc(opened.size);
+      if (opened.size < 0n || opened.size > 8n * 1024n * 1024n) throw new Error("Diagnosis history exceeds the 8 MiB read limit");
+      const buffer = Buffer.alloc(Number(opened.size));
       let offset = 0;
       while (offset < buffer.length) {
         const { bytesRead } = await handle.read(buffer, offset, buffer.length - offset, offset);
@@ -65,16 +65,17 @@ export async function withDiagnosisHistoryLock<T>(path: string, update: () => Pr
     } finally {
       try {
         await policy.assertProjectWrite(lockPath, operation);
-        const [opened, pathname] = await Promise.all([handle.stat(), lstat(lockPath)]);
-        if (opened.dev !== pathname.dev || opened.ino !== pathname.ino || pathname.isSymbolicLink()) {
+        const [opened, pathname] = await Promise.all([handle.stat({ bigint: true }), lstat(lockPath, { bigint: true })]);
+        if (opened.ino <= 0n || opened.dev < 0n || opened.nlink !== 1n || !pathname.isFile()
+          || opened.dev !== pathname.dev || opened.ino !== pathname.ino || pathname.isSymbolicLink()) {
           throw new Error("Diagnosis history lock ownership changed before release");
         }
         const releasedPath = `${lockPath}.released-${randomUUID()}`;
         await policy.assertProjectWrite(releasedPath, operation);
         await rename(lockPath, releasedPath);
         await policy.assertProjectWrite(releasedPath, operation);
-        const released = await lstat(releasedPath);
-        if (opened.dev !== released.dev || opened.ino !== released.ino || released.isSymbolicLink()) {
+        const released = await lstat(releasedPath, { bigint: true });
+        if (!released.isFile() || released.nlink !== 1n || opened.dev !== released.dev || opened.ino !== released.ino || released.isSymbolicLink()) {
           throw new Error("Diagnosis history lock ownership changed during release");
         }
         await unlink(releasedPath);

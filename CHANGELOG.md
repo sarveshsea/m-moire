@@ -14,6 +14,8 @@ release gates pass.
 
 ### Release audit follow-up (unreleased)
 
+- Preserve exact BigInt file identities for Windows report writes and lock/receipt validation; reject adjacent-ID substitutions without rounding.
+
 - `cbdef4cf` — fix: close diagnosis policy gaps and enforce release evidence
 
 - Close diagnosed URL, Git subprocess, and source-report capability gaps at their execution boundaries; keep optional Git history metadata subprocess-free without a shell grant.

@@ -4,10 +4,10 @@ Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c
 
 | Requirement | Implementation and evidence | Remaining gate |
 | --- | --- | --- |
-| Locked deterministic diagnosis | Baseline 2,416 tests passed in a fresh checkout. Astra reproduced URL/DNS, Git subprocess, and direct report-persistence policy gaps with intercepted side effects. Regression fixes deny before side effects; the packed portable harness passes URL and Git denials. | Updated suite: 2,439 tests across 332 files pass locally. Cross-platform CI for the updated commit remains pending. |
+| Locked deterministic diagnosis | Baseline 2,416 tests passed in a fresh checkout. Astra reproduced URL/DNS, Git subprocess, and direct report-persistence policy gaps with intercepted side effects. Regression fixes deny before side effects; the packed portable harness passes URL and Git denials. | Updated suite: 2,447 tests across 333 files pass locally. Cross-platform CI for the updated commit remains pending. |
 | Explicit connected grants | URL fetching and Git helpers check policy at their execution boundary; source reports require project-write and source-content-persistence. | Descriptor-based writes and quarantine cleanup have race regressions. Astra re-review found no remaining actionable issues in the reviewed patch and independently passed 29 targeted tests. No general security clearance. |
 | Zero production advisories | fast-uri updated from 3.1.5 to exact 3.1.7; full and production audit report zero known advisories. Isolated production install has 138 dependencies and no optional peers. | Refresh on the exact publication candidate; registry advisory state changes. |
-| 80% core coverage | The old 92.68% statement result measured four selected modules only. `test:core:coverage` now includes all `src/**/*.{ts,js}`, including unimported modules. | Measured: 64.43% statements, 55.10% branches, 74.29% functions, 66.03% lines. Publication is blocked; scoped Trust Core coverage is insufficient. |
+| 80% core coverage | The old 92.68% statement result measured four selected modules only. `test:core:coverage` now includes all `src/**/*.{ts,js}`, including unimported modules. | Measured: 64.46% statements, 55.14% branches, 74.33% functions, 66.05% lines. Publication is blocked; scoped Trust Core coverage is insufficient. |
 | Native Linux arm64 latency | Native runner job and same-commit reusable publication prerequisite added. QEMU remains conformance-only. | Successful native runner receipt for the release commit. Workflow source is not a performance result. |
 | npm package and offline budgets | Production shrinkwrap, explicit file allowlist, packed harness, and offline bundle workflows exist. | Local portable packed smoke and clean install pass; 61 files, about 619 KB packed and 51 MB installed. Native CI and signed public bundle digests remain required. |
 | Managed independent security scan | Attempt failed before workers started: “Deep Scan cannot safely start a read-only worker: the parent must provide a managed filesystem permission profile.” | Supported managed permission environment. No scan results exist from this attempt. |
@@ -30,7 +30,7 @@ Every engine change updates the changelog and generated preview. Every release c
 
 ## Local verification record
 
-The updated source suite passed all 2,439 tests. The source-wide coverage command
+The updated source suite passed all 2,447 tests. The source-wide coverage command
 exits nonzero because all four 80% thresholds fail; passing assertions does not
 mean passing the release gate. Source and artifact results are kept separate.
 The fresh-checkout baseline was 2,416 tests; newly exposed policy paths account
@@ -52,3 +52,12 @@ advisories (12 high, eight moderate, two low), so its proof did not execute.
 No runtime dependency or proof evidence was changed in that documentation PR.
 The stable CI skill still uses a mutable `@v2` action ref; preserve its provenance
 until a separately reviewed canonical-source pin and export update.
+
+
+Windows follow-up: numeric inode checks rejected legitimate large NTFS IDs on
+Node 22/24. Exact BigInt descriptor/pathname identities now cover report writes,
+lock acquisition/release, and receipts, with adjacent-ID and unknown-ID tests.
+Astra independently passed 48 targeted tests. Fresh Windows matrix confirmation
+is required for this portability change. Native arm64 on prior audit commit
+`0071fc75` passed at 587.3 ms startup and 683.2 ms diagnosis; see
+[the native job](https://github.com/memi-design/memi/actions/runs/34188457333/job/101941435126).

@@ -148,11 +148,14 @@ export class MemiExecutionPolicy {
       // The exclusive open creates an empty file. Validate that exact inode
       // before any caller-controlled bytes are written through the handle.
       await this.assertProjectWrite(target, operation);
-      const [opened, pathname] = await Promise.all([handle.stat(), lstat(target)]);
+      const [opened, pathname] = await Promise.all([handle.stat({ bigint: true }), lstat(target, { bigint: true })]);
       if (
         !opened.isFile()
         || !pathname.isFile()
         || pathname.isSymbolicLink()
+        || opened.ino <= 0n
+        || opened.dev < 0n
+        || opened.nlink !== 1n
         || opened.dev !== pathname.dev
         || opened.ino !== pathname.ino
       ) {
