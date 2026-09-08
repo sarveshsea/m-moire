@@ -131,6 +131,10 @@ Development checkpoints (RED tests precede their implementation where noted):
 - Keep research audits read-only, make failed batch/JSON workflows return failure, and validate benchmark repetition before provider execution.
 - Recover all four harness drivers from malformed event frames; render the actual gallery client and preserve punctuation in research tag filters.
 
+- `76af919b` — test: drain started preflight probes before rejecting a fixture
+- `246dfc45` — test: resolve native Windows executable paths without PATH search
+- `053f8a0a` — fix: resolve Windows harness paths and await preflight cleanup
+
 ### Release audit follow-up (unreleased)
 
 - `aeee0618` — fix: preserve exact Windows file identities during persistence
