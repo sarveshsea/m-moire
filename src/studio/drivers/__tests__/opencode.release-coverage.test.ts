@@ -186,4 +186,17 @@ describe("opencode release protocol boundaries", () => {
     } finally { await run(f.driver.shutdown()); }
   });
 
+  it("keeps malformed field diagnostics bounded and excludes raw error details", async () => {
+    const f = fixture(); await run(f.driver.start());
+    try {
+      expect(() => f.frame("tool_output", { toolCallId: "PRIVATE_INVALID_ID" }, "stderr")).not.toThrow();
+      expect(f.events.at(-1)).toMatchObject({ type: "diagnostic.error", message: expect.stringContaining("invalid event frame") });
+      expect(JSON.stringify(f.events.at(-1))).not.toContain("PRIVATE_INVALID_ID");
+      expect(() => f.line('{"kind":{"toString":null}}', "stderr")).not.toThrow();
+      expect(f.events.at(-1)).toMatchObject({ type: "diagnostic.error" });
+      f.frame("assistant_message", { text: "valid after malformed fields" });
+      expect(f.events.at(-1)).toMatchObject({ text: "valid after malformed fields" });
+    } finally { await run(f.driver.shutdown()); }
+  });
+
 });
