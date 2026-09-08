@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readContainedSource } from "../security/contained-source.js";
 import { basename, extname, join } from "node:path";
 import { scanSources, type ScannedSourceFile } from "../utils/source-scanner.js";
 
@@ -262,7 +262,9 @@ function resolveImportPath(fromPath: string, imported: string, index: Map<string
 
 async function readPackageMetadata(projectRoot: string): Promise<AppGraphPackageMetadata> {
   try {
-    const pkg = JSON.parse(await readFile(join(projectRoot, "package.json"), "utf8")) as {
+    const source = await readContainedSource(projectRoot, "package.json", 1_048_576);
+    if (!source.ok) throw new Error(`Package metadata unavailable: ${source.reason}`);
+    const pkg = JSON.parse(source.content) as {
       name?: string;
       version?: string;
       dependencies?: Record<string, string>;

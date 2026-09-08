@@ -11,8 +11,8 @@
  * --redact strips file excerpts (paths stay) for NDA-safe sharing.
  */
 
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { readContainedSource } from "../security/contained-source.js";
+import { join, relative, sep } from "node:path";
 import type { AppQualityDiagnosis } from "../app-quality/engine.js";
 import type { UxAuditReport } from "../ux/tenets-traps.js";
 import type { InterfaceCraftReport } from "../ux/interface-craft.js";
@@ -35,9 +35,10 @@ export interface ComposedReport {
   missing: string[];
 }
 
-async function readJson<T>(path: string): Promise<T | null> {
+async function readJson<T>(projectRoot: string, path: string): Promise<T | null> {
   try {
-    return JSON.parse(await readFile(path, "utf-8")) as T;
+    const source = await readContainedSource(projectRoot, relative(projectRoot, path).split(sep).join("/"), 8_388_608);
+    return source.ok ? JSON.parse(source.content) as T : null;
   } catch {
     return null;
   }
@@ -46,9 +47,9 @@ async function readJson<T>(path: string): Promise<T | null> {
 export async function composeReport(options: ComposeReportOptions): Promise<ComposedReport> {
   const dir = join(options.projectRoot, ".memoire", "app-quality");
   const [diagnosis, ux, craft, history, baseline] = await Promise.all([
-    readJson<AppQualityDiagnosis>(join(dir, "diagnosis.json")),
-    readJson<UxAuditReport>(join(dir, "ux-audit.json")),
-    readJson<InterfaceCraftReport>(join(dir, "interface-craft.json")),
+    readJson<AppQualityDiagnosis>(options.projectRoot, join(dir, "diagnosis.json")),
+    readJson<UxAuditReport>(options.projectRoot, join(dir, "ux-audit.json")),
+    readJson<InterfaceCraftReport>(options.projectRoot, join(dir, "interface-craft.json")),
     readHistory(options.projectRoot),
     readBaseline(options.projectRoot).catch(() => null),
   ]);

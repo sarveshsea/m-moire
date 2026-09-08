@@ -53,3 +53,19 @@ it("keeps absent policy and baseline fallbacks", async () => {
   expect(await readBaseline(root)).toBeNull();
   expect(await readHistory(root)).toEqual([]);
 });
+
+
+it("does not re-root baseline authority at a symlinked metadata directory", async () => {
+  const base = await mkdtemp(join(tmpdir(), "memi-metadata-parent-")); roots.push(base);
+  const projectRoot = join(base, "repo"); const outside = join(base, "outside");
+  await mkdir(projectRoot); await mkdir(outside);
+  await writeFile(join(outside, "baseline.json"), JSON.stringify({ schemaVersion: 1, acceptedAt: "OUTSIDE_SENTINEL", entries: [] }));
+  await symlink(outside, join(projectRoot, ".memoire"), "dir");
+  await expect(readBaseline(projectRoot)).rejects.toThrow(/safely read/);
+});
+
+it("rejects oversized policy input without silently changing gates", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "memi-policy-budget-")); roots.push(projectRoot);
+  await writeFile(join(projectRoot, "memoire.policy.json"), JSON.stringify({ schemaVersion: 1 }) + " ".repeat(262_144));
+  await expect(loadPolicy(projectRoot)).rejects.toThrow(/file-byte-limit/);
+});

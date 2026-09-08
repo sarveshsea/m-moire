@@ -1,3 +1,4 @@
+import { readContainedSource } from "../security/contained-source.js";
 import { withDiagnosisHistoryLock, writeDiagnosisArtifact } from "./persistence.js";
 /**
  * Score History — append-only ledger (.memoire/app-quality/history.jsonl) so
@@ -11,7 +12,7 @@ import { withDiagnosisHistoryLock, writeDiagnosisArtifact } from "./persistence.
 
 import { createHash } from "node:crypto";
 import { getExecutionPolicy } from "../security/execution-policy.js";
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
 import type { AppQualityDiagnosis } from "./engine.js";
@@ -86,7 +87,9 @@ export async function appendHistory(projectRoot: string, diagnosis: AppQualityDi
 }
 
 export async function readHistory(projectRoot: string): Promise<HistoryEntry[]> {
-  const raw = await readFile(historyPath(projectRoot), "utf-8").catch(() => "");
+  const source = await readContainedSource(projectRoot, ".memoire/app-quality/history.jsonl", 8_388_608);
+  if (!source.ok) return [];
+  const raw = source.content;
   const entries: HistoryEntry[] = [];
   for (const line of raw.split("\n")) {
     const trimmed = line.trim();
