@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { mkdtemp, rm, readdir, readFile } from 'node:fs/promises';
+import { mkdtemp, rm, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 // @ts-expect-error Release scripts are JavaScript modules.
-import { createBenchmarkFixture, summarizeTrials, validateBriefResult } from '../../../scripts/benchmark-frontend-brief.mjs';
+import { createBenchmarkFixture, summarizeTrials, validateBriefResult, verifyFixtureIntegrity } from '../../../scripts/benchmark-frontend-brief.mjs';
 const roots: string[] = [];
 afterEach(async () => { await Promise.all(roots.splice(0).map(root => rm(root, { recursive: true, force: true }))); });
 describe('offline frontend benchmark contract', () => {
@@ -33,4 +33,12 @@ describe('offline frontend benchmark contract', () => {
   expect(() => validateBriefResult(JSON.stringify(body), 'stale')).toThrow();
   expect(() => validateBriefResult('x'.repeat(16385), 'observed')).toThrow();
  });
+});
+
+it('detects changes inside the fixture source directory instead of checking its root only', async () => {
+ const root = await mkdtemp(join(tmpdir(), 'memi-bench-integrity-')); roots.push(root);
+ const fixture = await createBenchmarkFixture(root);
+ expect(await verifyFixtureIntegrity(root, fixture)).toBe(true);
+ await writeFile(join(root, 'src/Button000.tsx'), 'changed');
+ expect(await verifyFixtureIntegrity(root, fixture)).toBe(false);
 });
