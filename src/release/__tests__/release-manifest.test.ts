@@ -8,6 +8,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildWebReleaseArtifact,
+  validateEngineReleaseRecord,
+  validateReleaseManifest,
+  verifyPublishedEngineTransitionFromGit,
   serializeJson,
   validateWebReleaseArtifactSourceBytes,
   verifyCoreReleaseSurfaces,
@@ -31,9 +34,7 @@ describe("release manifest", () => {
       releaseGroups: {
         engine: {
           version: "2.8.0-beta.1",
-          state: "candidate",
-          sourceCommit: null,
-          releaseRecord: null,
+
           previousPublicRelease: {
             version: "2.7.9",
             sourceCommit: publicEngineSourceCommit,
@@ -61,6 +62,28 @@ describe("release manifest", () => {
         },
       },
     });
+    const engine = manifest.releaseGroups.engine;
+    expect(["candidate", "published"]).toContain(engine.state);
+    expect(validateReleaseManifest(manifest)).toEqual([]);
+    if (engine.state === "candidate") {
+      expect(engine.sourceCommit).toBeNull(); expect(engine.releaseRecord).toBeNull();
+    } else {
+      expect(engine.releaseRecord.path).toBe(`release-artifacts/npm/${engine.version}.release.json`);
+      const bytes = await readFile(join(root, engine.releaseRecord.path), "utf8");
+      const record = JSON.parse(bytes);
+      expect(createHash("sha256").update(bytes).digest("hex")).toBe(engine.releaseRecord.sha256);
+      expect(record.version).toBe(engine.version);
+      expect(record.sourceCommit).toBe(engine.sourceCommit);
+      expect(validateEngineReleaseRecord(record)).toEqual([]);
+      expect(await verifyPublishedEngineTransitionFromGit(root, manifest)).toEqual([]);
+    }
+  });
+
+  it("preserves candidate null-evidence requirements in a frozen candidate fixture", async () => {
+    const template = JSON.parse(await readFile(manifestPath, "utf8"));
+    const candidate = {...template, releaseGroups: {...template.releaseGroups, engine: {version: "2.8.0-beta.1", state: "candidate", sourceCommit: null, releaseRecord: null, previousPublicRelease: {version: "2.7.9", sourceCommit: publicEngineSourceCommit, releaseRecord: publicReleaseRecord}, verification: {eligibleForParity: false, reason: "Synthetic candidate fixture"}}}};
+    expect(validateReleaseManifest(candidate)).toEqual([]);
+    expect(validateReleaseManifest({...candidate, releaseGroups: {...candidate.releaseGroups, engine: {...candidate.releaseGroups.engine, sourceCommit: "a".repeat(40)}}})).toContain("candidate engine release sourceCommit must be null");
   });
 
   it("exports a deterministic, integrity-checked website artifact", async () => {
