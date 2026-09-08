@@ -27,12 +27,19 @@ describe("preview changelog sync", () => {
       releaseRecord?: { path: string };
     };
     const changelogVersion = engine.state === "candidate"
-      ? engine.previousPublicRelease?.version
+      ? releases[0]?.version.replace(/^v/, "")
       : engine.version;
     expect(changelogVersion).toBeDefined();
     expect(releases[0]).toMatchObject({
       version: `v${changelogVersion}`,
     });
+    if (engine.state === "candidate") {
+      // A published prerelease can be newer than the independent stable channel.
+      const record = JSON.parse(await readFile(join(root, `release-artifacts/npm/${changelogVersion}.release.json`), "utf8"));
+      expect(record.version).toBe(changelogVersion);
+      expect(releases[0].date).toBe(new Date(record.publishedAt).toISOString().slice(0, 10));
+      expect(changelogVersion).not.toBe(engine.version);
+    }
     if (engine.state === "published") {
       expect(engine.releaseRecord?.path).toBeDefined();
       const record = JSON.parse(await readFile(join(root, engine.releaseRecord!.path), "utf8"));
@@ -44,7 +51,7 @@ describe("preview changelog sync", () => {
       expect(releases[0].changes.some((change: string) => change.includes("four read tools"))).toBe(true);
     }
     if (engine.state === "candidate") {
-      expect(markdown).toContain("## Trust Core 2.8 development — Unreleased");
+      expect(markdown).toContain(`## Unreleased — ${engine.version} candidate`);
       expect(markdown).not.toContain(`## v${engine.version} — Published`);
     }
     expect(generatedHtml).toContain(`memoire changelog - synced with CHANGELOG.md through ${releases[0].version}`);

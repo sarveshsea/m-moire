@@ -168,9 +168,13 @@ jobs:
         env:
           NPM_DIST_TAG: ${{ steps.release-channel.outputs.npm_dist_tag }}
 
+      - name: Wait for exact npm version visibility
+        run: node scripts/wait-npm-visibility.mjs
+
       - name: Verify npm signatures and attestations
         env:
           PACKAGE_SPEC: '@memi-design/cli@${{ inputs.expected_version }}'
+          NPM_CONFIG_PREFER_ONLINE: 'true'
         run: |
           audit_root="$(mktemp -d)"
           trap 'rm -rf "${audit_root}"' EXIT

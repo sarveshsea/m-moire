@@ -1,9 +1,13 @@
 # memi in Codex
 
-npm `latest` remains **2.7.9**. Published beta **2.8.0-beta.1** is available on `next`; use the exact verified beta executable for the features below. Installing `latest` does not install the beta. The [npm release record](../release-artifacts/npm/2.8.0-beta.1.release.json) binds its published source and artifact.
+**Distribution guidance:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Before installing, check `npm view @memi-design/cli@2.8.0-beta.2 version`; only install after that exact version is confirmed available. Inspect `npm view @memi-design/cli dist-tags --json` for current channels. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status. Native verification is artifact-specific; beta1 records do not validate beta2.
+
+Use `memi --version` to confirm `2.8.0-beta.2` before the recipes below. A reviewed local build is required while that exact npm version is unavailable. Stable recipes remain separately pinned to `2.7.9`. Historical beta1 publication evidence remains in its [immutable npm record](https://github.com/memi-design/memi/blob/main/release-artifacts/npm/2.8.0-beta.1.release.json); it does not establish beta2 verification.
 
 ```bash
-npx -y @memi-design/cli@2.8.0-beta.1 --version
+npm view @memi-design/cli@2.8.0-beta.2 version
+# Only after the exact version is confirmed available:
+npx -y @memi-design/cli@2.8.0-beta.2 --version
 ```
 
 Managed independent security scanning and the reviewed-candidate-audit and swiftui-rendered-rerun receipts remain pending for stable. Paper pixel parity is unassessed. Of 158 inventoried CLI paths, 105 remain deferred; broad grants do not enable them. No complete-task dollar or token savings claim is established.
@@ -28,7 +32,7 @@ The frontend evidence and metadata-only receipt commands below are beta features
 
 ## Beta MCP connection
 
-With `memi --version` reporting `2.8.0-beta.1`, print a configuration for your host:
+With `memi --version` reporting `2.8.0-beta.2`, print a configuration for your host:
 
 ```bash
 memi mcp config --target generic

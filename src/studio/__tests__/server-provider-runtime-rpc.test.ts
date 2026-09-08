@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
 import { defaultStudioConfig, saveStudioConfig } from "../config.js";
 import { StudioRuntimeServer } from "../server.js";
+import type { StudioSession } from "../types.js";
 import {
   MemoryTelemetrySink,
   type OpenTelemetryProjection,
@@ -220,7 +221,7 @@ async function waitForSession(server: StudioRuntimeServer, sessionId: string): P
   while (Date.now() < deadline) {
     const session = server.getSession(sessionId);
     if (session && session.status !== "running") {
-      expect(session.status, `Studio session exited with code ${session.exitCode}`).toBe("completed");
+      expect(session.status, `Studio session failure metadata: ${JSON.stringify(sessionFailureMetadata(session))}`).toBe("completed");
       expect(session.exitCode).toBe(0);
       return;
     }
@@ -236,4 +237,33 @@ async function waitFor(predicate: () => boolean): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 25));
   }
   throw new Error("timed out waiting for telemetry");
+}
+
+/** Fixed metadata only: session text, paths and environment never enter failure output. */
+function sessionFailureMetadata(session: Pick<StudioSession, "exitCode" | "harness" | "events">) {
+  const stderrEvents = session.events.filter(event => event.type === "stderr");
+  const boundedText = (type: "stdout" | "stderr") => {
+    let text = "";
+    for (const event of session.events) {
+      if (event.type === type) text += event.message.slice(0, 16384 - text.length);
+      if (text.length === 16384) break;
+    }
+    return text;
+  };
+  const stderr = boundedText("stderr"), stdout = boundedText("stdout");
+  const code = session.exitCode;
+  return {
+    exitCode: code,
+    exitCodeHex: code === null ? null : `0x${(code >>> 0).toString(16).padStart(8, "0")}`,
+    harness: session.harness === "shell" ? "shell" : "unexpected",
+    stderrBytes: stderrEvents.reduce((total, event) => total + Buffer.byteLength(event.message), 0),
+    inspectedStderrBytes: Buffer.byteLength(stderr),
+    msysFailureFlags: {
+      cygheap: /cygheap/i.test(stderr),
+      forkFailure: /(?:fork.*(?:fail|unable)|unable to fork)/i.test(stderr),
+      dllFailure: /(?:dll.*(?:fail|missing|mismatch)|unable to load.*dll)/i.test(stderr),
+      singleStep: /(?:STATUS_SINGLE_STEP|0x80000004)/i.test(stderr),
+    },
+    fixtureSentinelSeen: ["provider runtime", "private model content"].some(sentinel => stdout.includes(sentinel)),
+  };
 }

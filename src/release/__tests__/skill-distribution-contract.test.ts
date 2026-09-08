@@ -93,3 +93,24 @@ describe('actual canonical skill distribution', () => {
     })).toEqual([]);
   });
 });
+
+
+describe('reviewed beta.2 supported skill distribution', () => {
+  const options = { engineState: 'published', version: '2.8.0-beta.2' };
+  const recipe = (name: string) => publishedBeta(name).replaceAll('2.8.0-beta.1', '2.8.0-beta.2');
+  it.each(names)('requires every supported contract for %s', name => {
+    expect(evaluate(name, recipe(name), options)).toEqual([]);
+    for (const term of betaTerms[name]) {
+      expect(evaluate(name, recipe(name).replace(term, ''), options)).not.toEqual([]);
+    }
+  });
+  it.each(['memi agent install --dry-run --json', 'memi init --team', 'memi ios scaffold --dry-run', 'memi mcp start --no-figma'])('rejects unsupported recipe %s', command => {
+    expect(evaluate('audit-frontend-design', recipe('audit-frontend-design') + `\n\`\`\`bash\n${command}\n\`\`\``, options)).not.toEqual([]);
+  });
+  it.each(['latest', 'next', '2.7.9', '2.8.0-beta.1'])('rejects non-exact pin %s', pin => {
+    expect(evaluate('audit-frontend-design', recipe('audit-frontend-design').replace('cli@2.8.0-beta.2', `cli@${pin}`), options)).not.toEqual([]);
+  });
+  it('requires published beta availability language', () => {
+    expect(evaluate('audit-frontend-design', recipe('audit-frontend-design').replace('Published beta', 'Available'), options)).not.toEqual([]);
+  });
+});

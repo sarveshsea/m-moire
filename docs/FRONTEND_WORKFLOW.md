@@ -1,6 +1,8 @@
 # Frontend engineering with the 2.8 beta
 
-This workflow uses published beta `2.8.0-beta.1`, available on `next`. npm `latest` remains `2.7.9`. Verify the exact version with `npx -y @memi-design/cli@2.8.0-beta.1 --version`; an existing `memi` on PATH must report that beta version before running the commands below. See the [immutable npm record](../release-artifacts/npm/2.8.0-beta.1.release.json). Development builds and historical candidate receipts remain separate from published artifact evidence.
+**Distribution guidance:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Before installing, check `npm view @memi-design/cli@2.8.0-beta.2 version`; only install after that exact version is confirmed available. Inspect `npm view @memi-design/cli dist-tags --json` for current channels. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status. Native verification is artifact-specific; beta1 records do not validate beta2.
+
+Use `memi --version` to confirm `2.8.0-beta.2` before the recipes below. A reviewed local build is required while that exact npm version is unavailable. Stable recipes remain separately pinned to `2.7.9`. Historical beta1 publication evidence remains in its [immutable npm record](https://github.com/memi-design/memi/blob/main/release-artifacts/npm/2.8.0-beta.1.release.json); it does not establish beta2 verification.
 
 Managed independent security scanning and the reviewed-candidate-audit and swiftui-rendered-rerun receipts remain pending for stable. Paper pixel parity is unassessed. Of 158 inventoried CLI paths, 105 remain deferred; broad grants do not enable them. No complete-task dollar or token savings claim is established.
 

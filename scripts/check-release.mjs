@@ -8,7 +8,8 @@ import { applyChangelogData, parseChangelogMarkdown } from "./build-changelog-pr
 import { loadReleaseManifest, verifyCoreReleaseSurfaces } from "./lib/release-manifest.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const TRUST_CORE_BETA_VERSION = "2.8.0-beta.1";
+// Explicitly reviewed releases only; new prereleases need a new disposition.
+const TRUST_CORE_BETA_VERSIONS = Object.freeze(["2.8.0-beta.1", "2.8.0-beta.2"]);
 const TRUST_CORE_PENDING_SCORECARD_EVIDENCE =
   "Evidence is stale at release time: reviewed-candidate-audit, swiftui-rendered-rerun";
 const TRUST_CORE_PENDING_SCORECARD_LIMITATION =
@@ -59,7 +60,7 @@ export function evaluateSkillDistributionGate({ skillName, content, version, eng
   };
   requireTerm(`name: ${skillName}`);
   const candidate = engineState === "candidate";
-  const publishedBeta = engineState === "published" && version === TRUST_CORE_BETA_VERSION;
+  const publishedBeta = engineState === "published" && TRUST_CORE_BETA_VERSIONS.includes(version);
   const publicVersion = candidate ? previousPublicVersion : version;
   for (const match of content.matchAll(/@memi-design\/cli@([^\s`"']+)/g)) {
     if (match[1] !== publicVersion) errors.push(`${skillName} references unavailable or unpinned CLI version: ${match[1]}; expected ${publicVersion}`);
@@ -103,7 +104,7 @@ export function evaluateSkillDistributionGate({ skillName, content, version, eng
 export function evaluateAuditScorecardGate({ status, message, version, engineState }) {
   if (status === 0) return { failures: [], limitations: [] };
   const normalizedMessage = String(message).trim();
-  const isTrustCoreBeta = version === TRUST_CORE_BETA_VERSION
+  const isTrustCoreBeta = TRUST_CORE_BETA_VERSIONS.includes(version)
     && (engineState === "candidate" || engineState === "published");
   if (isTrustCoreBeta && normalizedMessage === TRUST_CORE_PENDING_SCORECARD_EVIDENCE) {
     return {

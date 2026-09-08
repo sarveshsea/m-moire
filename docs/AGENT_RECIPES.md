@@ -1,6 +1,8 @@
 # Memi agent recipes
 
-**npm stable: 2.7.9. Published beta: 2.8.0-beta.1 on `next`.** The beta commands below require `memi --version` to report `2.8.0-beta.1`; use the exact beta package. Stable commands remain separately pinned. See [the beta workflow](FRONTEND_WORKFLOW.md) and its limitations.
+**Distribution guidance:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Before installing, check `npm view @memi-design/cli@2.8.0-beta.2 version`; only install after that exact version is confirmed available. Inspect `npm view @memi-design/cli dist-tags --json` for current channels. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status. Native verification is artifact-specific; beta1 records do not validate beta2.
+
+Use `memi --version` to confirm `2.8.0-beta.2` before the recipes below. A reviewed local build is required while that exact npm version is unavailable. Stable recipes remain separately pinned to `2.7.9`. Historical beta1 publication evidence remains in its [immutable npm record](https://github.com/memi-design/memi/blob/main/release-artifacts/npm/2.8.0-beta.1.release.json); it does not establish beta2 verification.
 
 ## Stable read-only audit
 

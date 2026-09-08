@@ -1,3 +1,4 @@
+import { writeCliJson } from "../utils/cli-output.js";
 import { createHash } from "node:crypto";
 import { createMetadataReceipt } from "../security/metadata-receipt.js";
 import { getExecutionPolicy, MEMI_CAPABILITIES } from "../security/execution-policy.js";
@@ -69,7 +70,7 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
       const startedAt = Date.now();
       try {
         if (opts.receiptOnly && opts.agentContext) {
-          console.log(JSON.stringify(diagnosisReceipt(undefined, { errors: 1 }, startedAt, ["diagnose.options-conflict"]), null, 2));
+          await writeCliJson(diagnosisReceipt(undefined, { errors: 1 }, startedAt, ["diagnose.options-conflict"]), 2);
           process.exitCode = 1;
           return;
         }
@@ -136,12 +137,12 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
         const regressionFailed = regression?.comparable === true && regression.regressed === true;
 
         if (opts.receiptOnly) {
-          console.log(JSON.stringify(diagnosisReceipt(diagnosis, {
+          await writeCliJson(diagnosisReceipt(diagnosis, {
             gateFailed: Number(failed || regressionFailed),
             gatingIssues: gatingIssues.length,
             suppressedByBaseline: suppressedCount,
             errors: 0,
-          }, startedAt), null, 2));
+          }, startedAt), 2);
           if (failed || regressionFailed) process.exitCode = 1;
           return;
         }
@@ -156,19 +157,19 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
               routingMode: contextRoutingMode(opts.contextRouting ?? "auto"),
             },
           );
-          console.log(JSON.stringify({
+          await writeCliJson({
             ...context,
             gate: { failOn, failed, baselineApplied: Boolean(opts.baseline), gatingIssues: gatingIssues.length, suppressedByBaseline: suppressedCount, regression },
-          }, null, 2));
+          }, 2);
           if (failed || regressionFailed) process.exitCode = 1;
           return;
         }
 
         if (opts.json) {
-          console.log(JSON.stringify({
+          await writeCliJson({
             ...diagnosis,
             gate: { failOn, failed, baselineApplied: Boolean(opts.baseline), gatingIssues: gatingIssues.length, suppressedByBaseline: suppressedCount, regression },
-          }, null, 2));
+          }, 2);
           if (failed || regressionFailed) process.exitCode = 1;
           return;
         }
@@ -196,9 +197,9 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         if (opts.receiptOnly) {
-          console.log(JSON.stringify(diagnosisReceipt(undefined, { errors: 1 }, startedAt, ["diagnose.failed"]), null, 2));
+          await writeCliJson(diagnosisReceipt(undefined, { errors: 1 }, startedAt, ["diagnose.failed"]), 2);
         } else if (opts.json || opts.agentContext) {
-          console.log(JSON.stringify({ status: "failed", error: message }));
+          await writeCliJson({ status: "failed", error: message });
         } else {
           console.log(ui.fail(message));
         }

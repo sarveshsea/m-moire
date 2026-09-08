@@ -11,6 +11,7 @@ const entry = (status: string, age: number) => ({ id: status + age, name: status
 beforeEach(() => {
   logs = []; shutdown = undefined; heartbeat = undefined; vi.clearAllMocks();
   vi.spyOn(console, 'log').mockImplementation((...args) => { logs.push(args.join(' ')); });
+  vi.spyOn(process.stdout, 'write').mockImplementation(((chunk: unknown, callback?: (error?: Error | null) => void) => { logs.push(String(chunk).replace(/\n$/, '')); callback?.(); return true; }) as typeof process.stdout.write);
   engine = { config: { projectRoot: '/synthetic/project' }, init: vi.fn(), figma: { isConnected: false }, agentRegistry: { register: vi.fn(), deregister: vi.fn(), heartbeat: vi.fn(), getAll: vi.fn(() => []), get: vi.fn() }, agentBridge: { broadcastRegistration: vi.fn(), broadcastDeregistration: vi.fn() }, taskQueue: { getStats: () => ({ pending: 1, running: 2, completed: 3, failed: 4 }) } };
   fx.brief.mockReturnValue({ agent: 'codex', mode: 'local', detail: 'compact', target: '.', intent: 'Review', evidenceCommands: [{ command: 'memi diagnose', why: 'evidence', cost: 'low' }], designRules: ['Reuse'], handoffChecklist: ['Verify'] });
   fx.install.mockResolvedValue({ status: 'planned', suiteManifest: { destination: '/fixture/suite' }, plans: [{ target: 'universal', kind: 'skill', destination: '/fixture/skill', exists: true, note: 'Review' }, { target: 'codex', kind: 'mcp', destination: '/fixture/mcp', exists: false, note: 'New' }] });

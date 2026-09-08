@@ -33,7 +33,7 @@ describe("release manifest", () => {
       schemaVersion: 1,
       releaseGroups: {
         engine: {
-          version: "2.8.0-beta.1",
+          version: "2.8.0-beta.2",
 
           previousPublicRelease: {
             version: "2.7.9",
@@ -50,7 +50,7 @@ describe("release manifest", () => {
           releaseGroup: "engine",
           repository: "memi-design/memi",
           tagPrefix: "v",
-          url: "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.1",
+          url: "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.2",
         },
         githubAction: { releaseGroup: "engine", majorTag: "v2" },
         mcp: { releaseGroup: "engine", serverName: "io.github.memi-design/memi" },
@@ -79,9 +79,18 @@ describe("release manifest", () => {
     }
   });
 
+  it("retains the immutable npm-only beta1 record during beta2 preparation", async () => {
+    const recordPath = "release-artifacts/npm/2.8.0-beta.1.release.json";
+    const bytes = await readFile(join(root, recordPath), "utf8");
+    const record = JSON.parse(bytes);
+    expect(record.version).toBe("2.8.0-beta.1");
+    expect(record.sourceCommit).toBe("71d17ecb8b44a39d81e18a831155eb010779bdfe");
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe("2d5b4713c99b65faf933c62338b496d880f11c05f2fdc7574467681ffe9a064e");
+  });
+
   it("preserves candidate null-evidence requirements in a frozen candidate fixture", async () => {
     const template = JSON.parse(await readFile(manifestPath, "utf8"));
-    const candidate = {...template, releaseGroups: {...template.releaseGroups, engine: {version: "2.8.0-beta.1", state: "candidate", sourceCommit: null, releaseRecord: null, previousPublicRelease: {version: "2.7.9", sourceCommit: publicEngineSourceCommit, releaseRecord: publicReleaseRecord}, verification: {eligibleForParity: false, reason: "Synthetic candidate fixture"}}}};
+    const candidate = {...template, surfaces: {...template.surfaces, githubRelease: {...template.surfaces.githubRelease, url: "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.1"}}, releaseGroups: {...template.releaseGroups, engine: {version: "2.8.0-beta.1", state: "candidate", sourceCommit: null, releaseRecord: null, previousPublicRelease: {version: "2.7.9", sourceCommit: publicEngineSourceCommit, releaseRecord: publicReleaseRecord}, verification: {eligibleForParity: false, reason: "Synthetic candidate fixture"}}}};
     expect(validateReleaseManifest(candidate)).toEqual([]);
     expect(validateReleaseManifest({...candidate, releaseGroups: {...candidate.releaseGroups, engine: {...candidate.releaseGroups.engine, sourceCommit: "a".repeat(40)}}})).toContain("candidate engine release sourceCommit must be null");
   });

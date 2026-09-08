@@ -1,3 +1,4 @@
+import { writeCliJson } from "../utils/cli-output.js";
 /**
  * Agent Command — Manage multi-Claude agent instances.
  *
@@ -75,7 +76,7 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
             maxBytes: Number(opts.maxBytes),
           });
           // Compact JSON preserves the declared byte budget, including when used through a skill.
-          console.log(JSON.stringify(result));
+          await writeCliJson(result);
           return;
         }
         const brief = buildDesignAgentBrief({
@@ -88,7 +89,7 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
         });
 
         if (opts.json) {
-          console.log(JSON.stringify(brief, null, 2));
+          await writeCliJson(brief, 2);
           return;
         }
 
@@ -119,11 +120,11 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         if (opts.json) {
-          console.log(JSON.stringify({
+          await writeCliJson({
             action: "brief",
             status: "failed",
             error: { message: msg },
-          }, null, 2));
+          }, 2);
         } else {
           console.log(ui.fail(msg));
         }

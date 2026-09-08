@@ -1,12 +1,14 @@
 # Memoire Docs
 
+**Distribution guidance:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Before installing, check `npm view @memi-design/cli@2.8.0-beta.2 version`; only install after that exact version is confirmed available. Inspect `npm view @memi-design/cli dist-tags --json` for current channels. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status. Native verification is artifact-specific; beta1 records do not validate beta2.
+
 Memoire is interface understanding for AI coding agents. It gives agents design-system memory, UX audit evidence, interface craft critique, SwiftUI planning and scaffolding, research context, shadcn registry output, MCP tools, and installable skill packages before they edit a product UI.
 
 Use this docs map to avoid treating the README as a dumping ground. The root README should convert npm visitors; these docs should carry the deeper workflows.
 
 ## Fastest proof
 
-The command block below targets stable 2.7.9. For beta 2.8.0-beta.1, use the [frontend workflow](FRONTEND_WORKFLOW.md).
+The command block below targets stable 2.7.9. For the exact 2.8 beta workflow and conditional installation, use the [frontend workflow](FRONTEND_WORKFLOW.md).
 
 ```bash
 npm i -g @memi-design/cli

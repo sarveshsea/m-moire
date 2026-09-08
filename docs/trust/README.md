@@ -1,12 +1,14 @@
 # Memi Trust Core
 
+**Distribution guidance:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Before installing, check `npm view @memi-design/cli@2.8.0-beta.2 version`; only install after that exact version is confirmed available. Inspect `npm view @memi-design/cli dist-tags --json` for current channels. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status. Native verification is artifact-specific; beta1 records do not validate beta2.
+
 This directory is the review surface for the `@memi-design/cli` 2.8 Trust Core
 beta. It defines the security boundary, artifact-specific evidence and remaining
 qualification requirements. Beta publication does not establish stable certification.
 
-## Current status
+## Beta1 publication checkpoint
 
-| Item | Status on 2026-09-08 |
+| Item | Historical status at beta1 publication on 2026-09-08 |
 | --- | --- |
 | Public CLI | 2.7.9 remains the published stable release. |
 | 2.8 Trust Core | 2.8.0-beta.1 is published on `next`; it is not stable or approved for internal use. |

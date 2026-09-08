@@ -1,9 +1,12 @@
 # Known limitations
 
-## Beta status
+**Distribution guidance:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Before installing, check `npm view @memi-design/cli@2.8.0-beta.2 version`; only install after that exact version is confirmed available. Inspect `npm view @memi-design/cli dist-tags --json` for current channels. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status. Native verification is artifact-specific; beta1 records do not validate beta2.
 
-- npm `latest` remains 2.7.9. Published Trust Core beta 2.8.0-beta.1 is available
-  on `next`; see the [artifact verification](FRONTEND_2_8_VERIFICATION.md).
+## Beta1 publication checkpoint
+
+- At the beta1 publication checkpoint, npm `latest` was 2.7.9 and `next` was
+  2.8.0-beta.1; see the [artifact verification](FRONTEND_2_8_VERIFICATION.md).
+  This historical state does not establish current registry channels or beta2 verification.
 - The managed Codex Deep Security Scan is pending because this host does not provide a managed filesystem permission profile.
 - A beta may disclose that pending scan. Stable and employer-safe claims require
   a completed independent scan with no unresolved critical or high findings.

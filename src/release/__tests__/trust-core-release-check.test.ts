@@ -126,11 +126,33 @@ describe("published beta release boundaries", () => {
   });
   it.each([
     ["2.8.0", "published", staleEvidenceFailure],
-    ["2.8.0-beta.2", "published", staleEvidenceFailure],
+    ["2.8.0-beta.3", "published", staleEvidenceFailure],
     [betaVersion, "unknown", staleEvidenceFailure],
     [betaVersion, "published", `${staleEvidenceFailure}\nScorecard digest mismatch`],
     [betaVersion, "published", "Scorecard digest mismatch"],
   ])("blocks unsupported exception %s/%s/%s", (version, engineState, message) => {
+    expect(evaluateAuditScorecardGate({ status: 1, message, version, engineState })).toEqual({ failures: [`audit scorecard gate failed: ${message}`], limitations: [] });
+  });
+});
+
+
+describe("reviewed beta.2 disposition", () => {
+  it.each(["candidate", "published"])("retains the same two named limitations for beta.2 %s", engineState => {
+    expect(evaluateAuditScorecardGate({ status: 1, message: staleEvidenceFailure, version: "2.8.0-beta.2", engineState })).toEqual({
+      failures: [],
+      limitations: ["TRUST_CORE_BETA_PENDING_DESIGNWORKBENCH_EVIDENCE: reviewed-candidate-audit and swiftui-rendered-rerun must be refreshed before stable"],
+    });
+  });
+  it.each([
+    ["2.8.0-beta.3", "published", staleEvidenceFailure],
+    ["2.8.0-beta.2", "unknown", staleEvidenceFailure],
+    ["2.8.0-beta.3", "candidate", staleEvidenceFailure],
+    ["2.8.0", "candidate", staleEvidenceFailure],
+    ["2.8.0", "published", staleEvidenceFailure],
+    ["2.8.0-beta.2", "candidate", `${staleEvidenceFailure}\nScorecard digest mismatch`],
+    ["2.8.0-beta.2", "candidate", "Evidence is stale at release time: reviewed-candidate-audit"],
+    ["2.8.0-beta.2", "candidate", "Native standalone smoke failed"],
+  ])("blocks unreviewed scope %s/%s/%s", (version, engineState, message) => {
     expect(evaluateAuditScorecardGate({ status: 1, message, version, engineState })).toEqual({ failures: [`audit scorecard gate failed: ${message}`], limitations: [] });
   });
 });
