@@ -390,7 +390,7 @@ describe("Trust Core command preflight", () => {
   it("maps preview, publish, research, pull, sync, and export options to exact grants", async () => {
     await expectExactCapabilities(
       { commandPath: ["ci"], options: { json: true }, args: [] },
-      ["project-write", "source-content-persistence"],
+      ["project-write", "source-content-persistence", "shell"],
     );
     await expectExactCapabilities(
       { commandPath: ["preview"], options: { buildOnly: true }, args: [] },

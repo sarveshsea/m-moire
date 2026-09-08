@@ -24,6 +24,116 @@ const READ_ONLY_COMMAND_PATHS: readonly string[] = Object.freeze([
   "diff",
 ]);
 
+// These registered legacy actions are intentionally unavailable until their
+// option-dependent effects have been audited. Unknown future paths still fail closed.
+const UNAVAILABLE_COMMAND_PATHS: ReadonlySet<string> = new Set([
+  "add",
+  "agent.kill",
+  "agent.list",
+  "agent.status",
+  "benchmark.codex-run",
+  "benchmark.fitness",
+  "benchmark.fitness-backtest",
+  "benchmark.fitness-record",
+  "benchmark.plan",
+  "benchmark.prospective-evaluate",
+  "benchmark.prospective-freeze",
+  "benchmark.prospective-preflight",
+  "benchmark.record",
+  "benchmark.regrade",
+  "benchmark.report",
+  "benchmark.retention",
+  "benchmark.workflow-plan",
+  "benchmark.workflow-run",
+  "daemon.start",
+  "daemon.status",
+  "daemon.stop",
+  "dashboard",
+  "design-doc",
+  "fix.apply",
+  "fix.plan",
+  "go",
+  "heartbeat",
+  "ia.create",
+  "ia.extract",
+  "ia.list",
+  "ia.show",
+  "ia.validate",
+  "init",
+  "ios.brief",
+  "ios.scaffold",
+  "list",
+  "mermaid-jam.analyze",
+  "mermaid-jam.corpus.status",
+  "mermaid-jam.corpus.sync",
+  "mermaid-jam.export",
+  "mermaid-jam.open",
+  "mermaid-jam.status",
+  "notes.doctor",
+  "notes.info",
+  "notes.list",
+  "notes.outdated",
+  "notes.route",
+  "notes.search",
+  "prototype",
+  "registry.doctor",
+  "registry.info",
+  "registry.install",
+  "registry.list",
+  "registry.search",
+  "scaffold.component",
+  "scaffold.page",
+  "shadcn.doctor",
+  "shadcn.export",
+  "shadcn.serve",
+  "simulate.compare",
+  "simulate.costs",
+  "simulate.export-spec",
+  "simulate.generate-agents",
+  "simulate.interview",
+  "simulate.models",
+  "simulate.plan",
+  "simulate.report",
+  "simulate.run",
+  "simulate.run-matrix",
+  "simulate.status",
+  "simulate.stream",
+  "simulate.transcript",
+  "spec.component",
+  "spec.dataviz",
+  "spec.design",
+  "spec.list",
+  "spec.page",
+  "studio.automations.list",
+  "studio.automations.run",
+  "studio.automations.run-due",
+  "studio.automations.scheduler.install",
+  "studio.automations.scheduler.status",
+  "studio.automations.scheduler.uninstall",
+  "studio.logs",
+  "studio.tui",
+  "studio.visual-parity",
+  "suite.doctor",
+  "suite.init",
+  "suite.run",
+  "theme.apply",
+  "theme.diff",
+  "theme.import",
+  "theme.preview",
+  "theme.publish",
+  "theme.validate",
+  "theme.variants",
+  "trace.export",
+  "trace.inspect",
+  "trace.list",
+  "validate",
+  "video.create",
+  "video.preview",
+  "video.render",
+  "video.status",
+  "watch",
+]);
+
 export async function preflightCommand(
   policy: MemiExecutionPolicy,
   invocation: CommandInvocation,
@@ -41,6 +151,14 @@ export async function preflightCommand(
     return { optionOverrides: Object.freeze({}) };
   }
 
+  if (UNAVAILABLE_COMMAND_PATHS.has(path)) {
+    throw new MemiCapabilityDeniedError({
+      profile: policy.profile,
+      capability: "command-mapping",
+      operation: `execute unavailable command "${path}". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified`,
+    });
+  }
+
   switch (path) {
     case "ux.audit":
     case "craft.audit":
@@ -54,7 +172,9 @@ export async function preflightCommand(
       // Diagnose still writes its reports and history beneath the legacy
       // `.memoire/` tree. Local mode only permits `.memi/`, so keep diagnose
       // read-only until those report paths are migrated behind the broker.
-      if (policy.profile === "locked" || policy.profile === "local") {
+      if (path === "diagnose" && invocation.options.receiptOnly) {
+        overrides.write = false;
+      } else if (policy.profile === "locked" || policy.profile === "local") {
         if (invocation.options.write !== false || path === "diagnose") overrides.write = false;
       } else if (invocation.options.write !== false) {
         requireLocalWrite(

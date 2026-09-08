@@ -9,7 +9,7 @@ async function commandTree(): Promise<Command> {
   const program = new Command();
   for (const file of await readdir(join(import.meta.dirname, "../../commands"))) {
     if (!file.endsWith(".ts")) continue;
-    const module = await import(`../../commands/${file}`);
+    const module = await import(/* @vite-ignore */ `../../commands/${file}`);
     for (const [name, register] of Object.entries(module)) {
       if (/^register.+Command$/.test(name)) (register as Function)(program, { config: { projectRoot: process.cwd() } });
     }
