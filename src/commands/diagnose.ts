@@ -1,3 +1,7 @@
+import { createHash } from "node:crypto";
+import { createMetadataReceipt } from "../security/metadata-receipt.js";
+import { getExecutionPolicy, MEMI_CAPABILITIES } from "../security/execution-policy.js";
+import { getMemoirePackageVersion } from "../utils/package-version.js";
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { diagnoseAppQuality, type AppQualityDiagnosis, type AppQualitySeverity, type AppQualityIssue } from "../app-quality/engine.js";
@@ -9,6 +13,7 @@ import { buildRepositoryAgentAuditContext } from "../app-quality/agent-context.j
 
 interface DiagnoseOptions {
   json?: boolean;
+  receiptOnly?: boolean;
   maxFiles?: string;
   write?: boolean;
   failOn?: string;
@@ -45,6 +50,7 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
     .command("diagnose [target]")
     .description("Audit web or SwiftUI source, or a web URL")
     .option("--json", "Output the diagnosis as JSON")
+    .option("--receipt-only", "Emit metadata-only JSON without source, paths, or persisted reports")
     .option("--agent-context", "Emit bounded repository intelligence for a coding agent (implies JSON)")
     .option("--context-files <count>", "Maximum high-signal files in --agent-context", "40")
     .option("--context-issues <count>", "Maximum findings in --agent-context", "20")
@@ -60,7 +66,13 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
     .option("--trend", "Show the score trend from .memoire/app-quality/history.jsonl (comparable runs only: same policy hash, full scans)")
     .option("--fail-on-regression [points]", "Exit non-zero when the score drops more than [points] (default 0) vs the last comparable full-scan entry")
     .action(async (target: string | undefined, opts: DiagnoseOptions) => {
+      const startedAt = Date.now();
       try {
+        if (opts.receiptOnly && opts.agentContext) {
+          console.log(JSON.stringify(diagnosisReceipt(undefined, { errors: 1 }, startedAt, ["diagnose.options-conflict"]), null, 2));
+          process.exitCode = 1;
+          return;
+        }
         const policy = await loadPolicy(engine.config.projectRoot);
         // Precedence: explicit CLI flag > committed policy > built-in default.
         const failOn = (opts.failOn ?? policy.gates.failOn).toLowerCase();
@@ -82,7 +94,7 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
           projectRoot: engine.config.projectRoot,
           target,
           maxFiles: Number.isFinite(maxFiles) ? maxFiles : 500,
-          write: opts.write !== false,
+          write: opts.receiptOnly ? false : opts.write !== false,
           policy,
           scope,
         });
@@ -111,7 +123,7 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
             const budget = typeof opts.failOnRegression === "string" ? Number.parseInt(opts.failOnRegression, 10) : 0;
             regression = checkRegression(currentEntry, history, Number.isFinite(budget) ? budget : 0);
           }
-          if (opts.trend && !opts.json) {
+          if (opts.trend && !opts.json && !opts.receiptOnly && !opts.agentContext) {
             const lines = renderTrend(history, diagnosis.policy?.hash, currentEntry.coverageFingerprint);
             console.log(ui.section("Score trend (comparable runs)"));
             if (lines.length === 0) {
@@ -122,6 +134,17 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
           }
         }
         const regressionFailed = regression?.comparable === true && regression.regressed === true;
+
+        if (opts.receiptOnly) {
+          console.log(JSON.stringify(diagnosisReceipt(diagnosis, {
+            gateFailed: Number(failed || regressionFailed),
+            gatingIssues: gatingIssues.length,
+            suppressedByBaseline: suppressedCount,
+            errors: 0,
+          }, startedAt), null, 2));
+          if (failed || regressionFailed) process.exitCode = 1;
+          return;
+        }
 
         if (opts.agentContext) {
           const context = await buildRepositoryAgentAuditContext(
@@ -172,7 +195,9 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        if (opts.json || opts.agentContext) {
+        if (opts.receiptOnly) {
+          console.log(JSON.stringify(diagnosisReceipt(undefined, { errors: 1 }, startedAt, ["diagnose.failed"]), null, 2));
+        } else if (opts.json || opts.agentContext) {
           console.log(JSON.stringify({ status: "failed", error: message }));
         } else {
           console.log(ui.fail(message));
@@ -205,7 +230,16 @@ function positiveInteger(value: string, label: string): number {
 function printDiagnosis(diagnosis: AppQualityDiagnosis, wroteReports: boolean): void {
   console.log(ui.brand("Design engineering audit"));
   console.log(ui.dots("Target", diagnosis.target));
-  console.log(ui.dots("Score", `${diagnosis.summary.score}/100`));
+  const score = diagnosis.quality?.score ?? (diagnosis.summary.scoreScope === "none" ? null : diagnosis.summary.score);
+  console.log(ui.dots("Assessed score", score === null ? "unassessed" : `${score}/100 (assessed checks only)`));
+  if (diagnosis.quality) console.log(ui.dots("Category coverage", `${Math.round(diagnosis.quality.coverage * 100)}% — scanned files only`));
+  if (diagnosis.scanCompleteness) {
+    const scan = diagnosis.scanCompleteness;
+    console.log(ui.dots("Scan scope", `${scan.complete ? "complete" : "incomplete"} within eligible files; ${scan.omissions.length} omitted or excluded path(s)`));
+    const reasons = [...new Set(scan.omissions.map(omission => omission.reason))];
+    if (reasons.length) console.log(ui.dots("Omissions", reasons.join(", ")));
+  }
+  if (diagnosis.classExtraction) console.log(ui.dots("Static classes", `${diagnosis.classExtraction.unknownExpressions} unknown expression(s); ${diagnosis.classExtraction.parseFailures} parse failure(s)`));
   console.log(ui.dots("Verdict", diagnosis.summary.verdict));
   console.log(ui.dots("Files", String(diagnosis.summary.scannedFiles)));
   if (diagnosis.summary.scanMs !== undefined || diagnosis.summary.analysisMs !== undefined) {
@@ -235,7 +269,7 @@ function printDiagnosis(diagnosis: AppQualityDiagnosis, wroteReports: boolean): 
   if (diagnosis.issues.length === 0) {
     console.log(diagnosis.unassessedDimensions.length > 0
       ? ui.dim("No findings from assessed checks; unassessed dimensions remain unverified")
-      : ui.ok("No major app-quality issues detected"));
+      : ui.ok("No findings from assessed static checks"));
   } else {
     for (const issue of diagnosis.issues.slice(0, 6)) {
       const label = `${issue.severity.toUpperCase()} ${issue.category}`;
@@ -269,4 +303,34 @@ function printDiagnosis(diagnosis: AppQualityDiagnosis, wroteReports: boolean): 
     console.log(ui.dim("  Reports written to .memoire/app-quality/diagnosis.{json,md}"));
   }
   console.log();
+}
+
+/** Only schema-approved identifiers, counts and digests cross this output boundary. */
+function diagnosisReceipt(diagnosis: AppQualityDiagnosis | undefined, counts: Record<string, number>, startedAt: number,
+  failureRules: string[] = []): ReturnType<typeof createMetadataReceipt> {
+  const policy = getExecutionPolicy();
+  const commit = process.env.MEMI_BUILD_COMMIT;
+  return createMetadataReceipt({
+    command: "diagnose",
+    version: getMemoirePackageVersion(),
+    commit: commit && /^[a-f0-9]{40,64}$/i.test(commit) ? commit : "unknown",
+    policy,
+    ruleIds: diagnosis ? [...new Set(diagnosis.issues.map(issue => issue.normalizedId))].sort() : failureRules,
+    counts: {
+      ...counts,
+      ...(diagnosis ? {
+        scannedFiles: diagnosis.summary.scannedFiles,
+        findings: diagnosis.issues.length,
+        omittedPaths: diagnosis.scanCompleteness?.omissions.length ?? 0,
+        scanComplete: Number(diagnosis.scanCompleteness?.complete === true),
+        unknownClassExpressions: diagnosis.classExtraction?.unknownExpressions ?? 0,
+        classParseFailures: diagnosis.classExtraction?.parseFailures ?? 0,
+      } : {}),
+    },
+    hashes: diagnosis ? { diagnosis: createHash("sha256").update(JSON.stringify(diagnosis)).digest("hex") } : {},
+    durationMs: Math.max(0, Date.now() - startedAt),
+    decisions: MEMI_CAPABILITIES.map(capability => ({
+      capability, allowed: policy.allows(capability), reason: policy.allows(capability) ? "granted-by-policy" : "not-granted",
+    })),
+  });
 }
