@@ -117,10 +117,13 @@ export async function runProcess(command, args, options = {}) {
     });
     child.stderr.on("data", (chunk) => {
       stderr = capture(stderr, chunk);
+      try { options.onStderr?.(chunk); } catch {
+        terminate(new Error("subprocess stderr observer failed"));
+      }
     });
 
     const timer = setTimeout(() => {
-      terminate(new Error(`${options.label ?? command} timed out after ${timeoutMs}ms`));
+      terminate(Object.assign(new Error(`${options.label ?? command} timed out after ${timeoutMs}ms`), { code: "MEMI_PROCESS_TIMEOUT" }));
     }, timeoutMs);
     timer.unref?.();
 
@@ -147,6 +150,77 @@ export async function runProcess(command, args, options = {}) {
       });
     });
   });
+}
+
+const NPM_TIMING_PHASES = new Set([
+  "npm", "command", "idealTree", "reify", "reifyNode", "build", "load",
+]);
+
+const NPM_ERROR_CODES = new Set([
+  "ETIMEDOUT", "ENOTFOUND", "EAI_AGAIN", "ECONNRESET", "ETARGET", "ENOENT", "EPERM", "EACCES",
+]);
+
+function npmProgressCollector() {
+  const timingsMs = {}, httpStatusCounts = {};
+  const cache = { hit: 0, miss: 0, revalidated: 0 };
+  let pending = "", dropping = false, droppedLines = 0, lastCompletedPhase = null;
+  const errorCodes = new Set();
+  const parse = (line) => {
+    const timing = /^npm timing ([A-Za-z]+)(?::\S+)? Completed in (\d+)ms\r?$/.exec(line);
+    if (timing && NPM_TIMING_PHASES.has(timing[1])) {
+      const duration = Number(timing[2]);
+      if (Number.isSafeInteger(duration)) {
+        timingsMs[timing[1]] = duration;
+        lastCompletedPhase = timing[1];
+      }
+    }
+    const errorCode = /^npm (?:error|ERR!) code ([A-Z_]+)\r?$/.exec(line);
+    if (errorCode && NPM_ERROR_CODES.has(errorCode[1])) errorCodes.add(errorCode[1]);
+    if (!line.startsWith("npm http ")) return;
+    const status = /^npm http fetch (?:GET|POST|PUT|DELETE|HEAD) ([1-5]\d{2}) /.exec(line);
+    if (status) httpStatusCounts[status[1]] = (httpStatusCounts[status[1]] ?? 0) + 1;
+    const cached = /\(cache (hit|miss|revalidated)\)/.exec(line);
+    if (cached) cache[cached[1]] += 1;
+  };
+  return {
+    feed(chunk) {
+      for (const char of chunk.toString()) {
+        if (char === "\n") {
+          if (!dropping) parse(pending);
+          pending = ""; dropping = false;
+        } else if (!dropping) {
+          if (pending.length >= 8192) { pending = ""; dropping = true; droppedLines += 1; }
+          else pending += char;
+        }
+      }
+    },
+    finish() {
+      if (pending && !dropping) parse(pending);
+      pending = "";
+      return { timingsMs: { ...timingsMs }, httpStatusCounts: { ...httpStatusCounts }, cache: { ...cache }, droppedLines, lastCompletedPhase, errorCodes: [...errorCodes] };
+    },
+  };
+}
+
+export async function runNpmInstall(command, args, options = {}) {
+  if (!["packed", "baseline", "candidate"].includes(options.phase)) throw new Error("invalid npm install phase");
+  const progress = npmProgressCollector(), started = Date.now();
+  let result, failure;
+  try {
+    result = await runProcess(command, [...args, "--timing", "--loglevel=http", "--color=false"], {
+      ...options, timeoutMs: options.timeoutMs ?? 180_000, onStderr: (chunk) => progress.feed(chunk),
+    });
+  } catch (error) { failure = error; }
+  if (!failure && result.exitCode === 0) return result;
+  const diagnostics = {
+    phase: options.phase,
+    outcome: failure?.code === "MEMI_PROCESS_TIMEOUT" ? "timeout" : failure ? "process-error" : "exit",
+    exitCode: result?.exitCode ?? null,
+    elapsedMs: Math.max(0, Date.now() - started),
+    ...progress.finish(),
+  };
+  const label = { packed: "packed artifact install", baseline: "explicit baseline upgrade install", candidate: "explicit candidate upgrade install" }[options.phase];
+  throw Object.assign(new Error(`${label} failed: ${JSON.stringify(diagnostics)}`), { diagnostics });
 }
 
 export function assertCapabilityDenied(result, expected) {
@@ -266,7 +340,7 @@ export async function createPackedInstallation(options = {}) {
       artifact = join(tempRoot, record.filename);
     }
 
-    const install = await runProcess(npm.command, [
+    await runNpmInstall(npm.command, [
       ...npm.prefix,
       "install",
       "--prefer-offline",
@@ -280,8 +354,9 @@ export async function createPackedInstallation(options = {}) {
       env,
       timeoutMs: 180_000,
       label: "packed artifact install",
+      phase: "packed",
     });
-    requireSuccess(install, "packed artifact install");
+
 
     const packageName = String(packageJson.name);
     const installedRoot = join(consumerRoot, "node_modules", ...packageName.split("/"));
