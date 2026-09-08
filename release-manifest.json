@@ -4,12 +4,15 @@
   "releaseGroups": {
     "engine": {
       "version": "2.8.0-beta.2",
-      "state": "candidate",
-      "sourceCommit": null,
-      "releaseRecord": null,
+      "state": "published",
+      "sourceCommit": "51f8fb64570fd6c613244432b15fd6ea19450329",
+      "releaseRecord": {
+        "path": "release-artifacts/npm/2.8.0-beta.2.release.json",
+        "sha256": "2e16a48176a58952a812eb00f36d990f531a2aaff2e7017f0309f1ba11a268af"
+      },
       "verification": {
         "eligibleForParity": false,
-        "reason": "Beta2 candidate: Windows native package-path correction and macOS arm64 output investigation require fresh artifact validation. Beta1 remains published on npm; stable remains 2.7.9."
+        "reason": "npm publish provenance is recorded; independent public-surface parity verification is pending"
       },
       "previousPublicRelease": {
         "version": "2.7.9",
