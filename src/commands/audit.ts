@@ -237,7 +237,7 @@ export function registerAuditCommand(program: Command, engine: MemoireEngine): v
       if (opts.researchTraceability) {
         const { buildTraceabilityReport } = await import("../research/traceability.js");
         const { loadPolicy } = await import("../app-quality/policy.js");
-        await engine.research.load();
+        await engine.research.load({ readOnly: true, projectRoot: engine.config.projectRoot });
         const specs = await engine.registry.getAllSpecs();
         const report = buildTraceabilityReport(specs, engine.research.getStore().findings);
         const policy = await loadPolicy(engine.config.projectRoot);

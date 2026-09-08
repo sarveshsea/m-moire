@@ -372,20 +372,23 @@ function renderConflicts(syncState) {
   btn.classList.remove('hidden');
   countEl.textContent = String(syncState.conflictCount || syncState.conflicts.length);
 
-  body.innerHTML = syncState.conflicts.map(function(c) {
-    var figHash = (c.figmaHash || '').slice(0, 8);
-    var codeHash = (c.codeHash || '').slice(0, 8);
-    return '<div class="conflict-row">' +
-      '<div>' +
-        '<div class="conflict-name">' + escapeHtml(c.name) + '</div>' +
-        '<div class="conflict-detail">' + c.entityType + ' / figma:' + figHash + ' vs code:' + codeHash + '</div>' +
-      '</div>' +
-      '<div class="conflict-actions">' +
-        '<button class="conflict-btn figma" onclick="resolveConflict(\'' + escapeHtml(c.name) + '\',\'figma-wins\')">Figma wins</button>' +
-        '<button class="conflict-btn code" onclick="resolveConflict(\'' + escapeHtml(c.name) + '\',\'code-wins\')">Code wins</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+  body.replaceChildren(...syncState.conflicts.map(function(c) {
+    const row = document.createElement('div');
+    row.className = 'conflict-row';
+    const figHash = String(c.figmaHash || '').slice(0, 8);
+    const codeHash = String(c.codeHash || '').slice(0, 8);
+    row.innerHTML = '<div>' +
+      '<div class="conflict-name">' + escapeHtml(c.name) + '</div>' +
+      '<div class="conflict-detail">' + escapeHtml(c.entityType) + ' / figma:' + escapeHtml(figHash) + ' vs code:' + escapeHtml(codeHash) + '</div>' +
+      '</div><div class="conflict-actions">' +
+      '<button class="conflict-btn figma" type="button">Figma wins</button>' +
+      '<button class="conflict-btn code" type="button">Code wins</button>' +
+      '</div>';
+    // Connector names are data, never JavaScript source in inline handlers.
+    row.querySelector('.figma').addEventListener('click', () => resolveConflict(c.name, 'figma-wins'));
+    row.querySelector('.code').addEventListener('click', () => resolveConflict(c.name, 'code-wins'));
+    return row;
+  }));
 }
 
 async function resolveConflict(name, resolution) {
@@ -397,7 +400,7 @@ async function resolveConflict(name, resolution) {
     });
     checkFigmaStatus();
   } catch (err) {
-    addLog('error', 'Failed to resolve conflict: ' + err.message);
+    showToast('Failed to resolve conflict: ' + err.message, 'error');
   }
 }
 
@@ -429,8 +432,10 @@ async function fetchResearch() {
 
 function renderResearchPanel(data) {
   var body = document.getElementById('research-panel-body');
-  var findings = data && (data.findings || data.insights) || [];
-  if (!data || (!findings?.length && !data.personas?.length && !data.themes?.length)) {
+  var findings = Array.isArray(data?.findings) ? data.findings : Array.isArray(data?.insights) ? data.insights : [];
+  var personas = Array.isArray(data?.personas) ? data.personas : [];
+  var themes = Array.isArray(data?.themes) ? data.themes : [];
+  if (!data || (!findings?.length && !personas.length && !themes.length)) {
     body.innerHTML = '<div class="research-empty">No research data. Run: memi research from-file &lt;file&gt;</div>';
     return;
   }
@@ -441,7 +446,7 @@ function renderResearchPanel(data) {
   if (data.coverage) {
     var pct = Math.round(data.coverage.ratio * 100);
     html += '<div class="research-coverage">' +
-      '<span>Coverage: ' + data.coverage.covered + '/' + data.coverage.total + ' specs (' + pct + '%)</span>' +
+      '<span>Coverage: ' + escapeHtml(data.coverage.covered) + '/' + escapeHtml(data.coverage.total) + ' specs (' + pct + '%)</span>' +
       '<div class="research-bar"><div class="research-bar-fill" style="width:' + pct + '%"></div></div>' +
     '</div>';
   }
@@ -454,7 +459,7 @@ function renderResearchPanel(data) {
       var tags = (ins.tags || []).slice(0, 3).map(function(t) { return '<span class="research-tag">' + escapeHtml(t) + '</span>'; }).join('');
       html += '<div class="research-item">' +
         '<div style="color:var(--fg)">' + escapeHtml(ins.statement || ins.finding) + '</div>' +
-        '<div style="margin-top:2px">' + tags + ' <span style="color:var(--fg-dim)">' + ins.confidence + '</span></div>' +
+        '<div style="margin-top:2px">' + tags + ' <span style="color:var(--fg-dim)">' + escapeHtml(ins.confidence) + '</span></div>' +
       '</div>';
     }
     if (findings.length > 10) {
@@ -463,23 +468,23 @@ function renderResearchPanel(data) {
   }
 
   // Personas
-  if (data.personas?.length) {
-    html += '<div class="research-section">PERSONAS (' + data.personas.length + ')</div>';
-    for (var p = 0; p < data.personas.length; p++) {
-      var persona = data.personas[p];
+  if (personas.length) {
+    html += '<div class="research-section">PERSONAS (' + personas.length + ')</div>';
+    for (var p = 0; p < personas.length; p++) {
+      var persona = personas[p];
       html += '<div class="research-item">' +
         '<div style="color:var(--fg);font-weight:500">' + escapeHtml(persona.name) + ' <span style="font-weight:400;color:var(--fg-dim)">' + escapeHtml(persona.role || '') + '</span></div>' +
-        '<div style="color:var(--fg-dim);margin-top:2px">Goals: ' + (persona.goals || []).join(', ') + '</div>' +
+        '<div style="color:var(--fg-dim);margin-top:2px">Goals: ' + (persona.goals || []).map(escapeHtml).join(', ') + '</div>' +
       '</div>';
     }
   }
 
   // Themes
-  if (data.themes?.length) {
-    html += '<div class="research-section">THEMES (' + data.themes.length + ')</div>';
-    for (var t = 0; t < Math.min(data.themes.length, 8); t++) {
-      var theme = data.themes[t];
-      html += '<div class="research-item">' + escapeHtml(theme.name) + ' <span style="color:var(--fg-dim)">(' + (theme.findingIds?.length || theme.insightIds?.length || 0) + ' findings)</span></div>';
+  if (themes.length) {
+    html += '<div class="research-section">THEMES (' + themes.length + ')</div>';
+    for (var t = 0; t < Math.min(themes.length, 8); t++) {
+      var theme = themes[t];
+      html += '<div class="research-item">' + escapeHtml(theme.name) + ' <span style="color:var(--fg-dim)">(' + ((Array.isArray(theme.findingIds) ? theme.findingIds.length : 0) || (Array.isArray(theme.insightIds) ? theme.insightIds.length : 0)) + ' findings)</span></div>';
     }
   }
 
