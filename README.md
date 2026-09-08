@@ -52,14 +52,12 @@ Local source diagnosis uses deterministic rules: **no model call, API key, or mo
 
 Start with one diagnosis, address the highest-confidence finding, and rerun the same check. Use `--agent-context` for a bounded file index instead of sending a whole repository to a model. Its routing is heuristic; a smaller context is not proof of a cheaper successful task. `--files` scopes reported findings without launching Git; it still scans the tree for aggregate statistics.
 
-**Beta installation:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Check exact registry availability before installing; when beta2 is available, use its exact version instead of a floating tag. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status and [known limitations](docs/trust/KNOWN_LIMITATIONS.md) for artifact-specific native verification.
+**Published beta:** Install the exact `2.8.0-beta.2` package for the 2.8 frontend workflow. Stable remains `2.7.9`; the beta is not a stable release. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) and [known limitations](docs/trust/KNOWN_LIMITATIONS.md).
 
-**Release channels:** `latest` selects the stable channel and `next` selects the beta channel; inspect their current values rather than assuming they match this immutable package README. The [beta1 npm release record](release-artifacts/npm/2.8.0-beta.1.release.json) preserves its historical source and provenance. The 2.8 locked default and explicit capability contract do not apply retroactively to 2.7.9.
+The [beta2 npm release record](https://github.com/memi-design/memi/blob/main/release-artifacts/npm/2.8.0-beta.2.release.json) identifies its published source and immutable artifact evidence. The [beta1 npm release record](release-artifacts/npm/2.8.0-beta.1.release.json) preserves the earlier release's history; it does not validate beta2. The 2.8 locked default and explicit capability contract do not apply retroactively to 2.7.9.
 
 ```bash
-npm view @memi-design/cli dist-tags --json
-npm view @memi-design/cli@2.8.0-beta.2 version
-# Only after the exact version above is confirmed available:
+npx -y @memi-design/cli@2.8.0-beta.2 --version
 npx -y @memi-design/cli@2.8.0-beta.2 agent brief . --frontend --intent "Improve this interface" --json
 ```
 

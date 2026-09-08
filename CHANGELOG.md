@@ -6,13 +6,15 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
-## Unreleased — 2.8.0-beta.2 candidate
+## v2.8.0-beta.2 — 2026-09-08 — Published beta
 
-Beta2 is not published. npm `next` still provides beta1 and `latest` remains 2.7.9; beta1’s immutable npm bytes, record and tag are preserved.
+Published to npm `next`; `latest` remains 2.7.9. The [immutable beta2 release record](release-artifacts/npm/2.8.0-beta.2.release.json) binds source `51f8fb64570fd6c613244432b15fd6ea19450329` to the actual publication, signatures, provenance and SBOM. Beta1’s immutable npm bytes, record and tag are preserved.
 
-- Resolve Bun virtual package paths on Windows and share that detection with the logger, so native commands find their sidecars and avoid an unsupported pretty-logging transport. Focused regressions pass; fresh native platform validation remains required.
+- `d12dda7c` — chore: record verified beta2 npm publication.
+- Resolve Bun virtual package paths on Windows and share that detection with the logger, so native commands find their sidecars and avoid an unsupported pretty-logging transport. All five native candidate checks passed on the reviewed Hono-patched source in [PR #145](https://github.com/memi-design/memi/pull/145); final downloadable archives require their separate tagged build and verification.
 - Await complete JSON writes for `diagnose` and `agent brief`, including frontend, ordinary and error brief results, while preserving payloads and newlines and handling stream failures. The former 8,192-byte truncation reproduces under Node 20; corrected diagnosis and 25 KB brief runs pass locally. Other commands are outside this correction.
 - Pin Hono 4.13.7 and regenerate the production dependency lock to address the dependency advisories caught before beta2 publication.
+- Verify the actual registry package with [51 CLI cases, locked MCP on Node 22/24, and 17 Storybook browser tests](docs/trust/evidence/frontend-2.8/51f8fb64/PUBLISHED_VERIFICATION.md), zero production audit findings, and unchanged installed bytes.
 - Require five native compiled-package checks before publication and retain the native release checks before upload. Add a bounded npm metadata visibility wait before the single signature-verification install; publication is never retried. Beta1 npm publication does not establish native-binary success.
 
 ## v2.8.0-beta.1 — 2026-09-08 — Published beta

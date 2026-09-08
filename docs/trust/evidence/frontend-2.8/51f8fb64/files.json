@@ -1,0 +1,67 @@
+[
+  {
+    "file": "artifact.json",
+    "bytes": 467,
+    "sha256": "29ce9cbbe2a64d02a46fa6605a29a211ac0aea81995329d0e56f2b50926e954e"
+  },
+  {
+    "file": "cli-matrix.json",
+    "bytes": 36831,
+    "sha256": "92ee576ba585403d7c8b680208dce2022517c2e648f90737179c2c899750fb63"
+  },
+  {
+    "file": "entry-integrity.json",
+    "bytes": 342,
+    "sha256": "d55e4187d850014b701286443693558c6b2bdbcc9b95b5a1a504a0706dc14fd9"
+  },
+  {
+    "file": "executions.json",
+    "bytes": 2894,
+    "sha256": "53f3a7181df6bbdeaa42ac692bf77234790ddbf3f923f55332c576c28ae2b86b"
+  },
+  {
+    "file": "mapped-workspace.png",
+    "bytes": 7915,
+    "sha256": "e5dae3ea1bf9a09609600f4d74b5b40bf8d1e539c4ff3824b0ba614805c41c64"
+  },
+  {
+    "file": "mcp-node22.json",
+    "bytes": 520,
+    "sha256": "f02b4e796e8ec3d208ed13352cd5bc8cf4dfbcda2dc0f86e1d73400f69c6bd72"
+  },
+  {
+    "file": "mcp-node24.json",
+    "bytes": 520,
+    "sha256": "d02e931237f493be5a04847c73d18c14524ca6ecf51f3c3fb52016e4612f0349"
+  },
+  {
+    "file": "production-audit.json",
+    "bytes": 374,
+    "sha256": "ca6ccd08bcb628f0269e47bc2ec6d13a7b2050ee3ed42d8d3e407d7a8b62fc7e"
+  },
+  {
+    "file": "PUBLISHED_VERIFICATION.md",
+    "bytes": 1445,
+    "sha256": "e005e587cacc0919b9318993b83ef208f18ba847c298269feef659fbee34ea29"
+  },
+  {
+    "file": "raw-input-hashes.json",
+    "bytes": 4572,
+    "sha256": "560957ee8a74c53c64d06f4b0892219291d1cc4e7131a41bf8fb286eb61a5ad0"
+  },
+  {
+    "file": "registry-provenance-observation.json",
+    "bytes": 702,
+    "sha256": "1e6206c881270019a44eb95f53e72568be04b71df43e15f3b2a14b9d5989b1f8"
+  },
+  {
+    "file": "registry-signatures.json",
+    "bytes": 568,
+    "sha256": "be89c0bf88d55676a988ea371cd8968ba2766f78a46b03258615ac7c618dbba3"
+  },
+  {
+    "file": "storybook.json",
+    "bytes": 661,
+    "sha256": "8934b7892cb7246376735fa80aaaec2d6612b0230b6e1a33332c878ae480393c"
+  }
+]

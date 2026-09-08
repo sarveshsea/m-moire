@@ -1,6 +1,10 @@
 # Known limitations
 
-**Distribution guidance:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Before installing, check `npm view @memi-design/cli@2.8.0-beta.2 version`; only install after that exact version is confirmed available. Inspect `npm view @memi-design/cli dist-tags --json` for current channels. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status. Native verification is artifact-specific; beta1 records do not validate beta2.
+**Published beta:** `2.8.0-beta.2` is available as an exact npm version. The [immutable beta2 npm record](https://github.com/memi-design/memi/blob/main/release-artifacts/npm/2.8.0-beta.2.release.json) binds its exact source and publication evidence. Verify `npx -y @memi-design/cli@2.8.0-beta.2 --version` before using these recipes. Stable remains `2.7.9`. Beta1 records remain historical and do not validate beta2; native and stable qualification remain artifact-specific.
+
+## Current beta2 scope
+
+Beta2's [fresh registry verification](evidence/frontend-2.8/51f8fb64/PUBLISHED_VERIFICATION.md) passes CLI, MCP and Storybook checks. All five native candidate checks passed; final downloadable bundles require their own tagged verification. The explicit beta exception covers exactly 2.8.0-beta.1 and 2.8.0-beta.2 in candidate or published state and only the two named stale parity receipts. It does not cover future versions, dependency advisories, runtime failures or stable promotion. The managed scan remains pending.
 
 ## Beta1 publication checkpoint
 

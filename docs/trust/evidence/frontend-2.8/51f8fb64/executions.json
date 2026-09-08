@@ -1,0 +1,110 @@
+[
+  {
+    "name": "node22",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "f2f7c3be203d76ecdfcabf6866f40341b13704ae5b17898b0638899dd10219f2"
+  },
+  {
+    "name": "node24",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "3067c0d197d0b6d4d6ba668a0636adf615e6ea7c41231458414dd73386df06c6"
+  },
+  {
+    "name": "registry-proof",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "b1b3e8687150e876a296f49982da2371ee5961f76e322ccb9d228e6e0398248b"
+  },
+  {
+    "name": "registry-view",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "4d4cc8ab865a1eff8478680426a357a4dfc0c423fd4b6ea06e4bf0bd2b67058c"
+  },
+  {
+    "name": "registry-pack",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "c07d11e208436cf00fa20e11c63dbb3345238d00e81ba3e0162aca3aba7850f3"
+  },
+  {
+    "name": "registry-install",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "2016cd6a7192ddbed437b1f592b28391765258c6eb55b557dc5195e5ee4f406c"
+  },
+  {
+    "name": "registry-production-audit",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "14b764ea9d4ee758bf86a138f54ae13f8de3f2a951cc4f11fd3dab7b922e278b"
+  },
+  {
+    "name": "registry-signatures",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "b6edfea5913e401b2b92f24a7fc7c3fde68a77b8c8f18bf9a0057b8029e2d074"
+  },
+  {
+    "name": "harness-export",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "name": "cli-matrix",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "8924841caa7c946feb75c4448c7103abce6c87089b7ba9c3c44be16f26e7a3a4"
+  },
+  {
+    "name": "cli-preview",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "0a1603134a1ca4925b2765685ab596cac224caadb96ad3127a87ca5436cc4734"
+  },
+  {
+    "name": "mcp-node22",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "af3affef789316bba370d723417d1aa1ed04047c6a7976bb96636fa3a32e932c"
+  },
+  {
+    "name": "mcp-node24",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "af3affef789316bba370d723417d1aa1ed04047c6a7976bb96636fa3a32e932c"
+  },
+  {
+    "name": "fixture-install",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "32e5d92be59717f5808e0bc0800838a67b8c951ef57215dd202878141e363f42"
+  },
+  {
+    "name": "fixture-typecheck",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "90c9940ce969a73bb1fa40ea93e47c370e88aeabc64800c81fce233da84b753e"
+  },
+  {
+    "name": "fixture-build",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "76dd6edddedf5e79bd4aacfe48a37c72b220f548974a7622affaecd1c6ae0299"
+  },
+  {
+    "name": "fixture-playwright",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "335bda89707ebfbe384dc4bee4a6846af4b5d997a8d5495d9eab151c6ef81379"
+  },
+  {
+    "name": "browser-version",
+    "exitCode": 0,
+    "error": null,
+    "logSha256": "f9d6460c28b290d396689843a5c5ccea127b2dc3bb62900dc357445464195985"
+  }
+]

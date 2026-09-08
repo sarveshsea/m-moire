@@ -1,10 +1,22 @@
 # Frontend beta verification — 2026-09-08
 
-**Beta2 preparation:** `2.8.0-beta.2` is an unpublished correction candidate. Use only a reviewed local build reporting that version to test the candidate; do not install beta2 from npm. Published npm beta `2.8.0-beta.1` remains available on `next`, and `latest` remains `2.7.9`. Beta1’s immutable record is retained. Native Windows package-path handling and macOS arm64 JSON output require fresh verification before corrected native downloads are claimed.
+**Published beta:** `2.8.0-beta.2` is available as an exact npm version. The [immutable beta2 npm record](https://github.com/memi-design/memi/blob/main/release-artifacts/npm/2.8.0-beta.2.release.json) binds its exact source and publication evidence. Verify `npx -y @memi-design/cli@2.8.0-beta.2 --version` before using these recipes. Stable remains `2.7.9`. Beta1 records remain historical and do not validate beta2; native and stable qualification remain artifact-specific.
 
-Published npm beta **2.8.0-beta.1** uses `next`; `latest` remains **2.7.9**. Its source is `71d17ecb8b44a39d81e18a831155eb010779bdfe`, published by [run 34255705921, attempt 1](https://github.com/memi-design/memi/actions/runs/34255705921/attempts/1). The [immutable npm record](../../release-artifacts/npm/2.8.0-beta.1.release.json) binds the original publication, signatures, provenance, tarball and SBOM digests. Recovery verifies the existing version and does not republish it. Managed independent scanning and the two named parity receipts remain pending for stable.
+## Beta2 publication and fresh registry verification
 
-## Published artifact checks
+Published npm **2.8.0-beta.2** uses `next`; `latest` remains **2.7.9**. [Run 34286620155, attempt 1](https://github.com/memi-design/memi/actions/runs/34286620155/attempts/1) published source `51f8fb64570fd6c613244432b15fd6ea19450329` at 2026-09-08T22:43:49.706Z and verified 143 registry signatures and 20 attestations. The [immutable beta2 record](../../release-artifacts/npm/2.8.0-beta.2.release.json) binds the publication, tarball and SBOM.
+
+[Fresh registry replay](evidence/frontend-2.8/51f8fb64/PUBLISHED_VERIFICATION.md) passed **51 CLI cases**, **four locked MCP tools on Node 22 and 24**, and **17 Storybook tests** with zero skips, failures or flakes. Production audit reported zero findings; installed entry bytes remained unchanged. The 657,890-byte tarball has SHA-256 `8b089fb4921a70324637ce26768bfd969d85945da4167dfcd099f1849228b1ce`.
+
+[PR #145](https://github.com/memi-design/memi/pull/145) passed all 25 checks, including nine Node configurations, five compiled native targets and full-source coverage. Beta2 fixes Windows compiled path discovery and macOS diagnosis/brief JSON truncation, and pins Hono 4.13.7. The earlier beta2 publication attempt stopped before npm upload when dependency advisories appeared. The first local registry replay stopped before MCP startup because its harness looked for the SDK above the nested shrinkwrap; the corrected harness completed a wholly fresh replay, preserving the failed attempt. Neither event overwrote a published package or prior receipt.
+
+These receipts validate the npm artifact. Final native archives and their attestations are verified separately after the tagged build. Managed scanning, the two named parity receipts, Paper pixel parity and stable promotion remain pending.
+
+## Preserved beta1 publication evidence
+
+At its publication checkpoint, npm beta **2.8.0-beta.1** used `next` and `latest` was **2.7.9**. Its source is `71d17ecb8b44a39d81e18a831155eb010779bdfe`, published by [run 34255705921, attempt 1](https://github.com/memi-design/memi/actions/runs/34255705921/attempts/1). The [immutable npm record](../../release-artifacts/npm/2.8.0-beta.1.release.json) binds the original publication, signatures, provenance, tarball and SBOM digests. Recovery verifies the existing version and does not republish it. Managed independent scanning and the two named parity receipts remain pending for stable.
+
+## Beta1 published artifact checks
 
 The [fresh registry verification](evidence/frontend-2.8/71d17ecb/PUBLISHED_VERIFICATION.md) records **51 CLI checks**, **17 Storybook tests**, and locked MCP checks on **Node 22.22.3 and 24.19.0**. The production audit reports zero known vulnerabilities. The installed entry hash remained unchanged throughout these checks. The registry tarball is **655,540 bytes**, SHA-256 `4ddf4f47dee0a86f7ee38e7e1769b58f6a09557f2893f0a9e2f9e08f98eee6e2`.
 

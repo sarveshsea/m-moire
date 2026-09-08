@@ -10,7 +10,7 @@
 5. **Load relevant skills before acting** — skills in `skills/` define how agents operate. Read the skill file that matches your task.
 
 ## What is Mémoire
-Memi supplies deterministic frontend evidence and interface checks to coding harnesses. The published 2.8.0-beta.1 beta on npm `next` reads bounded repository inputs, normalizes host-supplied Figma/Paper references, and identifies existing components/tokens/stories. Locked stdio does not autodiscover Figma, start sockets, or write project state. npm stable remains 2.7.9; see docs/FRONTEND_WORKFLOW.md and docs/trust/ACCEPTANCE_LEDGER.md for beta scope and remaining stable-release gates.
+Memi supplies deterministic frontend evidence and interface checks to coding harnesses. The published 2.8.0-beta.2 beta on npm `next` reads bounded repository inputs, normalizes host-supplied Figma/Paper references, and identifies existing components/tokens/stories. Locked stdio does not autodiscover Figma, start sockets, or write project state. npm stable remains 2.7.9; see docs/FRONTEND_WORKFLOW.md and docs/trust/ACCEPTANCE_LEDGER.md for beta scope and remaining stable-release gates.
 
 ## Architecture
 | Directory | Purpose |

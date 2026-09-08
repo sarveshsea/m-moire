@@ -393,8 +393,8 @@ a:hover { text-decoration: underline; }
       <a href="changelog.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a>
     </nav>
     <div class="hdr-stats">
-      <span><span class="n" id="stat-commits">437</span> commits</span>
-      <span><span class="n" id="stat-versions">48</span> versions</span>
+      <span><span class="n" id="stat-commits">438</span> commits</span>
+      <span><span class="n" id="stat-versions">49</span> versions</span>
       <span><span class="n" id="stat-latest">2026-09-08</span> latest</span>
     </div>
   </header>
@@ -410,9 +410,9 @@ a:hover { text-decoration: underline; }
         <p class="hero-copy">Trust Core 2.8.0-beta.1 remains unpublished. Audit commit <code>cbdef4cf</code> closes diagnosis policy gaps and strengthens publication gates. Windows follow-up <code>aeee0618</code> uses exact BigInt identity checks. All 2,447 tests pass; source-wide coverage remains below 80%, so publication is blocked.</p>
         <div class="hero-kpis">
           <div class="summary-card">
-            <span class="summary-kicker">Candidate release</span>
-            <strong class="summary-value">v2.8.0-beta.1</strong>
-            <div class="summary-caption">5 commits tracked in v2.8.0-beta.1 from CHANGELOG.md.</div>
+            <span class="summary-kicker">Current release</span>
+            <strong class="summary-value">v2.8.0-beta.2</strong>
+            <div class="summary-caption">1 commits tracked in v2.8.0-beta.2 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -438,10 +438,24 @@ a:hover { text-decoration: underline; }
     <section class="release-list" id="release-list"></section>
   </main>
 
-  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v2.8.0-beta.1</footer>
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v2.8.0-beta.2</footer>
 
 <script>
 const releases = [
+  {
+    "version": "v2.8.0-beta.2",
+    "date": "2026-09-08",
+    "tag": "feature",
+    "summary": "Product changes captured in CHANGELOG.md.",
+    "commits": [
+      [
+        "d12dda7c",
+        "chore: record verified beta2 npm publication."
+      ]
+    ],
+    "decisions": [],
+    "changes": []
+  },
   {
     "version": "v2.8.0-beta.1",
     "date": "2026-09-08",

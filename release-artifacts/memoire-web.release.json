@@ -3,9 +3,9 @@
   "provenance": {
     "repository": "https://github.com/memi-design/memi",
     "path": "release-manifest.json",
-    "sourceCommit": "575db72859e85ecefb1ed8599f0a1fe60f840748",
-    "sourceUrl": "https://raw.githubusercontent.com/memi-design/memi/575db72859e85ecefb1ed8599f0a1fe60f840748/release-manifest.json",
-    "manifestSha256": "9d9dd9c02226158def50dba2157a23eba1410cd11d3461842e1688bfa3f48714"
+    "sourceCommit": "d12dda7cae19ebb592addb1339022a76d4d614b8",
+    "sourceUrl": "https://raw.githubusercontent.com/memi-design/memi/d12dda7cae19ebb592addb1339022a76d4d614b8/release-manifest.json",
+    "manifestSha256": "bc139bd9374c463ea5350f2b48527cf910ed5efaa0025bd09cc7b09ab52191a8"
   },
   "orchestration": {
     "schemaVersion": 1,
@@ -13,12 +13,15 @@
     "releaseGroups": {
       "engine": {
         "version": "2.8.0-beta.2",
-        "state": "candidate",
-        "sourceCommit": null,
-        "releaseRecord": null,
+        "state": "published",
+        "sourceCommit": "51f8fb64570fd6c613244432b15fd6ea19450329",
+        "releaseRecord": {
+          "path": "release-artifacts/npm/2.8.0-beta.2.release.json",
+          "sha256": "2e16a48176a58952a812eb00f36d990f531a2aaff2e7017f0309f1ba11a268af"
+        },
         "verification": {
           "eligibleForParity": false,
-          "reason": "Beta2 candidate: Windows native package-path correction and macOS arm64 output investigation require fresh artifact validation. Beta1 remains published on npm; stable remains 2.7.9."
+          "reason": "npm publish provenance is recorded; independent public-surface parity verification is pending"
         },
         "previousPublicRelease": {
           "version": "2.7.9",
@@ -78,13 +81,13 @@
     }
   },
   "publicTruth": {
-    "source": "previousPublicRelease",
+    "source": "currentRelease",
     "engine": {
-      "version": "2.7.9",
-      "sourceCommit": "5fcbf39e1255af0c14c5a17ba6bde8cf1206e525",
+      "version": "2.8.0-beta.2",
+      "sourceCommit": "51f8fb64570fd6c613244432b15fd6ea19450329",
       "packageName": "@memi-design/cli",
       "npmUrl": "https://www.npmjs.com/package/@memi-design/cli",
-      "githubReleaseUrl": "https://github.com/memi-design/memi/releases/tag/v2.7.9"
+      "githubReleaseUrl": "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.2"
     }
   },
   "release": {
@@ -92,18 +95,25 @@
     "updatedAt": "2026-09-08",
     "releaseGroups": {
       "engine": {
-        "version": "2.7.9",
-        "state": "historical",
-        "sourceCommit": "5fcbf39e1255af0c14c5a17ba6bde8cf1206e525",
+        "version": "2.8.0-beta.2",
+        "state": "published",
+        "sourceCommit": "51f8fb64570fd6c613244432b15fd6ea19450329",
         "releaseRecord": {
-          "path": "release-artifacts/npm/2.7.9.release.json",
-          "sha256": "a04c63335fae7c7a1a2ac57d387a8647471742024c42e486159db4c0f1e78d0c"
+          "path": "release-artifacts/npm/2.8.0-beta.2.release.json",
+          "sha256": "2e16a48176a58952a812eb00f36d990f531a2aaff2e7017f0309f1ba11a268af"
         },
         "verification": {
           "eligibleForParity": false,
-          "reason": "2.7.9 remains public while 2.8.0-beta.2 is an unpublished candidate"
+          "reason": "npm publish provenance is recorded; independent public-surface parity verification is pending"
         },
-        "plannedSuccessor": "2.8.0-beta.2"
+        "previousPublicRelease": {
+          "version": "2.7.9",
+          "sourceCommit": "5fcbf39e1255af0c14c5a17ba6bde8cf1206e525",
+          "releaseRecord": {
+            "path": "release-artifacts/npm/2.7.9.release.json",
+            "sha256": "a04c63335fae7c7a1a2ac57d387a8647471742024c42e486159db4c0f1e78d0c"
+          }
+        }
       },
       "studio": {
         "version": "2.5.0",
@@ -126,7 +136,7 @@
         "releaseGroup": "engine",
         "repository": "memi-design/memi",
         "tagPrefix": "v",
-        "url": "https://github.com/memi-design/memi/releases/tag/v2.7.9"
+        "url": "https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.2"
       },
       "githubAction": {
         "releaseGroup": "engine",

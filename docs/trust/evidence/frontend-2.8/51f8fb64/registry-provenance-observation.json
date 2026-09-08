@@ -1,0 +1,11 @@
+{
+  "status": "verified",
+  "packageName": "@memi-design/cli",
+  "version": "2.8.0-beta.2",
+  "sourceCheckpoint": "51f8fb64570fd6c613244432b15fd6ea19450329",
+  "integrity": "sha512-RZPdHTZE+1KUwCxoepXGov78yUqoBk0f67gZAmN1vEBB37XK4YXaB/ZreXeJOP+Y/x+cHgLJKSwiM36WFBNdFg==",
+  "invocationId": "https://github.com/memi-design/memi/actions/runs/34286620155/attempts/1",
+  "tarballSha256": "8b089fb4921a70324637ce26768bfd969d85945da4167dfcd099f1849228b1ce",
+  "releaseRecordSha256": "2e16a48176a58952a812eb00f36d990f531a2aaff2e7017f0309f1ba11a268af",
+  "scope": "Fresh runner verification matched the separately verified immutable publication record; this observation is not a replacement release record."
+}

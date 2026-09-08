@@ -1,0 +1,11 @@
+{
+  "entry": "node_modules/@memi-design/cli/dist/index.js",
+  "before": {
+    "sha256": "3bd65aa77cadae393846fd94348e76e2e4fbdbb9bfb2a90b1697a31505443eb9"
+  },
+  "after": {
+    "sha256": "3bd65aa77cadae393846fd94348e76e2e4fbdbb9bfb2a90b1697a31505443eb9"
+  },
+  "matchesBefore": true,
+  "verificationCompletedAt": "2026-09-08T22:49:20.441Z"
+}

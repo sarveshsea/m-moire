@@ -1,8 +1,12 @@
 # Trust Core acceptance ledger
 
-**Distribution guidance:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Before installing, check `npm view @memi-design/cli@2.8.0-beta.2 version`; only install after that exact version is confirmed available. Inspect `npm view @memi-design/cli dist-tags --json` for current channels. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status. Native verification is artifact-specific; beta1 records do not validate beta2.
+**Published beta:** `2.8.0-beta.2` is available as an exact npm version. The [immutable beta2 npm record](https://github.com/memi-design/memi/blob/main/release-artifacts/npm/2.8.0-beta.2.release.json) binds its exact source and publication evidence. Verify `npx -y @memi-design/cli@2.8.0-beta.2 --version` before using these recipes. Stable remains `2.7.9`. Beta1 records remain historical and do not validate beta2; native and stable qualification remain artifact-specific.
 
 Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c47a8b549d`, PR #133. At the beta1 publication checkpoint, npm stable was 2.7.9 and beta 2.8.0-beta.1 was published on `next`. That historical checkpoint does not establish current channel values or beta2 verification.
+
+## Current beta2 publication
+
+Source `51f8fb64570fd6c613244432b15fd6ea19450329` was published by [run 34286620155](https://github.com/memi-design/memi/actions/runs/34286620155), after all 25 checks passed in [PR #145](https://github.com/memi-design/memi/pull/145). [Fresh registry receipts](evidence/frontend-2.8/51f8fb64/PUBLISHED_VERIFICATION.md) record 51 CLI cases, four locked MCP tools on Node 22/24, 17 Storybook tests, zero production audit findings and unchanged installed bytes. Windows compiled package discovery and macOS JSON completion regressions are corrected. Tagged native archives remain a separate artifact check; stable qualification remains pending.
 
 ## Beta1 frontend implementation checkpoint
 
