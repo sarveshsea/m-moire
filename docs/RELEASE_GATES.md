@@ -6,7 +6,7 @@ package version.
 
 The primary public story is: `Memi is the design layer for agentic AI.` The CLI and Studio are available today; Canvas is in development.
 
-Current published engine release: `2.7.9`; public-surface parity remains pending.
+Current stable engine release: `2.7.9` on npm `latest`. Published beta `2.8.0-beta.1` is available on `next`; use its exact version pin. Public-surface parity remains pending. The [immutable beta npm record](../release-artifacts/npm/2.8.0-beta.1.release.json) binds its source, artifact and publication timestamp.
 
 Use these checks before announcing, tagging, or publishing a public release.
 

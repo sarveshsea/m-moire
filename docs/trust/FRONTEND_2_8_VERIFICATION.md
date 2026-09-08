@@ -1,6 +1,18 @@
-# Frontend candidate verification — 2026-09-08
+# Frontend beta verification — 2026-09-08
 
-The corrected **2.8.0-beta.1** candidate passes the full local source gate and installed frontend workflow checks. It remains unpublished. [PR #137](https://github.com/memi-design/memi/pull/137) builds on the Trust Core candidate; npm `latest` remains **2.7.9**. Managed independent security scanning, refreshed release parity evidence, and public provenance remain required.
+Published npm beta **2.8.0-beta.1** uses `next`; `latest` remains **2.7.9**. Its source is `71d17ecb8b44a39d81e18a831155eb010779bdfe`, published by [run 34255705921, attempt 1](https://github.com/memi-design/memi/actions/runs/34255705921/attempts/1). The [immutable npm record](../../release-artifacts/npm/2.8.0-beta.1.release.json) binds the original publication, signatures, provenance, tarball and SBOM digests. Recovery verifies the existing version and does not republish it. Managed independent scanning and the two named parity receipts remain pending for stable.
+
+## Published artifact checks
+
+The [fresh registry verification](evidence/frontend-2.8/71d17ecb/PUBLISHED_VERIFICATION.md) records **51 CLI checks**, **17 Storybook tests**, and locked MCP checks on **Node 22.22.3 and 24.19.0**. The production audit reports zero known vulnerabilities. The installed entry hash remained unchanged throughout these checks. The registry tarball is **655,540 bytes**, SHA-256 `4ddf4f47dee0a86f7ee38e7e1769b58f6a09557f2893f0a9e2f9e08f98eee6e2`.
+
+[PR #138](https://github.com/memi-design/memi/pull/138) passed all 20 checks on the source tree published as `71d17ecb`, including native Node 20/22/24 compatibility, full-source coverage, installed package checks and networkless Linux. [PR #139](https://github.com/memi-design/memi/pull/139) passed the same 20 checks for release-tooling corrections: preserving stable channel identity through a beta transition and verifying the README from integrity-checked package bytes. Those later tooling changes do not alter the already published npm artifact.
+
+The first immediate registry install encountered propagation delay; recovery later verified **143 registry signatures and 20 attestations**. npm registry metadata omitted README text, so the verifier checks the actual tarball README while retaining required content, integrity and provenance checks. The npm website returned Cloudflare HTTP 403 during browser inspection; rendered website README visibility remains unverified.
+
+## Historical local candidate
+
+The following receipts describe the earlier local package at `3308b20e`. They are retained for their original artifact and are not evidence for the published tarball.
 
 ## Frozen package
 
@@ -28,7 +40,7 @@ Source checkpoint: `3308b20ee6fc0e114381217ed66eec12bcd9444b`.
 
 The earlier `67c6a46a` package passed local checks but native Windows CI exposed path and preflight-lifecycle defects. A later Windows run also exposed archive-handle cleanup and overly short shell-fixture waits. This artifact includes awaited staging cleanup; stronger test assertions require successful shell completion. Those corrections are included in this new artifact; [earlier receipts](evidence/frontend-2.8/67c6a46a/artifact.json) remain historical. The first browser replay could not locate its pinned Chromium build after another project's browser install cleaned the shared cache. The failed attempt is retained locally. Reinstalling the exact pinned build restored all 17 tests without changing product code or test configuration.
 
-Remote checks must be tied to their source SHA. The earlier `536436ce` checkpoint passed all 20 checks. The native workflow runs on this branch include the complete-source coverage gate, clean installs across Node 20/22/24 on Linux/macOS/Windows, native Linux arm64, networkless containers and frontend replay. [Current PR checks](https://github.com/memi-design/memi/pull/137/checks) retain the exact run results; historical success must not be attributed to a later runtime commit.
+Remote checks must be tied to their source SHA. The earlier `536436ce` checkpoint passed all 20 checks. The native workflow runs on this branch include the complete-source coverage gate, clean installs across Node 20/22/24 on Linux/macOS/Windows, native Linux arm64, networkless containers and frontend replay. [Historical PR #137 checks](https://github.com/memi-design/memi/pull/137/checks) retain the exact run results; historical success must not be attributed to a later runtime commit.
 
 ## Corrections demonstrated by the added tests
 
@@ -53,15 +65,15 @@ The entire eligible source set was **126,406 bytes**; the already-selected compo
 
 ## Public-surface follow-ups
 
-[Website changelog PR #47](https://github.com/memi-design/memoire-web/pull/47) refreshes public-main history and labels it as a checked-in snapshot. [Sandbox PR #5](https://github.com/memi-design/design-sandbox/pull/5) reduces production and full dependency audits from 22 advisories to zero, retains the full proof gate, and adds actual native GPU receipts tied to its dependency commit. Both have passing CI and remain separate draft PRs; neither publishes 2.8.
+[Website changelog PR #47](https://github.com/memi-design/memoire-web/pull/47) refreshes public-main history and labels it as a checked-in snapshot. [Sandbox PR #5](https://github.com/memi-design/design-sandbox/pull/5) reduces production and full dependency audits from 22 advisories to zero, retains the full proof gate, and adds actual native GPU receipts tied to its dependency commit. Both are now merged. The website changelog is live with verified desktop/mobile rendering. Sandbox follow-up [PR #6](https://github.com/memi-design/design-sandbox/pull/6) recaptured proof for its merged dependency source and passed main CI. These sibling releases remain separate from the npm beta.
 
 ## Remaining release gates
 
 1. Complete managed independent security scanning in a supported permission environment. The earlier rejection occurred before scanning because the parent lacked a managed filesystem permission profile. Ordinary CI scanning and local review do not replace it.
-2. Refresh the required reviewed-candidate-audit and SwiftUI rendered parity receipts. The beta consistency checker names these pending exceptions. Full DesignWorkbench certification additionally requires 300 verified task receipts across five runner profiles, external practitioner calibration, and private/holdout results. The local frontend fixture cannot substitute for that evidence.
-3. Verify release-source native checks, public artifacts, signatures/provenance and clean-install receipts before npm or organization-wide release promotion.
+2. Refresh the required reviewed-candidate-audit and SwiftUI rendered parity receipts. The beta consistency checker names these pending exceptions. Full DesignWorkbench certification additionally requires 300 verified task receipts, verification of the five remaining runner profiles, external practitioner calibration, and private/holdout results. The local frontend fixture cannot substitute for that evidence.
+3. Keep published npm and tagged offline artifacts bound to their own source and digests. Stable channel promotion still requires independent public-surface parity; beta publication does not clear that gate.
 
-105 of 158 legacy CLI action paths remain deliberately unavailable pending capability audits. The frontend workflow is useful now in the candidate; it does not make 2.8 a drop-in replacement for every 2.7 command. See [command support](COMMAND_SUPPORT.json) and [the workflow guide](../FRONTEND_WORKFLOW.md).
+105 of 158 legacy CLI action paths remain deliberately unavailable pending capability audits. The frontend workflow is available in the beta; it does not make 2.8 a drop-in replacement for every 2.7 command. See [command support](COMMAND_SUPPORT.json) and [the workflow guide](../FRONTEND_WORKFLOW.md).
 
 ## Historical checkpoint
 

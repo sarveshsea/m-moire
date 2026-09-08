@@ -1,0 +1,15 @@
+{
+  "package": "@memi-design/cli",
+  "version": "2.8.0-beta.1",
+  "exitCode": 0,
+  "command": "npm audit --omit=dev --omit=optional --json",
+  "vulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "verificationCompletedAt": "2026-09-08T17:26:12.461Z"
+}

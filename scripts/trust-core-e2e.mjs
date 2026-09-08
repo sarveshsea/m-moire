@@ -10,8 +10,10 @@ import {
   assertMetadataOnlyReceipt,
   cleanHarnessEnvironment,
   createPackedInstallation,
-  installHarnessEnvironment,
+  resolveInstallHarnessEnvironment,
+  resolveNpmInvocation,
   runProcess,
+  runNpmInstall,
 } from "./lib/trust-core-e2e.mjs";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -296,22 +298,20 @@ async function verifyExplicitUpgradePreservesConfig({ artifact, currentVersion, 
   const configDir = join(homeRoot, ".memoire");
   const configPath = join(configDir, "config.json");
   const config = '{"company":"DualEntry","preserve":true}\n';
-  const npm = process.env.npm_execpath
-    ? { command: process.execPath, prefix: [process.env.npm_execpath] }
-    : { command: process.platform === "win32" ? "npm.cmd" : "npm", prefix: [] };
+  const npm = resolveNpmInvocation();
 
   try {
     await mkdir(configDir, { recursive: true });
     await writeFile(configPath, config, "utf8");
     await writeFile(join(consumer, "package.json"), '{"name":"memi-upgrade-contract","private":true}\n', "utf8");
     const env = {
-      ...installHarnessEnvironment(process.env),
+      ...await resolveInstallHarnessEnvironment(process.env, { npm }),
       HOME: homeRoot,
       USERPROFILE: homeRoot,
       PATH: process.env.PATH ?? "",
     };
     for (const source of ["@memi-design/cli@2.7.9", artifact]) {
-      const installed = await runProcess(npm.command, [
+      await runNpmInstall(npm.command, [
         ...npm.prefix,
         "install",
         "--prefer-offline",
@@ -320,8 +320,7 @@ async function verifyExplicitUpgradePreservesConfig({ artifact, currentVersion, 
         "--no-fund",
         "--save-exact",
         source,
-      ], { cwd: consumer, env, timeoutMs: 180_000, label: source === artifact ? "explicit candidate upgrade install" : "explicit baseline upgrade install" });
-      requireSuccess(installed, `explicit install ${source}`);
+      ], { cwd: consumer, env, timeoutMs: 180_000, label: source === artifact ? "explicit candidate upgrade install" : "explicit baseline upgrade install", phase: source === artifact ? "candidate" : "baseline" });
     }
     if (await readFile(configPath, "utf8") !== config) {
       throw new Error("explicit 2.7.9 upgrade overwrote the existing user configuration");

@@ -124,6 +124,38 @@ describe("Trust Core packed-artifact harness helpers", () => {
     expect(result.stdout.trim()).toBe(cache);
   });
 
+  it.each(["packed install", "isolated-home upgrade"])("retains the effective npmrc cache for %s without forwarding source credentials", async (phase) => {
+    const root = await mkdtemp(join(tmpdir(), "memi-effective-cache-"));
+    roots.push(root);
+    const sourceHome = join(root, "source-home"), isolatedHome = join(root, "isolated-home");
+    const cache = join(root, "cache from npmrc");
+    await mkdir(sourceHome); await mkdir(isolatedHome);
+    await writeFile(join(sourceHome, ".npmrc"), `cache=${cache}\n`, "utf8");
+    const baseline = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^npm_config_/i.test(key)));
+    const source = { ...baseline, HOME: sourceHome, USERPROFILE: sourceHome, NODE_AUTH_TOKEN: "source-credential-canary" };
+    const npm = resolveNpmInvocation();
+    const before = await runProcess(npm.command, [...npm.prefix, "config", "get", "cache"], { cwd: root, env: source, timeoutMs: 10_000 });
+    expect(before.exitCode).toBe(0); expect(before.stdout.trim()).toBe(cache);
+    const env = await harness.resolveInstallHarnessEnvironment(source, { cwd: root, npm });
+    expect(env).not.toHaveProperty("NODE_AUTH_TOKEN");
+    expect(Object.keys(env).some(key => /userconfig|globalconfig/i.test(key))).toBe(false);
+    const isolatedEnv = phase === "isolated-home upgrade" ? { ...env, HOME: isolatedHome, USERPROFILE: isolatedHome } : env;
+    const after = await runProcess(npm.command, [...npm.prefix, "config", "get", "cache"], { cwd: root, env: isolatedEnv, timeoutMs: 10_000 });
+    expect(after.exitCode).toBe(0); expect(after.stdout.trim()).toBe(cache);
+    expect(Object.keys(cleanHarnessEnvironment(source)).some(key => key.toLowerCase() === "npm_config_cache")).toBe(false);
+  });
+
+  it.each(["nonzero", "invalid", "multiline", "timeout"])("rejects %s npm cache queries without disclosing captured configuration", async kind => {
+    const root = await mkdtemp(join(tmpdir(), "memi-cache-query-error-")); roots.push(root);
+    const script = join(root, "npm-query.mjs");
+    const body = kind === "multiline" ? `process.stdout.write(${JSON.stringify("\n" + root)});` : kind === "timeout" ? "setInterval(() => {}, 1000);" : kind === "nonzero" ? "process.exitCode = 1;" : "";
+    await writeFile(script, `process.stdout.write('private-config-canary'); process.stderr.write('private-credential-canary'); ${body}`);
+    const result = harness.resolveInstallHarnessEnvironment(cleanHarnessEnvironment(process.env), {
+      cwd: root, npm: { command: process.execPath, prefix: [script] }, timeoutMs: kind === "timeout" ? 50 : 1000,
+    });
+    await expect(result).rejects.toThrow(/^npm (install cache configuration failed|did not resolve a valid absolute install cache path)$/);
+  });
+
   it("runs npm through Node without a shell when Windows lacks npm_execpath", () => {
     expect(resolveNpmInvocation({
       platform: "win32",

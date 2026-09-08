@@ -2,13 +2,18 @@
 
 npm stable: @memi-design/cli@2.7.9
 Repository: https://github.com/memi-design/memi
-Candidate: 2.8.0-beta.1, unpublished. Do not install the candidate from npm or attribute its locked defaults to stable.
+Published beta: @memi-design/cli@2.8.0-beta.1 on next. npm latest remains 2.7.9; do not attribute beta locked defaults to stable.
+Immutable npm record: release-artifacts/npm/2.8.0-beta.1.release.json
 
 ## Stable audit
 
 npx -y @memi-design/cli@2.7.9 diagnose . --json --no-write --fail-on none
 
-## Reviewed local 2.8 candidate
+## Exact 2.8 beta
+
+npx -y @memi-design/cli@2.8.0-beta.1 --version
+
+Use the exact beta executable for the following commands; an existing memi on PATH must report 2.8.0-beta.1.
 
 memi agent brief . --frontend --intent "<interface task>" --max-bytes 16384 --json
 memi agent brief . --frontend --intent "<task>" --design-evidence design/selected-node.json --json
@@ -25,13 +30,15 @@ Codex owns connector calls, editing and the project's actual tests. Figma/Paper 
 
 Local brief generation and source diagnosis make no model calls. Complete-task dollar/token savings have not been established. A smaller payload than a whole repository can still be larger than correctly preselected files. Installation, agent use, connector plans and CI have costs.
 
-Many legacy command paths are deliberately unavailable in the candidate; broad grants do not enable unmapped paths. Read capability denials and current candidate documentation instead of replaying old daemon/suite recipes. Explicit CI report writes and Git access:
+105 of 158 inventoried CLI paths remain deferred in the beta; broad grants do not enable unmapped paths. Read capability denials and the current beta documentation instead of replaying old daemon/suite recipes. Explicit CI report writes and Git access:
 
 memi --profile connected --allow project-write --allow source-content-persistence --allow shell ci . --report --json
 
 Quality scores cover assessed categories; also report scan completeness and assessed coverage. Source checks do not establish visual correctness. Use actual typecheck, Storybook/browser interactions, accessibility and responsive checks, then cite their artifacts.
 
 Canonical workflows: skills/audit-frontend-design, skills/remember-design-system, skills/enforce-design-ci, skills/build-swiftui-interface, skills/memoire-design-tooling.
-Candidate guide: docs/FRONTEND_WORKFLOW.md
+Beta guide: docs/FRONTEND_WORKFLOW.md
 Release gates: docs/trust/ACCEPTANCE_LEDGER.md and docs/trust/RELEASE_2_8_PLAN.md
 Published evidence: https://github.com/memi-design/memi/tree/main/docs/research
+
+Managed independent security scanning and the reviewed-candidate-audit and swiftui-rendered-rerun receipts remain pending for stable. Paper pixel parity is unassessed. Of 158 inventoried CLI paths, 105 remain deferred; broad grants do not enable them. No complete-task dollar or token savings claim is established.

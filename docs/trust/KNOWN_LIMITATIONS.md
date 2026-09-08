@@ -1,15 +1,15 @@
 # Known limitations
 
-## Candidate status
+## Beta status
 
-- The public stable CLI remains 2.7.9. Trust Core 2.8 documentation describes a
-  candidate contract until an exact beta artifact and evidence set are published.
+- npm `latest` remains 2.7.9. Published Trust Core beta 2.8.0-beta.1 is available
+  on `next`; see the [artifact verification](FRONTEND_2_8_VERIFICATION.md).
 - The managed Codex Deep Security Scan is pending because this host does not provide a managed filesystem permission profile.
 - A beta may disclose that pending scan. Stable and employer-safe claims require
   a completed independent scan with no unresolved critical or high findings.
 - `TRUST_CORE_BETA_PENDING_DESIGNWORKBENCH_EVIDENCE` means the
   `reviewed-candidate-audit` and `swiftui-rendered-rerun` receipts remain stale.
-  This named exception applies only to the 2.8.0-beta.1 candidate; stable remains
+  This named exception applies only to 2.8.0-beta.1, including its published beta state; stable remains
   blocked until both receipts are refreshed.
 - Existing 2.7.9 binaries and npm artifacts must not be described as locked by
   default merely because the 2.8 source branch adds that behavior.
@@ -24,8 +24,8 @@
 
 - The original frontend tarball at source `2a6d0e44` predates subsequent
   defensive runtime corrections. Its checks remain historical evidence for that
-  digest and do not validate the corrected source. A new packed artifact and
-  matching checks are required; see the [verification record](FRONTEND_2_8_VERIFICATION.md).
+  digest and do not validate the published package. The fresh registry artifact
+  and its matching checks are in the [verification record](FRONTEND_2_8_VERIFICATION.md).
 - Assessed quality and scan completeness are separate. A score of 100 does not
   certify unassessed categories, dynamic class expressions, omitted files, or
   rendered behavior. File, byte, traversal-entry, and depth limits remain bounded;

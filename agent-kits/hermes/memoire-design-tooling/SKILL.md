@@ -28,7 +28,7 @@ Install one focused skill directly:
 npx skills add memi-design/memi --skill audit-frontend-design
 ```
 
-This skill requires the reviewed 2.8 frontend contract. Check `memi --version` and npm registry availability first. If the beta is unpublished, use a reviewed local build; after publication, use the exact verified beta version. npm stable remains 2.7.9.
+Published beta **2.8.0-beta.1** is available on `next`; npm `latest` remains **2.7.9**. Verify the exact executable with `npx -y @memi-design/cli@2.8.0-beta.1 --version`. Existing `memi` on PATH must report that beta version before using these recipes. The managed scan and the two named parity receipts remain pending for stable; see docs/trust/KNOWN_LIMITATIONS.md.
 
 ## Compact Preflight
 
@@ -48,7 +48,7 @@ memi --profile locked mcp start --no-figma
 
 Locked MCP exposes four read tools: prepare_frontend_brief, prepare_design_agent_brief, prepare_apple_design_brief, and diagnose_app_quality. The frontend tool supplies actual repository evidence. Many legacy CLI and write tools remain unavailable; capability grants do not unlock deferred command paths. Keep connector calls, project edits, and browser execution in the harness's reviewed workflow.
 
-Reuse local components and tokens according to the consumer project's conventions. Source-bearing JSON is working context; receipt-only is a separate metadata output. See docs/FRONTEND_WORKFLOW.md for the candidate evidence schema and actual verification flow.
+Reuse local components and tokens according to the consumer project's conventions. Source-bearing JSON is working context; receipt-only is a separate metadata output. See docs/FRONTEND_WORKFLOW.md for the beta evidence schema and actual verification flow.
 
 ## Evidence Contract
 

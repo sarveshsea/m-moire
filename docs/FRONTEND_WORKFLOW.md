@@ -1,18 +1,20 @@
-# Frontend engineering with the 2.8 candidate
+# Frontend engineering with the 2.8 beta
 
-This workflow requires a reviewed local build or installed candidate tarball. npm stable remains 2.7.9; do not try to install unpublished 2.8 from npm. From the Memi checkout, run `npm ci`, `npm run build`, and `npm run stage:package` for development. Use the packed-install smoke before treating that build as distribution evidence.
+This workflow uses published beta `2.8.0-beta.1`, available on `next`. npm `latest` remains `2.7.9`. Verify the exact version with `npx -y @memi-design/cli@2.8.0-beta.1 --version`; an existing `memi` on PATH must report that beta version before running the commands below. See the [immutable npm record](../release-artifacts/npm/2.8.0-beta.1.release.json). Development builds and historical candidate receipts remain separate from published artifact evidence.
+
+Managed independent security scanning and the reviewed-candidate-audit and swiftui-rendered-rerun receipts remain pending for stable. Paper pixel parity is unassessed. Of 158 inventoried CLI paths, 105 remain deferred; broad grants do not enable them. No complete-task dollar or token savings claim is established.
 
 ## What changes from 2.7
 
-The 2.8 candidate adds a repository-aware evidence step before implementation. An agent can identify actual exports, props, tokens, and stories, associate selected host-supplied design context with an existing component, and see missing or conflicting evidence before editing. The four locked MCP tools expose this read workflow without starting the legacy integration surface. These are candidate capabilities; installing npm stable 2.7.9 does not enable them.
+The 2.8 beta adds a repository-aware evidence step before implementation. An agent can identify actual exports, props, tokens, and stories, associate selected host-supplied design context with an existing component, and see missing or conflicting evidence before editing. The four locked MCP tools expose this read workflow without starting the legacy integration surface. These are beta capabilities; installing npm stable 2.7.9 does not enable them.
 
 The regression suites verify concrete corrections as well as new functionality: diagnosis separates assessed quality from incomplete scans, bounded readers reject unsafe file associations, malformed workflow frames no longer abort otherwise readable logs, and installed-note community validation returns a failing exit code in JSON mode. These checks establish their tested behavior, not whole-product security or successful completion of an arbitrary design task.
 
-The first packed frontend checks used source `2a6d0e44`. That artifact is now historical and superseded for release by subsequent defensive runtime fixes. Keep its receipts intact; rebuild and rerun packed checks on the corrected source before distributing it. The [verification record](trust/FRONTEND_2_8_VERIFICATION.md) separates artifact-bound results from later source tests. Full-source coverage, platform checks, independent review, and publication retain their separate gates.
+The first packed frontend checks used source `2a6d0e44`. That artifact is now historical and superseded for release by subsequent defensive runtime fixes. Keep its receipts intact; use the immutable npm release record for the published package, and fresh checks for any subsequent source changes. The [verification record](trust/FRONTEND_2_8_VERIFICATION.md) separates artifact-bound results from later source tests. Full-source coverage, platform checks, independent review, and publication retain their separate gates.
 
 ## Start from the actual repository
 
-With the candidate `memi` executable available, run inside the consumer repository:
+With the exact beta `memi` executable available, run inside the consumer repository:
 
 ```bash
 memi --version
@@ -62,7 +64,7 @@ memi --profile locked mcp start --no-figma
 
 Default tools: `prepare_frontend_brief`, `prepare_design_agent_brief`, `prepare_apple_design_brief`, and `diagnose_app_quality`. Use `prepare_frontend_brief` with `intent`, optional `designEvidence`, and `maxBytes`. The server owns the project root; tool arguments cannot select an unrelated root. Requests support cancellation. The project resource describes the active root and execution policy.
 
-Legacy tools are advertised only when every required capability is explicitly granted. Unsupported CLI paths return structured denial and guidance. The [command inventory](https://github.com/memi-design/memi/blob/codex/2.8-frontend-engine/docs/trust/COMMAND_SUPPORT.json) distinguishes supported effects from deferred paths. Do not broadly grant capabilities merely to obtain a brief. Memi's policy governs Memi; it does not sandbox Codex, Paper, Figma, or the project's browser/test runner.
+Legacy tools are advertised only when every required capability is explicitly granted. Unsupported CLI paths return structured denial and guidance. The [command inventory](https://github.com/memi-design/memi/blob/main/docs/trust/COMMAND_SUPPORT.json) distinguishes supported effects from deferred paths. Do not broadly grant capabilities merely to obtain a brief. Memi's policy governs Memi; it does not sandbox Codex, Paper, Figma, or the project's browser/test runner.
 
 ## Verify the implementation
 
@@ -72,7 +74,7 @@ Legacy tools are advertised only when every required capability is explicitly gr
 4. Rerun deterministic diagnosis and inspect the diff for new duplicate components.
 5. Report executed commands, source fingerprints, screenshots, and unresolved checks. The brief's `verification` stays `unassessed`; external test receipts provide separate evidence.
 
-The repository [frontend fixture](https://github.com/memi-design/memi/tree/codex/2.8-frontend-engine/examples/frontend-workflow) uses real React and Storybook with a synthetic pre-existing component catalog, explicit mappings, and browser tests. Its results apply to that fixture and the pinned tool versions. It is not evidence that an arbitrary user repository passed.
+The repository [frontend fixture](https://github.com/memi-design/memi/tree/main/examples/frontend-workflow) uses real React and Storybook with a synthetic pre-existing component catalog, explicit mappings, and browser tests. Its results apply to that fixture and the pinned tool versions. It is not evidence that an arbitrary user repository passed.
 
 CI report generation intentionally writes source-bearing reports and may invoke Git:
 

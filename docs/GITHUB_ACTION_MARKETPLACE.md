@@ -1,5 +1,7 @@
 # memi design CI for GitHub Actions
 
+These Action recipes use stable CLI **2.7.9** and its reviewed Action commit. Published npm beta **2.8.0-beta.1** is available separately on `next`; its exact package pin is `@memi-design/cli@2.8.0-beta.1`. Beta availability does not move these stable Action pins. See the [beta frontend workflow](FRONTEND_WORKFLOW.md) and [current release truth](CURRENT_RELEASE.md).
+
 > Memi is the design layer for agentic AI. Use this Action to bring interface checks into pull requests.
 
 `memi design CI` is the supported GitHub distribution surface for the deterministic `memi ci` gate. It defaults to the reviewed `@memi-design/cli@2.7.9` pin, scans the checked-out repository, writes a GitHub step summary, uploads design-health evidence, and can publish SARIF annotations to code scanning.

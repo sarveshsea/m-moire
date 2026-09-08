@@ -7,7 +7,7 @@ description: Use when reviewing or changing a React, Next.js, Tailwind, or shadc
 
 Audit the real source tree before proposing UI changes. Memi's checks are deterministic and file-anchored; no Figma connection or background process is required.
 
-Check `memi --version` and npm registry availability. If the 2.8 beta is unpublished, use a reviewed local candidate; after publication, use the exact verified beta version. npm stable remains 2.7.9.
+Published beta **2.8.0-beta.1** is available on `next`; npm `latest` remains **2.7.9**. Verify the exact executable with `npx -y @memi-design/cli@2.8.0-beta.1 --version`. Existing `memi` on PATH must report that beta version before using these recipes. The managed scan and the two named parity receipts remain pending for stable; see docs/trust/KNOWN_LIMITATIONS.md.
 
 ## Run The Audit
 

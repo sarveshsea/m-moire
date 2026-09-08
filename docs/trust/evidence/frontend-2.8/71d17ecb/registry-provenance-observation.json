@@ -1,0 +1,29 @@
+{
+  "status": "verified",
+  "packageName": "@memi-design/cli",
+  "distTag": "next",
+  "latest": "2.7.9",
+  "integrity": "sha512-sEVkCIlG2gtZpaYw9V2BWdKZF6mkeWuFtNEWG7timZXajf6PBP2++j8DPvbexRRfigCYNfjl0TyomEO0+4QB2A==",
+  "signatureCount": 1,
+  "provenance": {
+    "packageName": "@memi-design/cli",
+    "version": "2.8.0-beta.1",
+    "repository": "https://github.com/memi-design/memi",
+    "workflowPath": ".github/workflows/publish.yml",
+    "workflowRef": "refs/heads/main",
+    "sourceCommit": "71d17ecb8b44a39d81e18a831155eb010779bdfe",
+    "subject": "pkg:npm/%40memi-design/cli@2.8.0-beta.1",
+    "sha512": "b04564088946da0b59a5a630f55d8159d29917a9a4796b85b4d1161bbb629995da8dfe8f04fdbefa3f033ef6dec5145f8a009835f8e5d13ca89843b4fb8401d8"
+  },
+  "invocationId": "https://github.com/memi-design/memi/actions/runs/34255705921/attempts/1",
+  "tarball": {
+    "url": "https://registry.npmjs.org/@memi-design/cli/-/cli-2.8.0-beta.1.tgz",
+    "sha512": "b04564088946da0b59a5a630f55d8159d29917a9a4796b85b4d1161bbb629995da8dfe8f04fdbefa3f033ef6dec5145f8a009835f8e5d13ca89843b4fb8401d8",
+    "sha1": "35c4a4bc141996e28fe1dbcb6a9d5b15ff9ab3da",
+    "bytes": 655540,
+    "readmePath": "package/README.md",
+    "readmeSha256": "bda8df56a8f2649e8366a726cf2de6f5161760838a9dace13fd12fc68781a1d2"
+  },
+  "releaseRecord": null,
+  "scope": "Separate release-owner registry/tarball provenance check. Publication record was not available in this observation; this file is not that record."
+}

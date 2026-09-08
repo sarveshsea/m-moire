@@ -7,17 +7,11 @@ description: Use when a repository needs deterministic pull-request checks for n
 
 Add a reviewable design-quality gate that runs without an LLM. Memi writes a policy, baseline, universal agent skill, SARIF, and human-readable report artifacts.
 
-The verification command targets the reviewed 2.8 frontend contract; check `memi --version` and npm registry availability. If the beta is unpublished, use a reviewed local candidate; after publication, use the exact verified beta version. Beta `init` remains unavailable in every profile. Initialization below uses public 2.7.9 explicitly and writes project configuration. The Action remains on public stable 2.7.9 during the beta.
+Published beta **2.8.0-beta.1** is available on `next`; npm `latest` remains **2.7.9**. Verify the exact executable with `npx -y @memi-design/cli@2.8.0-beta.1 --version`. Existing `memi` on PATH must report that beta version before using these recipes. The managed scan and the two named parity receipts remain pending for stable; see docs/trust/KNOWN_LIMITATIONS.md.
 
-## Initialize
+## Existing project setup
 
-Inspect the worktree first. When the task authorizes setup, run:
-
-```bash
-npx -y @memi-design/cli@2.7.9 init --team --kit universal --json
-```
-
-Review the generated policy and baseline before committing them. Existing debt remains visible but does not block unrelated pull requests.
+Beta initialization is unavailable. Use an existing reviewed policy and baseline; this skill does not invoke legacy setup commands. Review project changes before committing them.
 
 ## Verify Locally
 

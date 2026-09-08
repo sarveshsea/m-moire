@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { validateEngineReleaseRecord } from "../../../scripts/lib/release-manifest.mjs";
 import { mkdtempSync, rmSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -137,9 +139,7 @@ describe("packaged agent kits", () => {
       const lines = skill.split("\n");
 
       expect(skill).toMatch(new RegExp(`^---\\nname: ${name}\\ndescription: Use when `));
-      expect(skill).not.toContain(`npx -y @memi-design/cli@${pkg.version}`);
-      expect(skill).toContain("2.7.9");
-      expect(skill).toMatch(/candidate|Candidate/);
+      await expectActualAvailability(skill, pkg.version);
       expect(skill).not.toContain("npm i -g");
       expect(skill).not.toContain("daemon start");
       expect(lines.length).toBeLessThanOrEqual(95);
@@ -153,14 +153,14 @@ describe("packaged agent kits", () => {
     const hermesSkill = normalizeNewlines(await readFile(join(root, "agent-kits", "hermes", "memoire-design-tooling", "SKILL.md"), "utf-8"));
     const openClawSkill = normalizeNewlines(await readFile(join(root, "agent-kits", "openclaw", "memoire-design-tooling", "SKILL.md"), "utf-8"));
 
+    const canonical = normalizeNewlines(await readFile(join(root, "skills/memoire-design-tooling/SKILL.md"), "utf8"));
     for (const skill of [hermesSkill, openClawSkill]) {
+      expect(skill.slice(skill.indexOf("# Memi Design Tooling"))).toBe(canonical.slice(canonical.indexOf("# Memi Design Tooling")));
       expect(skill).toMatch(/^---\n/);
       expect(skill).toContain("name: memoire-design-tooling");
       expect(skill).toContain("description: Use when");
       expect(skill).toMatch(/\n---\n\n# Memi Design Tooling/);
-      expect(skill).not.toContain(`npx -y @memi-design/cli@${pkg.version}`);
-      expect(skill).toContain("2.7.9");
-      expect(skill).toMatch(/candidate|Candidate/);
+      await expectActualAvailability(skill, pkg.version);
       expect(skill).toContain("--frontend");
       expect(skill).not.toContain("npm i -g");
       expect(skill).not.toContain("daemon start");
@@ -256,9 +256,7 @@ describe("packaged agent kits", () => {
     for (const skillName of skillNames) {
       const skill = await readFile(join(root, "plugins", "memi-claude", "skills", skillName, "SKILL.md"), "utf-8");
       expect(skill).toContain(`name: ${skillName}`);
-      expect(skill).not.toContain(`npx -y @memi-design/cli@${pkg.version}`);
-      expect(skill).toContain("2.7.9");
-      expect(skill).toMatch(/candidate|Candidate/);
+      await expectActualAvailability(skill, pkg.version);
       expect(skill).not.toContain("npm i -g");
       expect(skill).not.toContain("daemon start");
     }
@@ -337,3 +335,39 @@ describe("packaged agent kits", () => {
 function normalizeNewlines(value: string): string {
   return value.replace(/\r\n/g, "\n");
 }
+
+function expectAvailability(skill: string, state: string, version: string) {
+  expect(["candidate", "published"]).toContain(state);
+  if (state === "candidate") {
+    expect(skill).not.toContain(`npx -y @memi-design/cli@${version}`);
+    expect(skill).toContain("2.7.9");
+    expect(skill).toMatch(/candidate|Candidate/);
+  } else {
+    expect(skill).toContain(`npx -y @memi-design/cli@${version}`);
+    expect(skill).toMatch(/published beta/i);
+    expect(skill).not.toMatch(/@memi-design\/cli@(?:latest|next)\b/);
+  }
+}
+async function expectActualAvailability(skill: string, version: string) {
+  const manifest = JSON.parse(await readFile("release-manifest.json", "utf8"));
+  const engine = manifest.releaseGroups.engine;
+  expect(engine.version).toBe(version);
+  if (engine.state === "published") {
+    expect(engine.releaseRecord.path).toBe(`release-artifacts/npm/${version}.release.json`);
+    const bytes = await readFile(engine.releaseRecord.path, "utf8");
+    const record = JSON.parse(bytes);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(engine.releaseRecord.sha256);
+    expect(record.sourceCommit).toBe(engine.sourceCommit);
+    expect(record.version).toBe(version);
+    expect(validateEngineReleaseRecord(record)).toEqual([]);
+  }
+  expectAvailability(skill, engine.state, version);
+}
+describe("frozen agent-kit candidate availability", () => {
+  const candidate = "Reviewed local candidate; npm stable 2.7.9. Check memi --version.";
+  it("retains the reviewed local candidate contract independently of live publication", () => {
+    expectAvailability(candidate, "candidate", "2.8.0-beta.1");
+    expect(() => expectAvailability(candidate + " npx -y @memi-design/cli@2.8.0-beta.1", "candidate", "2.8.0-beta.1")).toThrow();
+    expect(() => expectAvailability(candidate, "published", "2.8.0-beta.1")).toThrow();
+  });
+});

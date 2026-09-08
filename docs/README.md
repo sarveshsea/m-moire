@@ -6,6 +6,8 @@ Use this docs map to avoid treating the README as a dumping ground. The root REA
 
 ## Fastest proof
 
+The command block below targets stable 2.7.9. For beta 2.8.0-beta.1, use the [frontend workflow](FRONTEND_WORKFLOW.md).
+
 ```bash
 npm i -g @memi-design/cli
 memi agent brief . --intent "Improve this interface" --json

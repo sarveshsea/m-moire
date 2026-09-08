@@ -1,10 +1,10 @@
 # Trust Core acceptance ledger
 
-Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c47a8b549d`, PR #133. Public npm stable and GitHub release remain 2.7.9. The candidate is not published.
+Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c47a8b549d`, PR #133. npm stable remains 2.7.9; beta 2.8.0-beta.1 is published on `next`. The beta does not promote stable channels.
 
 ## Frontend implementation checkpoint
 
-The `codex/2.8-frontend-engine` branch extends the Trust Core baseline. These are local development observations; this branch has not been published or certified across every platform.
+The historical `codex/2.8-frontend-engine` work extended the Trust Core baseline. The published npm source is `71d17ecb8b44a39d81e18a831155eb010779bdfe`; see the [verification record](FRONTEND_2_8_VERIFICATION.md) for its native CI, registry receipts and remaining qualification limits.
 
 | Workstream | Implemented evidence | Remaining qualification |
 | --- | --- | --- |
@@ -16,7 +16,7 @@ The `codex/2.8-frontend-engine` branch extends the Trust Core baseline. These ar
 | Live design workflow | Real selected Figma node and token retrieved; native Code Connect unavailable so explicit checked-in mapping used. Disposable Paper file created/read through live MCP; both map to the same synthetic existing component. | Paper screenshot tool returned black images; no Paper pixel-parity pass. The fixture/browser results do not certify arbitrary projects. |
 | Cost/performance | Reproducible 500-file/20-story/100-token offline MCP benchmark; broad and narrow raw-input comparisons; no model calls. | Final artifact trials and native arm64 gate; no complete-task dollar or token savings claim. |
 | Full-source coverage | Meaningful command, integration and failure-path tests added without shrinking coverage scope. | See the canonical [verification record](FRONTEND_2_8_VERIFICATION.md) for the latest measured source and coverage. All four 80% gates still apply; passing assertions alone does not satisfy them. |
-| Distribution | README, candidate recipes, MCP configurations and canonical skills updated with actual capability/availability distinctions. | Public package, native CI, parity and signed artifact gates remain blocking; do not update npm latest from local green tests. |
+| Distribution | README, candidate recipes, MCP configurations and canonical skills updated with actual capability/availability distinctions. | The beta package and its native CI are verified. Managed scanning, refreshed parity and stable promotion remain gated; npm latest stays 2.7.9. |
 
 See the [frontend workflow](../FRONTEND_WORKFLOW.md), [fixture](../../examples/frontend-workflow/README.md), and [PR #137](https://github.com/memi-design/memi/pull/137) for implementation scope. The [verification record](FRONTEND_2_8_VERIFICATION.md) is authoritative for measured source and artifact results. The original artifact at `2a6d0e44` is historical and superseded for release by subsequent defensive runtime corrections; its receipts cannot validate later bytes.
 
@@ -70,9 +70,10 @@ Merged after applicable checks: organization profile #7; Homebrew #5; Studio #26
 Canvas #31; ripple proof #4; audit-frontend-design #2; enforce-design-ci #2;
 remember-design-system #2. Focused skill content comes from stable commit
 `70c9f4ad8b9823f67b5b16a06be9a42064aa6f04`, recorded in each source manifest.
-The sandbox docs PR #4 remains open: its existing production audit reports 22
-advisories (12 high, eight moderate, two low), so its proof did not execute.
-No runtime dependency or proof evidence was changed in that documentation PR.
+The earlier sandbox docs PR #4 was blocked by 22 dependency advisories. Merged
+PR #5 repaired the dependency graph, and PR #6 recaptured native proof for the
+merged source; the current full and production audits report zero advisories.
+Organization profile PR #8 now identifies the published beta and stable channels.
 The stable CI skill still uses a mutable `@v2` action ref; preserve its provenance
 until a separately reviewed canonical-source pin and export update.
 
@@ -80,7 +81,7 @@ until a separately reviewed canonical-source pin and export update.
 Windows follow-up: numeric inode checks rejected legitimate large NTFS IDs on
 Node 22/24. Exact BigInt descriptor/pathname identities now cover report writes,
 lock acquisition/release, and receipts, with adjacent-ID and unknown-ID tests.
-Astra independently passed 48 targeted tests. Fresh Windows matrix confirmation
-is required for this portability change. Native arm64 on prior audit commit
+Astra independently passed 48 targeted tests. The native Windows Node 20/22/24 matrix passed for the published source;
+see the current verification record. Native arm64 on prior audit commit
 `0071fc75` passed at 587.3 ms startup and 683.2 ms diagnosis; see
 [the native job](https://github.com/memi-design/memi/actions/runs/34188457333/job/101941435126).

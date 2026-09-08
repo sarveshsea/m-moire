@@ -1,0 +1,10 @@
+{
+  "package": "@memi-design/cli",
+  "version": "2.8.0-beta.1",
+  "sourceCheckpoint": "71d17ecb8b44a39d81e18a831155eb010779bdfe",
+  "registry": "https://registry.npmjs.org/",
+  "registryIntegrity": "sha512-sEVkCIlG2gtZpaYw9V2BWdKZF6mkeWuFtNEWG7timZXajf6PBP2++j8DPvbexRRfigCYNfjl0TyomEO0+4QB2A==",
+  "tarballSha256": "4ddf4f47dee0a86f7ee38e7e1769b58f6a09557f2893f0a9e2f9e08f98eee6e2",
+  "packedBytes": 655540,
+  "downloadedAt": "2026-09-08T17:24:12.113Z"
+}

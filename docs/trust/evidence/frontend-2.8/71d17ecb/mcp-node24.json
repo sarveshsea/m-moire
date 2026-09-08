@@ -1,0 +1,9 @@
+{
+  "nodeVersion": "24.19.0",
+  "artifactVersion": "2.8.0-beta.1",
+  "sourceCheckpoint": "71d17ecb8b44a39d81e18a831155eb010779bdfe",
+  "exitCode": 0,
+  "stdout": "mcp stdio smoke: locked initialize/list/brief/diagnosis/denial/cancel/close passed (4 tools); no sentinel side effects\n",
+  "stderr": "",
+  "verificationCompletedAt": "2026-09-08T17:26:12.461Z"
+}

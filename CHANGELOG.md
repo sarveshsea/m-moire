@@ -6,20 +6,20 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
-## Trust Core 2.8 development — Unreleased
+## v2.8.0-beta.1 — 2026-09-08 — Published beta
 
-This unreleased work is not part of the immutable 2.7.9 release. It becomes a
-public product claim only after the 2.8 candidate, cross-platform, security, and
-release gates pass.
+Published to `next`; npm `latest` remains `2.7.9`. The [immutable npm release record](release-artifacts/npm/2.8.0-beta.1.release.json) records the actual publication timestamp, source, artifact digests and provenance.
 
-### Frontend engineering candidate (unreleased)
+Managed independent security scanning and the reviewed-candidate-audit and swiftui-rendered-rerun receipts remain pending for stable. Paper pixel parity is unassessed. Of 158 inventoried CLI paths, 105 remain deferred; broad grants do not enable them. No complete-task dollar or token savings claim is established.
+
+### Frontend engineering beta
 
 - Add a bounded repository-aware frontend brief across exports, props, CSS/DTCG tokens and CSF story references; normalize host-supplied Figma/Paper mappings without executing vendor data.
 - Make locked stdio useful with four read tools, cancellation, explicit root ownership, credential-free configurations and installed protocol checks.
 - Validate mapped reuse and stale/conflicting evidence; keep host-envelope guidance distinct from the registry generator's hard stop.
 - Contain source and metadata reads using file descriptors, reject links/identity changes, and bound traversal. Separate assessed quality, coverage, omissions and metadata receipts.
 - Exercise real Storybook component reuse with checked-in connector evidence, keyboard/theme/viewport tests, and a separate CI replay job. Paper screenshot parity remains unassessed.
-- Add cold-process and byte-budget measurements with honest narrow-input comparisons. No complete-task savings claim; full-source coverage now passes; remaining release gates still block npm publication.
+- Add cold-process and byte-budget measurements with honest narrow-input comparisons. No complete-task savings claim; full-source coverage passes, while managed scanning and refreshed parity evidence remain stable-release requirements.
 - Replace unavailable candidate recipes and legacy default autonomy guidance with the actual capability contract, preserving consumer component and CSS conventions.
 
 Development checkpoints (RED tests precede their implementation where noted):
@@ -141,7 +141,7 @@ Development checkpoints (RED tests precede their implementation where noted):
 
 - `636e7a00` — fix: retry validated diagnosis lock handoffs
 - `b93d3762` — test: reproduce configured npm cache loss in isolated installs
-- Preserve npm cache configuration only during packed and upgrade installs, prefer verified cached packages with network fallback, and label install timeouts without changing runtime isolation or deadlines.
+- Preserve npm’s effective cache, including `.npmrc` configuration, before packed and upgrade installers isolate their environment. Only the cache path is forwarded; credentials remain excluded. Prefer verified cached packages with network fallback and label install timeouts without changing runtime isolation or deadlines.
 - Retain and validate the prior stable release identity when publishing a prerelease, so tagged beta artifacts continue to use `next` without promoting stable channels.
 - Verify released README content inside the integrity-checked npm tarball when registry metadata omits it; preserve required documentation, signatures, provenance and original publish-attempt checks.
 

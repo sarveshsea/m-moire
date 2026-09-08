@@ -1,15 +1,15 @@
 # Memi Trust Core
 
 This directory is the review surface for the `@memi-design/cli` 2.8 Trust Core
-candidate. It defines the intended security boundary and the evidence required
-before a release claim. It does not certify an unpublished build.
+beta. It defines the security boundary, artifact-specific evidence and remaining
+qualification requirements. Beta publication does not establish stable certification.
 
 ## Current status
 
-| Item | Status on 2026-08-31 |
+| Item | Status on 2026-09-08 |
 | --- | --- |
 | Public CLI | 2.7.9 remains the published stable release. |
-| 2.8 Trust Core | Candidate work; not yet published or approved for internal use. |
+| 2.8 Trust Core | 2.8.0-beta.1 is published on `next`; it is not stable or approved for internal use. |
 | Default execution profile | `locked` is the 2.8 contract. Locked is the default profile. |
 | Managed security scan | Pending on a host with a managed filesystem permission profile. |
 | Studio and Canvas | Separate products with separate release and security gates. |
