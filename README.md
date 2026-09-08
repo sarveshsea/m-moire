@@ -50,11 +50,11 @@ If Memi catches a real interface issue in your project, [share the finding](http
 
 Local source diagnosis uses deterministic rules: **no model call, API key, or model fee**. It checks the repository you provide and returns findings your agent can verify. Installation, CPU time, CI runners, and any agent you choose still have costs. The published research has not established an end-to-end dollar or token savings advantage.
 
-Start with the read-only Quickstart above, address the highest-confidence finding, and rerun the same check. An npm install needs registry access; installing from npm is not an offline first run.
+Start with the non-destructive Quickstart above, address the highest-confidence finding, and rerun the same check. An npm install needs registry access; installing from npm is not an offline first run.
 
 **Release distinction:** npm stable is `2.7.9`. Trust Core `2.8.0-beta.1` is an **unpublished candidate under audit** in [PR #133](https://github.com/memi-design/memi/pull/133). Its proposed locked default, explicit capability grants, and offline bundle verification are not shipped guarantees of 2.7.9. Do not try to install the unpublished candidate from npm.
 
-The candidate aims to make local diagnosis read-only by default, keep paid integrations optional, and require explicit grants for networking, subprocesses, and source report persistence. Its release gates remain incomplete. Review the candidate's [acceptance ledger](https://github.com/memi-design/memi/blob/codex/2.8-trust-core/docs/trust/ACCEPTANCE_LEDGER.md) and [known limitations](https://github.com/memi-design/memi/blob/codex/2.8-trust-core/docs/trust/KNOWN_LIMITATIONS.md) for implementation evidence and outstanding checks.
+The candidate aims to prevent local diagnosis from writing project files by default, keep paid integrations optional, and require explicit grants for networking, subprocesses, and source report persistence. Its release gates remain incomplete. Review the candidate's [acceptance ledger](https://github.com/memi-design/memi/blob/codex/2.8-trust-core/docs/trust/ACCEPTANCE_LEDGER.md) and [known limitations](https://github.com/memi-design/memi/blob/codex/2.8-trust-core/docs/trust/KNOWN_LIMITATIONS.md) for implementation evidence and outstanding checks.
 
 ## Put the check on every pull request
 
