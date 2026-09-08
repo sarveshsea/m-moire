@@ -15,6 +15,7 @@ export interface ScannedSourceFile {
 }
 
 export interface SourceScanOptions {
+  signal?: AbortSignal;
   projectRoot: string;
   target?: string;
   extensions: Iterable<string>;
@@ -54,9 +55,9 @@ export interface SourceScanOmission {
   reason: "max-files" | "oversized" | "unreadable" | "excluded" | "symlink" | "linked-style-limit";
 }
 export interface SourceScanCompleteness {
-  /** Complete only within configured extensions/target; excluded subtrees are never counted as inspected. */
+  /** Complete only for eligible files within configured extensions/target/exclusions, never the entire repository. */
   complete: boolean;
-  scope: "configured-extensions";
+  scope: "configured-extensions-and-exclusions";
   discoveredFiles: number;
   scannedFiles: number;
   maxFiles: number;
@@ -74,6 +75,7 @@ export async function scanSources(options: SourceScanOptions): Promise<ScannedSo
 }
 
 export async function scanSourcesWithMetadata(options: SourceScanOptions): Promise<SourceScanResult> {
+  options.signal?.throwIfAborted();
   const target = options.target ?? options.projectRoot;
   const maxFiles = Math.max(1, options.maxFiles ?? DEFAULT_MAX_FILES);
   if (isHttpUrl(target)) {
@@ -95,19 +97,23 @@ export async function scanSourcesWithMetadata(options: SourceScanOptions): Promi
     if (options.excludePath?.(path)) omissions.push({ path, reason: "excluded" });
     else if (extensions.has(extname(resolvedTarget).toLowerCase())) candidates.push(resolvedTarget);
   } else if (targetStat.isDirectory()) {
-    await walkCandidates(root, resolvedTarget, extensions, ignoreDirs, candidates, omissions, options.excludePath);
+    await walkCandidates(root, resolvedTarget, extensions, ignoreDirs, candidates, omissions, options.excludePath, options.signal);
   } else throw new Error(`Unsupported source target: ${target}`);
+  options.signal?.throwIfAborted();
   const selected = candidates.slice(0, maxFiles);
   for (const path of candidates.slice(maxFiles)) omissions.push({ path: normalizePath(relative(root, path)), reason: "max-files" });
   const results = await mapWithConcurrency(selected, options.concurrency ?? DEFAULT_CONCURRENCY, async filePath => {
     const path = normalizePath(relative(root, filePath));
+    options.signal?.throwIfAborted();
     try {
-      const source = await readLocalFile(root, filePath, resolvedTarget, options.maxBytesPerFile);
+      const source = await readLocalFile(root, filePath, resolvedTarget, options.maxBytesPerFile, options.signal);
       return source ? { source } : { omission: { path, reason: "oversized" as const } };
     } catch {
+      options.signal?.throwIfAborted();
       return { omission: { path, reason: "unreadable" as const } };
     }
   });
+  options.signal?.throwIfAborted();
   const sources = results.flatMap(result => result.source ? [result.source] : []);
   const allOmissions = [...omissions, ...results.flatMap(result => result.omission ? [result.omission] : [])];
   return scanResult(sources, allOmissions, candidates.length, options, maxFiles);
@@ -116,8 +122,8 @@ export async function scanSourcesWithMetadata(options: SourceScanOptions): Promi
 function scanResult(sources: ScannedSourceFile[], omissions: SourceScanOmission[], discoveredFiles: number,
   options: SourceScanOptions, maxFiles: number): SourceScanResult {
   return { sources, completeness: {
-    complete: omissions.length === 0,
-    scope: "configured-extensions",
+    complete: omissions.every(omission => omission.reason === "excluded"),
+    scope: "configured-extensions-and-exclusions",
     discoveredFiles,
     scannedFiles: sources.length,
     maxFiles,
@@ -127,17 +133,19 @@ function scanResult(sources: ScannedSourceFile[], omissions: SourceScanOmission[
 }
 
 async function walkCandidates(projectRoot: string, dir: string, extensions: Set<string>, ignoreDirs: Set<string>,
-  files: string[], omissions: SourceScanOmission[], excludePath?: (projectPath: string) => boolean): Promise<void> {
+  files: string[], omissions: SourceScanOmission[], excludePath?: (projectPath: string) => boolean, signal?: AbortSignal): Promise<void> {
+  signal?.throwIfAborted();
   let entries;
   try { entries = await readdir(dir, { withFileTypes: true }); }
-  catch { omissions.push({ path: normalizePath(relative(projectRoot, dir)) || ".", reason: "unreadable" }); return; }
+  catch { signal?.throwIfAborted(); omissions.push({ path: normalizePath(relative(projectRoot, dir)) || ".", reason: "unreadable" }); return; }
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+    signal?.throwIfAborted();
     const fullPath = join(dir, entry.name);
     const path = normalizePath(relative(projectRoot, fullPath));
     if (entry.isSymbolicLink()) { omissions.push({ path, reason: "symlink" }); continue; }
     if (entry.isDirectory()) {
       if (ignoreDirs.has(entry.name) || excludePath?.(path)) omissions.push({ path, reason: "excluded" });
-      else await walkCandidates(projectRoot, fullPath, extensions, ignoreDirs, files, omissions, excludePath);
+      else await walkCandidates(projectRoot, fullPath, extensions, ignoreDirs, files, omissions, excludePath, signal);
     } else if (entry.isFile() && extensions.has(extname(entry.name).toLowerCase())) {
       if (excludePath?.(path)) omissions.push({ path, reason: "excluded" });
       else files.push(fullPath);
@@ -150,13 +158,16 @@ async function readLocalFile(
   filePath: string,
   sourceRoot: string,
   maxBytesPerFile?: number,
+  signal?: AbortSignal,
 ): Promise<ScannedSourceFile | null> {
+  signal?.throwIfAborted();
   const fileStat = await stat(filePath);
   if ((fileStat.mode & 0o444) === 0) throw new Error("Source has no read permission bits");
   if (maxBytesPerFile !== undefined && fileStat.size > maxBytesPerFile) {
     return null;
   }
-  const content = await readFile(filePath, "utf-8");
+  const content = await readFile(filePath, { encoding: "utf-8", signal });
+  signal?.throwIfAborted();
   const path = normalizePath(relative(sourceRoot, filePath)) || normalizePath(relative(projectRoot, filePath)) || filePath;
   const projectPath = normalizePath(relative(projectRoot, filePath)) || path;
   return {
@@ -174,6 +185,7 @@ async function scanUrlWithMetadata(url: string, options: SourceScanOptions, maxF
   const timeoutMs = options.fetchTimeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS;
   const extensions = normalizeExtensions(options.extensions);
   const html = await fetchText(url, timeoutMs, options.userAgent ?? "Memoire-SourceScanner/1.0");
+  options.signal?.throwIfAborted();
   const candidates: ScannedSourceFile[] = extensions.has(".html") ? [urlSource(url, html, ".html")] : [];
   const omissions: SourceScanOmission[] = [];
   if (extensions.has(".css") && options.includeInlineStyles !== false) {
@@ -186,11 +198,12 @@ async function scanUrlWithMetadata(url: string, options: SourceScanOptions, maxF
     const selected = urls.slice(0, options.maxLinkedStyles ?? 12);
     for (const path of urls.slice(selected.length)) omissions.push({ path, reason: "linked-style-limit" });
     for (const [index, sheetUrl] of selected.entries()) {
+      options.signal?.throwIfAborted();
       if (candidates.length >= maxFiles) { omissions.push({ path: sheetUrl, reason: "max-files" }); continue; }
       try {
         const content = await fetchText(sheetUrl, timeoutMs, options.userAgent ?? "Memoire-SourceScanner/1.0");
         candidates.push(urlSource(`${sheetUrl}#sheet-${index + 1}`, content, ".css"));
-      } catch { omissions.push({ path: sheetUrl, reason: "unreadable" }); }
+      } catch { options.signal?.throwIfAborted(); omissions.push({ path: sheetUrl, reason: "unreadable" }); }
     }
   }
   const sources: ScannedSourceFile[] = [];
@@ -200,6 +213,7 @@ async function scanUrlWithMetadata(url: string, options: SourceScanOptions, maxF
       omissions.push({ path: source.path, reason: "oversized" });
     } else if (source.content.trim().length > 0) sources.push(source);
   }
+  options.signal?.throwIfAborted();
   return scanResult(sources, omissions, discoveredFiles, options, maxFiles);
 }
 

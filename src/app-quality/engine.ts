@@ -190,6 +190,7 @@ export function auditContextFromDiagnosis(diagnosis: AppQualityDiagnosis): AppQu
 }
 
 interface ScanOptions {
+  signal?: AbortSignal;
   target?: string;
   projectRoot: string;
   maxFiles?: number;
@@ -214,6 +215,7 @@ interface RawFile {
   path: string;
   absolutePath: string;
   content: string;
+  classes?: StaticClassExtraction;
 }
 
 const DEFAULT_MAX_FILES = 500;
@@ -260,14 +262,21 @@ const CATEGORY_BASE: Record<AppQualityCategory, number> = {
 };
 
 export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQualityDiagnosis> {
+  options.signal?.throwIfAborted();
   const target = options.target ?? options.projectRoot;
   const startedAt = performance.now();
-  const scan = await scanTargetSources(options.projectRoot, target, options.maxFiles ?? DEFAULT_MAX_FILES);
+  const scan = await scanTargetSources(options.projectRoot, target, options.maxFiles ?? DEFAULT_MAX_FILES, options.signal);
   const sources = scan.sources;
   const scanMs = performance.now() - startedAt;
-  const files = sources.map(sourceToRawFile);
+  const files: RawFile[] = [];
+  for (const [index, source] of sources.entries()) {
+    if (index % 16 === 0) await new Promise<void>(resolve => setImmediate(resolve));
+    options.signal?.throwIfAborted();
+    const file = sourceToRawFile(source);
+    files.push({ ...file, classes: extractStaticClasses(file.content, file.path) });
+  }
   const webSources = sources.filter((source) => WEB_SOURCE_EXTENSIONS.has(source.extension));
-  const webFiles = webSources.map(sourceToRawFile);
+  const webFiles = files.filter((_file, index) => WEB_SOURCE_EXTENSIONS.has(sources[index].extension));
   const webSourceDetected = webSources.length > 0;
   const swiftSources = sources
     .filter((source) => source.extension === ".swift")
@@ -280,12 +289,13 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
     maxFiles: options.maxFiles ?? DEFAULT_MAX_FILES,
     sources,
   });
+  options.signal?.throwIfAborted();
   const graphMs = performance.now() - graphStartedAt;
   const policy = options.policy ?? defaultPolicy();
   const fileSignals = files.map(analyzeFile);
   const webFileSignals = webFiles.map(analyzeFile);
   const aggregate = aggregateSignals(webFiles, webFileSignals);
-  const extractions = webFiles.map(file => extractStaticClasses(file.content, file.path));
+  const extractions = webFiles.map(file => file.classes ?? extractStaticClasses(file.content, file.path));
   const classExtraction = {
     unknownExpressions: extractions.reduce((sum, item) => sum + item.unknownExpressions, 0),
     parseFailures: extractions.reduce((sum, item) => sum + item.parseFailures, 0),
@@ -464,6 +474,7 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
     ...auditEvidence,
   };
 
+  options.signal?.throwIfAborted();
   if (options.write !== false) {
     await writeDiagnosis(options.projectRoot, diagnosis);
   }
@@ -478,8 +489,9 @@ function canonicalScanTarget(projectRoot: string, target: string): string {
   return relative(root, absoluteTarget).replace(/\\/g, "/") || ".";
 }
 
-async function scanTargetSources(projectRoot: string, target: string, maxFiles: number): Promise<SourceScanResult> {
+async function scanTargetSources(projectRoot: string, target: string, maxFiles: number, signal?: AbortSignal): Promise<SourceScanResult> {
   const sources = await scanSourcesWithMetadata({
+    signal,
     projectRoot,
     target,
     extensions: SOURCE_EXTENSIONS,
@@ -515,7 +527,7 @@ function sourceToRawFile(source: ScannedSourceFile): RawFile {
 }
 
 function analyzeFile(file: RawFile): AppQualityFileSignal {
-  const classTokens = extractClassTokens(file.content, file.path);
+  const classTokens = (file.classes?.tokens ?? extractClassTokens(file.content, file.path));
   const shadcnImports = [...file.content.matchAll(/from\s+["'][^"']*components\/ui\/([^"']+)["']/g)]
     .map((match) => match[1].replace(/\.(tsx?|jsx?)$/, ""));
   const colorUsageContent = file.content.replace(
@@ -607,7 +619,7 @@ function aggregateSignals(files: RawFile[], fileSignals: AppQualityFileSignal[])
   const scopedFiles = scopedPairs.map((pair) => pair.file);
   const scopedSignals = scopedPairs.map((pair) => pair.signal);
   const allContent = scopedFiles.map((file) => file.content).join("\n");
-  const classTokens = scopedFiles.flatMap((file) => extractClassTokens(file.content, file.path));
+  const classTokens = scopedFiles.flatMap((file) => (file.classes?.tokens ?? extractClassTokens(file.content, file.path)));
   const spacing = classTokens.filter((token) => /^(p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml|gap|space-[xy])-/.test(stripVariants(token)));
   const textSizes = classTokens.filter((token) => /^text-(xs|sm|base|lg|xl|[2-9]xl|\[[^\]]+\])$/.test(stripVariants(token)));
   const colors = classTokens.filter((token) => /(bg|text|border|ring|from|to|via)-/.test(stripVariants(token)));

@@ -507,7 +507,7 @@ struct FixtureView: View {
       expect(diagnosis.summary.scannedFiles).toBe(0);
       expect(diagnosis.sourceCoverage.swiftui.analysis).toBe("not-detected");
       expect(diagnosis.issues).toEqual([]);
-      expect(diagnosis.summary.verdict).toBe("unassessed — no supported source files detected — scan incomplete");
+      expect(diagnosis.summary.verdict).toBe("unassessed — no supported source files detected");
     } finally {
       await rm(root, { recursive: true, force: true });
     }
