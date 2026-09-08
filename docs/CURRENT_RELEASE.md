@@ -4,21 +4,19 @@
 
 Manifest updated: 2026-09-08
 
-> Engine 2.8.0-beta.2 is not the current public release. The public activation path remains 2.7.9 until independent live-release verification passes.
-
 
 Memi is the design layer for agentic AI. The CLI and focused skills are available today; Studio is the macOS workbench, and Canvas is in development.
 
 | Release group | Version | Canonical evidence |
 |---|---:|---|
-| Engine candidate (unreleased) | `2.8.0-beta.2` | [GitHub release](https://github.com/memi-design/memi/releases/tag/v2.7.9) · [npm](https://www.npmjs.com/package/@memi-design/cli) |
+| Engine published (parity pending) | `2.8.0-beta.2` | [GitHub release](https://github.com/memi-design/memi/releases/tag/v2.8.0-beta.2) · [npm](https://www.npmjs.com/package/@memi-design/cli) |
 | Studio | `2.5.0` | [Studio release](https://github.com/memi-design/memi-studio/releases/tag/v2.5.0) |
 | Website | `1.0.4` | [memoire.cv](https://www.memoire.cv) |
 
 ## Immutable engine identity
 
-- Release state: `candidate`
-- Source commit: Not assigned. npm provenance must bind the eventual publish commit.
+- Release state: `published`
+- Source commit: `51f8fb64570fd6c613244432b15fd6ea19450329`
 - GitHub tag: `v2.8.0-beta.2`
 - GitHub Action major channel: `v2`
 - MCP server: `io.github.memi-design/memi`
@@ -32,7 +30,7 @@ Memi is the design layer for agentic AI. The CLI and focused skills are availabl
 ## Primary activation path
 
 ```bash
-npx -y @memi-design/cli@2.7.9 diagnose . --json --no-write --fail-on none
+npx -y @memi-design/cli@2.8.0-beta.2 diagnose . --json --no-write --fail-on none
 ```
 
 This command inspects the project without modifying source. A successful first audit must return file-anchored findings or an explicit evidence-backed unsupported state; an empty or unassessed result is never a whole-product pass.

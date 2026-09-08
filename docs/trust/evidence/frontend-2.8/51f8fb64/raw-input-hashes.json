@@ -1,0 +1,157 @@
+[
+  {
+    "file": "browser-version.log",
+    "bytes": 15,
+    "sha256": "f9d6460c28b290d396689843a5c5ccea127b2dc3bb62900dc357445464195985"
+  },
+  {
+    "file": "cli-matrix.json",
+    "bytes": 36831,
+    "sha256": "c5359f75c95768e7d9a856adec01a3ed574d0f9cca0d3a6b9cac0c8a574cf659"
+  },
+  {
+    "file": "cli-matrix.log",
+    "bytes": 37,
+    "sha256": "8924841caa7c946feb75c4448c7103abce6c87089b7ba9c3c44be16f26e7a3a4"
+  },
+  {
+    "file": "cli-preview.log",
+    "bytes": 37,
+    "sha256": "0a1603134a1ca4925b2765685ab596cac224caadb96ad3127a87ca5436cc4734"
+  },
+  {
+    "file": "consumer/node_modules/@memi-design/cli/dist/index.js",
+    "bytes": 1764637,
+    "sha256": "3bd65aa77cadae393846fd94348e76e2e4fbdbb9bfb2a90b1697a31505443eb9"
+  },
+  {
+    "file": "consumer/package-lock.json",
+    "bytes": 69080,
+    "sha256": "ac8ce88d4210df00960874e923f75b175fcca1453ab2358c453c5f5d1441bc9c"
+  },
+  {
+    "file": "entry-after.json",
+    "bytes": 190,
+    "sha256": "02ab17c15841ececd3e1f1b738be406dd9ae70c9e8d7500dce0c7df3359e2d49"
+  },
+  {
+    "file": "entry-before.json",
+    "bytes": 190,
+    "sha256": "02ab17c15841ececd3e1f1b738be406dd9ae70c9e8d7500dce0c7df3359e2d49"
+  },
+  {
+    "file": "examples/frontend-workflow/.dist/review/playwright-results.json",
+    "bytes": 20295,
+    "sha256": "0068b5ba2c9f948be59dd03b4a4ba24bbadfacf28f171e84a1ba2f398c9d175d"
+  },
+  {
+    "file": "examples/frontend-workflow/.dist/review/screenshots/mapped-workspace.png",
+    "bytes": 7915,
+    "sha256": "e5dae3ea1bf9a09609600f4d74b5b40bf8d1e539c4ff3824b0ba614805c41c64"
+  },
+  {
+    "file": "executions.json",
+    "bytes": 4106,
+    "sha256": "9b69cc2a50fac2b869cbddd1906613ac005f59f99e22c49a55b1611b57374328"
+  },
+  {
+    "file": "fixture-build.log",
+    "bytes": 3341,
+    "sha256": "76dd6edddedf5e79bd4aacfe48a37c72b220f548974a7622affaecd1c6ae0299"
+  },
+  {
+    "file": "fixture-install.log",
+    "bytes": 144,
+    "sha256": "32e5d92be59717f5808e0bc0800838a67b8c951ef57215dd202878141e363f42"
+  },
+  {
+    "file": "fixture-playwright.log",
+    "bytes": 2717,
+    "sha256": "335bda89707ebfbe384dc4bee4a6846af4b5d997a8d5495d9eab151c6ef81379"
+  },
+  {
+    "file": "fixture-typecheck.log",
+    "bytes": 68,
+    "sha256": "90c9940ce969a73bb1fa40ea93e47c370e88aeabc64800c81fce233da84b753e"
+  },
+  {
+    "file": "harness-export.log",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "file": "mcp-node22.log",
+    "bytes": 120,
+    "sha256": "af3affef789316bba370d723417d1aa1ed04047c6a7976bb96636fa3a32e932c"
+  },
+  {
+    "file": "mcp-node24.log",
+    "bytes": 120,
+    "sha256": "af3affef789316bba370d723417d1aa1ed04047c6a7976bb96636fa3a32e932c"
+  },
+  {
+    "file": "memi-design-cli-2.8.0-beta.2.tgz",
+    "bytes": 657890,
+    "sha256": "8b089fb4921a70324637ce26768bfd969d85945da4167dfcd099f1849228b1ce"
+  },
+  {
+    "file": "node22.log",
+    "bytes": 10,
+    "sha256": "f2f7c3be203d76ecdfcabf6866f40341b13704ae5b17898b0638899dd10219f2"
+  },
+  {
+    "file": "node24.log",
+    "bytes": 10,
+    "sha256": "3067c0d197d0b6d4d6ba668a0636adf615e6ea7c41231458414dd73386df06c6"
+  },
+  {
+    "file": "registry-install.log",
+    "bytes": 144,
+    "sha256": "2016cd6a7192ddbed437b1f592b28391765258c6eb55b557dc5195e5ee4f406c"
+  },
+  {
+    "file": "registry-metadata.json",
+    "bytes": 5446,
+    "sha256": "3adf918805dae94cee3b6c40b22aebb6d3e840ce674ad6dc4594e266169dcae4"
+  },
+  {
+    "file": "registry-pack.log",
+    "bytes": 7361,
+    "sha256": "c07d11e208436cf00fa20e11c63dbb3345238d00e81ba3e0162aca3aba7850f3"
+  },
+  {
+    "file": "registry-production-audit.json",
+    "bytes": 361,
+    "sha256": "46cdb75cffeb8d15d42de776f60e2be52f9c794eaec834395e905cd29089eac7"
+  },
+  {
+    "file": "registry-production-audit.log",
+    "bytes": 363,
+    "sha256": "14b764ea9d4ee758bf86a138f54ae13f8de3f2a951cc4f11fd3dab7b922e278b"
+  },
+  {
+    "file": "registry-proof.log",
+    "bytes": 1499,
+    "sha256": "b1b3e8687150e876a296f49982da2371ee5961f76e322ccb9d228e6e0398248b"
+  },
+  {
+    "file": "registry-proof.log",
+    "bytes": 1499,
+    "sha256": "b1b3e8687150e876a296f49982da2371ee5961f76e322ccb9d228e6e0398248b"
+  },
+  {
+    "file": "registry-signatures.log",
+    "bytes": 38,
+    "sha256": "b6edfea5913e401b2b92f24a7fc7c3fde68a77b8c8f18bf9a0057b8029e2d074"
+  },
+  {
+    "file": "registry-view.log",
+    "bytes": 5448,
+    "sha256": "4d4cc8ab865a1eff8478680426a357a4dfc0c423fd4b6ea06e4bf0bd2b67058c"
+  },
+  {
+    "file": "verification.json",
+    "bytes": 872,
+    "sha256": "1512b57654cde108c414fb63efbcf5269a9e14fe4568f8bf4c37fd49b688c9a0"
+  }
+]

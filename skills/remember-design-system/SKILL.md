@@ -7,7 +7,7 @@ description: Use when an agent is about to build or refactor interface code and 
 
 Build design context from the repository instead of guessing from the prompt. This is a preflight for UI work, not a request to redesign the product.
 
-This workflow targets **2.8.0-beta.2**. For an unpublished candidate, use a reviewed local build reporting that exact version. Check `memi --version` and exact npm registry availability before installing; when 2.8.0-beta.2 is available, install that exact version rather than a floating tag. The independent stable compatibility baseline is **2.7.9**. Check docs/CURRENT_RELEASE.md and docs/trust/KNOWN_LIMITATIONS.md for current publication state and artifact-specific native verification; npm availability alone does not establish native-binary success.
+This workflow targets published beta **2.8.0-beta.2**. Use `npx -y @memi-design/cli@2.8.0-beta.2 --version` to verify the exact package; a local `memi` must report that same version before these recipes run. The independent stable compatibility baseline is **2.7.9**. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) and [known limitations](https://github.com/memi-design/memi/blob/main/docs/trust/KNOWN_LIMITATIONS.md). npm availability alone does not establish native-binary success.
 
 ## Build The Brief
 

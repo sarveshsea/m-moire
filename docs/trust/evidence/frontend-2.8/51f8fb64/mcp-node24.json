@@ -1,0 +1,11 @@
+{
+  "nodeVersion": "24.19.0",
+  "artifactVersion": "2.8.0-beta.2",
+  "sourceCheckpoint": "51f8fb64570fd6c613244432b15fd6ea19450329",
+  "exitCode": 0,
+  "lockedTools": 4,
+  "entrySha256": "3bd65aa77cadae393846fd94348e76e2e4fbdbb9bfb2a90b1697a31505443eb9",
+  "observedOutputSha256": "af3affef789316bba370d723417d1aa1ed04047c6a7976bb96636fa3a32e932c",
+  "verificationCompletedAt": "2026-09-08T22:49:20.441Z",
+  "scope": "Actual locked initialize/list/brief/diagnosis/denial/cancel/close smoke; no sentinel side effects."
+}
