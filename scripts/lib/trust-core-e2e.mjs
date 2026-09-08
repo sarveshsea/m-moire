@@ -120,7 +120,7 @@ export async function runProcess(command, args, options = {}) {
     });
 
     const timer = setTimeout(() => {
-      terminate(new Error(`${command} timed out after ${timeoutMs}ms`));
+      terminate(new Error(`${options.label ?? command} timed out after ${timeoutMs}ms`));
     }, timeoutMs);
     timer.unref?.();
 
@@ -231,7 +231,7 @@ export async function createPackedInstallation(options = {}) {
   const consumerRoot = join(tempRoot, "consumer");
   const npm = resolveNpmInvocation();
   const packageJson = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8"));
-  const env = cleanHarnessEnvironment(process.env);
+  const env = installHarnessEnvironment(process.env);
 
   try {
     await mkdir(consumerRoot, { recursive: true });
@@ -253,6 +253,7 @@ export async function createPackedInstallation(options = {}) {
         cwd: packageRoot,
         env,
         timeoutMs: 120_000,
+        label: "packed artifact pack",
       });
       requireSuccess(pack, "npm pack");
       const result = parseStructuredOutput(pack.stdout);
@@ -266,6 +267,7 @@ export async function createPackedInstallation(options = {}) {
     const install = await runProcess(npm.command, [
       ...npm.prefix,
       "install",
+      "--prefer-offline",
       "--ignore-scripts",
       "--no-audit",
       "--no-fund",
@@ -275,6 +277,7 @@ export async function createPackedInstallation(options = {}) {
       cwd: consumerRoot,
       env,
       timeoutMs: 180_000,
+      label: "packed artifact install",
     });
     requireSuccess(install, "packed artifact install");
 
@@ -303,6 +306,17 @@ export async function createPackedInstallation(options = {}) {
     await rm(tempRoot, { recursive: true, force: true });
     throw error;
   }
+}
+
+// Cache configuration belongs to package installation, never the locked runtime.
+export function installHarnessEnvironment(source) {
+  const cache = Object.entries(source).find(([key, value]) =>
+    key.toLowerCase() === "npm_config_cache" && typeof value === "string" && value.length > 0,
+  )?.[1];
+  return {
+    ...cleanHarnessEnvironment(source),
+    ...(cache ? { npm_config_cache: cache } : {}),
+  };
 }
 
 export function cleanHarnessEnvironment(source) {

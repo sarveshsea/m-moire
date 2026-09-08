@@ -25,7 +25,7 @@ Install one focused skill directly:
 npx skills add memi-design/memi --skill audit-frontend-design
 ```
 
-This candidate skill requires a reviewed local 2.8 build. npm stable remains 2.7.9; do not install unpublished 2.8 from npm. Check `memi --version` first.
+This skill requires the reviewed 2.8 frontend contract. Check `memi --version` and npm registry availability first. If the beta is unpublished, use a reviewed local build; after publication, use the exact verified beta version. npm stable remains 2.7.9.
 
 ## Compact Preflight
 
