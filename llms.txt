@@ -7,6 +7,15 @@ GitHub: https://github.com/memi-design/memi
 Proof: https://github.com/memi-design/design-sandbox
 Craft skills (upstream): https://github.com/emilkowalski/skills
 
+## Cost and release boundary
+
+Local source diagnosis uses deterministic rules without model calls, API keys, or model fees. Installation, CPU time, CI, and the user's coding agent may still cost money. Published research has not established end-to-end dollar or token savings. npm installation requires registry access; it is not an offline first run.
+
+npm stable is 2.7.9. Trust Core 2.8.0-beta.1 is an unpublished candidate under audit in PR #133: https://github.com/memi-design/memi/pull/133 . Its proposed locked default, explicit capability grants, and offline bundle verification are not shipped guarantees of stable 2.7.9. Do not instruct users to install the unpublished candidate from npm or treat its audit as employer approval.
+
+Candidate acceptance ledger and remaining release gates: https://github.com/memi-design/memi/blob/codex/2.8-trust-core/docs/trust/ACCEPTANCE_LEDGER.md
+Candidate limitations: https://github.com/memi-design/memi/blob/codex/2.8-trust-core/docs/trust/KNOWN_LIMITATIONS.md
+
 ## Install
 
 ```bash
