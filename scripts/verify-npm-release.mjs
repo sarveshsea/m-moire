@@ -11,7 +11,8 @@ import {
   extractProvenanceInvocation,
   resolveReleaseChannel,
   validateProvenanceAttestations,
-  validateRegistryVersion,
+  validateRegistryMetadata,
+  validatePublishedTarballReadme,
 } from "./lib/npm-release-verification.mjs";
 import {
   buildEngineReleaseRecord,
@@ -20,7 +21,6 @@ import {
   validateEngineSurfaceSnapshot,
   validateNpmPublishPreflight,
   validateReleaseManifest,
-  validateTarballBytes,
 } from "./lib/release-manifest.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -179,7 +179,7 @@ function releaseChannelForManifest(manifest) {
 
 async function verifyRegistryAndTarball(attempt, releaseChannel) {
   const metadata = await fetchRegistryMetadata();
-  const registry = validateRegistryVersion({
+  const registry = validateRegistryMetadata({
     metadata,
     packageName,
     expectedVersion,
@@ -215,10 +215,12 @@ async function verifyRegistryAndTarball(attempt, releaseChannel) {
   const bytes = await readBoundedResponse(response, maxTarballBytes);
   const tarball = {
     url: tarballUrl,
-    ...validateTarballBytes({
+    ...await validatePublishedTarballReadme({
       bytes,
       integrity: registry.integrity,
       shasum: registry.shasum,
+      expectedPhrase,
+      expectedInstall,
     }),
   };
   const publishedAt = metadata.time?.[expectedVersion];

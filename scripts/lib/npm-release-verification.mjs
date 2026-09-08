@@ -1,4 +1,8 @@
 import { Buffer } from "node:buffer";
+import { createHash } from "node:crypto";
+import { gunzipSync } from "node:zlib";
+import { Header, Parser } from "tar";
+import { validateTarballBytes } from "./release-manifest.mjs";
 
 export const DEFAULT_README_PHRASE =
   "The design layer for agentic AI.";
@@ -67,12 +71,90 @@ export function resolveNpmReleaseChannel(expectedVersion, previousPublicRelease)
   });
 }
 
-export function validateRegistryVersion({
+export function validateRegistryVersion(input) {
+  const registry = validateRegistryMetadata(input);
+  const readme = `${input.metadata.readme || ""}\n${input.metadata.versions?.[input.expectedVersion]?.readme || ""}`;
+  validateReadmeContent(readme, input.expectedPhrase, input.expectedInstall);
+  return registry;
+}
+
+function validateReadmeContent(readme, expectedPhrase, expectedInstall) {
+  assert(normalizeReadableMarkdown(readme).includes(normalizeReadableMarkdown(expectedPhrase)), `README missing phrase: ${expectedPhrase}`);
+  assert(readme.includes(expectedInstall), `README missing install command: ${expectedInstall}`);
+}
+
+function validateTarFraming(bytes) {
+  let offset = 0;
+  let entries = 0;
+  while (offset + 512 <= bytes.length) {
+    const block = bytes.subarray(offset, offset + 512);
+    if (block.every(byte => byte === 0)) {
+      assert(bytes.length - offset >= 1024 && bytes.subarray(offset).every(byte => byte === 0), "invalid archive end marker or trailing content");
+      return;
+    }
+    const header = new Header(bytes, offset);
+    assert(header.cksumValid, "invalid archive header checksum");
+    assert(Number.isSafeInteger(header.size) && header.size >= 0, "invalid archive entry size");
+    entries += 1;
+    assert(entries <= 20000, "archive entry limit exceeded");
+    offset += 512 + Math.ceil(header.size / 512) * 512;
+    assert(offset <= bytes.length, "truncated archive entry body");
+  }
+  throw new Error("archive missing end marker");
+}
+
+/** Read version-bound documentation in memory, only after verifying archive integrity. */
+export async function validatePublishedTarballReadme({ bytes, integrity, shasum, expectedPhrase, expectedInstall }) {
+  const digests = validateTarballBytes({ bytes, integrity, shasum });
+  const unpacked = gunzipSync(bytes, { maxOutputLength: 128 * 1024 * 1024 });
+  validateTarFraming(unpacked);
+  const readmePath = "package/README.md";
+  const maxReadmeBytes = 512 * 1024;
+  let readme;
+  let entries = 0;
+  await new Promise((resolve, reject) => {
+    const parser = new Parser({ strict: true, maxMetaEntrySize: maxReadmeBytes });
+    parser.on("error", reject);
+    parser.on("end", resolve);
+    parser.on("entry", entry => {
+      try {
+        entries += 1;
+        assert(entries <= 20000, "archive entry limit exceeded");
+        const path = entry.path;
+        const parts = path.replace(/\/$/, "").split("/");
+        assert(parts[0] === "package" && !path.includes("\\") && !path.includes("\0")
+          && parts.every(part => part !== ".." && part !== "." && part !== ""), "unsafe archive path");
+        assert(entry.type === "File" || entry.type === "Directory", "archive entries must be regular files or directories");
+        if (path !== readmePath) { entry.resume(); return; }
+        assert(entry.type === "File", "README must be a regular file");
+        assert(readme === undefined, "duplicate README archive entry");
+        assert(Number.isSafeInteger(entry.size) && entry.size >= 0 && entry.size <= maxReadmeBytes, "README exceeds size limit");
+        readme = Buffer.alloc(0);
+        const chunks = [];
+        let length = 0;
+        entry.on("data", chunk => {
+          length += chunk.length;
+          if (length > maxReadmeBytes) { parser.abort(new Error("README exceeds size limit")); return; }
+          chunks.push(chunk);
+        });
+        entry.on("end", () => {
+          if (length !== entry.size) { parser.abort(new Error("truncated README archive entry")); return; }
+          readme = Buffer.concat(chunks);
+        });
+      } catch (error) { parser.abort(error); }
+    });
+    parser.end(unpacked);
+  });
+  assert(readme !== undefined, "README missing from package archive");
+  const text = new TextDecoder("utf-8", { fatal: true }).decode(readme);
+  validateReadmeContent(text, expectedPhrase, expectedInstall);
+  return { ...digests, readmePath, readmeSha256: createHash("sha256").update(readme).digest("hex") };
+}
+
+export function validateRegistryMetadata({
   metadata,
   packageName,
   expectedVersion,
-  expectedPhrase,
-  expectedInstall,
   expectedDistTag = "latest",
   expectedLatest = expectedVersion,
   requireProvenance = true,
@@ -82,11 +164,6 @@ export function validateRegistryVersion({
   const taggedVersion = metadata["dist-tags"]?.[expectedDistTag];
   const version = metadata.versions?.[expectedVersion];
   const dist = version?.dist;
-  const readme = String(metadata.readme || "");
-  const versionReadme = String(version?.readme || "");
-  const combinedReadme = `${readme}\n${versionReadme}`;
-  const readableReadme = normalizeReadableMarkdown(combinedReadme);
-  const readablePhrase = normalizeReadableMarkdown(expectedPhrase);
 
   assert(
     expectedDistTag === "latest" || expectedDistTag === "next",
@@ -97,8 +174,6 @@ export function validateRegistryVersion({
     `expected ${expectedDistTag} ${expectedVersion}, got ${taggedVersion}`,
   );
   assert(latest === expectedLatest, `expected latest ${expectedLatest}, got ${latest}`);
-  assert(readableReadme.includes(readablePhrase), `README missing phrase: ${expectedPhrase}`);
-  assert(combinedReadme.includes(expectedInstall), `README missing install command: ${expectedInstall}`);
   assert(
     typeof dist?.integrity === "string" && /^sha512-[A-Za-z0-9+/]+={0,2}$/.test(dist.integrity),
     "published package is missing a valid sha512 integrity value",
