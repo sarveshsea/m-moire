@@ -129,3 +129,35 @@ describe("research evidence compatibility", () => {
     expect(engine.getFindings()[0].caveats).toEqual(["Single-source web claim."]);
   });
 });
+
+describe("legacy research migration", () => {
+  it.each([
+    ["community", "netnography", "survey-response"], ["social", "netnography", "survey-response"],
+    ["forum", "netnography", "survey-response"], ["web", "desk", "web-finding"],
+    ["document", "desk", "survey-response"], ["csv", "mixed", "survey-response"],
+    ["excel", "mixed", "survey-response"], ["figjam", "qualitative", "sticky"],
+    ["sticky", "qualitative", "sticky"], ["transcript", "qualitative", "transcript-segment"],
+  ])("recovers %s provenance when the canonical store is unreadable", async (type, method, kind) => {
+    const outputDir = await mkdtemp(join(tmpdir(), "memi-legacy-release-")); dirs.push(outputDir);
+    await writeFile(join(outputDir, "store.v2.json"), "{broken");
+    await writeFile(join(outputDir, "insights.json"), JSON.stringify({ sources: [{ name: "source", type }], insights: [{ finding: "Users need clearer settings", source: "source" }] }));
+    const engine = new ResearchEngine({ outputDir });
+    await engine.load();
+    expect(engine.getStore().sources[0].sourceKind).toBe(method);
+    expect(engine.getStore().observations[0].kind).toBe(kind);
+    expect(engine.getFindings()[0]).toMatchObject({ method, evidenceObservationIds: ["obs-1"], evidenceSourceIds: [engine.getStore().sources[0].id] });
+  });
+  it("creates missing legacy sources and keeps theme references mapped to migrated finding IDs", async () => {
+    const outputDir = await mkdtemp(join(tmpdir(), "memi-legacy-alias-")); dirs.push(outputDir);
+    await writeFile(join(outputDir, "insights.json"), JSON.stringify({
+      insights: [null, { id: "old-2", finding: "Visible labels help", source: "survey", sourceType: "csv", method: "quantitative", actor: "P1", entities: ["navigation"], tags: ["clarity"], signalTags: ["findability"], sentiment: "positive", createdAt: "2026-09-01", evidence: ["Clear labels"], confidence: "high", category: "usability" }],
+      themes: [null, { name: "Labels", insights: ["old-2", "unknown"], frequency: 4, sourceCount: 2, confidence: "medium", signalTags: ["navigation"], positiveCount: 2, negativeCount: 1 }],
+    }));
+    const engine = new ResearchEngine({ outputDir }); await engine.load();
+    const store = engine.getStore();
+    expect(store.sources.map((source) => source.name)).toEqual(["legacy-source", "survey"]);
+    expect(store.findings[1]).toMatchObject({ id: "finding-2", method: "quantitative", evidence: ["Clear labels"] });
+    expect(store.observations[1]).toMatchObject({ actor: "P1", sentiment: "positive", text: "Clear labels" });
+    expect(store.themes[1]).toMatchObject({ findingIds: ["finding-2", "unknown"], frequency: 4, sourceCount: 2, positiveCount: 2, negativeCount: 1 });
+  });
+});
