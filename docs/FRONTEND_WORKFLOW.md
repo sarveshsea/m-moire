@@ -54,7 +54,7 @@ memi --profile locked mcp start --no-figma
 
 Default tools: `prepare_frontend_brief`, `prepare_design_agent_brief`, `prepare_apple_design_brief`, and `diagnose_app_quality`. Use `prepare_frontend_brief` with `intent`, optional `designEvidence`, and `maxBytes`. The server owns the project root; tool arguments cannot select an unrelated root. Requests support cancellation. The project resource describes the active root and execution policy.
 
-Legacy tools are advertised only when every required capability is explicitly granted. Unsupported CLI paths return structured denial and guidance. Do not broadly grant capabilities merely to obtain a brief. Memi's policy governs Memi; it does not sandbox Codex, Paper, Figma, or the project's browser/test runner.
+Legacy tools are advertised only when every required capability is explicitly granted. Unsupported CLI paths return structured denial and guidance. The [command inventory](https://github.com/memi-design/memi/blob/codex/2.8-frontend-engine/docs/trust/COMMAND_SUPPORT.json) distinguishes supported effects from deferred paths. Do not broadly grant capabilities merely to obtain a brief. Memi's policy governs Memi; it does not sandbox Codex, Paper, Figma, or the project's browser/test runner.
 
 ## Verify the implementation
 
@@ -64,7 +64,7 @@ Legacy tools are advertised only when every required capability is explicitly gr
 4. Rerun deterministic diagnosis and inspect the diff for new duplicate components.
 5. Report executed commands, source fingerprints, screenshots, and unresolved checks. The brief's `verification` stays `unassessed`; external test receipts provide separate evidence.
 
-The private [frontend fixture](../examples/frontend-workflow) uses real React and Storybook with a synthetic pre-existing component catalog, explicit mappings, and browser tests. Its results apply to that fixture and the pinned tool versions. It is not evidence that an arbitrary user repository passed.
+The private [frontend fixture](https://github.com/memi-design/memi/tree/codex/2.8-frontend-engine/examples/frontend-workflow) uses real React and Storybook with a synthetic pre-existing component catalog, explicit mappings, and browser tests. Its results apply to that fixture and the pinned tool versions. It is not evidence that an arbitrary user repository passed.
 
 CI report generation intentionally writes source-bearing reports and may invoke Git:
 

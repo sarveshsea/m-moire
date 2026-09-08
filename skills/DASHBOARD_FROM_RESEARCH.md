@@ -10,11 +10,15 @@ context:
 
 # Dashboard from Research — Research Data to Interactive Dashboard
 
-> Transform research data (Excel, CSV, FigJam stickies, markdown) into structured insights and interactive dashboards with dataviz components. Chains research pipeline → specs → code generation → preview.
+## 2.8 beta scope
+
+This is optional reference guidance, not an automatic Memi workflow. Figma tool names and canvas examples require an installed external provider and the host's authorization; locked Memi MCP does not expose them. Deferred CLI commands remain unavailable even with capability grants. For supported local context, use `memi --profile locked agent brief . --json`; for static frontend inspection, use `memi --profile locked diagnose . --no-write --json --fail-on none`. Neither command certifies the external workflow below.
+
+> Transform research data (Excel, CSV, FigJam stickies, markdown) into structured insights and interactive dashboards with dataviz components. Provides reference guidance for an authorized host workflow.
 
 ## Freedom Level: High
 
-Full autonomy over data interpretation, visualization choices, and dashboard layout. Must back every design decision with the research data.
+Work within the host's authorized research and implementation scope. Must back every design decision with the research data.
 
 ## When to Use
 - User has research data (Excel, CSV, survey results, interview notes)
@@ -24,14 +28,9 @@ Full autonomy over data interpretation, visualization choices, and dashboard lay
 
 ## Workflow
 
-### Step 1: Ingest Research Data
-```
-memi research from-file <path>     → Excel/CSV parsing
-memi research from-stickies        → FigJam sticky notes
-memi research synthesize           → Combine all sources
-```
+### Step 1: Review Authorized Research
 
-Output: `research/insights.json` with structured findings.
+Use user-provided research or an authorized host connector. Identify provenance, scope, missing data, and sensitive content before interpretation. Do not assume permission to persist research or contact external services.
 
 ### Step 2: Analyze & Categorize
 Classify insights into dashboard-friendly categories:
@@ -53,31 +52,13 @@ Relational → Flow diagrams, matrices, maps
   - Hierarchies: nested structures → tree views
 ```
 
-### Step 3: Create Specs (Atomic Design)
-For each visualization need, create the right spec type:
+### Step 3: Describe Component Contracts
 
-```
-KPI metric → memi spec component MetricCard (molecule)
-  props: { title, value, change, trend, icon }
+Describe KPI cards, time-series charts, comparisons, and page sections with their data shape, states, and source attribution. Memi's `spec component`, `spec dataviz`, and `spec page` commands are unavailable in this beta.
 
-Trend chart → memi spec dataviz TrendChart
-  chartType: "area" | "line"
-  dataShape: { x: "date", y: "value", series: [...] }
+### Step 4: Implement and Verify
 
-Comparison → memi spec dataviz ComparisonChart
-  chartType: "bar"
-  dataShape: { category: "string", values: [...] }
-
-The dashboard page → memi spec page ResearchDashboard
-  layout: "dashboard"
-  sections: [metrics-row, charts-row, insights-section, quotes]
-```
-
-### Step 4: Generate Code
-```
-memi generate                      → all specs → React + Tailwind
-memi preview                       → localhost preview server
-```
+Use the repository's authorized coding, preview, and test workflow. The historical automatic research-to-spec-to-code pipeline is not available through Memi 2.8 beta. Inspect source context with `memi --profile locked agent brief . --json` and static frontend findings with `memi --profile locked diagnose . --no-write --json --fail-on none`; these do not verify research conclusions or rendered charts.
 
 ### Step 5: Design in Figma (Optional)
 If the dashboard should also exist in Figma:

@@ -11,6 +11,10 @@ context:
 
 # /figma-generate-design — Create Designs Using Existing Components
 
+## 2.8 beta scope
+
+This is optional reference guidance, not an automatic Memi workflow. Figma tool names and canvas examples require an installed external provider and the host's authorization; locked Memi MCP does not expose them. Deferred CLI commands remain unavailable even with capability grants. For supported local context, use `memi --profile locked agent brief . --json`; for static frontend inspection, use `memi --profile locked diagnose . --no-write --json --fail-on none`. Neither command certifies the external workflow below.
+
 > Generate new screens and pages in Figma using your existing components, variables, and design system. Produces structured, spec-compliant layouts with full self-healing validation. Requires /figma-use.
 
 ## Freedom Level: High
@@ -19,7 +23,7 @@ Full creative freedom within the design system. Must use existing components and
 
 ## Prerequisites
 - `/figma-use` foundational skill loaded
-- Design system pulled (`memi pull`) or variables exist in file
+- Existing design-system variables obtained through an authorized external provider
 - `figma_search_components` called this session (nodeIds are session-scoped)
 
 ## Workflow
@@ -75,14 +79,9 @@ Never hardcode. If a token doesn't exist, create it with `figma_batch_create_var
 ### Step 5: Self-Healing Validation (MANDATORY)
 Run the self-healing loop from `/figma-use`: CREATE → SCREENSHOT → ANALYZE → FIX → VERIFY (max 3 rounds).
 
-### Step 6: Generate Spec & Code
-After the design is validated:
-```
-memi spec component LoginForm → specs/components/LoginForm.json
-memi spec page AuthLogin → specs/pages/AuthLogin.json
-memi generate LoginForm → generated/components/LoginForm/
-add_code_connect_map → establish Figma ↔ code mapping
-```
+### Step 6: Implementation Handoff
+
+Record the verified component mappings, layout, tokens, and states for the coding host. Memi's component/page spec commands are unavailable in this beta. Implement within the repository's authorized workflow and establish Code Connect mappings through the external provider only after checking the actual code paths.
 
 ## Layout Patterns
 

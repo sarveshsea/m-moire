@@ -165,3 +165,20 @@ Workspace skill body.
     expect(loader.getNote("old-alias")?.enabled).toBe(false);
   });
 });
+
+
+describe("built-in beta skill activation", () => {
+  it("loads supported freedom values and selects the frontend default without legacy superpower", async () => {
+    const { FreedomLevelSchema } = await import("../types.js");
+    const notes = await new NoteLoader(testDir).loadBuiltInNotes();
+    expect(notes.length).toBeGreaterThan(0);
+    for (const note of notes) {
+      for (const skill of note.manifest.skills) expect(FreedomLevelSchema.safeParse(skill.freedomLevel).success).toBe(true);
+    }
+    const resolved = await resolveForIntent("unknown-beta-task", notes);
+    expect(resolved.map(skill => skill.noteId)).toEqual(["memoire-design-tooling"]);
+    expect(notes.find(note => note.manifest.name === "superpower")?.manifest.skills[0]).toMatchObject({
+      activateOn: "manual-reference", freedomLevel: "reference",
+    });
+  });
+});

@@ -10,6 +10,10 @@ context:
 
 # UX Tenets and Traps
 
+## 2.8 beta scope
+
+This is optional reference guidance, not an automatic Memi workflow. Figma tool names and canvas examples require an installed external provider and the host's authorization; locked Memi MCP does not expose them. Deferred CLI commands remain unavailable even with capability grants. For supported local context, use `memi --profile locked agent brief . --json`; for static frontend inspection, use `memi --profile locked diagnose . --no-write --json --fail-on none`. Neither command certifies the external workflow below.
+
 Use this skill whenever a design or app screen needs critique, triage, or a fix plan.
 
 Tenets are the qualities to protect:
@@ -66,4 +70,4 @@ Return findings in this structure when possible:
 }
 ```
 
-Use `memi ux audit --json` for a focused JSON report, or inspect the `ux` field in `memi diagnose --json` and `memi fix plan --json`.
+Use `memi --profile locked ux audit . --json --no-write` for static source findings, or inspect the `ux` field in `memi --profile locked diagnose . --json --no-write`. `fix plan` is unavailable in this beta. Screenshot references attached to Memi findings are not pixel analysis; inspect images with a separate authorized visual tool.

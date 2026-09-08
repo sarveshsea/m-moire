@@ -10,6 +10,10 @@ context:
 
 # /multi-agent — Parallel Agent Workflows in Figma
 
+## 2.8 beta scope
+
+This is optional reference guidance, not an automatic Memi workflow. Figma tool names and canvas examples require an installed external provider and the host's authorization; locked Memi MCP does not expose them. Deferred CLI commands remain unavailable even with capability grants. For supported local context, use `memi --profile locked agent brief . --json`; for static frontend inspection, use `memi --profile locked diagnose . --no-write --json --fail-on none`. Neither command certifies the external workflow below.
+
 > Orchestrate multiple Claude instances on the Figma canvas with full transparency via box widgets, coordinated handoffs, and error recovery. Requires /figma-use.
 
 ## Freedom Level: High
@@ -18,24 +22,9 @@ Each agent operates autonomously within its scope. The orchestrator coordinates 
 
 ## Architecture
 
-### Port Allocation
-```
-Port 9223 → Primary agent (orchestrator)
-Port 9224 → Token engineer
-Port 9225 → Component architect
-Port 9226 → Layout designer
-Port 9227 → Code generator
-Port 9228-9232 → Additional specialists
-```
-The Mémoire plugin auto-discovers all instances via port scanning (9223-9232) every 5 seconds.
+### Host Coordination
 
-### Instance Identification
-Each agent instance should use a distinct bridge session name:
-```
-memi connect --name "Token Agent"
-memi connect --name "Component Agent"
-memi connect --name "Layout Agent"
-```
+Use the host's supported agent orchestration and external provider session model. Assign disjoint responsibilities and verify the selected Figma file before changes. Port discovery and bridge-session orchestration are historical implementation details, not certified Memi beta capabilities. Do not launch listeners or agents without the applicable host authorization.
 
 ## Box Widget Protocol
 

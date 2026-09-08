@@ -7,12 +7,14 @@ description: Use when a repository needs deterministic pull-request checks for n
 
 Add a reviewable design-quality gate that runs without an LLM. Memi writes a policy, baseline, universal agent skill, SARIF, and human-readable report artifacts.
 
+The verification command targets a reviewed 2.8 candidate; check `memi --version`. Candidate `init` is deliberately unavailable in every profile. Initialization below uses public 2.7.9 explicitly and writes project configuration. The Action also remains on public 2.7.9 until the candidate is released. Do not install unpublished 2.8 from npm.
+
 ## Initialize
 
 Inspect the worktree first. When the task authorizes setup, run:
 
 ```bash
-npx -y @memi-design/cli@2.8.0-beta.1 init --team --kit universal --json
+npx -y @memi-design/cli@2.7.9 init --team --kit universal --json
 ```
 
 Review the generated policy and baseline before committing them. Existing debt remains visible but does not block unrelated pull requests.
@@ -20,7 +22,7 @@ Review the generated policy and baseline before committing them. Existing debt r
 ## Verify Locally
 
 ```bash
-npx -y @memi-design/cli@2.8.0-beta.1 ci . --no-scope --report --json
+memi --profile connected --allow project-write --allow source-content-persistence --allow shell ci . --no-scope --report --json
 ```
 
 The command may exit nonzero when findings exceed the configured gate. Treat that as a quality result, not a tool crash.

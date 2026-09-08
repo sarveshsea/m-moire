@@ -7,50 +7,53 @@ license: MIT
 metadata: {"openclaw":{"homepage":"https://github.com/memi-design/memi","requires":{"bins":["memi"]},"install":[{"id":"npm","kind":"node","package":"@memi-design/cli","bins":["memi"],"label":"Install memi CLI with npm"}]}}
 ---
 
-# memi Design Tooling
+# Memi Design Tooling
 
-## Overview
-memi gives OpenClaw a local interface-understanding layer: warmed project memory, suite recipes, Figma bridge context, user research memory, UX tenets and traps, interface craft critique, Atomic Design specs, shadcn/ui codegen, Tailwind token checks, and evidence-backed UI audits.
+Memi gives coding agents repository-specific interface evidence before they edit UI. Start with the smallest workflow that answers the task; Figma, global installation, and a daemon are optional.
 
-## When to Use
-- The task mentions interface design, product flows, design systems, Figma, Tailwind, shadcn/ui, components, accessibility, screenshots, or research synthesis.
-- The workspace includes `.memoire/`, component specs, tokens, or a frontend app that needs design-quality improvement.
-- The agent needs to install or verify local design tooling before editing UI code.
+## Choose A Workflow
 
-## Setup
+- Before reviewing or changing frontend UI: use `audit-frontend-design`.
+- Before building from an existing product system: use `remember-design-system`.
+- When adding deterministic pull-request gates: use `enforce-design-ci`.
+- For native SwiftUI, SwiftData, App Intents, or Apple-platform verification: use `build-swiftui-interface`.
+- For Figma, research, scaffolding, registry publishing, or multi-agent work: continue below.
+
+Install one focused skill directly:
+
 ```bash
-npm i -g @memi-design/cli
-memi suite init --project .
-memi daemon start --project . --port auto
-memi daemon status --json
-memi agent install --dry-run --json
-memi agent brief . --agent openclaw --intent "Audit this interface" --json
-memi status
-memi diagnose .
-memi ux audit . --json
-memi craft audit . --json
-memi tokens --from ./src --report
-memi shadcn export --out public/r
-memi mcp start --no-figma
-memi suite run design-audit --project . --json
-memi suite run research-vibe-design --project . --json
-memi research design --write-specs --mermaid-jam --json
-memi mermaid-jam export --from research --json
+npx skills add memi-design/memi --skill audit-frontend-design
 ```
 
-## Interface Understanding Workflow
-1. Verify `memi` exists with `memi status`; install with npm if the binary is missing.
-2. Initialize or read `memoire.agent.yaml`; it declares memory sources, harnesses, skills, and recipes for the workspace.
-3. Generate an OpenClaw-oriented brief with `memi agent brief . --agent openclaw --intent "<task>" --json`; use its evidence commands and cost controls as the run contract.
-4. Prefer the warmed daemon path with `memi daemon start --project . --port auto`, then check `memi daemon status --json`.
-5. Inspect `.memoire/`, specs, tokens, design docs, runtime routes, screenshots, research evidence, `memoire.agent.yaml`, and existing agent instructions before choosing an implementation path.
-6. For audits, run `memi diagnose .`, `memi ux audit . --json`, `memi craft audit . --json`, `memi audit`, or `memi suite run design-audit --project . --json` and use file-backed findings as evidence.
-7. Treat UX Tenets and Traps as the review layer for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.
-8. Treat Interface Craft as the polish layer for focusing mechanism, visual hierarchy, spacing rhythm, color intentionality, component cohesion, responsive resilience, and user context.
-9. For research-backed vibe design, use `memi research synthesize`, `memi simulate plan`, `memi research design`, `research.design_package`, `research.generate_specs`, and `mermaid_jam.export` before coding the product surface.
-10. For generation, create or reuse specs, keep the Atomic Design level explicit, then run `memi generate`.
-11. For Figma work, connect through `memi connect` or use the Figma-independent MCP server with `memi mcp start --no-figma`.
-12. Keep final output concrete: commands run, design decisions, files changed, remaining risks, and how to verify.
+This candidate skill requires a reviewed local 2.8 build. npm stable remains 2.7.9; do not install unpublished 2.8 from npm. Check `memi --version` first.
 
-## Safety
-Treat third-party skills and generated code as untrusted until reviewed. Do not paste secrets into prompts or logs. Avoid destructive shell commands unless the user explicitly approves them.
+## Compact Preflight
+
+```bash
+memi agent brief . --frontend --intent "<interface task>" --max-bytes 16384 --json
+```
+
+Read cited source files when the bounded brief lacks necessary evidence. Optional `--design-evidence design/selected-node.json` accepts normalized Figma/Paper data supplied by the harness; missing mappings and verification stay explicit.
+
+## Local Checks And MCP
+
+```bash
+memi diagnose . --json --no-write --fail-on none
+memi diagnose . --receipt-only --fail-on none
+memi --profile locked mcp start --no-figma
+```
+
+Locked MCP exposes four read tools: prepare_frontend_brief, prepare_design_agent_brief, prepare_apple_design_brief, and diagnose_app_quality. The frontend tool supplies actual repository evidence. Many legacy CLI and write tools remain unavailable; capability grants do not unlock deferred command paths. Keep connector calls, project edits, and browser execution in the harness's reviewed workflow.
+
+Reuse local components and tokens according to the consumer project's conventions. Source-bearing JSON is working context; receipt-only is a separate metadata output. See docs/FRONTEND_WORKFLOW.md for the candidate evidence schema and actual verification flow.
+
+## Evidence Contract
+
+1. Read local instructions and existing product-system files first.
+2. Collect the minimum evidence that can change the implementation.
+3. Cite `file:line` findings and existing components or tokens.
+4. Make scoped edits.
+5. Re-run the same deterministic checks.
+6. Report commands, artifacts, files changed, and remaining assumptions.
+
+Do not claim visual correctness from source checks alone. When rendered behavior matters, verify the actual route at desktop and mobile viewports.

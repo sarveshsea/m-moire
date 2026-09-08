@@ -1,0 +1,1777 @@
+{
+  "scope": "Candidate Commander action paths; source inspection, not per-platform execution certification.",
+  "commands": [
+    {
+      "path": "add",
+      "aliases": [],
+      "options": [
+        "--from <registry>",
+        "--tokens",
+        "--regenerate",
+        "--target <dir>",
+        "--refresh",
+        "--list",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"add\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "agent.brief",
+      "aliases": [],
+      "options": [
+        "--intent <intent>",
+        "--agent <agent>",
+        "--mode <mode>",
+        "--detail <detail>",
+        "--project <path>",
+        "--json",
+        "--frontend",
+        "--design-evidence <path>",
+        "--max-bytes <bytes>"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "agent.install",
+      "aliases": [],
+      "options": [
+        "--dry-run",
+        "--json",
+        "--force",
+        "--project <path>",
+        "--global"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "agent.spawn",
+      "aliases": [],
+      "options": [
+        "-n, --name <name>",
+        "--remote",
+        "--host <host>",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "agent.list",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"agent.list\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "agent.kill",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"agent.kill\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "agent.status",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"agent.status\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "audit",
+      "aliases": [],
+      "options": [
+        "--wcag",
+        "--unused",
+        "--skill-compliance",
+        "--research-traceability",
+        "--target <path>",
+        "--component <name>",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "baseline.accept",
+      "aliases": [],
+      "options": [
+        "--json",
+        "--max-files <count>",
+        "--note <text>"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "baseline.status",
+      "aliases": [],
+      "options": [
+        "--json",
+        "--max-files <count>"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "benchmark.prospective-freeze",
+      "aliases": [],
+      "options": [
+        "--candidate-artifact <path>",
+        "--candidate-version <version>",
+        "--candidate-revision <sha>",
+        "--candidate-source-hash <sha256>",
+        "--candidate-source-state <state>",
+        "--candidate-dirty-files <count>",
+        "--environment <path>",
+        "--task-root <path>",
+        "--out <path>",
+        "--provider <id>",
+        "--model <id>",
+        "--reasoning <effort>",
+        "--harness-version <version>",
+        "--permission-policy <policy>",
+        "--maximum-skills <count>",
+        "--maximum-context-bytes <count>",
+        "--frozen-at <timestamp>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.prospective-freeze\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.prospective-preflight",
+      "aliases": [],
+      "options": [
+        "--fixtures <path>",
+        "--task-root <path>",
+        "--out <path>",
+        "--checked-at <timestamp>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.prospective-preflight\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.prospective-evaluate",
+      "aliases": [],
+      "options": [
+        "--store-root <path>",
+        "--evidence-root <path>",
+        "--out <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.prospective-evaluate\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.plan",
+      "aliases": [],
+      "options": [
+        "--suite <id>",
+        "--experiment <id>",
+        "--repeats <count>",
+        "--seed <number>",
+        "--out <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.plan\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.workflow-plan",
+      "aliases": [],
+      "options": [
+        "--suite <id>",
+        "--experiment <id>",
+        "--providers <values>",
+        "--repeats <count>",
+        "--seed <number>",
+        "--out <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.workflow-plan\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.workflow-run",
+      "aliases": [],
+      "options": [
+        "--condition <condition>",
+        "--provider <provider>",
+        "--repository <path>",
+        "--evidence-root <path>",
+        "--store-root <path>",
+        "--suite <id>",
+        "--experiment <id>",
+        "--repeat <count>",
+        "--skills-root <path>",
+        "--capabilities <values>",
+        "--platforms <values>",
+        "--model <id>",
+        "--reasoning <effort>",
+        "--codex <path>",
+        "--claude <path>",
+        "--freeze <path>",
+        "--trial <id>",
+        "--evidence-draft <path>",
+        "--artifact-root <path>",
+        "--task-class <id>",
+        "--recovery-probe",
+        "--execute",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.workflow-run\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.record",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.record\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.fitness-record",
+      "aliases": [],
+      "options": [
+        "--baseline <run-id>",
+        "--memi <run-id>",
+        "--route <path>",
+        "--task-class <id>",
+        "--store-root <path>",
+        "--quality-evidence <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.fitness-record\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.fitness-backtest",
+      "aliases": [],
+      "options": [
+        "--store-root <path>",
+        "--as-of <timestamp>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.fitness-backtest\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.fitness",
+      "aliases": [],
+      "options": [
+        "--store-root <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.fitness\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.codex-run",
+      "aliases": [],
+      "options": [
+        "--condition <condition>",
+        "--repository <path>",
+        "--suite <id>",
+        "--experiment <id>",
+        "--repeat <count>",
+        "--evidence-dir <path>",
+        "--store-root <path>",
+        "--codex <path>",
+        "--model <id>",
+        "--reasoning <effort>",
+        "--harness <id>",
+        "--memi-cli <path>",
+        "--timeout-ms <milliseconds>",
+        "--execute",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.codex-run\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.regrade",
+      "aliases": [],
+      "options": [
+        "--repository <path>",
+        "--response <path>",
+        "--evidence-dir <path>",
+        "--store-root <path>",
+        "--grader-version <id>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.regrade\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.report",
+      "aliases": [],
+      "options": [
+        "--suite <id>",
+        "--minimum-pairs <count>",
+        "--bootstrap-samples <count>",
+        "--seed <number>",
+        "--target <ratio>",
+        "--experiments <ids>",
+        "--store-root <path>",
+        "--out <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.report\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "benchmark.retention",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"benchmark.retention\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "ci",
+      "aliases": [],
+      "options": [
+        "--base <ref>",
+        "--no-scope",
+        "--fail-on <severity>",
+        "--sarif <path>",
+        "--report",
+        "--max-files <count>",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "compose",
+      "aliases": [],
+      "options": [
+        "--dry-run",
+        "--verbose",
+        "--no-figma",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "connect",
+      "aliases": [],
+      "options": [
+        "-p, --port <port>",
+        "-n, --name <name>",
+        "--role <role>",
+        "--skip-setup",
+        "--background",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "craft.audit",
+      "aliases": [],
+      "options": [
+        "--json",
+        "--max-files <count>",
+        "--screenshot <path>",
+        "--no-write"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "daemon.start",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "-p, --port <port>",
+        "--host <host>",
+        "--foreground",
+        "--json",
+        "--once"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"daemon.start\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "daemon.stop",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"daemon.stop\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "daemon.status",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"daemon.status\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "dashboard",
+      "aliases": [
+        "dash"
+      ],
+      "options": [
+        "-p, --port <port>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"dashboard\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "design-doc",
+      "aliases": [
+        "extract"
+      ],
+      "options": [
+        "-o, --output <path>",
+        "--spec",
+        "--json",
+        "--wcag",
+        "--timeout <ms>",
+        "--codegen",
+        "--init <name>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"design-doc\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "diagnose",
+      "aliases": [],
+      "options": [
+        "--json",
+        "--agent-context",
+        "--context-files <count>",
+        "--context-issues <count>",
+        "--context-routing <mode>",
+        "--max-files <count>",
+        "--no-write",
+        "--fail-on <severity>",
+        "--baseline",
+        "--changed",
+        "--base <ref>",
+        "--files <paths...>",
+        "--expand-imports",
+        "--trend",
+        "--fail-on-regression [points]"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "diff",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "doctor",
+      "aliases": [],
+      "options": [
+        "--json",
+        "--repair-plugin"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "export",
+      "aliases": [],
+      "options": [
+        "-t, --target <dir>",
+        "--dry-run",
+        "--force",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "fix.plan",
+      "aliases": [],
+      "options": [
+        "--json",
+        "--max-files <count>",
+        "--no-write"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"fix.plan\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "fix.apply",
+      "aliases": [],
+      "options": [
+        "--yes",
+        "--json",
+        "--max-files <count>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"fix.apply\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "generate",
+      "aliases": [],
+      "options": [
+        "-a, --all",
+        "--json",
+        "--critique",
+        "--preview",
+        "--no-stories",
+        "--framework <framework>",
+        "-f, --force",
+        "--strict-skill-compliance"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "go",
+      "aliases": [],
+      "options": [
+        "--no-preview",
+        "--no-generate",
+        "--no-figma",
+        "--rest",
+        "--penpot",
+        "--no-stories",
+        "-p, --port <port>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"go\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "heartbeat",
+      "aliases": [],
+      "options": [
+        "--watch",
+        "--interval <minutes>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"heartbeat\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "ia.extract",
+      "aliases": [],
+      "options": [
+        "-d, --depth <depth>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"ia.extract\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "ia.create",
+      "aliases": [],
+      "options": [
+        "-p, --purpose <text>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"ia.create\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "ia.show",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"ia.show\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "ia.validate",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"ia.validate\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "ia.list",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"ia.list\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "init",
+      "aliases": [],
+      "options": [
+        "--dir <path>",
+        "--team",
+        "--kit <target>",
+        "--max-files <count>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"init\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "ios.brief",
+      "aliases": [],
+      "options": [
+        "--platform <platform>",
+        "--intent <text>",
+        "--detail <detail>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"ios.brief\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "ios.scaffold",
+      "aliases": [],
+      "options": [
+        "--module <name>",
+        "--kind <kind>",
+        "--level <level>",
+        "--intent <text>",
+        "--deployment-target <version>",
+        "--output-root <path>",
+        "--tests-root <path>",
+        "--liquid-glass",
+        "--write",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"ios.scaffold\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "list",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"list\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "mcp",
+      "aliases": [],
+      "options": [],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "mcp.start",
+      "aliases": [],
+      "options": [
+        "--no-figma"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "mcp.config",
+      "aliases": [],
+      "options": [
+        "--target <target>",
+        "--global",
+        "--install"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "mermaid-jam.status",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"mermaid-jam.status\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "mermaid-jam.export",
+      "aliases": [],
+      "options": [
+        "--from <source>",
+        "--intent <text>",
+        "--hypothesis <text>",
+        "--open",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"mermaid-jam.export\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "mermaid-jam.open",
+      "aliases": [],
+      "options": [
+        "--target <target>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"mermaid-jam.open\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "mermaid-jam.corpus.status",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"mermaid-jam.corpus.status\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "mermaid-jam.corpus.sync",
+      "aliases": [],
+      "options": [
+        "--setup",
+        "--json",
+        "--fixture-source <path>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"mermaid-jam.corpus.sync\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "mermaid-jam.analyze",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"mermaid-jam.analyze\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "notes.install",
+      "aliases": [],
+      "options": [
+        "--catalog <url>",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "notes.list",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"notes.list\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "notes.search",
+      "aliases": [],
+      "options": [
+        "--catalog <url>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"notes.search\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "notes.route",
+      "aliases": [],
+      "options": [
+        "--capabilities <values>",
+        "--platforms <values>",
+        "--max-skills <count>",
+        "--max-context-bytes <count>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"notes.route\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "notes.outdated",
+      "aliases": [],
+      "options": [
+        "--catalog <url>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"notes.outdated\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "notes.update",
+      "aliases": [],
+      "options": [
+        "--all",
+        "--catalog <url>",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "notes.doctor",
+      "aliases": [],
+      "options": [
+        "--community",
+        "--path <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"notes.doctor\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "notes.remove",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "notes.create",
+      "aliases": [],
+      "options": [
+        "-c, --category <category>",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "notes.info",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"notes.info\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "preview",
+      "aliases": [],
+      "options": [
+        "-p, --port <port>",
+        "--build-only"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "prototype",
+      "aliases": [],
+      "options": [
+        "-o, --output <dir>",
+        "-t, --transition <style>",
+        "-w, --width <px>",
+        "-h, --height <px>",
+        "--no-video",
+        "--preview-url <url>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"prototype\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "publish",
+      "aliases": [],
+      "options": [
+        "--name <name>",
+        "--version <version>",
+        "--dir <dir>",
+        "--description <text>",
+        "--homepage <url>",
+        "--license <spdx>",
+        "--figma <url>",
+        "--theme <path-or-url>",
+        "--framework <fw...>",
+        "--specs-only",
+        "--push",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "pull",
+      "aliases": [],
+      "options": [
+        "--rest",
+        "--penpot",
+        "--force",
+        "--json",
+        "--wcag"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "registry.install",
+      "aliases": [],
+      "options": [
+        "--from <ref>",
+        "--tokens",
+        "--regenerate",
+        "--target <dir>",
+        "--refresh",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"registry.install\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "registry.list",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"registry.list\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "registry.search",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"registry.search\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "registry.info",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"registry.info\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "registry.doctor",
+      "aliases": [],
+      "options": [
+        "--refresh",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"registry.doctor\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "report",
+      "aliases": [],
+      "options": [
+        "--out <dir>",
+        "--redact",
+        "--badge",
+        "--no-fresh",
+        "--max-files <count>",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.from-file",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.from-stickies",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.from-transcript",
+      "aliases": [],
+      "options": [
+        "--label <label>",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.web",
+      "aliases": [],
+      "options": [
+        "--urls <urls>",
+        "--depth <depth>",
+        "--plan-only",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.synthesize",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.report",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.quality",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.trace",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.coverage",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "research.design",
+      "aliases": [],
+      "options": [
+        "--intent <text>",
+        "--hypothesis <text>",
+        "--run-id <id>",
+        "--write-specs",
+        "--mermaid-jam",
+        "--open",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "scaffold.component",
+      "aliases": [],
+      "options": [
+        "-l, --level <level>",
+        "-p, --purpose <text>",
+        "--intent <text>",
+        "-b, --base <components...>",
+        "--composes <specs...>",
+        "--write",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"scaffold.component\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "scaffold.page",
+      "aliases": [],
+      "options": [
+        "-l, --layout <layout>",
+        "-p, --purpose <text>",
+        "--intent <text>",
+        "--section <section...>",
+        "--write",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"scaffold.page\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "self-update",
+      "aliases": [],
+      "options": [
+        "--check",
+        "--json",
+        "--silent"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "setup",
+      "aliases": [],
+      "options": [
+        "--skip-pull",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "setup.plugin",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "shadcn.export",
+      "aliases": [],
+      "options": [
+        "--out <dir>",
+        "--name <name>",
+        "--homepage <url>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"shadcn.export\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "shadcn.doctor",
+      "aliases": [],
+      "options": [
+        "--out <dir>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"shadcn.doctor\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "shadcn.serve",
+      "aliases": [],
+      "options": [
+        "--out <dir>",
+        "--port <port>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"shadcn.serve\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.models",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.models\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.generate-agents",
+      "aliases": [],
+      "options": [
+        "--adapter <adapter>",
+        "--count <count>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.generate-agents\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.plan",
+      "aliases": [],
+      "options": [
+        "--name <name>",
+        "--hypothesis <hypothesis>",
+        "--adapter <adapter>",
+        "--url <url>",
+        "--count <count>",
+        "--rounds <rounds>",
+        "--max-agents <maxAgents>",
+        "--max-tokens <maxTokens>",
+        "--max-cost <maxCost>",
+        "--live-models",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.plan\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.run",
+      "aliases": [],
+      "options": [
+        "--adapter <adapter>",
+        "--url <url>",
+        "--max-agents <maxAgents>",
+        "--rounds <rounds>",
+        "--max-tokens <maxTokens>",
+        "--max-cost <maxCost>",
+        "--live-models",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.run\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.status",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.status\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.interview",
+      "aliases": [],
+      "options": [
+        "--agent <agentId>",
+        "--prompt <prompt>",
+        "--adapter <adapter>",
+        "--url <url>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.interview\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.report",
+      "aliases": [],
+      "options": [
+        "--adapter <adapter>",
+        "--url <url>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.report\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.export-spec",
+      "aliases": [],
+      "options": [
+        "--adapter <adapter>",
+        "--url <url>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.export-spec\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.stream",
+      "aliases": [],
+      "options": [
+        "--adapter <adapter>",
+        "--url <url>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.stream\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.transcript",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.transcript\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.costs",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.costs\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.compare",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.compare\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "simulate.run-matrix",
+      "aliases": [],
+      "options": [
+        "--adapter <adapter>",
+        "--url <url>",
+        "--name <name>",
+        "--hypothesis <hypothesis>",
+        "--max-agents <maxAgents>",
+        "--rounds <rounds>",
+        "--max-tokens <maxTokens>",
+        "--max-cost <maxCost>",
+        "--live-models",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"simulate.run-matrix\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "spec.component",
+      "aliases": [],
+      "options": [
+        "-b, --base <components...>",
+        "-p, --purpose <text>",
+        "-l, --level <level>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"spec.component\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "spec.page",
+      "aliases": [],
+      "options": [
+        "-l, --layout <layout>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"spec.page\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "spec.dataviz",
+      "aliases": [],
+      "options": [
+        "-t, --type <chartType>"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"spec.dataviz\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "spec.design",
+      "aliases": [],
+      "options": [
+        "-p, --purpose <text>",
+        "-n, --node <nodeId>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"spec.design\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "spec.list",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"spec.list\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "status",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "studio.status",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "studio.serve",
+      "aliases": [],
+      "options": [
+        "-p, --port <port>",
+        "--json",
+        "--once"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "studio.run",
+      "aliases": [],
+      "options": [
+        "--prompt <text>",
+        "--harness <id>",
+        "--action <action>",
+        "--mode <mode>",
+        "--cwd <path>",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "studio.visual-parity",
+      "aliases": [],
+      "options": [
+        "--out <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"studio.visual-parity\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "studio.browser.status",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "studio.browser.open",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "studio.logs",
+      "aliases": [],
+      "options": [
+        "--session <id>",
+        "--limit <count>",
+        "--follow",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"studio.logs\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "studio.tui",
+      "aliases": [],
+      "options": [
+        "--runtime <url>",
+        "--session <id>",
+        "--once"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"studio.tui\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "studio.automations.list",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"studio.automations.list\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "studio.automations.run",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"studio.automations.run\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "studio.automations.run-due",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--now <iso>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"studio.automations.run-due\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "studio.automations.scheduler.status",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--runtime <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"studio.automations.scheduler.status\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "studio.automations.scheduler.install",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--runtime <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"studio.automations.scheduler.install\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "studio.automations.scheduler.uninstall",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--runtime <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"studio.automations.scheduler.uninstall\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "studio.web",
+      "aliases": [],
+      "options": [
+        "-p, --port <port>",
+        "--runtime-port <port>"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "suite.init",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--force",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"suite.init\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "suite.doctor",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"suite.doctor\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "suite.run",
+      "aliases": [],
+      "options": [
+        "--project <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"suite.run\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "sync",
+      "aliases": [],
+      "options": [
+        "--json",
+        "--live",
+        "--direction <dir>",
+        "--conflicts",
+        "--auto-pr",
+        "--base <branch>"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "theme.import",
+      "aliases": [],
+      "options": [
+        "--name <name>",
+        "--apply",
+        "-o, --output <dir>",
+        "--mode <mode>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"theme.import\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "theme.preview",
+      "aliases": [],
+      "options": [
+        "-o, --output <file>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"theme.preview\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "theme.validate",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"theme.validate\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "theme.diff",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"theme.diff\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "theme.apply",
+      "aliases": [],
+      "options": [
+        "--mode <mode>",
+        "-o, --output <dir>",
+        "--no-registry",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"theme.apply\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "theme.variants",
+      "aliases": [],
+      "options": [
+        "--recipe <recipes...>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"theme.variants\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "theme.publish",
+      "aliases": [],
+      "options": [
+        "--package <name>",
+        "--version <version>",
+        "--dir <dir>",
+        "--description <text>",
+        "--homepage <url>",
+        "--license <spdx>",
+        "--with-components",
+        "--framework <fw...>",
+        "--push",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"theme.publish\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "tokens",
+      "aliases": [],
+      "options": [
+        "-o, --output <dir>",
+        "-f, --format <formats>",
+        "--from <path-or-url>",
+        "--save",
+        "--no-inferred",
+        "--report",
+        "--shadcn",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "trace.list",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"trace.list\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "trace.inspect",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"trace.inspect\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "trace.export",
+      "aliases": [],
+      "options": [
+        "--out <path>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"trace.export\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "update",
+      "aliases": [],
+      "options": [
+        "--tokens",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "upgrade",
+      "aliases": [],
+      "options": [
+        "--version <tag>",
+        "--check",
+        "--allow-unverified"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "ux.audit",
+      "aliases": [],
+      "options": [
+        "--json",
+        "--max-files <count>",
+        "--screenshot <path>",
+        "--no-write"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "validate",
+      "aliases": [],
+      "options": [
+        "--json",
+        "--fix"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"validate\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "video.create",
+      "aliases": [],
+      "options": [
+        "--prompt <text>",
+        "--adapter <adapter>",
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"video.create\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "video.preview",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"video.preview\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "video.render",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"video.render\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "video.status",
+      "aliases": [],
+      "options": [
+        "--json"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"video.status\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "view",
+      "aliases": [],
+      "options": [
+        "--from <registry>",
+        "--print",
+        "--json"
+      ],
+      "classification": "supported-with-explicit-policy"
+    },
+    {
+      "path": "watch",
+      "aliases": [],
+      "options": [
+        "-d, --debounce <ms>",
+        "--code"
+      ],
+      "classification": "unavailable-pending-capability-audit",
+      "guidance": "execute unavailable command \"watch\". This legacy workflow needs a separate capability audit; use agent brief or diagnose --no-write for supported inspection. No direct replacement for this workflow is certified"
+    },
+    {
+      "path": "uninstall",
+      "aliases": [],
+      "options": [],
+      "classification": "supported-with-explicit-policy"
+    }
+  ]
+}
