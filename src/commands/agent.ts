@@ -15,6 +15,7 @@ import { AgentWorker } from "../agents/agent-worker.js";
 import { AGENT_INSTALL_TARGETS, installAgentKits, normalizeAgentInstallTarget } from "../agents/agent-kits.js";
 import { buildDesignAgentBrief, normalizeDesignAgentBriefDetail, normalizeDesignAgentBriefMode } from "../agents/design-agent-brief.js";
 import { ui } from "../tui/format.js";
+import { readContainedSource } from "../security/contained-source.js";
 
 const VALID_ROLES: AgentRole[] = [
   "token-engineer",
@@ -43,15 +44,40 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
     .option("--detail <detail>", "Payload detail: compact, standard, or full", "standard")
     .option("--project <path>", "Project/workspace root for the brief")
     .option("--json", "Output the brief as JSON")
-    .action((target: string | undefined, opts: {
+    .option("--frontend", "Inspect actual repository components, tokens and stories in a bounded brief")
+    .option("--design-evidence <path>", "Read Figma or Paper evidence JSON from a project-relative file (requires --frontend)")
+    .option("--max-bytes <bytes>", "Frontend brief JSON byte budget (2048–16384)", "16384")
+    .action(async (target: string | undefined, opts: {
       intent?: string;
       agent?: string;
       mode?: string;
       detail?: string;
       project?: string;
       json?: boolean;
+      frontend?: boolean;
+      designEvidence?: string;
+      maxBytes?: string;
     }) => {
       try {
+        if (opts.designEvidence && !opts.frontend) throw new Error("--design-evidence requires --frontend");
+        if (opts.frontend) {
+          if (target && target !== ".") throw new Error("Use --project to select the frontend workspace; the brief target must be '.'");
+          const projectRoot = opts.project ?? engine.config.projectRoot;
+          let designEvidence: unknown;
+          if (opts.designEvidence) {
+            const source = await readContainedSource(projectRoot, opts.designEvidence, 262_144);
+            if (!source.ok) throw new Error(`Design evidence could not be read: ${source.reason}`);
+            designEvidence = JSON.parse(source.content);
+          }
+          const { buildFrontendBrief } = await import("../frontend/index.js");
+          const result = await buildFrontendBrief({
+            projectRoot, intent: opts.intent ?? "Improve the existing interface", designEvidence,
+            maxBytes: Number(opts.maxBytes),
+          });
+          // Compact JSON preserves the declared byte budget, including when used through a skill.
+          console.log(JSON.stringify(result));
+          return;
+        }
         const brief = buildDesignAgentBrief({
           projectRoot: opts.project ?? engine.config.projectRoot,
           target,
