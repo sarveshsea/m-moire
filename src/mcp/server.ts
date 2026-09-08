@@ -10,6 +10,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { MemoireEngine } from "../engine/core.js";
 import { registerReadTools, READ_TOOL_NAMES } from "./read-tools.js";
+import { registerFrontendTools } from "./frontend-tools.js";
 import { installPolicyToolDispatcher } from "./policy-tools.js";
 import { getExecutionPolicy, MEMI_CAPABILITIES } from "../security/execution-policy.js";
 import { registerResources } from "./resources.js";
@@ -39,6 +40,7 @@ export async function createMemoireMcpServer(engine: MemoireEngine): Promise<Mcp
 
   registerResources(server, engine);
   registerReadTools(server, engine);
+  registerFrontendTools(server, engine.config.projectRoot);
   // The legacy catalog spans integrations, processes and persistence. Until its
   // tools have narrower audited mappings, it requires every explicit capability.
   const legacyAllowed = MEMI_CAPABILITIES.every((capability) => getExecutionPolicy().allows(capability));

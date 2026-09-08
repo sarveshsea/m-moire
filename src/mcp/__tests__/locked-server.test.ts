@@ -55,7 +55,7 @@ describe("locked MCP read surface", () => {
     const client = await connect(engine);
     const { tools } = await client.listTools();
     expect(tools.map((tool) => tool.name).sort()).toEqual([
-      "diagnose_app_quality", "prepare_apple_design_brief", "prepare_design_agent_brief",
+      "diagnose_app_quality", "prepare_apple_design_brief", "prepare_design_agent_brief", "prepare_frontend_brief",
     ]);
     for (const name of ["prepare_design_agent_brief", "diagnose_app_quality"]) {
       const result = await client.callTool({ name, arguments: {} });
@@ -84,7 +84,7 @@ describe("locked MCP read surface", () => {
     const names = (await client.listTools()).tools.map((tool) => tool.name);
     expect(names).toContain("design_doc");
     expect(names).toContain("prepare_design_agent_brief");
-    expect(names.length).toBe(50);
+    expect(names.length).toBe(51);
     configureExecutionPolicy({ projectRoot: root });
     const result = await client.callTool({ name: "design_doc", arguments: { url: "https://example.com" } });
     expect(result.isError).toBe(true);
