@@ -139,6 +139,8 @@ Development checkpoints (RED tests precede their implementation where noted):
 
 - `07c4e316` — fix: preserve explicit beta contracts through publication
 
+- `636e7a00` — fix: retry validated diagnosis lock handoffs
+
 ### Release audit follow-up (unreleased)
 
 - `aeee0618` — fix: preserve exact Windows file identities during persistence
