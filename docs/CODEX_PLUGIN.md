@@ -1,5 +1,7 @@
 # memi in Codex
 
+**Beta2 preparation:** `2.8.0-beta.2` is an unpublished correction candidate. Use only a reviewed local build reporting that version to test the candidate; do not install beta2 from npm. Published npm beta `2.8.0-beta.1` remains available on `next`, and `latest` remains `2.7.9`. Beta1’s immutable record is retained. Native Windows package-path handling and macOS arm64 JSON output require fresh verification before corrected native downloads are claimed.
+
 npm `latest` remains **2.7.9**. Published beta **2.8.0-beta.1** is available on `next`; use the exact verified beta executable for the features below. Installing `latest` does not install the beta. The [npm release record](../release-artifacts/npm/2.8.0-beta.1.release.json) binds its published source and artifact.
 
 ```bash

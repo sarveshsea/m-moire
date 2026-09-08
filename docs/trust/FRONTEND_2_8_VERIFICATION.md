@@ -1,5 +1,7 @@
 # Frontend beta verification — 2026-09-08
 
+**Beta2 preparation:** `2.8.0-beta.2` is an unpublished correction candidate. Use only a reviewed local build reporting that version to test the candidate; do not install beta2 from npm. Published npm beta `2.8.0-beta.1` remains available on `next`, and `latest` remains `2.7.9`. Beta1’s immutable record is retained. Native Windows package-path handling and macOS arm64 JSON output require fresh verification before corrected native downloads are claimed.
+
 Published npm beta **2.8.0-beta.1** uses `next`; `latest` remains **2.7.9**. Its source is `71d17ecb8b44a39d81e18a831155eb010779bdfe`, published by [run 34255705921, attempt 1](https://github.com/memi-design/memi/actions/runs/34255705921/attempts/1). The [immutable npm record](../../release-artifacts/npm/2.8.0-beta.1.release.json) binds the original publication, signatures, provenance, tarball and SBOM digests. Recovery verifies the existing version and does not republish it. Managed independent scanning and the two named parity receipts remain pending for stable.
 
 ## Published artifact checks

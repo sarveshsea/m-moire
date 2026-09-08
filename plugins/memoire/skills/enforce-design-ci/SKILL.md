@@ -7,7 +7,7 @@ description: Use when a repository needs deterministic pull-request checks for n
 
 Add a reviewable design-quality gate that runs without an LLM. Memi writes a policy, baseline, universal agent skill, SARIF, and human-readable report artifacts.
 
-Published beta **2.8.0-beta.1** is available on `next`; npm `latest` remains **2.7.9**. Verify the exact executable with `npx -y @memi-design/cli@2.8.0-beta.1 --version`. Existing `memi` on PATH must report that beta version before using these recipes. The managed scan and the two named parity receipts remain pending for stable; see docs/trust/KNOWN_LIMITATIONS.md.
+This workflow requires a reviewed local **2.8.0-beta.2 candidate** build; beta2 is unpublished. Check `memi --version` before using these recipes. Published npm beta **2.8.0-beta.1** remains on `next`; npm stable remains **2.7.9**. Beta1’s release record is unchanged. Native Windows package-path handling and macOS arm64 JSON output remain under corrective validation; see docs/trust/KNOWN_LIMITATIONS.md.
 
 ## Existing project setup
 
@@ -49,3 +49,7 @@ jobs:
 - Local CI produces SARIF and a design-health report.
 - The workflow passes on unchanged accepted debt and fails on a seeded regression.
 - The final handoff names the gate threshold, suppressed baseline count, active findings, and artifact paths.
+
+## Stable setup compatibility
+
+For the published stable setup flow, use `npx -y @memi-design/cli@2.7.9 init --team`. This does not install or validate the beta2 candidate.

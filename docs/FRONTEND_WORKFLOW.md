@@ -1,5 +1,7 @@
 # Frontend engineering with the 2.8 beta
 
+**Beta2 preparation:** `2.8.0-beta.2` is an unpublished correction candidate. Use only a reviewed local build reporting that version to test the candidate; do not install beta2 from npm. Published npm beta `2.8.0-beta.1` remains available on `next`, and `latest` remains `2.7.9`. Beta1’s immutable record is retained. Native Windows package-path handling and macOS arm64 JSON output require fresh verification before corrected native downloads are claimed.
+
 This workflow uses published beta `2.8.0-beta.1`, available on `next`. npm `latest` remains `2.7.9`. Verify the exact version with `npx -y @memi-design/cli@2.8.0-beta.1 --version`; an existing `memi` on PATH must report that beta version before running the commands below. See the [immutable npm record](../release-artifacts/npm/2.8.0-beta.1.release.json). Development builds and historical candidate receipts remain separate from published artifact evidence.
 
 Managed independent security scanning and the reviewed-candidate-audit and swiftui-rendered-rerun receipts remain pending for stable. Paper pixel parity is unassessed. Of 158 inventoried CLI paths, 105 remain deferred; broad grants do not enable them. No complete-task dollar or token savings claim is established.

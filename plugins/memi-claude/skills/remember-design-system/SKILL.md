@@ -7,7 +7,7 @@ description: Use when an agent is about to build or refactor interface code and 
 
 Build design context from the repository instead of guessing from the prompt. This is a preflight for UI work, not a request to redesign the product.
 
-Published beta **2.8.0-beta.1** is available on `next`; npm `latest` remains **2.7.9**. Verify the exact executable with `npx -y @memi-design/cli@2.8.0-beta.1 --version`. Existing `memi` on PATH must report that beta version before using these recipes. The managed scan and the two named parity receipts remain pending for stable; see docs/trust/KNOWN_LIMITATIONS.md.
+This workflow requires a reviewed local **2.8.0-beta.2 candidate** build; beta2 is unpublished. Check `memi --version` before using these recipes. Published npm beta **2.8.0-beta.1** remains on `next`; npm stable remains **2.7.9**. Beta1’s release record is unchanged. Native Windows package-path handling and macOS arm64 JSON output remain under corrective validation; see docs/trust/KNOWN_LIMITATIONS.md.
 
 ## Build The Brief
 

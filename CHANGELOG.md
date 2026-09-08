@@ -6,6 +6,14 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
+## Unreleased — 2.8.0-beta.2 candidate
+
+Beta2 is not published. npm `next` still provides beta1 and `latest` remains 2.7.9; beta1’s immutable npm bytes, record and tag are preserved.
+
+- Prepare the native Windows package-path correction; regression and packed-native validation are pending.
+- Investigate truncated macOS arm64 JSON output; a complete-output regression and fresh native verification are required before claiming resolution.
+- Keep corrected native downloads gated on the new artifact. Beta1 npm publication does not establish native-binary success.
+
 ## v2.8.0-beta.1 — 2026-09-08 — Published beta
 
 Published to `next`; npm `latest` remains `2.7.9`. The [immutable npm release record](release-artifacts/npm/2.8.0-beta.1.release.json) records the actual publication timestamp, source, artifact digests and provenance.

@@ -3,6 +3,7 @@
  */
 
 import pino from "pino";
+import { isCompiledModuleUrl } from "../utils/asset-path.js";
 
 let prettyTransport: ReturnType<typeof pino.transport> | undefined;
 
@@ -12,7 +13,7 @@ export function shouldUsePrettyTransport(): boolean {
   if (process.env.NODE_ENV === "test") return false;
   if (process.env.VITEST === "true") return false;
   if (process.env.MEMOIRE_STUDIO_MANAGED_BY === "tauri") return false;
-  if (import.meta.url.includes("$bunfs") || import.meta.url.startsWith("embedded:") || import.meta.url.startsWith("compiled:")) {
+  if (isCompiledModuleUrl(import.meta.url)) {
     return false;
   }
   return true;

@@ -1,5 +1,7 @@
 # Trust Core acceptance ledger
 
+**Beta2 preparation:** `2.8.0-beta.2` is an unpublished correction candidate. Use only a reviewed local build reporting that version to test the candidate; do not install beta2 from npm. Published npm beta `2.8.0-beta.1` remains available on `next`, and `latest` remains `2.7.9`. Beta1’s immutable record is retained. Native Windows package-path handling and macOS arm64 JSON output require fresh verification before corrected native downloads are claimed.
+
 Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c47a8b549d`, PR #133. npm stable remains 2.7.9; beta 2.8.0-beta.1 is published on `next`. The beta does not promote stable channels.
 
 ## Frontend implementation checkpoint

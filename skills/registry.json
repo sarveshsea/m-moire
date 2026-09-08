@@ -1,5 +1,5 @@
 {
-  "version": "2.8.0-beta.1",
+  "version": "2.8.0-beta.2",
   "description": "Memi skill registry \u2014 audited frontend default and optional reference guidance",
   "defaultSkill": "memoire-design-tooling",
   "skills": [

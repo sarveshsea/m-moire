@@ -24,13 +24,21 @@ export function packageRoot(): string {
   if (override) return (cached = resolve(override));
 
   const url = import.meta.url;
-  const virtual = url.includes("$bunfs") || url.startsWith("embedded:") || url.startsWith("compiled:");
-  if (virtual) return (cached = dirname(process.execPath));
+  if (isCompiledModuleUrl(url)) return (cached = dirname(process.execPath));
 
   const moduleDir = dirname(fileURLToPath(url));
   return (cached = basename(moduleDir) === "dist"
     ? join(moduleDir, "..")
     : join(moduleDir, "..", ".."));
+}
+
+/** Recognize the virtual module roots used by standalone runtimes. */
+export function isCompiledModuleUrl(url: string): boolean {
+  // Bun 1.3.11 uses B:\~BUN\ on Windows instead of /$bunfs/.
+  return /^file:\/\/\/B:\/~BUN\//i.test(url)
+    || url.includes("$bunfs")
+    || url.startsWith("embedded:")
+    || url.startsWith("compiled:");
 }
 
 /** Resolve a path relative to the package root. */

@@ -52,6 +52,8 @@ Local source diagnosis uses deterministic rules: **no model call, API key, or mo
 
 Start with one diagnosis, address the highest-confidence finding, and rerun the same check. Use `--agent-context` for a bounded file index instead of sending a whole repository to a model. Its routing is heuristic; a smaller context is not proof of a cheaper successful task. `--files` scopes reported findings without launching Git; it still scans the tree for aggregate statistics.
 
+**Beta2 preparation:** `2.8.0-beta.2` is an unpublished correction candidate. Use only a reviewed local build reporting that version to test the candidate; do not install beta2 from npm. Published npm beta `2.8.0-beta.1` remains available on `next`, and `latest` remains `2.7.9`. Beta1’s immutable record is retained. Native Windows package-path handling and macOS arm64 JSON output require fresh verification before corrected native downloads are claimed.
+
 **Release channels:** npm `latest` remains `2.7.9`. Published beta `2.8.0-beta.1` is available on `next`, subject to the limitations below. Use an exact pin for the beta: `npx -y @memi-design/cli@2.8.0-beta.1 diagnose . --json --no-write --fail-on none`. The [immutable npm release record](release-artifacts/npm/2.8.0-beta.1.release.json) identifies its source and provenance. Its locked default and explicit capability contract do not apply retroactively to 2.7.9.
 
 ```bash

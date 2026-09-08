@@ -157,6 +157,13 @@ Every release gets an explicit public-surface inventory and reconciliation resul
 
 If verification after publication fails, mark the release unverified, restore mutable channels to the last verified artifact where appropriate, deprecate a defective npm version, and publish corrected bytes under a new version. Never erase failure evidence or copy previous receipts onto a new artifact.
 
+### Reviewed beta.2 corrective disposition
+
+The `2.8.0-beta.1` npm package and its provenance remain immutable. Its native release is incomplete: macOS arm64 standalone diagnosis returned truncated JSON and Windows standalone version detection returned `0.0.0`; successful Linux jobs do not certify the missing platforms. `2.8.0-beta.2` is a new corrective release for these standalone runtime failures, with fresh source and artifact evidence. Preserve beta.1 failure receipts and existing assets; do not retag or republish beta.1.
+
+For exactly `2.8.0-beta.2`, in candidate and published states, the existing pending managed Deep Security Scan disposition and the two named stale DesignWorkBench receipts (`reviewed-candidate-audit`, `swiftui-rendered-rerun`) remain explicit limitations, not passing evidence. This review introduces no security-code waiver and accepts no additional scorecard failure. Stable, future beta versions, and unknown release states receive no new exception. The same exact published-beta skill contracts apply, including locked MCP, receipt-only output, and unavailable SwiftUI CLI commands. All five native build jobs and their unchanged functional checks must pass independently before claiming complete beta.2 native availability; native failures are not waived. All other applicable beta gates remain required, npm `latest` stays on 2.7.9, and stable still requires completed managed scanning and fresh parity evidence.
+
+
 ## Explicit follow-on scope
 
 Defer autonomous bidirectional Figma/Paper/code sync, a new canvas/editor, Studio orchestration expansion, a generic model swarm, automatic component rewrites without mappings, mandatory hosted databases, and universal framework certification. Extend the input contract to other tools after the first two design-source paths pass. These additions must not prevent the slim local CLI from working independently.

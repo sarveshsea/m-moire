@@ -1,5 +1,7 @@
 # Memi Trust Core
 
+**Beta2 preparation:** `2.8.0-beta.2` is an unpublished correction candidate. Use only a reviewed local build reporting that version to test the candidate; do not install beta2 from npm. Published npm beta `2.8.0-beta.1` remains available on `next`, and `latest` remains `2.7.9`. Beta1’s immutable record is retained. Native Windows package-path handling and macOS arm64 JSON output require fresh verification before corrected native downloads are claimed.
+
 This directory is the review surface for the `@memi-design/cli` 2.8 Trust Core
 beta. It defines the security boundary, artifact-specific evidence and remaining
 qualification requirements. Beta publication does not establish stable certification.
