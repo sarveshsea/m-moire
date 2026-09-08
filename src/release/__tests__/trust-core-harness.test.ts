@@ -112,8 +112,7 @@ describe("Trust Core packed-artifact harness helpers", () => {
     const cache = join(root, "configured cache");
     const baseline = Object.fromEntries(Object.entries(process.env).filter(([key]) => key.toLowerCase() !== "npm_config_cache"));
     const source = { ...baseline, [cacheKey]: cache, NODE_AUTH_TOKEN: "credential-canary", npm_config_userconfig: join(root, "private-npmrc") };
-    // Before the install-specific helper exists, exercise the current installer sanitizer.
-    const installEnv = (harness.installHarnessEnvironment ?? cleanHarnessEnvironment)(source);
+    const installEnv = harness.installHarnessEnvironment(source);
     const runtimeEnv = cleanHarnessEnvironment(source);
     expect(Object.keys(runtimeEnv).some(key => key.toLowerCase() === "npm_config_cache")).toBe(false);
     expect(installEnv).not.toHaveProperty("NODE_AUTH_TOKEN");
@@ -231,7 +230,8 @@ describe("Trust Core packed-artifact harness helpers", () => {
       cwd: root,
       maxOutputBytes: 1024,
       timeoutMs: 100,
-    })).rejects.toThrow("timed out");
+      label: "packed artifact install",
+    })).rejects.toThrow("packed artifact install timed out after 100ms");
     expect(Date.now() - started).toBeLessThan(2_000);
 
     const controller = new AbortController();

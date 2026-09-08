@@ -140,6 +140,8 @@ Development checkpoints (RED tests precede their implementation where noted):
 - `07c4e316` — fix: preserve explicit beta contracts through publication
 
 - `636e7a00` — fix: retry validated diagnosis lock handoffs
+- `b93d3762` — test: reproduce configured npm cache loss in isolated installs
+- Preserve npm cache configuration only during packed and upgrade installs, prefer verified cached packages with network fallback, and label install timeouts without changing runtime isolation or deadlines.
 
 ### Release audit follow-up (unreleased)
 

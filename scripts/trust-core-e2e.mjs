@@ -10,6 +10,7 @@ import {
   assertMetadataOnlyReceipt,
   cleanHarnessEnvironment,
   createPackedInstallation,
+  installHarnessEnvironment,
   runProcess,
 } from "./lib/trust-core-e2e.mjs";
 
@@ -304,7 +305,7 @@ async function verifyExplicitUpgradePreservesConfig({ artifact, currentVersion, 
     await writeFile(configPath, config, "utf8");
     await writeFile(join(consumer, "package.json"), '{"name":"memi-upgrade-contract","private":true}\n', "utf8");
     const env = {
-      ...cleanHarnessEnvironment(process.env),
+      ...installHarnessEnvironment(process.env),
       HOME: homeRoot,
       USERPROFILE: homeRoot,
       PATH: process.env.PATH ?? "",
@@ -313,12 +314,13 @@ async function verifyExplicitUpgradePreservesConfig({ artifact, currentVersion, 
       const installed = await runProcess(npm.command, [
         ...npm.prefix,
         "install",
+        "--prefer-offline",
         "--ignore-scripts",
         "--no-audit",
         "--no-fund",
         "--save-exact",
         source,
-      ], { cwd: consumer, env, timeoutMs: 180_000 });
+      ], { cwd: consumer, env, timeoutMs: 180_000, label: source === artifact ? "explicit candidate upgrade install" : "explicit baseline upgrade install" });
       requireSuccess(installed, `explicit install ${source}`);
     }
     if (await readFile(configPath, "utf8") !== config) {
