@@ -4,6 +4,8 @@ memi is available to Codex in two public install paths: a Git-backed Codex marke
 
 Public page: https://www.memoire.cv/codex-plugin
 
+> **2.8 candidate compatibility:** the instructions below describe the existing public integration. The unpublished Trust Core candidate currently blocks the bundled MCP startup without explicit capabilities, and some existing agent commands are unmapped. The [2.8 release plan](trust/RELEASE_2_8_PLAN.md) requires locked MCP discovery and useful read tools before certifying the upgrade. Do not add broad grants to the default plugin configuration to conceal this gap.
+
 ## Git-backed Codex marketplace
 
 ```bash

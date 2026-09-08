@@ -56,6 +56,8 @@ Start with one diagnosis, address the highest-confidence finding, and rerun the 
 
 The candidate prevents local diagnosis from writing project files by default, keeps paid integrations optional, and requires explicit grants for networking, subprocesses, and source report persistence. An npm install needs registry access; offline first-run claims require the separately verified bundle. See the [acceptance ledger](docs/trust/ACCEPTANCE_LEDGER.md), [known limitations](docs/trust/KNOWN_LIMITATIONS.md), and [release truth](docs/trust/RELEASE_TRUTH.md).
 
+**Planning 2.8:** the [release plan](docs/trust/RELEASE_2_8_PLAN.md) distinguishes existing 2.7 features, implemented Trust Core changes, and proposed Codex workflows across Figma, Paper, Storybook, and repository components. Command compatibility and locked MCP startup are still blockers; connected workflow support is not yet certified.
+
 ## Put the check on every pull request
 
 Copy [`examples/github-actions/memi-design.yml`](examples/github-actions/memi-design.yml) into your repository as `.github/workflows/memi-design.yml`. The starter is pinned to the reviewed public Action commit and gives reviewers:

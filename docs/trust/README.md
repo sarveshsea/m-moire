@@ -44,6 +44,7 @@ entry points that do not pass through CLI command preflight.
 
 ## Review map
 
+- [2.8 product scope, implementation sequence, and release acceptance](RELEASE_2_8_PLAN.md)
 - [Threat model](THREAT_MODEL.md)
 - [Egress map](EGRESS_MAP.md)
 - [Data retention](DATA_RETENTION.md)
