@@ -49,14 +49,37 @@ const DEFAULT_CONCURRENCY = 16;
 const DEFAULT_FETCH_TIMEOUT_MS = 15000;
 const DEFAULT_MAX_RESPONSE_BYTES = 750_000;
 
+export interface SourceScanOmission {
+  path: string;
+  reason: "max-files" | "oversized" | "unreadable" | "excluded" | "symlink" | "linked-style-limit";
+}
+export interface SourceScanCompleteness {
+  /** Complete only within configured extensions/target; excluded subtrees are never counted as inspected. */
+  complete: boolean;
+  scope: "configured-extensions";
+  discoveredFiles: number;
+  scannedFiles: number;
+  maxFiles: number;
+  maxBytesPerFile?: number;
+  omissions: SourceScanOmission[];
+}
+export interface SourceScanResult {
+  sources: ScannedSourceFile[];
+  completeness: SourceScanCompleteness;
+}
+
+/** Compatibility surface; audit callers should use scanSourcesWithMetadata. */
 export async function scanSources(options: SourceScanOptions): Promise<ScannedSourceFile[]> {
+  return (await scanSourcesWithMetadata(options)).sources;
+}
+
+export async function scanSourcesWithMetadata(options: SourceScanOptions): Promise<SourceScanResult> {
   const target = options.target ?? options.projectRoot;
   const maxFiles = Math.max(1, options.maxFiles ?? DEFAULT_MAX_FILES);
   if (isHttpUrl(target)) {
     assertSafePublicHttpUrl(target);
-    return scanUrl(target, options, maxFiles);
+    return scanUrlWithMetadata(target, options, maxFiles);
   }
-
   const root = resolve(options.projectRoot);
   const resolvedTarget = resolve(isAbsolute(target) ? target : resolve(root, target));
   assertPathWithinRoot(root, resolvedTarget);
@@ -64,73 +87,61 @@ export async function scanSources(options: SourceScanOptions): Promise<ScannedSo
   const [realRoot, realTarget] = await Promise.all([realpath(root), realpath(resolvedTarget)]);
   assertPathWithinRoot(realRoot, realTarget);
   const extensions = normalizeExtensions(options.extensions);
-
-  if (targetStat.isFile()) {
-    const source = await readLocalFile(root, resolvedTarget, resolvedTarget, options.maxBytesPerFile);
-    return source ? [source] : [];
-  }
-  if (!targetStat.isDirectory()) {
-    throw new Error(`Unsupported source target: ${target}`);
-  }
-
+  const omissions: SourceScanOmission[] = [];
+  const candidates: string[] = [];
   const ignoreDirs = new Set([...DEFAULT_IGNORE_DIRS, ...(options.ignoreDirs ?? [])]);
-  const candidates = await collectCandidates(
-    root,
-    resolvedTarget,
-    extensions,
-    ignoreDirs,
-    maxFiles,
-    options.excludePath,
-  );
-  const sortedCandidates = candidates.sort((a, b) => normalizePath(a).localeCompare(normalizePath(b))).slice(0, maxFiles);
-  const sources = await mapWithConcurrency(sortedCandidates, options.concurrency ?? DEFAULT_CONCURRENCY, (filePath) => {
-    return readLocalFile(root, filePath, resolvedTarget, options.maxBytesPerFile).catch(() => null);
-  });
-  return sources.filter((source): source is ScannedSourceFile => source !== null);
-}
-
-async function collectCandidates(
-  projectRoot: string,
-  dir: string,
-  extensions: Set<string>,
-  ignoreDirs: Set<string>,
-  maxFiles: number,
-  excludePath?: (projectPath: string) => boolean,
-): Promise<string[]> {
-  const files: string[] = [];
-  await walk(projectRoot, dir, files, extensions, ignoreDirs, maxFiles, excludePath);
-  return files;
-}
-
-async function walk(
-  projectRoot: string,
-  dir: string,
-  files: string[],
-  extensions: Set<string>,
-  ignoreDirs: Set<string>,
-  maxFiles: number,
-  excludePath?: (projectPath: string) => boolean,
-): Promise<void> {
-  if (files.length >= maxFiles) return;
-  const entries = (await readdir(dir, { withFileTypes: true }))
-    .sort((a, b) => a.name.localeCompare(b.name));
-
-  for (const entry of entries) {
-    if (files.length >= maxFiles) return;
-    const fullPath = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (!ignoreDirs.has(entry.name)) {
-        const projectPath = normalizePath(relative(projectRoot, fullPath));
-        if (!excludePath?.(projectPath)) {
-          await walk(projectRoot, fullPath, files, extensions, ignoreDirs, maxFiles, excludePath);
-        }
-      }
-      continue;
+  if (targetStat.isFile()) {
+    const path = normalizePath(relative(root, resolvedTarget));
+    if (options.excludePath?.(path)) omissions.push({ path, reason: "excluded" });
+    else if (extensions.has(extname(resolvedTarget).toLowerCase())) candidates.push(resolvedTarget);
+  } else if (targetStat.isDirectory()) {
+    await walkCandidates(root, resolvedTarget, extensions, ignoreDirs, candidates, omissions, options.excludePath);
+  } else throw new Error(`Unsupported source target: ${target}`);
+  const selected = candidates.slice(0, maxFiles);
+  for (const path of candidates.slice(maxFiles)) omissions.push({ path: normalizePath(relative(root, path)), reason: "max-files" });
+  const results = await mapWithConcurrency(selected, options.concurrency ?? DEFAULT_CONCURRENCY, async filePath => {
+    const path = normalizePath(relative(root, filePath));
+    try {
+      const source = await readLocalFile(root, filePath, resolvedTarget, options.maxBytesPerFile);
+      return source ? { source } : { omission: { path, reason: "oversized" as const } };
+    } catch {
+      return { omission: { path, reason: "unreadable" as const } };
     }
-    if (!entry.isFile()) continue;
-    const extension = extname(entry.name).toLowerCase();
-    const projectPath = normalizePath(relative(projectRoot, fullPath));
-    if (extensions.has(extension) && !excludePath?.(projectPath)) files.push(fullPath);
+  });
+  const sources = results.flatMap(result => result.source ? [result.source] : []);
+  const allOmissions = [...omissions, ...results.flatMap(result => result.omission ? [result.omission] : [])];
+  return scanResult(sources, allOmissions, candidates.length, options, maxFiles);
+}
+
+function scanResult(sources: ScannedSourceFile[], omissions: SourceScanOmission[], discoveredFiles: number,
+  options: SourceScanOptions, maxFiles: number): SourceScanResult {
+  return { sources, completeness: {
+    complete: omissions.length === 0,
+    scope: "configured-extensions",
+    discoveredFiles,
+    scannedFiles: sources.length,
+    maxFiles,
+    maxBytesPerFile: options.maxBytesPerFile,
+    omissions: [...omissions].sort((a, b) => a.path.localeCompare(b.path) || a.reason.localeCompare(b.reason)),
+  } };
+}
+
+async function walkCandidates(projectRoot: string, dir: string, extensions: Set<string>, ignoreDirs: Set<string>,
+  files: string[], omissions: SourceScanOmission[], excludePath?: (projectPath: string) => boolean): Promise<void> {
+  let entries;
+  try { entries = await readdir(dir, { withFileTypes: true }); }
+  catch { omissions.push({ path: normalizePath(relative(projectRoot, dir)) || ".", reason: "unreadable" }); return; }
+  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+    const fullPath = join(dir, entry.name);
+    const path = normalizePath(relative(projectRoot, fullPath));
+    if (entry.isSymbolicLink()) { omissions.push({ path, reason: "symlink" }); continue; }
+    if (entry.isDirectory()) {
+      if (ignoreDirs.has(entry.name) || excludePath?.(path)) omissions.push({ path, reason: "excluded" });
+      else await walkCandidates(projectRoot, fullPath, extensions, ignoreDirs, files, omissions, excludePath);
+    } else if (entry.isFile() && extensions.has(extname(entry.name).toLowerCase())) {
+      if (excludePath?.(path)) omissions.push({ path, reason: "excluded" });
+      else files.push(fullPath);
+    }
   }
 }
 
@@ -141,6 +152,7 @@ async function readLocalFile(
   maxBytesPerFile?: number,
 ): Promise<ScannedSourceFile | null> {
   const fileStat = await stat(filePath);
+  if ((fileStat.mode & 0o444) === 0) throw new Error("Source has no read permission bits");
   if (maxBytesPerFile !== undefined && fileStat.size > maxBytesPerFile) {
     return null;
   }
@@ -158,47 +170,37 @@ async function readLocalFile(
   };
 }
 
-async function scanUrl(
-  url: string,
-  options: SourceScanOptions,
-  maxFiles: number,
-): Promise<ScannedSourceFile[]> {
+async function scanUrlWithMetadata(url: string, options: SourceScanOptions, maxFiles: number): Promise<SourceScanResult> {
   const timeoutMs = options.fetchTimeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS;
   const extensions = normalizeExtensions(options.extensions);
   const html = await fetchText(url, timeoutMs, options.userAgent ?? "Memoire-SourceScanner/1.0");
-  const sources: ScannedSourceFile[] = extensions.has(".html") ? [{
-    id: url,
-    path: url,
-    projectPath: url,
-    absolutePath: url,
-    content: html,
-    extension: ".html",
-    url,
-  }] : [];
-
+  const candidates: ScannedSourceFile[] = extensions.has(".html") ? [urlSource(url, html, ".html")] : [];
+  const omissions: SourceScanOmission[] = [];
   if (extensions.has(".css") && options.includeInlineStyles !== false) {
-    let inlineIndex = 0;
-    for (const block of extractInlineStyles(html)) {
-      inlineIndex += 1;
-      sources.push(urlSource(`${url}#inline-${inlineIndex}`, block, ".css"));
-      if (sources.length >= maxFiles) return sources;
-    }
+    extractInlineStyles(html).forEach((block, index) => candidates.push(urlSource(`${url}#inline-${index + 1}`, block, ".css")));
   }
-
+  let discoveredFiles = candidates.length;
   if (extensions.has(".css") && options.includeLinkedStyles) {
-    const sheetUrls = extractStylesheetUrls(html, url).slice(0, options.maxLinkedStyles ?? 12);
-    const sheets = await mapWithConcurrency(sheetUrls, Math.min(options.concurrency ?? DEFAULT_CONCURRENCY, 6), async (sheetUrl, index) => {
-      const content = await fetchText(sheetUrl, timeoutMs, options.userAgent ?? "Memoire-SourceScanner/1.0").catch(() => "");
-      return content ? urlSource(`${sheetUrl}#sheet-${index + 1}`, content, ".css") : null;
-    });
-    for (const sheet of sheets) {
-      if (!sheet) continue;
-      sources.push(sheet);
-      if (sources.length >= maxFiles) return sources;
+    const urls = extractStylesheetUrls(html, url);
+    discoveredFiles += urls.length;
+    const selected = urls.slice(0, options.maxLinkedStyles ?? 12);
+    for (const path of urls.slice(selected.length)) omissions.push({ path, reason: "linked-style-limit" });
+    for (const [index, sheetUrl] of selected.entries()) {
+      if (candidates.length >= maxFiles) { omissions.push({ path: sheetUrl, reason: "max-files" }); continue; }
+      try {
+        const content = await fetchText(sheetUrl, timeoutMs, options.userAgent ?? "Memoire-SourceScanner/1.0");
+        candidates.push(urlSource(`${sheetUrl}#sheet-${index + 1}`, content, ".css"));
+      } catch { omissions.push({ path: sheetUrl, reason: "unreadable" }); }
     }
   }
-
-  return sources.filter((source) => source.content.trim().length > 0).slice(0, maxFiles);
+  const sources: ScannedSourceFile[] = [];
+  for (const [index, source] of candidates.entries()) {
+    if (index >= maxFiles) omissions.push({ path: source.path, reason: "max-files" });
+    else if (options.maxBytesPerFile !== undefined && (source.sizeBytes ?? 0) > options.maxBytesPerFile) {
+      omissions.push({ path: source.path, reason: "oversized" });
+    } else if (source.content.trim().length > 0) sources.push(source);
+  }
+  return scanResult(sources, omissions, discoveredFiles, options, maxFiles);
 }
 
 function urlSource(id: string, content: string, extension: string): ScannedSourceFile {

@@ -31,14 +31,14 @@ describe("assessment truth", () => {
   });
   it("recognizes focus literals in cn/clsx/cva without executing dynamic expressions", async () => {
     const path = await fixture(`const styles = cva("p-4", { variants: { size: { small: "text-sm", big: "text-lg" } } });
-export default () => <button className={cn("rounded", active && "focus-visible:ring-2", clsx({ "bg-red-500": active }), unknown())}>Go</button>;`);
+export default () => <><button className={cn("rounded", active && "focus-visible:ring-2", clsx({ "bg-red-500": active }), unknown())}>Go</button><button /><button /></>;`);
     const result = await diagnoseAppQuality({ projectRoot: path, write: false });
     expect(result.issues.map(i => i.id)).not.toContain("a11y.focus-missing");
     expect(result.summary.tailwindClasses).toBeGreaterThanOrEqual(6);
     expect(result.classExtraction.unknownExpressions).toBeGreaterThan(0);
   });
   it("still reports a missing focus style when helper literals lack it", async () => {
-    const path = await fixture('export default () => <button className={clsx("p-4", { "text-sm": active })}>Go</button>;');
+    const path = await fixture('export default () => <><button className={clsx("p-4", { "text-sm": active })}>Go</button><button /><button /></>;');
     const result = await diagnoseAppQuality({ projectRoot: path, write: false });
     expect(result.issues.map(i => i.id)).toContain("a11y.focus-missing");
   });

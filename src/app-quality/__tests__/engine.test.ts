@@ -411,9 +411,10 @@ struct MotionView: View {
       const diagnosis = await diagnoseAppQuality({ projectRoot: root, write: false });
 
       expect(diagnosis.summary.scannedFiles).toBe(2);
-      expect(diagnosis.summary.score).toBeLessThan(100);
+      expect(diagnosis.summary.score).toBe(100);
+      expect(diagnosis.quality.coverage).toBeLessThan(1);
       expect(diagnosis.summary.scoreScope).toBe("web");
-      expect(diagnosis.summary.verdict).toBe("needs a design-system pass — web ruleset only; native coverage incomplete");
+      expect(diagnosis.summary.verdict).toBe("no findings in assessed web checks — web ruleset only; native coverage incomplete");
       expect(diagnosis.sourceCoverage.web.analysis).toBe("ruleset");
       expect(diagnosis.sourceCoverage.swiftui.analysis).toBe("partial");
       expect(diagnosis.assessedDimensions).toEqual([
@@ -460,9 +461,10 @@ let package = Package(
 
       const diagnosis = await diagnoseAppQuality({ projectRoot: root, write: false });
 
-      expect(diagnosis.summary.score).toBeLessThan(100);
+      expect(diagnosis.summary.score).toBe(100);
+      expect(diagnosis.quality.coverage).toBeLessThan(1);
       expect(diagnosis.summary.scoreScope).toBe("web");
-      expect(diagnosis.summary.verdict).toBe("needs a design-system pass — web ruleset only; native coverage incomplete");
+      expect(diagnosis.summary.verdict).toBe("no findings in assessed web checks — web ruleset only; native coverage incomplete");
       expect(diagnosis.sourceCoverage.swift.scannedFiles).toBe(1);
       expect(diagnosis.sourceCoverage.swiftui.scannedFiles).toBe(0);
       expect(diagnosis.assessedDimensions).toEqual([
@@ -505,7 +507,7 @@ struct FixtureView: View {
       expect(diagnosis.summary.scannedFiles).toBe(0);
       expect(diagnosis.sourceCoverage.swiftui.analysis).toBe("not-detected");
       expect(diagnosis.issues).toEqual([]);
-      expect(diagnosis.summary.verdict).toBe("unassessed — no supported source files detected");
+      expect(diagnosis.summary.verdict).toBe("unassessed — no supported source files detected — scan incomplete");
     } finally {
       await rm(root, { recursive: true, force: true });
     }

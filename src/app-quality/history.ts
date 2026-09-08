@@ -9,6 +9,7 @@ import { withDiagnosisHistoryLock, writeDiagnosisArtifact } from "./persistence.
  * different thresholds, or from partial scans, is noise dressed as signal.
  */
 
+import { createHash } from "node:crypto";
 import { getExecutionPolicy } from "../security/execution-policy.js";
 import { mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -57,7 +58,7 @@ export function entryFromDiagnosis(diagnosis: AppQualityDiagnosis): HistoryEntry
   for (const issue of diagnosis.issues) severityCounts[issue.severity] += 1;
   return {
     at: diagnosis.generatedAt,
-    scope: diagnosis.scope ? "scoped" : "full",
+    scope: diagnosis.scope || diagnosis.scanCompleteness?.complete === false ? "scoped" : "full",
     policyHash: diagnosis.policy?.hash,
     coverageFingerprint: sourceCoverageFingerprint(diagnosis),
     score: diagnosis.summary.score,
@@ -155,7 +156,13 @@ export function renderTrend(
 
 function sourceCoverageFingerprint(diagnosis: AppQualityDiagnosis): string {
   const target = diagnosis.summary.scanTarget ?? diagnosis.target;
-  const scanContext = `target=${target}|scanLimit=${diagnosis.summary.scanLimit ?? "legacy"}`;
+  const scoreModel = diagnosis.quality ? "assessed-categories-v1" : "legacy-zero-filled";
+  const completeness = diagnosis.scanCompleteness;
+  const omissionHash = createHash("sha256").update(JSON.stringify(completeness?.omissions ?? [])).digest("hex").slice(0, 16);
+  const extraction = diagnosis.classExtraction;
+  const scanContext = `target=${target}|scanLimit=${diagnosis.summary.scanLimit ?? "legacy"}`
+    + `|scoreModel=${scoreModel}|complete=${completeness?.complete ?? "legacy"}|omissions=${omissionHash}`
+    + `|classParseFailures=${extraction?.parseFailures ?? 0}|dynamicClasses=${extraction?.unknownExpressions ?? 0}`;
   if (!diagnosis.sourceCoverage) return `${scanContext}|legacy:unknown`;
   const entries = Object.entries(diagnosis.sourceCoverage).map(([platform, coverage]) => {
     const dimensions = [...coverage.assessedDimensions].sort().join(",");

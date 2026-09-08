@@ -3,7 +3,8 @@ import { getExecutionPolicy } from "../security/execution-policy.js";
 import { access, mkdir } from "node:fs/promises";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import { performance } from "node:perf_hooks";
-import { scanSources, type ScannedSourceFile } from "../utils/source-scanner.js";
+import { scanSourcesWithMetadata, type SourceScanCompleteness, type SourceScanResult, type ScannedSourceFile } from "../utils/source-scanner.js";
+import { extractStaticClasses, type StaticClassExtraction } from "../utils/static-class-extractor.js";
 import { markdownCodeSpan } from "../utils/output-sanitization.js";
 import {
   buildAppGraph,
@@ -106,7 +107,19 @@ export interface AppQualityDiagnosis {
     scanMs?: number;
     analysisMs?: number;
   };
+  /** Legacy numeric categories; consult quality.categories to distinguish unassessed dimensions. */
   scores: Record<AppQualityCategory, number>;
+  quality: {
+    model: "assessed-categories-v1";
+    score: number | null;
+    categories: Record<AppQualityCategory, number | null>;
+    coverage: number;
+    scope: "scanned-files";
+  };
+  scanCompleteness: SourceScanCompleteness;
+  classExtraction: Omit<StaticClassExtraction, "tokens"> & {
+    files?: Array<{ path: string; unknownExpressions: number; parseFailures: number }>;
+  };
   files: AppQualityFileSignal[];
   sourceCoverage: AppQualitySourceCoverage;
   issues: AppQualityIssue[];
@@ -157,7 +170,10 @@ export interface AppQualityAuditContext {
 
 /** Reuses the engine's evidence scope when downstream reports are rebuilt. */
 export function auditContextFromDiagnosis(diagnosis: AppQualityDiagnosis): AppQualityAuditContext {
-  const partialAnalysis = diagnosis.sourceCoverage.swiftui.scannedFiles > 0
+  const partialAnalysis = diagnosis.scanCompleteness?.complete === false
+    || (diagnosis.classExtraction?.parseFailures ?? 0) > 0
+    || (diagnosis.classExtraction?.unknownExpressions ?? 0) > 0
+    || diagnosis.sourceCoverage.swiftui.scannedFiles > 0
     || diagnosis.sourceCoverage.swift.scannedFiles > 0
     || diagnosis.sourceCoverage.metal.scannedFiles > 0;
   const caps = new Map<string, AuditScoreCap>();
@@ -246,7 +262,8 @@ const CATEGORY_BASE: Record<AppQualityCategory, number> = {
 export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQualityDiagnosis> {
   const target = options.target ?? options.projectRoot;
   const startedAt = performance.now();
-  const sources = await scanTargetSources(options.projectRoot, target, options.maxFiles ?? DEFAULT_MAX_FILES);
+  const scan = await scanTargetSources(options.projectRoot, target, options.maxFiles ?? DEFAULT_MAX_FILES);
+  const sources = scan.sources;
   const scanMs = performance.now() - startedAt;
   const files = sources.map(sourceToRawFile);
   const webSources = sources.filter((source) => WEB_SOURCE_EXTENSIONS.has(source.extension));
@@ -268,6 +285,13 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
   const fileSignals = files.map(analyzeFile);
   const webFileSignals = webFiles.map(analyzeFile);
   const aggregate = aggregateSignals(webFiles, webFileSignals);
+  const extractions = webFiles.map(file => extractStaticClasses(file.content, file.path));
+  const classExtraction = {
+    unknownExpressions: extractions.reduce((sum, item) => sum + item.unknownExpressions, 0),
+    parseFailures: extractions.reduce((sum, item) => sum + item.parseFailures, 0),
+    files: extractions.flatMap((item, index) => item.parseFailures || item.unknownExpressions
+      ? [{ path: webFiles[index].path, unknownExpressions: item.unknownExpressions, parseFailures: item.parseFailures }] : []),
+  };
   const assessedCategories = deriveAssessedCategories(aggregate);
   const webAnalysisAvailable = assessedCategories.length > 0;
   const unassessedCategories = (Object.keys(CATEGORY_BASE) as AppQualityCategory[])
@@ -316,7 +340,18 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
       filteredOutIssues: allIssues.length - issues.length,
     };
   }
-  const score = Math.round(Object.values(scores).reduce((sum, value) => sum + value, 0) / Object.values(scores).length);
+  const assessedScore = assessedCategories.length > 0
+    ? Math.round(assessedCategories.reduce((sum, category) => sum + scores[category], 0) / assessedCategories.length)
+    : null;
+  const score = assessedScore ?? 0;
+  const quality = {
+    model: "assessed-categories-v1" as const,
+    score: assessedScore,
+    categories: Object.fromEntries((Object.keys(CATEGORY_BASE) as AppQualityCategory[])
+      .map(category => [category, assessedCategories.includes(category) ? scores[category] : null])) as Record<AppQualityCategory, number | null>,
+    coverage: assessedCategories.length / Object.keys(CATEGORY_BASE).length,
+    scope: "scanned-files" as const,
+  };
   const analysisMs = performance.now() - startedAt;
   const ux = buildUxAuditReport({
     target,
@@ -324,7 +359,7 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
     appQualityScore: score,
     assessedCategories,
     analysisPerformed: webAnalysisAvailable || swiftUiAnalysis.assessedChecks.length > 0,
-    partialAnalysis: nativeSourceDetected,
+    partialAnalysis: nativeSourceDetected || !scan.completeness.complete || classExtraction.parseFailures > 0 || classExtraction.unknownExpressions > 0,
   });
   const compliance = checkSkillCompliance(webFiles, { target });
   const partialAnalysisCaps = webAnalysisAvailable ? [] : [{
@@ -363,7 +398,9 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
     summary: {
       score,
       scoreScope: webAnalysisAvailable ? "web" : "none",
-      verdict: verdictForScore(score, sourceCoverage, webAnalysisAvailable),
+      verdict: verdictForScore(score, sourceCoverage, webAnalysisAvailable)
+        + (!scan.completeness.complete ? " — scan incomplete" : "")
+        + (classExtraction.parseFailures > 0 || classExtraction.unknownExpressions > 0 ? " — static class coverage partial" : ""),
       scannedFiles: files.length,
       routes: fileSignals.filter((file) => file.kind === "route").length,
       components: fileSignals.filter((file) => file.kind === "component").length,
@@ -379,6 +416,9 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
       analysisMs: Math.round(analysisMs),
     },
     scores,
+    quality,
+    scanCompleteness: scan.completeness,
+    classExtraction,
     files: fileSignals,
     sourceCoverage,
     issues,
@@ -438,8 +478,8 @@ function canonicalScanTarget(projectRoot: string, target: string): string {
   return relative(root, absoluteTarget).replace(/\\/g, "/") || ".";
 }
 
-async function scanTargetSources(projectRoot: string, target: string, maxFiles: number): Promise<ScannedSourceFile[]> {
-  const sources = await scanSources({
+async function scanTargetSources(projectRoot: string, target: string, maxFiles: number): Promise<SourceScanResult> {
+  const sources = await scanSourcesWithMetadata({
     projectRoot,
     target,
     extensions: SOURCE_EXTENSIONS,
@@ -475,7 +515,7 @@ function sourceToRawFile(source: ScannedSourceFile): RawFile {
 }
 
 function analyzeFile(file: RawFile): AppQualityFileSignal {
-  const classTokens = extractClassTokens(file.content);
+  const classTokens = extractClassTokens(file.content, file.path);
   const shadcnImports = [...file.content.matchAll(/from\s+["'][^"']*components\/ui\/([^"']+)["']/g)]
     .map((match) => match[1].replace(/\.(tsx?|jsx?)$/, ""));
   const colorUsageContent = file.content.replace(
@@ -558,19 +598,8 @@ function buildNativeEvidenceDimensions(
   return { assessed, unassessed };
 }
 
-function extractClassTokens(content: string): string[] {
-  const chunks: string[] = [];
-  const patterns = [
-    /className\s*=\s*["']([^"']+)["']/g,
-    /class\s*=\s*["']([^"']+)["']/g,
-    /className\s*=\s*\{`([^`]+)`\}/g,
-  ];
-  for (const pattern of patterns) {
-    for (const match of content.matchAll(pattern)) {
-      chunks.push(match[1]);
-    }
-  }
-  return chunks.flatMap((chunk) => chunk.split(/\s+/)).map((token) => token.trim()).filter(Boolean);
+function extractClassTokens(content: string, path?: string): string[] {
+  return extractStaticClasses(content, path).tokens;
 }
 
 function aggregateSignals(files: RawFile[], fileSignals: AppQualityFileSignal[]) {
@@ -578,7 +607,7 @@ function aggregateSignals(files: RawFile[], fileSignals: AppQualityFileSignal[])
   const scopedFiles = scopedPairs.map((pair) => pair.file);
   const scopedSignals = scopedPairs.map((pair) => pair.signal);
   const allContent = scopedFiles.map((file) => file.content).join("\n");
-  const classTokens = scopedFiles.flatMap((file) => extractClassTokens(file.content));
+  const classTokens = scopedFiles.flatMap((file) => extractClassTokens(file.content, file.path));
   const spacing = classTokens.filter((token) => /^(p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml|gap|space-[xy])-/.test(stripVariants(token)));
   const textSizes = classTokens.filter((token) => /^text-(xs|sm|base|lg|xl|[2-9]xl|\[[^\]]+\])$/.test(stripVariants(token)));
   const colors = classTokens.filter((token) => /(bg|text|border|ring|from|to|via)-/.test(stripVariants(token)));
@@ -857,7 +886,8 @@ function verdictForScore(
     if (coverage.web.scannedFiles > 0) return "unassessed — no UI class signal found";
     return "unassessed — no supported source files detected";
   }
-  const webVerdict = score >= 90 ? "strong"
+  const webVerdict = score === 100 ? "no findings in assessed web checks"
+    : score >= 90 ? "strong in assessed web checks"
     : score >= 75 ? "usable but uneven"
       : score >= 60 ? "visibly inconsistent"
         : "needs a design-system pass";
