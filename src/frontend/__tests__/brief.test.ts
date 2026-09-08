@@ -169,3 +169,52 @@ describe('frontend evidence structural and safety cases', () => {
     expect(result.omissions.some(item => item.reason === 'context-budget')).toBe(true);
   });
 });
+
+describe('frontend evidence refuses contradictory matches', () => {
+  it('marks mutually inconsistent mappings for one export as conflicts', async () => {
+    const projectRoot = await fixture(); const base = design('figma');
+    const result = await buildFrontendBrief({ projectRoot, intent: 'button', designEvidence: { ...base, mappings: [base.mappings[0], { ...base.mappings[0], props: { variant: 'quiet' } }] } });
+    expect(result.mappings.every(item => item.status === 'conflict')).toBe(true);
+  });
+  it('does not advertise a story whose imported component export no longer exists', async () => {
+    const projectRoot = await fixture();
+    await writeFile(join(projectRoot, 'src/Button.stories.tsx'), `import { RenamedButton } from './Button'; export default { component: RenamedButton }; export const Primary = {};`);
+    const result = await buildFrontendBrief({ projectRoot, intent: 'button' });
+    expect(result.stories).toEqual([]);
+    expect(result.omissions).toContainEqual({ path: 'src/Button.stories.tsx', reason: 'story-export-unresolved' });
+  });
+});
+
+describe('frontend discovery cancellation', () => {
+  it('rejects pre-aborted work before even accessing the project root', async () => {
+    const controller = new AbortController(); controller.abort();
+    await expect(buildFrontendBrief({ projectRoot: '/does-not-exist', intent: 'button', signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError', message: 'Frontend brief cancelled.' });
+  });
+  it('stops during discovery and propagates cancellation instead of reporting a partial success', async () => {
+    const projectRoot = await fixture();
+    for (let i = 0; i < 10; i++) await writeFile(join(projectRoot, `src/Abort${i}.tsx`), 'export function Abort() { return <button/>; }');
+    const controller = new AbortController();
+    const promise = buildFrontendBrief({ projectRoot, intent: 'button', signal: controller.signal });
+    controller.abort('private reason must not leak');
+    await expect(promise).rejects.toMatchObject({ name: 'AbortError', message: 'Frontend brief cancelled.' });
+  });
+});
+
+describe('frontend release security regressions', () => {
+  it('does not read a hard link to an external source', async () => {
+    const { link } = await import('node:fs/promises');
+    const projectRoot = await fixture(); const outside = await fixture();
+    await writeFile(join(outside, 'src/Outside.tsx'), `export function Outside(props: { secret: 'OUTSIDE_SENTINEL' }) { return <button/>; }`);
+    await link(join(outside, 'src/Outside.tsx'), join(projectRoot, 'src/Outside.tsx'));
+    const result = await buildFrontendBrief({ projectRoot, intent: 'Outside' });
+    expect(JSON.stringify(result)).not.toContain('OUTSIDE_SENTINEL');
+    expect(result.omissions).toContainEqual({ path: 'src/Outside.tsx', reason: 'hardlink' });
+  });
+  it('does not mark missing required props as an observed implementation mapping', async () => {
+    const projectRoot = await fixture();
+    await writeFile(join(projectRoot, 'src/Required.tsx'), `export function Required(props: { secret: string }) { return <button/>; }`);
+    const result = await buildFrontendBrief({ projectRoot, intent: 'Required', designEvidence: { ...design('paper'), mappings: [{ path: 'src/Required.tsx', exportName: 'Required', props: {} }] } });
+    expect(result.mappings[0].status).toBe('conflict');
+    expect(result.mappings[0].issues.join(' ')).toContain('secret: required prop missing');
+  });
+});
