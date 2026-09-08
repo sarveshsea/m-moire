@@ -1,3 +1,4 @@
+import { assertSourceOutput, writeSourceArtifact } from "../security/source-output.js";
 /**
  * `memi report` — one self-contained design-health artifact (HTML + markdown
  * twin, optional SVG badge) composed from every persisted .memoire report.
@@ -70,16 +71,16 @@ export function registerReportCommand(program: Command, engine: MemoireEngine): 
         const composed = await composeReport({ projectRoot, redact: opts.redact });
 
         const outDir = resolve(opts.out ?? join(projectRoot, ".memoire", "app-quality"));
-        await mkdir(outDir, { recursive: true });
+        await assertSourceOutput(outDir);
         const htmlPath = join(outDir, "design-health.html");
         const markdownPath = join(outDir, "design-health.md");
-        await writeFile(htmlPath, composed.html, "utf-8");
-        await writeFile(markdownPath, composed.markdown, "utf-8");
+        await writeSourceArtifact(htmlPath, composed.html);
+        await writeSourceArtifact(markdownPath, composed.markdown);
 
         let badgePath: string | undefined;
         if (opts.badge && composed.score !== null) {
           badgePath = join(outDir, "design-health-badge.svg");
-          await writeFile(badgePath, renderBadgeSvg({ score: composed.score }), "utf-8");
+          await writeSourceArtifact(badgePath, renderBadgeSvg({ score: composed.score }));
         }
 
         if (opts.json) {

@@ -21,7 +21,8 @@
  */
 
 import { createHash } from "crypto";
-import { writeFile, mkdir } from "fs/promises";
+import { assertSourceOutput, writeSourceArtifact } from "../security/source-output.js";
+import { getExecutionPolicy } from "../security/execution-policy.js";
 import { join } from "path";
 import { createLogger } from "../engine/logger.js";
 import type { MemoireEvent } from "../engine/core.js";
@@ -111,6 +112,8 @@ function renderVariantGridHTML(
 }
 
 export interface CodegenConfig {
+  /** Optional model critique is disabled unless the caller explicitly opts in. */
+  layoutCritique?: boolean;
   outputDir: string;
   registry: Registry;
   onEvent?: (event: MemoireEvent) => void;
@@ -162,7 +165,8 @@ export class CodeGenerator {
   }
 
   /** Override generation options at runtime (e.g. --no-stories, --framework, --strict-skill-compliance from CLI). */
-  setOptions(opts: Partial<Pick<CodegenConfig, "noStories" | "framework" | "strictSkillCompliance">>): void {
+  setOptions(opts: Partial<Pick<CodegenConfig, "noStories" | "framework" | "strictSkillCompliance" | "layoutCritique">>): void {
+    if (opts.layoutCritique !== undefined) this.config.layoutCritique = opts.layoutCritique;
     if (opts.noStories !== undefined) this.config.noStories = opts.noStories;
     if (opts.framework !== undefined) this.config.framework = opts.framework;
     if (opts.strictSkillCompliance !== undefined) this.config.strictSkillCompliance = opts.strictSkillCompliance;
@@ -181,6 +185,8 @@ export class CodeGenerator {
    * @param ctx  - Codegen context with project and design system data.
    */
   async generate(spec: AnySpec, ctx: CodegenContext, opts?: { force?: boolean }): Promise<CodegenResult> {
+    const reuse = mappedComponentResult(spec);
+    if (reuse) return reuse;
     // Hash-based caching — skip generation when spec + design system unchanged
     const specHash = computeSpecHash(spec, ctx);
     const previousState = this.config.registry.getGenerationState(spec.name);
@@ -222,7 +228,8 @@ export class CodeGenerator {
     const findings = auditGeneratedFiles(result.files, ctx, { strictSkillCompliance: this.config.strictSkillCompliance });
 
     // AI layout critique — advisory only, never gates. Page specs only.
-    if (spec.type === "page") {
+    if (spec.type === "page" && this.config.layoutCritique === true) {
+      getExecutionPolicy().assert("network", "request an AI layout critique");
       const pageFile = result.files.find((f) => f.path.endsWith(`${spec.name}.tsx`));
       const critique = pageFile ? await critiquePage(pageFile.content, spec, ctx) : null;
       if (critique) {
@@ -245,11 +252,12 @@ export class CodeGenerator {
       this.emitEvent("info", `Quality: ${finding.message} [${finding.rule}] (${finding.file})`);
     }
 
-    // Write all files
+    // Validate the complete output set before the first source write.
+    await assertSourceOutput(this.config.outputDir);
+    for (const file of result.files) await assertSourceOutput(join(this.config.outputDir, file.path));
     for (const file of result.files) {
       const fullPath = join(this.config.outputDir, file.path);
-      await mkdir(join(fullPath, ".."), { recursive: true });
-      await writeFile(fullPath, file.content);
+      await writeSourceArtifact(fullPath, file.content);
     }
 
     // Record generation — never called for a blocked result (see early return above).
@@ -274,6 +282,8 @@ export class CodeGenerator {
    * run in preview, to avoid burning an AI call on every dry-run iteration.
    */
   async preview(spec: AnySpec, ctx: CodegenContext): Promise<CodegenResult> {
+    const reuse = mappedComponentResult(spec);
+    if (reuse) return reuse;
     this.emitEvent("info", `Previewing code for "${spec.name}" (${spec.type})...`);
 
     let result: CodegenResult;
@@ -346,14 +356,6 @@ export class CodeGenerator {
     spec: ComponentSpec,
     ctx: CodegenContext
   ): Promise<CodegenResult> {
-    // Code Connect check — warn if already mapped to codebase
-    if (spec.codeConnect?.mapped && spec.codeConnect?.codebasePath) {
-      this.emitEvent("warn",
-        `Component "${spec.name}" is already mapped to ${spec.codeConnect.codebasePath} via Code Connect. ` +
-        `Consider using the existing implementation instead of regenerating.`
-      );
-    }
-
     // shadcn install check — warn for any missing base components
     await this.checkShadcnInstalled(spec);
 
@@ -679,4 +681,19 @@ function computeSpecHash(spec: AnySpec, ctx: CodegenContext): string {
   return createHash("sha256")
     .update(JSON.stringify(spec) + tokenFingerprint(ctx))
     .digest("hex");
+}
+
+
+function mappedComponentResult(spec: AnySpec): CodegenResult | undefined {
+  if (spec.type !== "component" || !spec.codeConnect?.mapped) return undefined;
+  const mappedPath = spec.codeConnect.codebasePath;
+  return {
+    entryFile: "", files: [], spec, blocked: true,
+    findings: [{
+      rule: "code-connect-reuse", severity: "critical", file: mappedPath || spec.name,
+      message: mappedPath
+        ? `Component "${spec.name}" is mapped to ${mappedPath}. Reuse or explicitly revise that mapping before generation; --force cannot duplicate mapped components.`
+        : `Component "${spec.name}" is marked mapped but has no codebase path. Resolve the mapping before generation.`,
+    }],
+  };
 }

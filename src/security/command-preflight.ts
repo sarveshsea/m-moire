@@ -73,6 +73,7 @@ export async function preflightCommand(
       }
       break;
     case "generate":
+      if (invocation.options.critique) require(["network", "request an AI layout critique"]);
       if (!invocation.options.preview) {
         require(
           ["source-content-persistence", "persist generated source code"],
