@@ -90,3 +90,13 @@ describe('gallery untrusted connector text boundaries', () => {
     expect(body.textContent).toContain(goal);
   });
 });
+
+it('keeps conflict metadata and research confidence and coverage labels as text', () => {
+  const markup = '<img src=x onerror="window.__galleryInjected=true">';
+  browser.renderConflicts({ conflicts: [{ name: 'Safe', entityType: markup, figmaHash: '<svg/onload=1>', codeHash: '<b>code' }] });
+  expect(element('conflicts-body').querySelector('img,svg,b')).toBeNull();
+  expect(element('conflicts-body').textContent).toContain(markup);
+  browser.renderResearchPanel({ findings: [{ statement: 'Observation', confidence: markup }], coverage: { ratio: 0.5, covered: markup, total: 2 } });
+  expect(element('research-panel-body').querySelector('img')).toBeNull();
+  expect(element('research-panel-body').textContent).toContain(markup);
+});
