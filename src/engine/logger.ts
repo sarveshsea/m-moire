@@ -7,6 +7,7 @@ import pino from "pino";
 let prettyTransport: ReturnType<typeof pino.transport> | undefined;
 
 export function shouldUsePrettyTransport(): boolean {
+  if (process.argv.includes("mcp")) return false;
   if (process.env.NODE_ENV === "production") return false;
   if (process.env.NODE_ENV === "test") return false;
   if (process.env.VITEST === "true") return false;
@@ -41,6 +42,7 @@ export function createLogger(name: string) {
     name,
     level: process.env.MEMOIRE_LOG_LEVEL ?? process.env.NOCHE_LOG_LEVEL ?? "warn",
   };
+  if (process.argv.includes("mcp")) return pino(options, pino.destination(2));
   const transport = getPrettyTransport();
   return transport ? pino(options, transport) : pino(options);
 }

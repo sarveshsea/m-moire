@@ -6,14 +6,17 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { MemoireEngine } from "../../engine/core.js";
-import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
+import { configureExecutionPolicy, resetExecutionPolicyForTests, MEMI_CAPABILITIES } from "../../security/execution-policy.js";
 import { createMemoireMcpServer, startStdioMcpServer } from "../server.js";
+import { registerPolicyTool } from "../policy-tools.js";
+import { shouldUsePrettyTransport } from "../../engine/logger.js";
 
 const cleanups: Array<() => Promise<unknown>> = [];
 afterEach(async () => {
   for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
   resetExecutionPolicyForTests();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 async function fixture() {
@@ -56,7 +59,7 @@ describe("locked MCP read surface", () => {
     ]);
     for (const name of ["prepare_design_agent_brief", "diagnose_app_quality"]) {
       const result = await client.callTool({ name, arguments: {} });
-      expect(result.isError).not.toBe(true);
+      expect(result.isError, JSON.stringify(result.content)).not.toBe(true);
       expect(JSON.stringify(result.content)).toContain(name === "diagnose_app_quality" ? "issues" : "mission");
     }
     const denied = await client.callTool({ name: "design_doc", arguments: { url: "https://example.com" } });
@@ -72,6 +75,72 @@ describe("locked MCP read surface", () => {
       expect(result.isError).toBe(true);
       expect(JSON.stringify(result.content)).toContain("MEMI_CAPABILITY_DENIED");
     }
+  });
+
+  it("preserves the legacy catalog only with all explicit connected grants", async () => {
+    const { engine, root } = await fixture();
+    configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: [...MEMI_CAPABILITIES] });
+    const client = await connect(engine);
+    const names = (await client.listTools()).tools.map((tool) => tool.name);
+    expect(names).toContain("design_doc");
+    expect(names).toContain("prepare_design_agent_brief");
+    expect(names.length).toBe(50);
+    configureExecutionPolicy({ projectRoot: root });
+    const result = await client.callTool({ name: "design_doc", arguments: { url: "https://example.com" } });
+    expect(result.isError).toBe(true);
+    expect(JSON.stringify(result.content)).toContain("MEMI_CAPABILITY_DENIED");
+  });
+
+  it("denies direct calls to filtered extensions before invoking their handlers", async () => {
+    const { engine } = await fixture();
+    const server = await createMemoireMcpServer(engine);
+    const handler = vi.fn();
+    registerPolicyTool(server, { name: "network_extension", description: "Test", inputSchema: {},
+      capabilities: ["network"], handler });
+    const client = new Client({ name: "extension-test", version: "1" });
+    const [a, b] = InMemoryTransport.createLinkedPair();
+    cleanups.push(() => server.close(), () => client.close());
+    await Promise.all([server.connect(a), client.connect(b)]);
+    expect((await client.listTools()).tools.map((tool) => tool.name)).not.toContain("network_extension");
+    const result = await client.callTool({ name: "network_extension", arguments: {} });
+    expect(result.isError).toBe(true);
+    expect(JSON.stringify(result.content)).toContain("MEMI_CAPABILITY_DENIED");
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("propagates cancellation to an active audited handler and remains responsive", async () => {
+    const { engine } = await fixture();
+    const server = await createMemoireMcpServer(engine);
+    let started!: () => void;
+    let cancelled!: () => void;
+    const startedPromise = new Promise<void>((resolve) => { started = resolve; });
+    const cancelledPromise = new Promise<void>((resolve) => { cancelled = resolve; });
+    registerPolicyTool(server, { name: "cancel_probe", description: "Cancellation probe", inputSchema: {},
+      capabilities: [], handler: async (_input, signal) => {
+        started();
+        await new Promise<void>((resolve) => signal.addEventListener("abort", () => {
+          cancelled(); resolve();
+        }, { once: true }));
+        return { content: [{ type: "text", text: "should not escape after cancellation" }] };
+      } });
+    const client = new Client({ name: "cancel-test", version: "1" });
+    const [a, b] = InMemoryTransport.createLinkedPair();
+    cleanups.push(() => server.close(), () => client.close());
+    await Promise.all([server.connect(a), client.connect(b)]);
+    const abort = new AbortController();
+    const pending = client.callTool({ name: "cancel_probe", arguments: {} }, undefined, { signal: abort.signal });
+    await startedPromise;
+    abort.abort(new Error("Cancelled by test"));
+    await expect(pending).rejects.toThrow("Cancelled by test");
+    await cancelledPromise;
+    await expect(client.ping()).resolves.toEqual({});
+  });
+
+  it("never starts a pretty-print worker in MCP mode", () => {
+    vi.stubGlobal("process", { ...process, argv: ["node", "memi", "mcp", "start"],
+      env: { ...process.env, NODE_ENV: "development", VITEST: undefined } });
+    expect(shouldUsePrettyTransport()).toBe(false);
+    vi.unstubAllGlobals();
   });
 
   it("exposes bounded project metadata without legacy registry or spec resources", async () => {
