@@ -1,6 +1,12 @@
 # memi in Codex
 
-The published npm release is **2.7.9**. The **2.8 Trust Core candidate is unpublished**. Candidate behavior described below requires a locally built candidate on your PATH; installing npm `latest` does not install it. Local checks are not release certification.
+npm `latest` remains **2.7.9**. Published beta **2.8.0-beta.1** is available on `next`; use the exact verified beta executable for the features below. Installing `latest` does not install the beta. The [npm release record](../release-artifacts/npm/2.8.0-beta.1.release.json) binds its published source and artifact.
+
+```bash
+npx -y @memi-design/cli@2.8.0-beta.1 --version
+```
+
+Managed independent security scanning and the reviewed-candidate-audit and swiftui-rendered-rerun receipts remain pending for stable. Paper pixel parity is unassessed. Of 158 inventoried CLI paths, 105 remain deferred; broad grants do not enable them. No complete-task dollar or token savings claim is established.
 
 ## Public integration
 
@@ -18,11 +24,11 @@ For a reproducible stable CLI audit:
 npx -y @memi-design/cli@2.7.9 diagnose . --json --no-write --fail-on none
 ```
 
-The frontend evidence and metadata-only receipt commands below are candidate features, not claims about the stable package.
+The frontend evidence and metadata-only receipt commands below are beta features, not claims about the stable package.
 
-## Candidate MCP connection
+## Beta MCP connection
 
-With the candidate `memi` binary available, print a configuration for your host:
+With `memi --version` reporting `2.8.0-beta.1`, print a configuration for your host:
 
 ```bash
 memi mcp config --target generic
@@ -56,7 +62,7 @@ The legacy MCP catalog is registered only when the connected profile explicitly 
 
 ## Existing components before a patch
 
-Use the candidate frontend brief to identify reusable components and unresolved evidence:
+Use the beta frontend brief to identify reusable components and unresolved evidence:
 
 ```bash
 memi agent brief . --frontend --json --intent "Improve the settings form using existing components"
@@ -70,7 +76,7 @@ memi agent brief . --frontend --json --intent "Implement the selected settings d
 
 The file is an explicit handoff from the host or user. Memi does not silently call Figma or Paper to obtain it. Include the source, document/node identifiers, captured revision when known, and mappings to actual repository exports. See the [evidence example](AGENT_RECIPES.md#host-design-evidence).
 
-Native Figma Code Connect is optional. If the host provides a verified mapping, preserve its source and revision; do not claim a native integration ran merely because a JSON mapping was supplied. Unknown props, missing exports, stale source hashes, conflicting tokens, and unsupported syntax remain visible for review. The candidate reports static evidence; visual, interaction, accessibility-runtime, and build verification remain unassessed until separately performed.
+Native Figma Code Connect is optional. If the host provides a verified mapping, preserve its source and revision; do not claim a native integration ran merely because a JSON mapping was supplied. Unknown props, missing exports, stale source hashes, conflicting tokens, and unsupported syntax remain visible for review. The beta reports static evidence; visual, interaction, accessibility-runtime, and build verification remain unassessed until separately performed.
 
 ## Metadata-only receipt
 

@@ -1,6 +1,6 @@
 # Memi agent recipes
 
-**Stable npm: 2.7.9. Unpublished development candidate: 2.8.** Keep release availability separate from source-checkout capabilities. The candidate commands in this guide assume a locally built candidate `memi` binary on PATH. They are not an instruction to install an unpublished npm version.
+**npm stable: 2.7.9. Published beta: 2.8.0-beta.1 on `next`.** The beta commands below require `memi --version` to report `2.8.0-beta.1`; use the exact beta package. Stable commands remain separately pinned. See [the beta workflow](FRONTEND_WORKFLOW.md) and its limitations.
 
 ## Stable read-only audit
 
@@ -10,7 +10,7 @@ npx -y @memi-design/cli@2.7.9 diagnose . --json --no-write --fail-on none
 
 This inspects source and returns a report. Source findings are evidence for a patch plan; they do not establish that an interface renders or behaves correctly.
 
-## Candidate: before a frontend patch
+## Beta: before a frontend patch
 
 ```bash
 memi agent brief . --frontend --json --intent "Improve this interface using existing components"
@@ -52,7 +52,7 @@ memi agent brief . --frontend --json --intent "Implement the selected design usi
 
 Native Figma Code Connect is optional. A supplied mapping can originate from a verified Code Connect result, a host capture, or a reviewed manual handoff; preserve that distinction in the surrounding evidence. Merely supplying JSON does not prove that native Code Connect ran. Missing components, incompatible props, conflicting tokens, and stale hashes remain unresolved until checked.
 
-## Candidate: default MCP tools
+## Beta: default MCP tools
 
 ```bash
 memi --profile locked mcp start --no-figma
@@ -71,7 +71,7 @@ The default locked server exposes four tools:
 
 The legacy integration/mutation catalog requires the connected profile and explicit grants for every capability. It is not the locked catalog. Do not add broad grants to a default client configuration to make an old recipe appear supported. The [Codex guide](CODEX_PLUGIN.md) documents a locked client configuration; generic MCP clients can use `memi mcp config --target generic`.
 
-## Candidate: metadata-only stdout
+## Beta: metadata-only stdout
 
 ```bash
 memi diagnose . --receipt-only --fail-on none

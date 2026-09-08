@@ -1,0 +1,22 @@
+{
+  "sourceCheckpoint": "71d17ecb8b44a39d81e18a831155eb010779bdfe",
+  "artifactVersion": "2.8.0-beta.1",
+  "stats": {
+    "startTime": "2026-09-08T17:26:02.579Z",
+    "duration": 9868.094000000001,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "checks": [
+    "fixture typecheck",
+    "Storybook production build",
+    "installed Figma and Paper mapping reuse",
+    "keyboard navigation",
+    "light and dark themes",
+    "320px and 1024px layout"
+  ],
+  "screenshot": "mapped-workspace.png",
+  "scope": "Public synthetic frontend-workflow fixture; no live Figma or Paper workspace capture."
+}
