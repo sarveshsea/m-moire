@@ -1,20 +1,22 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { StudioRuntimeServer } from "../server.js";
 import { defaultStudioConfig, saveStudioConfig } from "../config.js";
+import { configureExecutionPolicy, resetExecutionPolicyForTests } from "../../security/execution-policy.js";
 let root: string;
 let baseUrl: string;
 let server: StudioRuntimeServer;
 beforeAll(async () => {
   root = await mkdtemp(join(tmpdir(), "memi-server-release-"));
+  configureExecutionPolicy({ projectRoot: root, profile: "connected", allow: ["project-write", "source-content-persistence"] });
   const config = defaultStudioConfig(root);
   await saveStudioConfig(root, { ...config, enabledTools: { ...config.enabledTools, browser: false, figma: false, shell: false } });
   server = new StudioRuntimeServer({ projectRoot: root, port: 0 });
   baseUrl = (await server.start()).url;
 });
-afterAll(async () => { await server?.stop(); if (root) await rm(root, { recursive: true, force: true }); });
+afterAll(async () => { resetExecutionPolicyForTests(); await server?.stop(); if (root) await rm(root, { recursive: true, force: true }); });
 async function request(path: string, method = "GET", body?: unknown) {
   return fetch(`${baseUrl}${path}`, { method, ...(body === undefined ? {} : { headers: { "content-type": "application/json" }, body: JSON.stringify(body) }) });
 }
@@ -174,5 +176,99 @@ describe('Studio attachment session path boundary', () => {
     const response = await request('/api/attachments/capture', 'POST', { kind: 'text', name: 'proof.txt', mimeType: 'text/plain', source: 'paste', text: 'Bounded fixture evidence', sessionId: '../../../escaped-attachments' });
     expect(response.status).toBe(400);
     await expect(readdir(join(root, 'escaped-attachments'))).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+});
+
+
+describe('Studio local knowledge and configuration integration', () => {
+  it('persists captured knowledge and returns it by its encoded identifier', async () => {
+    const response = await request('/api/knowledge/capture', 'POST', { event: { id: 'research-event-fixture', sessionId: 'local-session', type: 'research_note', timestamp: '2026-09-01T00:00:00Z', message: 'Participants found settings hard to discover', data: { source: 'Fixture interview' } } });
+    expect(response.status).toBe(200);
+    const { item } = await response.json();
+    expect(item.kind).toBe('agent-capture');
+    expect(await (await request(`/api/knowledge/${encodeURIComponent(item.id)}`)).json()).toMatchObject({ item: { id: item.id } });
+    const index = await (await request('/api/knowledge?compact=1&includeGenerated=1')).json();
+    expect(index.items.some((candidate: { id: string }) => candidate.id === item.id)).toBe(true);
+    expect((await request('/api/knowledge/refresh', 'POST', {})).status).toBe(200);
+  });
+  it('refuses to turn ordinary stdout into captured research evidence', async () => {
+    const response = await request('/api/knowledge/capture', 'POST', { event: { type: 'stdout', message: 'Hello' } });
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({ error: expect.stringContaining('cannot be captured') });
+  });
+  it('updates persisted configuration while retaining disabled execution tools', async () => {
+    const { config } = await (await request('/api/config')).json();
+    const response = await request('/api/config', 'PUT', { ...config, defaultHarness: 'codex' });
+    expect(response.status).toBe(200);
+    const reread = await (await request('/api/config')).json();
+    expect(reread.config).toMatchObject({ defaultHarness: 'codex', enabledTools: { shell: false, browser: false, figma: false } });
+  });
+  it('lists workspace files while withholding dependency and git internals', async () => {
+    await mkdir(join(root, '.git'), { recursive: true });
+    await mkdir(join(root, 'node_modules'), { recursive: true });
+    await writeFile(join(root, 'visible.txt'), 'Exact local content');
+    const directory = await (await request(`/api/workspace?path=${encodeURIComponent(root)}`)).json();
+    expect(directory.type).toBe('directory');
+    expect(directory.entries.map((entry: { name: string }) => entry.name)).toContain('visible.txt');
+    expect(directory.entries.map((entry: { name: string }) => entry.name)).not.toContain('node_modules');
+    expect(directory.entries.map((entry: { name: string }) => entry.name)).not.toContain('.git');
+    expect(await (await request(`/api/workspace?path=${encodeURIComponent(join(root, 'visible.txt'))}`)).json()).toMatchObject({ type: 'file', content: 'Exact local content' });
+  });
+  it('returns a local memory index and supports refresh without a live session', async () => {
+    const refreshed = await request('/api/project-memory/refresh', 'POST', {});
+    expect(refreshed.status).toBe(200);
+    const index = await refreshed.json();
+    expect(Array.isArray(index.items)).toBe(true);
+    expect((await request('/api/project-memory')).status).toBe(200);
+  });
+  it('does not start remote downloads for the local marketplace listing', async () => {
+    const response = await request('/api/marketplace/notes');
+    expect(response.status).toBe(200);
+    expect(Array.isArray((await response.json()).notes)).toBe(true);
+    expect(await (await request('/api/downloads')).json()).toEqual({ downloads: [] });
+  });
+  it.each([
+    ['/api/marketplace/notes/remove', 'POST', {}],
+    ['/api/marketplace/notes/forks/missing/files', 'PUT', { path: '../escape.md', content: 'Rejected' }],
+    ['/api/artifacts/missing/sections/missing/review', 'PATCH', { reviewState: 'accepted' }],
+  ])('preserves failure details for invalid local mutation %s', async (path, method, body) => {
+    const response = await request(path, method, body);
+    expect(response.status).toBeGreaterThanOrEqual(400);
+    expect(await response.json()).toMatchObject({ error: expect.any(String) });
+  });
+  it('rejects nonexistent markdown paths without returning source content', async () => {
+    const response = await request('/api/markdown-corpus/analyze', 'POST', { sourcePath: join(root, 'not-there.md') });
+    expect(response.status).toBeGreaterThanOrEqual(400);
+    expect(await response.json()).toMatchObject({ error: expect.any(String) });
+  });
+});
+
+
+describe('Studio descriptor-contained source routes', () => {
+  it('does not read a workspace file symlink that points outside its configured root', async () => {
+    const outside = await mkdtemp(join(tmpdir(), 'memi-outside-read-'));
+    try {
+      await writeFile(join(outside, 'secret.md'), 'External fixture sentinel');
+      await symlink(join(outside, 'secret.md'), join(root, 'external-source.md'));
+      const response = await request(`/api/workspace?path=${encodeURIComponent(join(root, 'external-source.md'))}`);
+      expect(response.status).toBe(403);
+      expect(await response.text()).not.toContain('External fixture sentinel');
+    } finally { await rm(outside, { recursive: true, force: true }); }
+  });
+  it.each(['/api/markdown-corpus/analyze', '/api/markdown-corpus/sync-to-figjam'])('rejects external sourcePath for %s before reading its content', async endpoint => {
+    const outside = await mkdtemp(join(tmpdir(), 'memi-outside-markdown-'));
+    try {
+      const path = join(outside, 'secret.md'); await writeFile(path, 'External fixture sentinel');
+      const response = await request(endpoint, 'POST', { sourcePath: path });
+      expect(response.status).toBe(403);
+      expect(await response.text()).not.toContain('External fixture sentinel');
+    } finally { await rm(outside, { recursive: true, force: true }); }
+  });
+  it('prevents active HTML attachment content from executing in the Studio origin', async () => {
+    const captured = await (await request('/api/attachments/capture', 'POST', { kind: 'text', name: 'page.html', mimeType: 'text/html', source: 'paste', text: '<script>alert(1)</script>' })).json();
+    const response = await request(`/api/attachments/${captured.attachment.id}?raw=1`);
+    expect(response.headers.get('content-type')).toBe('application/octet-stream');
+    expect(response.headers.get('content-disposition')).toContain('attachment');
+    expect(response.headers.get('x-content-type-options')).toBe('nosniff');
   });
 });
