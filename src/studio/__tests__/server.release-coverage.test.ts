@@ -272,3 +272,62 @@ describe('Studio descriptor-contained source routes', () => {
     expect(response.headers.get('x-content-type-options')).toBe('nosniff');
   });
 });
+
+
+describe('Studio attachment consumption-time checks', () => {
+  it('rejects an indexed attachment replaced by an external symlink before raw retrieval', async () => {
+    const { attachment } = await (await request('/api/attachments/capture', 'POST', { kind: 'text', name: 'race.txt', mimeType: 'text/plain', source: 'paste', text: 'Original fixture' })).json();
+    const outside = await mkdtemp(join(tmpdir(), 'memi-attachment-raw-'));
+    try {
+      await writeFile(join(outside, 'secret.txt'), 'External raw sentinel');
+      await rm(attachment.path);
+      await symlink(join(outside, 'secret.txt'), attachment.path);
+      const response = await request(`/api/attachments/${attachment.id}?raw=1`);
+      expect(response.status).toBe(403);
+      expect(await response.text()).not.toContain('External raw sentinel');
+    } finally { await rm(outside, { recursive: true, force: true }); }
+  });
+  it('still analyzes an authorized local markdown file after containment hardening', async () => {
+    const path = join(root, 'permitted-analysis.md'); await writeFile(path, '# Local evidence\n- Start\n- Complete');
+    const response = await request('/api/markdown-corpus/analyze', 'POST', { sourcePath: path });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ candidates: [{ kind: 'checklist-to-flow' }] });
+  });
+});
+
+describe('Studio persisted session HTTP replay', () => {
+  it('reopens stored sessions with bounded events, trace and redacted metadata', async () => {
+    const historyRoot = await mkdtemp(join(tmpdir(), 'memi-server-history-'));
+    const historyServer = new StudioRuntimeServer({ projectRoot: historyRoot, port: 0 });
+    try {
+      const { StudioSessionStore } = await import('../session-store.js');
+      const store = new StudioSessionStore(historyRoot); store.init();
+      const timestamp = '2026-09-01T00:00:00Z';
+      const session = { id: 'replayed-session', harness: 'codex' as const, action: 'raw' as const, cwd: historyRoot, prompt: 'Private fixture prompt', status: 'completed' as const, startedAt: timestamp, completedAt: timestamp, exitCode: 0, activeStreamId: null, pendingPrompt: null, events: [] };
+      store.appendEvent(session, { id: 'reasoning-event', sessionId: session.id, type: 'reasoning', timestamp, message: 'Private reasoning fixture' });
+      store.appendEvent(session, { id: 'done-event', sessionId: session.id, type: 'session_done', timestamp, message: 'Session completed' });
+      const { url } = await historyServer.start();
+      const list = await (await fetch(`${url}/api/sessions`)).json();
+      expect(list.sessions).toEqual([expect.objectContaining({ id: session.id, source: 'persisted', prompt: '[content omitted]' })]);
+      const events = await (await fetch(`${url}/api/sessions/${session.id}/events?limit=1`)).json();
+      expect(events.events).toHaveLength(1); expect(events.events[0].type).toBe('session_done');
+      const log = await (await fetch(`${url}/api/logs/${session.id}?limit=invalid`)).json();
+      expect(log.events).toHaveLength(2);
+      expect(JSON.stringify(log)).not.toContain('Private reasoning fixture');
+      const trace = await (await fetch(`${url}/api/sessions/${session.id}/trace`)).json();
+      expect(trace.session).toMatchObject({ id: session.id, source: 'persisted' });
+      expect(trace.trace).toBeTruthy();
+      const status = await (await fetch(`${url}/api/status`)).json();
+      expect(status.metrics).toMatchObject({ indexedSessions: 1, activeProcesses: 0 });
+    } finally { await historyServer.stop(); await rm(historyRoot, { recursive: true, force: true }); }
+  });
+});
+
+describe('Studio attachment request budget', () => {
+  it('returns a readable 413 response for oversized JSON before persisting its attachment', async () => {
+    const response = await request('/api/attachments/capture', 'POST', { kind: 'text', name: 'too-large.txt', source: 'paste', mimeType: 'text/plain', text: 'Small source', padding: 'x'.repeat(12_000_001) });
+    expect(response.status).toBe(413);
+    expect(await response.json()).toMatchObject({ error: expect.stringContaining('byte limit') });
+    expect((await request('/api/config')).status).toBe(200);
+  });
+});

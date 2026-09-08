@@ -72,8 +72,43 @@ describe('attachment persistence authority', () => {
     const root = await mkdtemp(join(tmpdir(), 'memi-attachment-index-'));
     try {
       const base = join(root, '.memoire', 'studio', 'attachments'); await mkdir(base, { recursive: true });
-      await writeFile(join(base, 'index.json'), JSON.stringify([{ id: 'attachment-forged', kind: 'text', name: 'secret', mimeType: 'text/plain', source: 'paste', path: join(root, 'outside.txt') }]));
-      expect(await getStudioAttachment(root, 'attachment-forged')).toBeNull();
+      await writeFile(join(base, 'index.json'), JSON.stringify([{ id: 'attachment-00000000-0000-0000-0000-000000000000', sessionId: null, kind: 'text', name: 'secret', mimeType: 'text/plain', source: 'paste', size: 7, createdAt: '2026-09-01T00:00:00Z', path: join(root, 'outside.txt') }]));
+      expect(await getStudioAttachment(root, 'attachment-00000000-0000-0000-0000-000000000000')).toBeNull();
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+});
+
+
+describe('attachment input and index validation', () => {
+  it.each([42, '../escape', 'path\\escape', 'a/b'])('rejects invalid session identifier %j', async sessionId => {
+    const root = await mkdtemp(join(tmpdir(), 'memi-attachment-input-'));
+    try {
+      configureExecutionPolicy({ projectRoot: root, profile: 'connected', allow: ['project-write', 'source-content-persistence'] });
+      await expect(captureStudioAttachment(root, { kind: 'text', name: 'note.txt', mimeType: 'text/plain', source: 'paste', text: 'Fixture', sessionId } as never)).rejects.toMatchObject({ statusCode: 400 });
+    } finally { resetExecutionPolicyForTests(); await rm(root, { recursive: true, force: true }); }
+  });
+  it.each([{ kind: 'script' }, { source: 'remote-executable' }, { text: 42 }, { dataUrl: 42 }, { text: 'x'.repeat(8_000_001) }])('rejects malformed or oversized payload %#', async patch => {
+    const root = await mkdtemp(join(tmpdir(), 'memi-attachment-input-'));
+    try {
+      configureExecutionPolicy({ projectRoot: root, profile: 'connected', allow: ['project-write', 'source-content-persistence'] });
+      await expect(captureStudioAttachment(root, { kind: 'text', name: 'note.txt', mimeType: 'text/plain', source: 'paste', text: 'Fixture', ...patch } as never)).rejects.toMatchObject({ statusCode: 400 });
+    } finally { resetExecutionPolicyForTests(); await rm(root, { recursive: true, force: true }); }
+  });
+  it('does not treat authorization for another project as authority to persist an attachment', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'memi-attachment-root-'));
+    const other = await mkdtemp(join(tmpdir(), 'memi-attachment-authorized-'));
+    try {
+      configureExecutionPolicy({ projectRoot: other, profile: 'connected', allow: ['project-write', 'source-content-persistence'] });
+      await expect(captureStudioAttachment(root, { kind: 'text', name: 'note.txt', mimeType: 'text/plain', source: 'paste', text: 'Fixture' })).rejects.toMatchObject({ code: 'MEMI_CAPABILITY_DENIED' });
+    } finally { resetExecutionPolicyForTests(); await rm(root, { recursive: true, force: true }); await rm(other, { recursive: true, force: true }); }
+  });
+  it.each(['{broken', '{}'])('rejects corrupt existing index %# instead of silently discarding it', async content => {
+    const root = await mkdtemp(join(tmpdir(), 'memi-attachment-corrupt-'));
+    try {
+      const base = join(root, '.memoire', 'studio', 'attachments'); await mkdir(base, { recursive: true });
+      await writeFile(join(base, 'index.json'), content);
+      await expect(getStudioAttachment(root, 'missing')).rejects.toMatchObject({ statusCode: 400 });
+      expect(await readFile(join(base, 'index.json'), 'utf8')).toBe(content);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 });
