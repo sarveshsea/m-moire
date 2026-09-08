@@ -43,7 +43,7 @@ export function evaluateChangelogGate({ changelog, version, engineState }) {
     return [];
   }
 
-  const changelogMatch = changelog.match(/^## v([0-9]+\.[0-9]+\.[0-9]+)\b/m);
+  const changelogMatch = changelog.match(/^## v([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)(?=\s|$)/m);
   if (!changelogMatch) return ["CHANGELOG.md does not contain a version heading"];
   if (changelogMatch[1] !== version) {
     return [`CHANGELOG.md starts at v${changelogMatch[1]} but package.json is ${version}`];
@@ -59,28 +59,33 @@ export function evaluateSkillDistributionGate({ skillName, content, version, eng
   };
   requireTerm(`name: ${skillName}`);
   const candidate = engineState === "candidate";
+  const publishedBeta = engineState === "published" && version === TRUST_CORE_BETA_VERSION;
   const publicVersion = candidate ? previousPublicVersion : version;
   for (const match of content.matchAll(/@memi-design\/cli@([^\s`"']+)/g)) {
     if (match[1] !== publicVersion) errors.push(`${skillName} references unavailable or unpinned CLI version: ${match[1]}; expected ${publicVersion}`);
   }
-  if (!candidate) {
+  if (!candidate && !publishedBeta) {
     const terms = skillName === "memoire-design-tooling"
       ? ["agent brief", "memi agent install --dry-run --json", "memi mcp start --no-figma"]
       : [`npx -y @memi-design/cli@${version}`];
     terms.forEach(requireTerm);
     return errors;
   }
-  if (!/\breviewed\b/i.test(content) || !/\bunpublished\b/i.test(content)) {
+  if (candidate && (!/\breviewed\b/i.test(content) || !/\bunpublished\b/i.test(content))) {
     errors.push(`${skillName} must identify a reviewed candidate and unpublished npm availability`);
+  }
+  if (publishedBeta) {
+    requireTerm(`npx -y @memi-design/cli@${version}`);
+    if (!/\bpublished beta\b/i.test(content)) errors.push(`${skillName} must identify published beta availability`);
   }
   const terms = {
     "memoire-design-tooling": ["memi agent brief . --frontend", "--receipt-only", "memi --profile locked mcp start --no-figma"],
     "audit-frontend-design": ["memi diagnose . --json --no-write", "--receipt-only"],
     "remember-design-system": ["memi agent brief . --frontend", "--design-evidence"],
-    "enforce-design-ci": [`npx -y @memi-design/cli@${publicVersion} init --team`, "memi --profile connected --allow project-write --allow source-content-persistence --allow shell ci"],
+    "enforce-design-ci": [...(candidate ? [`npx -y @memi-design/cli@${publicVersion} init --team`] : []), "memi --profile connected --allow project-write --allow source-content-persistence --allow shell ci"],
     "build-swiftui-interface": ["prepare_apple_design_brief", "memi --profile locked mcp start --no-figma", "commands are unavailable"],
   };
-  if (!terms[skillName]) errors.push(`Unknown candidate skill distribution contract: ${skillName}`);
+  if (!terms[skillName]) errors.push(`Unknown Trust Core skill distribution contract: ${skillName}`);
   (terms[skillName] ?? []).forEach(requireTerm);
   // Inspect executable recipes, allowing prose to explain unavailable legacy commands.
   const blocks = [...content.matchAll(/```(?:bash|sh|shell)?[^\S\n]*\n([\s\S]*?)```/g)].map(match => match[1]);
@@ -88,7 +93,7 @@ export function evaluateSkillDistributionGate({ skillName, content, version, eng
   const inline = [...prose.matchAll(/`(memi [^`\n]+)`/g)].map(match => match[1]);
   for (const recipe of [...blocks, ...inline]) {
     if (/\bmemi\s+(?:--(?:profile|allow|deny)\s+\S+\s+)*(?:agent\s+install\b|init\b|ios\s+(?:brief|scaffold)\b)/.test(recipe)) {
-      errors.push(`${skillName} includes an unavailable candidate command recipe`);
+      errors.push(`${skillName} includes an unavailable Trust Core command recipe`);
     }
     if (/\bmemi\s+mcp\s+start\b/.test(recipe)) errors.push(`${skillName} MCP recipes must explicitly select the locked profile`);
   }
@@ -98,9 +103,9 @@ export function evaluateSkillDistributionGate({ skillName, content, version, eng
 export function evaluateAuditScorecardGate({ status, message, version, engineState }) {
   if (status === 0) return { failures: [], limitations: [] };
   const normalizedMessage = String(message).trim();
-  const isTrustCoreBetaCandidate = version === TRUST_CORE_BETA_VERSION
-    && engineState === "candidate";
-  if (isTrustCoreBetaCandidate && normalizedMessage === TRUST_CORE_PENDING_SCORECARD_EVIDENCE) {
+  const isTrustCoreBeta = version === TRUST_CORE_BETA_VERSION
+    && (engineState === "candidate" || engineState === "published");
+  if (isTrustCoreBeta && normalizedMessage === TRUST_CORE_PENDING_SCORECARD_EVIDENCE) {
     return {
       failures: [],
       limitations: [TRUST_CORE_PENDING_SCORECARD_LIMITATION],

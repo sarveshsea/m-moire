@@ -9,7 +9,7 @@ Use this as Apple-platform design and verification guidance. Pair it with an ins
 
 ## 2.8 beta availability
 
-This candidate skill requires a reviewed local 2.8 build. npm stable remains 2.7.9; do not install the unpublished candidate from npm. Check `memi --version` first.
+This skill requires the reviewed 2.8 frontend contract. Check `memi --version` and npm registry availability first. If the beta is unpublished, use a reviewed local build; after publication, use the exact verified beta version. npm stable remains 2.7.9.
 
 Memi's `ios brief` and `ios scaffold` commands are unavailable in 2.8.0-beta.1, including preview and write modes. Capability grants do not enable them. This skill does not provide an automatic SwiftUI scaffolding pipeline.
 

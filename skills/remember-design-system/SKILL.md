@@ -7,7 +7,7 @@ description: Use when an agent is about to build or refactor interface code and 
 
 Build design context from the repository instead of guessing from the prompt. This is a preflight for UI work, not a request to redesign the product.
 
-This skill targets a reviewed local 2.8 candidate. Check `memi --version`; npm stable 2.7.9 does not have `--frontend`. Do not install unpublished versions from npm.
+This skill targets the reviewed 2.8 frontend contract. Check `memi --version` and npm registry availability; npm stable 2.7.9 does not have `--frontend`. If the beta is unpublished, use a reviewed local candidate; after publication, use the exact verified beta version.
 
 ## Build The Brief
 

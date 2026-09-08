@@ -7,7 +7,7 @@ description: Use when a repository needs deterministic pull-request checks for n
 
 Add a reviewable design-quality gate that runs without an LLM. Memi writes a policy, baseline, universal agent skill, SARIF, and human-readable report artifacts.
 
-The verification command targets a reviewed 2.8 candidate; check `memi --version`. Candidate `init` is deliberately unavailable in every profile. Initialization below uses public 2.7.9 explicitly and writes project configuration. The Action also remains on public 2.7.9 until the candidate is released. Do not install unpublished 2.8 from npm.
+The verification command targets the reviewed 2.8 frontend contract; check `memi --version` and npm registry availability. If the beta is unpublished, use a reviewed local candidate; after publication, use the exact verified beta version. Beta `init` remains unavailable in every profile. Initialization below uses public 2.7.9 explicitly and writes project configuration. The Action remains on public stable 2.7.9 during the beta.
 
 ## Initialize
 

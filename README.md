@@ -52,11 +52,19 @@ Local source diagnosis uses deterministic rules: **no model call, API key, or mo
 
 Start with one diagnosis, address the highest-confidence finding, and rerun the same check. Use `--agent-context` for a bounded file index instead of sending a whole repository to a model. Its routing is heuristic; a smaller context is not proof of a cheaper successful task. `--files` scopes reported findings without launching Git; it still scans the tree for aggregate statistics.
 
-**Release distinction:** npm stable is `2.7.9`. Trust Core `2.8.0-beta.1` is an **unpublished candidate**. The frontend work in [PR #137](https://github.com/memi-design/memi/pull/137) builds on [Trust Core PR #133](https://github.com/memi-design/memi/pull/133). Its locked default and explicit capability contract do not apply retroactively to 2.7.9. Do not try to install an unpublished candidate from npm.
+**Release channels:** npm stable remains `2.7.9`. Trust Core `2.8.0-beta.1` targets the `next` prerelease channel, with the limitations below. Verify its availability before installing; an unpublished candidate requires a reviewed local build. Its locked default and explicit capability contract do not apply retroactively to 2.7.9.
+
+```bash
+npm view @memi-design/cli dist-tags --json
+# Once 2.8.0-beta.1 is listed in the registry:
+npx -y @memi-design/cli@2.8.0-beta.1 agent brief . --frontend --intent "Improve this interface" --json
+```
+
+The beta keeps managed security review, SwiftUI parity, and full DesignWorkbench certification explicitly pending. It is not stable or employer-approved. Publication provenance and platform receipts belong to the exact released artifact.
 
 The candidate prevents local diagnosis from writing project files by default, keeps paid integrations optional, and requires explicit grants for networking, subprocesses, and source report persistence. An npm install needs registry access; offline first-run claims require the separately verified bundle. See the [acceptance ledger](docs/trust/ACCEPTANCE_LEDGER.md), [known limitations](docs/trust/KNOWN_LIMITATIONS.md), and [release truth](docs/trust/RELEASE_TRUTH.md).
 
-**Developing 2.8:** the candidate now provides a repository-aware frontend brief, four useful locked MCP tools, validated Figma/Paper evidence inputs, and explicit component-reuse conflicts. See the [frontend workflow](docs/FRONTEND_WORKFLOW.md) for runnable candidate commands and the [release plan](docs/trust/RELEASE_2_8_PLAN.md) for remaining gates. Full-source coverage, platform evidence, managed security review, and publication remain separate requirements.
+**The 2.8 frontend workflow:** the candidate now provides a repository-aware frontend brief, four useful locked MCP tools, validated Figma/Paper evidence inputs, and explicit component-reuse conflicts. See the [frontend workflow](docs/FRONTEND_WORKFLOW.md) for runnable candidate commands and the [release plan](docs/trust/RELEASE_2_8_PLAN.md) for remaining gates. Full-source coverage, platform evidence, managed security review, and publication remain separate requirements.
 
 ### What 2.8 changes for frontend agents
 
