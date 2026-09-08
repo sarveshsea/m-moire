@@ -1,7 +1,8 @@
-import { readdir, readFile, realpath, stat } from "node:fs/promises";
+import { lstat, readdir, realpath, stat } from "node:fs/promises";
 import { extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { isPrivateOrLocalHostname } from "../security/network-address.js";
 import { fetchPublicText } from "../security/safe-fetch.js";
+import { readContainedSource } from "../security/contained-source.js";
 
 export interface ScannedSourceFile {
   id: string;
@@ -76,11 +77,16 @@ export async function scanSources(options: SourceScanOptions): Promise<ScannedSo
 
 export async function scanSourcesWithMetadata(options: SourceScanOptions): Promise<SourceScanResult> {
   options.signal?.throwIfAborted();
+  const maxBytesPerFile = options.maxBytesPerFile ?? DEFAULT_MAX_RESPONSE_BYTES;
+  if (!Number.isSafeInteger(maxBytesPerFile) || maxBytesPerFile < 1 || maxBytesPerFile > 10_000_000) {
+    throw new Error("maxBytesPerFile must be a positive integer no greater than 10000000");
+  }
+  const boundedOptions = { ...options, maxBytesPerFile };
   const target = options.target ?? options.projectRoot;
   const maxFiles = Math.max(1, options.maxFiles ?? DEFAULT_MAX_FILES);
   if (isHttpUrl(target)) {
     assertSafePublicHttpUrl(target);
-    return scanUrlWithMetadata(target, options, maxFiles);
+    return scanUrlWithMetadata(target, boundedOptions, maxFiles);
   }
   const root = resolve(options.projectRoot);
   const resolvedTarget = resolve(isAbsolute(target) ? target : resolve(root, target));
@@ -106,17 +112,16 @@ export async function scanSourcesWithMetadata(options: SourceScanOptions): Promi
     const path = normalizePath(relative(root, filePath));
     options.signal?.throwIfAborted();
     try {
-      const source = await readLocalFile(root, filePath, resolvedTarget, options.maxBytesPerFile, options.signal);
-      return source ? { source } : { omission: { path, reason: "oversized" as const } };
+      return await readLocalFile(root, filePath, resolvedTarget, maxBytesPerFile, options.signal);
     } catch {
       options.signal?.throwIfAborted();
       return { omission: { path, reason: "unreadable" as const } };
     }
   });
   options.signal?.throwIfAborted();
-  const sources = results.flatMap(result => result.source ? [result.source] : []);
-  const allOmissions = [...omissions, ...results.flatMap(result => result.omission ? [result.omission] : [])];
-  return scanResult(sources, allOmissions, candidates.length, options, maxFiles);
+  const sources = results.flatMap(result => "source" in result ? [result.source] : []);
+  const allOmissions = [...omissions, ...results.flatMap(result => "omission" in result ? [result.omission] : [])];
+  return scanResult(sources, allOmissions, candidates.length, boundedOptions, maxFiles);
 }
 
 function scanResult(sources: ScannedSourceFile[], omissions: SourceScanOmission[], discoveredFiles: number,
@@ -157,28 +162,30 @@ async function readLocalFile(
   projectRoot: string,
   filePath: string,
   sourceRoot: string,
-  maxBytesPerFile?: number,
+  maxBytesPerFile: number,
   signal?: AbortSignal,
-): Promise<ScannedSourceFile | null> {
+): Promise<{ source: ScannedSourceFile } | { omission: SourceScanOmission }> {
   signal?.throwIfAborted();
-  const fileStat = await stat(filePath);
+  const fileStat = await lstat(filePath);
   if ((fileStat.mode & 0o444) === 0) throw new Error("Source has no read permission bits");
-  if (maxBytesPerFile !== undefined && fileStat.size > maxBytesPerFile) {
-    return null;
+  const projectPath = normalizePath(relative(projectRoot, filePath));
+  const result = await readContainedSource(projectRoot, projectPath, maxBytesPerFile, signal);
+  if (!result.ok) {
+    const reason = result.reason === "file-byte-limit" ? "oversized"
+      : result.reason === "symlink" ? "symlink" : "unreadable";
+    return { omission: { path: projectPath, reason } };
   }
-  const content = await readFile(filePath, { encoding: "utf-8", signal });
   signal?.throwIfAborted();
-  const path = normalizePath(relative(sourceRoot, filePath)) || normalizePath(relative(projectRoot, filePath)) || filePath;
-  const projectPath = normalizePath(relative(projectRoot, filePath)) || path;
-  return {
+  const path = normalizePath(relative(sourceRoot, filePath)) || projectPath || filePath;
+  return { source: {
     id: path,
     path,
-    projectPath,
+    projectPath: projectPath || path,
     absolutePath: filePath,
-    content,
+    content: result.content,
     extension: extname(filePath).toLowerCase(),
-    sizeBytes: fileStat.size,
-  };
+    sizeBytes: Buffer.byteLength(result.content),
+  } };
 }
 
 async function scanUrlWithMetadata(url: string, options: SourceScanOptions, maxFiles: number): Promise<SourceScanResult> {

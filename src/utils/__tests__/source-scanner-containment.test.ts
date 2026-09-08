@@ -48,6 +48,10 @@ describe("source scanner contained reads", () => {
     expect(result.completeness.maxBytesPerFile).toBe(750_000);
     expect(result.completeness.omissions).toContainEqual({ path: "large.tsx", reason: "oversized" });
   });
+  it.each([0, -1, Infinity, NaN, 1.5, 10_000_001])("rejects invalid byte budget %s", async maxBytesPerFile => {
+    const projectRoot = await root();
+    await expect(scanSourcesWithMetadata({ projectRoot, extensions: [".tsx"], maxBytesPerFile })).rejects.toThrow(/positive integer/);
+  });
   it("preserves a clean local source and cancellation", async () => {
     const projectRoot = await root(); await writeFile(join(projectRoot, "Page.tsx"), "inside source");
     const options = { projectRoot, extensions: [".tsx"] };
