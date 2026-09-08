@@ -19,7 +19,7 @@ release gates pass.
 - Validate mapped reuse and stale/conflicting evidence; keep host-envelope guidance distinct from the registry generator's hard stop.
 - Contain source and metadata reads using file descriptors, reject links/identity changes, and bound traversal. Separate assessed quality, coverage, omissions and metadata receipts.
 - Exercise real Storybook component reuse with checked-in connector evidence, keyboard/theme/viewport tests, and a separate CI replay job. Paper screenshot parity remains unassessed.
-- Add cold-process and byte-budget measurements with honest narrow-input comparisons. No complete-task savings claim; full-source coverage and remaining release gates still block npm publication.
+- Add cold-process and byte-budget measurements with honest narrow-input comparisons. No complete-task savings claim; full-source coverage now passes; remaining release gates still block npm publication.
 - Replace unavailable candidate recipes and legacy default autonomy guidance with the actual capability contract, preserving consumer component and CSS conventions.
 
 Development checkpoints (RED tests precede their implementation where noted):
@@ -134,6 +134,8 @@ Development checkpoints (RED tests precede their implementation where noted):
 - `76af919b` — test: drain started preflight probes before rejecting a fixture
 - `246dfc45` — test: resolve native Windows executable paths without PATH search
 - `053f8a0a` — fix: resolve Windows harness paths and await preflight cleanup
+- `1cac3f27` — test: reproduce asynchronous upgrade staging cleanup contract
+- `f43dd828` — fix: await upgrade archive cleanup and verify successful shell sessions
 
 ### Release audit follow-up (unreleased)
 
