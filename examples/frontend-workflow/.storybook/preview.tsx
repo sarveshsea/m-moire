@@ -1,3 +1,6 @@
+import '@fontsource/inter/400.css';
+import '../src/tokens.css';
+import '../src/components.css';
 import type { Preview } from '@storybook/react-vite';
 const preview: Preview = {
   globalTypes: { theme: { toolbar: { title: 'Theme', items: ['dark', 'light'] } } },

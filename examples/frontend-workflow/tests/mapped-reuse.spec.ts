@@ -25,12 +25,13 @@ test('installed Memi selects the existing mapped export without claiming render 
     }));
     expect(result.design.source).toBe(source);
     expect(result.components[0]).toMatchObject({ path: 'src/SideNavTab.tsx', exportName: 'SideNavTab' });
+    expect(result.components.filter((component: { exportName: string }) => component.exportName === 'SideNavTab')).toHaveLength(1);
     expect(result.mappings).toContainEqual(expect.objectContaining({ path: 'src/SideNavTab.tsx', exportName: 'SideNavTab', mustReuse: true, status: 'observed' }));
     expect(result.mappings[0].storyRefs.length).toBeGreaterThanOrEqual(3);
     expect(result.verification.status).toBe('unassessed');
     receipts.push({ source, result });
   }
-  const baseline = JSON.parse(await readFile(join(review, 'catalog-before-reuse.json'), 'utf8'));
+  const baseline = JSON.parse(await readFile('evidence/catalog-baseline.json', 'utf8'));
   expect(await sourceHashes()).toEqual(baseline.sourceHashes);
   expect((await readFile('src/WorkspaceSidebar.tsx', 'utf8'))).toContain("import { SideNavTab } from './SideNavTab'");
   const definitions = await Promise.all((await readdir('src')).filter((name) => name.endsWith('.tsx')).map(async (name) =>

@@ -71,3 +71,60 @@ jobs:
         with:
           sarif_file: .memoire/app-quality/memi-results.sarif
           category: memi-design
+
+  frontend-workflow:
+    name: Frontend workflow (checked-in connector evidence replay)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            npm-shrinkwrap.json
+            examples/frontend-workflow/package-lock.json
+      - run: npm ci --include=optional --ignore-scripts
+      - run: npm run build
+      - run: npm run stage:package
+      - name: Pack the staged candidate
+        working-directory: .dist/npm-package
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/frontend-package"
+          npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP/frontend-package"
+      - name: Install the candidate in a separate consumer
+        shell: bash
+        run: |
+          consumer="$RUNNER_TEMP/frontend-consumer"
+          mkdir -p "$consumer"
+          printf '{"name":"frontend-artifact-consumer","version":"0.0.0","private":true}\n' > "$consumer/package.json"
+          artifacts=("$RUNNER_TEMP"/frontend-package/*.tgz)
+          test "${#artifacts[@]}" -eq 1
+          npm install --ignore-scripts --prefix "$consumer" "${artifacts[0]}"
+          entry="$consumer/node_modules/@memi-design/cli/dist/index.js"
+          test -f "$entry"
+          echo "MEMI_INSTALLED_ENTRY=$entry" >> "$GITHUB_ENV"
+      - name: Install the private fixture dependencies
+        run: npm ci --ignore-scripts --prefix examples/frontend-workflow
+      - name: Install Chromium for the fixture
+        working-directory: examples/frontend-workflow
+        run: npx playwright install --with-deps chromium
+      - name: Typecheck the reusable component fixture
+        working-directory: examples/frontend-workflow
+        run: npm run typecheck
+      - name: Build Storybook into the ignored artifact directory
+        working-directory: examples/frontend-workflow
+        run: npm run build
+      - name: Verify mapped reuse and rendered keyboard, theme and responsive states
+        working-directory: examples/frontend-workflow
+        run: npm test
+      - name: Upload frontend replay receipts and browser screenshots
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        with:
+          name: frontend-workflow-replay
+          path: examples/frontend-workflow/.dist/review
+          include-hidden-files: true
+          if-no-files-found: warn

@@ -1,0 +1,39 @@
+{
+  "source": "paper",
+  "documentId": "01M20P1EY87M83ZRZC2D1077D0",
+  "nodeId": "2-0",
+  "mappings": [
+    {
+      "path": "src/SideNavTab.tsx",
+      "exportName": "SideNavTab",
+      "sourceHash": "3cae960f4d0b60ca8581358cac06c0afa9cfa568dc10a0ae5498dd37e1880602",
+      "props": {
+        "label": "File",
+        "selected": false,
+        "disabled": false
+      },
+      "tokens": [
+        "--off-white",
+        "--nav-tab-width",
+        "--nav-tab-height",
+        "--nav-tab-padding",
+        "--nav-tab-radius",
+        "--font-size-ui"
+      ]
+    }
+  ],
+  "properties": {
+    "label": "File",
+    "width": 182,
+    "height": 25,
+    "padding": 5,
+    "radius": 5,
+    "fontFamily": "Inter",
+    "fontSize": 12,
+    "fontWeight": 400,
+    "textColor": "#f7f7f7",
+    "mappingMethod": "checked-in-fallback",
+    "nativeCodeConnect": "not-applicable",
+    "renderedVerification": "unassessed"
+  }
+}

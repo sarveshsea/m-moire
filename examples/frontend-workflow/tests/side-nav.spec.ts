@@ -3,7 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 const screenshots = '.dist/review/screenshots';
 async function story(page: Page, state: string, theme = 'dark') {
-  await page.goto(`/iframe.html?id=atoms-sidenavtab--${state}&viewMode=story&globals=theme:${theme}`);
+  await page.goto(`/iframe.html?id=molecules-sidenavtab--${state}&viewMode=story&globals=theme:${theme}`);
   await page.getByRole('button', { name: 'File', exact: true }).waitFor({ timeout: 5000 });
   await page.evaluate(() => document.fonts.ready);
 }
