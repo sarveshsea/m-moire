@@ -1,21 +1,22 @@
 import { normalizeTokenPath } from '../tokens/dtcg.js';
 import { normalizeDesignEvidence, fingerprint, type DesignEvidence } from './evidence.js';
-import { readFrontendSources, SOURCE_LIMITS } from './files.js';
+import { readFrontendSources, SOURCE_LIMITS, assertNotAborted } from './files.js';
 import { discoverStaticEvidence } from './static.js';
 import type { FrontendBrief, FrontendMapping, FrontendComponent, FrontendToken, FrontendStory } from './types.js';
 export { normalizeDesignEvidence, DesignEvidenceSchema } from './evidence.js';
 export type { DesignEvidence } from './evidence.js';
 export type { FrontendBrief, FrontendComponent, FrontendMapping, FrontendStory, FrontendToken } from './types.js';
-export interface BuildFrontendBriefOptions { projectRoot: string; intent: string; designEvidence?: unknown; maxBytes?: number; }
+export interface BuildFrontendBriefOptions { projectRoot: string; intent: string; designEvidence?: unknown; maxBytes?: number; signal?: AbortSignal; }
 
 /** Read-only source context for the calling harness. This is not a metadata receipt or rendered verification. */
 export async function buildFrontendBrief(options: BuildFrontendBriefOptions): Promise<FrontendBrief> {
+  assertNotAborted(options.signal);
   const maxBytes = options.maxBytes ?? 16384;
   if (!Number.isInteger(maxBytes) || maxBytes < 2048 || maxBytes > 16384) throw new Error('maxBytes must be an integer between 2048 and 16384.');
   if (typeof options.intent !== 'string' || !options.intent.trim() || Buffer.byteLength(options.intent) > 1024) throw new Error('Intent must contain 1–1024 UTF-8 bytes.');
   const evidence = options.designEvidence === undefined ? undefined : normalizeDesignEvidence(options.designEvidence);
-  const files = await readFrontendSources(options.projectRoot);
-  const discovered = discoverStaticEvidence(files.sources);
+  const files = await readFrontendSources(options.projectRoot, options.signal);
+  const discovered = await discoverStaticEvidence(files.sources, options.signal);
   const mappings = resolveMappings(evidence, discovered.components, discovered.tokens, discovered.stories);
   const terms = new Set(options.intent.toLowerCase().split(/\W+/).filter(Boolean));
   const priority = (component: FrontendComponent) => (evidence?.mappings.some(mapping => mapping.path === component.path && mapping.exportName === component.exportName) ? 100 : 0) + (terms.has(component.exportName.toLowerCase()) ? 10 : 0);
@@ -45,6 +46,10 @@ function resolveMappings(evidence: DesignEvidence | undefined, components: Front
   return (evidence?.mappings ?? []).map(mapping => {
     const component = components.find(item => item.path === mapping.path && item.exportName === mapping.exportName);
     const issues: string[] = [];
+    const peers = evidence?.mappings.filter(other => other !== mapping && other.path === mapping.path && other.exportName === mapping.exportName) ?? [];
+    if (peers.some(other => Object.keys(mapping.props).some(key => key in other.props && other.props[key] !== mapping.props[key]))) {
+      issues.push('Conflicting design prop values target the same component mapping. Supply one selected instance at a time.');
+    }
     if (!component) issues.push('Mapped export is absent or unsupported in the current bounded repository scan.');
     if (component && mapping.sourceHash && component.sourceHash !== mapping.sourceHash) issues.push('Code fingerprint differs from the supplied mapping.');
     for (const [key, value] of Object.entries(mapping.props)) {

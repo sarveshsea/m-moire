@@ -1,7 +1,8 @@
 import { parse } from '@babel/parser';
 import { posix } from 'node:path';
+import { setImmediate } from 'node:timers/promises';
 import { fromDtcg, isDtcgDocument } from '../tokens/dtcg.js';
-import type { FrontendSource } from './files.js';
+import { assertNotAborted, type FrontendSource } from './files.js';
 import type { FrontendComponent, FrontendProp, FrontendStory, FrontendToken, FrontendOmission } from './types.js';
 interface Ast { type: string; [key: string]: unknown; }
 function node(value: unknown): Ast | undefined { return value !== null && typeof value === 'object' && 'type' in value ? value as Ast : undefined; }
@@ -63,10 +64,12 @@ function resolveImport(from: string, specifier: string, available: Set<string>):
   if (base.startsWith('../')) return undefined;
   return [base, ...['.tsx', '.ts', '.jsx', '.js'].map(extension => base + extension), ...['.tsx', '.ts', '.jsx', '.js'].map(extension => base + '/index' + extension)].find(path => available.has(path));
 }
-export function discoverStaticEvidence(sources: FrontendSource[]) {
+export async function discoverStaticEvidence(sources: FrontendSource[], signal?: AbortSignal) {
   const components: FrontendComponent[] = []; const stories: FrontendStory[] = []; const tokens: FrontendToken[] = []; const omissions: FrontendOmission[] = [];
   const available = new Set(sources.map(source => source.path));
   for (const source of sources) {
+    await setImmediate();
+    assertNotAborted(signal);
     if (source.path.endsWith('.css')) { tokens.push(...cssTokens(source)); continue; }
     if (source.path.endsWith('.json')) { tokens.push(...jsonTokens(source, omissions)); continue; }
     let statements: Ast[];
@@ -96,7 +99,9 @@ export function discoverStaticEvidence(sources: FrontendSource[]) {
       }
     }
   }
-  return { components, stories, tokens, omissions };
+  const resolvedStories = stories.filter(story => components.some(component => component.path === story.componentPath && component.exportName === story.componentExport));
+  const unresolvedStoryPaths = [...new Set(stories.filter(story => !resolvedStories.includes(story)).map(story => story.path))];
+  return { components, stories: resolvedStories, tokens, omissions: [...omissions, ...unresolvedStoryPaths.map(path => ({ path, reason: 'story-export-unresolved' }))] };
 }
 function discoverStories(path: string, statements: Ast[], locals: Map<string, Ast>, available: Set<string>, omissions: FrontendOmission[]): FrontendStory[] {
   const exportedDefault = statements.find(item => item.type === 'ExportDefaultDeclaration');

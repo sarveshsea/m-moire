@@ -26,18 +26,25 @@ export function normalizeDesignEvidence(input: unknown): DesignEvidence {
   return result.data;
 }
 
-function assertPlainData(input: unknown, depth = 0): void {
+function assertPlainData(input: unknown, depth = 0): number {
   if (depth > 12) throw new Error('Design evidence exceeds nesting limit.');
-  if (input === null || ['string', 'boolean', 'number'].includes(typeof input)) return;
+  if (input === null || ['string', 'boolean', 'number'].includes(typeof input)) {
+    const bytes = Buffer.byteLength(JSON.stringify(input));
+    if (bytes > 131072) throw new Error('Design evidence exceeds the 128 KiB input budget.');
+    return bytes;
+  }
   if (typeof input !== 'object') throw new Error('Design evidence must be JSON data.');
   const proto: unknown = Object.getPrototypeOf(input);
   if (!Array.isArray(input) && proto !== Object.prototype && proto !== null) throw new Error('Design evidence must contain plain objects.');
   const entries = Object.entries(Object.getOwnPropertyDescriptors(input));
   if (entries.length > 1024) throw new Error('Design evidence exceeds object field limit.');
+  let bytes = 2;
   for (const [key, descriptor] of entries) {
     if (['__proto__', 'prototype', 'constructor'].includes(key) || !('value' in descriptor)) throw new Error('Unsafe design evidence property.');
-    assertPlainData(descriptor.value, depth + 1);
+    bytes += Buffer.byteLength(key) + 4 + assertPlainData(descriptor.value, depth + 1);
+    if (bytes > 131072) throw new Error('Design evidence exceeds the 128 KiB input budget.');
   }
+  return bytes;
 }
 
 export function fingerprint(value: string): string { return createHash('sha256').update(value).digest('hex'); }
