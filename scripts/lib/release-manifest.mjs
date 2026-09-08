@@ -108,6 +108,22 @@ export function validateReleaseManifest(manifest) {
   return failures;
 }
 
+function isPrereleaseVersion(version) {
+  return /^\d+\.\d+\.\d+-/.test(version ?? "");
+}
+
+function validatePreviousStableRelease(engine) {
+  const previous = engine.previousPublicRelease;
+  const label = "published prerelease previousPublicRelease";
+  const failures = [];
+  if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(previous?.version ?? "")
+    || !COMMIT_SHA.test(previous?.sourceCommit ?? "")) {
+    failures.push(`${label} must include an exact stable version and source commit`);
+  }
+  failures.push(...validateReleaseRecordPointer(previous?.releaseRecord, previous?.version, label));
+  return failures;
+}
+
 function validateEngineManifestState(engine) {
   const failures = [];
   const state = engine?.state;
@@ -176,6 +192,7 @@ function validateEngineManifestState(engine) {
   }
 
   if (state === "published") {
+    if (isPrereleaseVersion(engine.version)) failures.push(...validatePreviousStableRelease(engine));
     failures.push(...validateReleaseRecordPointer(
       engine.releaseRecord,
       engine.version,
@@ -375,6 +392,10 @@ export function validateEngineReleaseTransition({
   if (previous?.version !== current?.version) {
     failures.push("published transition must preserve the candidate version");
   }
+  if (previous?.state === "candidate" && isPrereleaseVersion(current?.version)
+    && serializeJson(previous.previousPublicRelease) !== serializeJson(current.previousPublicRelease)) {
+    failures.push("published prerelease must preserve the previous stable release identity");
+  }
   if (releaseRecord?.version !== current?.version) {
     failures.push("release record version does not match the published manifest");
   }
@@ -559,7 +580,12 @@ export function stagePublishedEngineManifest({
   if (!/^\d{4}-\d{2}-\d{2}$/.test(updatedAt ?? "")) {
     throw new Error("published manifest updatedAt must use YYYY-MM-DD");
   }
-  const { previousPublicRelease: _previous, ...sharedEngine } = engine;
+  const prerelease = isPrereleaseVersion(engine.version);
+  if (prerelease) {
+    const previousFailures = validatePreviousStableRelease(engine);
+    if (previousFailures.length > 0) throw new Error(previousFailures.join("; "));
+  }
+  const { previousPublicRelease, ...sharedEngine } = engine;
   return {
     ...manifest,
     updatedAt,
@@ -567,6 +593,7 @@ export function stagePublishedEngineManifest({
       ...manifest.releaseGroups,
       engine: {
         ...sharedEngine,
+        ...(prerelease ? { previousPublicRelease } : {}),
         state: "published",
         sourceCommit: releaseRecord.sourceCommit,
         releaseRecord: {
