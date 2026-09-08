@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { mkdtemp } from "node:fs/promises";
@@ -110,5 +110,18 @@ describe('attachment input and index validation', () => {
       await expect(getStudioAttachment(root, 'missing')).rejects.toMatchObject({ statusCode: 400 });
       expect(await readFile(join(base, 'index.json'), 'utf8')).toBe(content);
     } finally { await rm(root, { recursive: true, force: true }); }
+  });
+});
+
+
+describe('attachment index budget preflight', () => {
+  it('does not leave source files when escaping expands valid text beyond the index budget', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'memi-attachment-index-budget-'));
+    try {
+      configureExecutionPolicy({ projectRoot: root, profile: 'connected', allow: ['project-write', 'source-content-persistence'] });
+      // Six million newline bytes fit the payload budget but need twelve million JSON bytes.
+      await expect(captureStudioAttachment(root, { kind: 'text', name: 'expanded.txt', mimeType: 'text/plain', source: 'paste', text: '\n'.repeat(6_000_000) })).rejects.toMatchObject({ statusCode: 400 });
+      expect(await readdir(join(root, '.memoire', 'studio', 'attachments', 'draft'))).toEqual([]);
+    } finally { resetExecutionPolicyForTests(); await rm(root, { recursive: true, force: true }); }
   });
 });
