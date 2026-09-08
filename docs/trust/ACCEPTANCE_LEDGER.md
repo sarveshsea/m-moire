@@ -2,6 +2,28 @@
 
 Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c47a8b549d`, PR #133. Public npm stable and GitHub release remain 2.7.9. The candidate is not published.
 
+## Frontend implementation checkpoint
+
+The `codex/2.8-frontend-engine` branch extends the Trust Core baseline. These are local development observations; this branch has not been published or certified across every platform.
+
+| Workstream | Implemented evidence | Remaining qualification |
+| --- | --- | --- |
+| CLI compatibility | Actual Commander paths classified; useful frontend/UX/craft/token reads admitted; source writes require explicit grants; mapped generator refuses duplicate generation. | Many legacy paths deliberately unavailable; fresh packed command matrix and public migration truth required. |
+| Codex stdio | Four default locked read tools; actual frontend evidence tool; credential-free configurations; cancellation and no-side-effect installed smoke. | Repeat against final immutable artifact and native CI. |
+| Evidence engine | Strict host-supplied Figma/Paper envelope; current exports/props/hash/token checks; CSF references; byte budgets; stale/conflict/unassessed states. | Dynamic source forms and inferred story IDs are explicit limits. Browser results remain separate. |
+| Read boundaries | Descriptor-contained reads reject links, hardlinks, changing identities and oversized content; registry, source, metadata, policy, baseline, history, report and snapshot regressions. Tree discovery has entry/depth ceilings. | Independent focused review passed; managed scan and native platform receipts still required. |
+| Quality and receipts | Assessed categories separated from coverage; AST literal class extraction; scan omissions; metadata-only `--receipt-only` stdout including failure. | Source checks cannot establish rendered quality. |
+| Live design workflow | Real selected Figma node and token retrieved; native Code Connect unavailable so explicit checked-in mapping used. Disposable Paper file created/read through live MCP; both map to the same synthetic existing component. | Paper screenshot tool returned black images; no Paper pixel-parity pass. The fixture/browser results do not certify arbitrary projects. |
+| Cost/performance | Reproducible 500-file/20-story/100-token offline MCP benchmark; broad and narrow raw-input comparisons; no model calls. | Final artifact trials and native arm64 gate; no complete-task dollar or token savings claim. |
+| Full-source coverage | Meaningful command, integration and failure-path tests added without shrinking coverage scope. | Last intermediate snapshot: 69.23% statements, 62.63% branches, 77.41% functions, 70.43% lines. All four remain below 80%; refresh after final edits. |
+| Distribution | README, candidate recipes, MCP configurations and canonical skills updated with actual capability/availability distinctions. | Public package, native CI, parity and signed artifact gates remain blocking; do not update npm latest from local green tests. |
+
+See [frontend workflow](../FRONTEND_WORKFLOW.md), [fixture](../../examples/frontend-workflow/README.md), and the branch PR for current validation. Exact final artifact measurements belong in a separate verification record once run.
+
+## Preserved Trust Core baseline audit
+
+The following rows and observations describe the earlier PR #133 baseline and are retained as history. They are not current frontend-branch measurements.
+
 | Requirement | Implementation and evidence | Remaining gate |
 | --- | --- | --- |
 | Locked deterministic diagnosis | Baseline 2,416 tests passed in a fresh checkout. Astra reproduced URL/DNS, Git subprocess, and direct report-persistence policy gaps with intercepted side effects. Regression fixes deny before side effects; the packed portable harness passes URL and Git denials. | Updated suite: 2,447 tests across 333 files pass locally. Cross-platform CI for the updated commit remains pending. |

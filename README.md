@@ -56,7 +56,19 @@ Start with one diagnosis, address the highest-confidence finding, and rerun the 
 
 The candidate prevents local diagnosis from writing project files by default, keeps paid integrations optional, and requires explicit grants for networking, subprocesses, and source report persistence. An npm install needs registry access; offline first-run claims require the separately verified bundle. See the [acceptance ledger](docs/trust/ACCEPTANCE_LEDGER.md), [known limitations](docs/trust/KNOWN_LIMITATIONS.md), and [release truth](docs/trust/RELEASE_TRUTH.md).
 
-**Planning 2.8:** the [release plan](docs/trust/RELEASE_2_8_PLAN.md) distinguishes existing 2.7 features, implemented Trust Core changes, and proposed Codex workflows across Figma, Paper, Storybook, and repository components. Command compatibility and locked MCP startup are still blockers; connected workflow support is not yet certified.
+**Developing 2.8:** the candidate now provides a repository-aware frontend brief, four useful locked MCP tools, validated Figma/Paper evidence inputs, and explicit component-reuse conflicts. See the [frontend workflow](docs/FRONTEND_WORKFLOW.md) for runnable candidate commands and the [release plan](docs/trust/RELEASE_2_8_PLAN.md) for remaining gates. Full-source coverage, platform evidence, managed security review, and publication remain separate requirements.
+
+### What 2.8 changes for frontend agents
+
+| In 2.7.9 | In the 2.8 candidate |
+| --- | --- |
+| Diagnosis, agent briefs, token tools, Figma bridge, and skills already existed. | `agent brief --frontend` joins actual exports, props, CSS/DTCG tokens, and CSF stories in a 2–16 KiB JSON response. |
+| Harness configuration exposed a broad tool catalog. | Locked stdio starts without sockets or project writes; four read tools are available without grants. |
+| A design mapping could become stale or a generator warning could be ignored. | Explicit mappings are checked against current exports, required props, token references, and optional source hashes. Generator mappings block duplicate generation. |
+| Paper had no dedicated integration. | Codex can supply selected Paper or Figma context through the same validated envelope; no extra model session or bundled connector is required. |
+| Static diagnosis could present unassessed categories as passing. | Quality scores cover assessed categories only; coverage and scan omissions are separate. Browser verification remains unassessed until actually run. |
+
+The repository remains authoritative for code. Memi supplies evidence; Codex edits and runs the project's actual checks. Existing custom CSS and component systems do not need a shadcn migration. This candidate deliberately defers many legacy command paths; it is not yet a drop-in upgrade for every 2.7 workflow.
 
 ## Put the check on every pull request
 

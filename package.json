@@ -160,7 +160,10 @@
     "README.md",
     "server.json",
     "NOTICE",
-    "LICENSE"
+    "LICENSE",
+    "docs/FRONTEND_WORKFLOW.md",
+    "docs/CODEX_PLUGIN.md",
+    "docs/AGENT_RECIPES.md"
   ],
   "bugs": {
     "url": "https://github.com/memi-design/memi/issues"

@@ -1,6 +1,6 @@
 # Memi 2.8 release plan: useful frontend engineering in Codex
 
-Status: proposed product scope and acceptance contract, 2026-09-08. This document does not announce a release or describe unfinished adapters as available. It builds on the existing [Trust Core acceptance ledger](ACCEPTANCE_LEDGER.md) and [release rules](RELEASE_TRUTH.md).
+Status: product scope and acceptance contract, 2026-09-08. Implementation is underway on `codex/2.8-frontend-engine`; see [the current workflow](../FRONTEND_WORKFLOW.md) and [acceptance ledger](ACCEPTANCE_LEDGER.md). The comparison and blocker observations below are the pre-implementation baseline. This document does not announce a release or describe unfinished adapters as available. It builds on the existing [Trust Core acceptance ledger](ACCEPTANCE_LEDGER.md) and [release rules](RELEASE_TRUTH.md).
 
 ## Release promise
 
@@ -27,7 +27,7 @@ The code comparison below uses Git tag `v2.7.9` and candidate `a1b8505b5f4332d4f
 
 Evidence entry points: `src/agents/design-agent-brief.ts`, `src/app-quality/{app-graph,agent-context,engine}.ts`, `src/tokens/{extractor,dtcg}.ts`, `src/figma/`, `src/specs/types.ts`, `src/codegen/{generator,shadcn-mapper}.ts`, `src/integrations/design-systems-mcp.ts`, `src/mcp/{server,tools,resources}.ts`, `src/security/command-preflight.ts`, and `plugins/memoire/.mcp.json`. Most design/agent features above predate 2.8; they must not be marketed as new.
 
-## Current readiness and immediate blockers
+## Pre-implementation readiness and blockers
 
 Rechecked on 2026-09-08: npm has only `latest: 2.7.9`; [PR #133](https://github.com/memi-design/memi/pull/133) is draft at `a1b8505b`. All 19 checks on that head pass. The Windows Node 24 packed-install smoke passed on one unchanged-head retry after an installation timeout. This is disclosed flakiness, not a changed timeout or removed test.
 
@@ -62,7 +62,7 @@ Code Connect availability depends on the user's Figma plan and seat. It enriches
 
 ### Paper
 
-Paper officially provides a desktop MCP server with design read/write access. In this release, Codex can use that connector and hand its selected-node context to Memi's normalized input contract. Memi need not add another MCP client or ship Paper in the core package. There is no dedicated Memi Paper adapter or live Paper verification from this audit.
+Paper officially provides a desktop MCP server with design read/write access. In this release, Codex can use that connector and hand its selected-node context to Memi's normalized input contract. Memi need not add another MCP client or ship Paper in the core package. There is no bundled Paper client. The subsequent implementation exercised a live selected-node read through Paper 0.5.6 and normalized its supplied context; see the fixture README for the screenshot limitation and separate browser evidence.
 
 Preserve document/node identity and returned structure/styles/assets. Resolve those to project tokens and components; never assume exported HTML is production component code. Treat a tokens-to-Paper update as a separate, requested design-write operation with a reviewable diff. Automatic bidirectional synchronization and lossless round-tripping are deferred. A live Paper read-to-code acceptance run is required before claiming supported integration; fixture replay alone earns only “fixture-tested.”
 
