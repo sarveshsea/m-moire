@@ -108,3 +108,29 @@ describe("Trust Core candidate release-check policy", () => {
     }
   });
 });
+
+
+describe("published beta release boundaries", () => {
+  it("accepts the full published prerelease changelog version", () => {
+    expect(evaluateChangelogGate({ changelog: "# Changelog\n\n## v2.8.0-beta.1 — Published beta\n", version: betaVersion, engineState: "published" })).toEqual([]);
+  });
+  it.each([
+    ["2.8.0", "2.8.0-beta.1"],
+    ["2.8.0-beta.1", "2.8.0"],
+    ["2.8.0-beta.2", "2.8.0-beta.1"],
+  ])("rejects heading %s for package %s", (heading, version) => {
+    expect(evaluateChangelogGate({ changelog: `## v${heading} — Published\n`, version, engineState: "published" })).not.toEqual([]);
+  });
+  it.each(["candidate", "published"])("retains only the named beta limitation in %s state", engineState => {
+    expect(evaluateAuditScorecardGate({ status: 1, message: staleEvidenceFailure, version: betaVersion, engineState })).toEqual({ failures: [], limitations: ["TRUST_CORE_BETA_PENDING_DESIGNWORKBENCH_EVIDENCE: reviewed-candidate-audit and swiftui-rendered-rerun must be refreshed before stable"] });
+  });
+  it.each([
+    ["2.8.0", "published", staleEvidenceFailure],
+    ["2.8.0-beta.2", "published", staleEvidenceFailure],
+    [betaVersion, "unknown", staleEvidenceFailure],
+    [betaVersion, "published", `${staleEvidenceFailure}\nScorecard digest mismatch`],
+    [betaVersion, "published", "Scorecard digest mismatch"],
+  ])("blocks unsupported exception %s/%s/%s", (version, engineState, message) => {
+    expect(evaluateAuditScorecardGate({ status: 1, message, version, engineState })).toEqual({ failures: [`audit scorecard gate failed: ${message}`], limitations: [] });
+  });
+});
