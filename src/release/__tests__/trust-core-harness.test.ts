@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { PassThrough } from "node:stream";
 import { afterEach, describe, expect, it } from "vitest";
+import * as harness from "../../../scripts/lib/trust-core-e2e.mjs";
 import {
   assertCapabilityDenied,
   assertMetadataOnlyReceipt,
@@ -103,6 +104,25 @@ describe("Trust Core packed-artifact harness helpers", () => {
     expect(env).not.toHaveProperty("GITHUB_PAT");
     expect(env).not.toHaveProperty("OPENAI_KEY");
     expect(env).not.toHaveProperty("SAFE_VALUE");
+  });
+
+  it.each(["npm_config_cache", "NPM_CONFIG_CACHE", "Npm_Config_Cache"])("keeps the configured %s for npm installs but not locked runtime processes", async (cacheKey) => {
+    const root = await mkdtemp(join(tmpdir(), "memi-install-cache-"));
+    roots.push(root);
+    const cache = join(root, "configured cache");
+    const baseline = Object.fromEntries(Object.entries(process.env).filter(([key]) => key.toLowerCase() !== "npm_config_cache"));
+    const source = { ...baseline, [cacheKey]: cache, NODE_AUTH_TOKEN: "credential-canary", npm_config_userconfig: join(root, "private-npmrc") };
+    // Before the install-specific helper exists, exercise the current installer sanitizer.
+    const installEnv = (harness.installHarnessEnvironment ?? cleanHarnessEnvironment)(source);
+    const runtimeEnv = cleanHarnessEnvironment(source);
+    expect(Object.keys(runtimeEnv).some(key => key.toLowerCase() === "npm_config_cache")).toBe(false);
+    expect(installEnv).not.toHaveProperty("NODE_AUTH_TOKEN");
+    expect(installEnv).not.toHaveProperty("npm_config_userconfig");
+    expect(runtimeEnv).not.toHaveProperty("NODE_AUTH_TOKEN");
+    const npm = resolveNpmInvocation();
+    const result = await runProcess(npm.command, [...npm.prefix, "config", "get", "cache"], { env: installEnv, timeoutMs: 10_000 });
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout.trim()).toBe(cache);
   });
 
   it("runs npm through Node without a shell when Windows lacks npm_execpath", () => {
