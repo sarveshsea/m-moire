@@ -1,5 +1,5 @@
-import { readFile, realpath } from "node:fs/promises";
-import path from "node:path";
+import { realpath } from "node:fs/promises";
+import { readContainedSource, type SourceReadOmission } from "../security/contained-source.js";
 import type {
   AppQualityDiagnosis,
   AppQualityFileSignal,
@@ -93,17 +93,14 @@ export async function buildRepositoryAgentAuditContext(
     path: string;
     excerpts: Array<{ line: number; text: string }>;
   }> = [];
+  const excerptOmissions: Array<{ path: string; reason: SourceReadOmission }> = [];
   for (const file of files.slice(0, maxExcerptFiles)) {
-    const candidate = path.resolve(root, file.path);
-    const relative = path.relative(root, candidate);
-    if (relative.startsWith("..") || path.isAbsolute(relative)) continue;
-    let content: string;
-    try {
-      content = await readFile(candidate, "utf8");
-    } catch {
+    const source = await readContainedSource(root, file.path);
+    if (!source.ok) {
+      excerptOmissions.push({ path: file.path, reason: source.reason });
       continue;
     }
-    const excerpts = extractDesignExcerpts(content, maxExcerptsPerFile);
+    const excerpts = extractDesignExcerpts(source.content, maxExcerptsPerFile);
     if (excerpts.length > 0) {
       sourceExcerpts.push({ path: file.path, excerpts });
     }
@@ -113,6 +110,7 @@ export async function buildRepositoryAgentAuditContext(
     routing,
     files,
     sourceExcerpts,
+    excerptOmissions,
     limits: {
       ...base.limits,
       effectiveFiles: files.length,
