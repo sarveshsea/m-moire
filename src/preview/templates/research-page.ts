@@ -103,7 +103,7 @@ ${CSS}
     <div class="sidebar-heading">Tags</div>
     <div class="tag-cloud">
       ${sortedTags.map(([tag, count]) =>
-        `<span class="tag" onclick="filterByTag('${esc(tag)}',this)">${esc(tag)}<span class="tag-count">${count}</span></span>`
+        `<button type="button" class="tag" data-tag="${esc(tag)}">${esc(tag)}<span class="tag-count">${count}</span></button>`
       ).join("")}
     </div>
   </div>
@@ -162,7 +162,7 @@ ${summary ? `<div style="border:1px solid var(--border);background:var(--panel);
 <!-- Findings Tab -->
 <div class="tab-panel active" id="tab-findings">
   <div class="insight-list" id="insightList">
-    ${findings.map((finding) => `<div class="insight" data-tags="${esc(finding.tags.join(","))}" data-confidence="${finding.confidence}">
+    ${findings.map((finding) => `<div class="insight" data-tags="${esc(JSON.stringify(finding.tags))}" data-confidence="${finding.confidence}">
       <div class="insight-header">
         <div class="insight-conf ${finding.confidence}" title="${finding.confidence} confidence"></div>
         <div class="insight-finding">${esc(finding.statement)}</div>

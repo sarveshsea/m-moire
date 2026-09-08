@@ -285,9 +285,9 @@ ${CSS}
 
     <div class="sys-card-label">CONFIDENCE DISTRIBUTION</div>
     <div class="res-conf-bar">
-      <div class="res-conf-seg" style="width:${(highCount/totalIns*100).toFixed(1)}%;background:#7ec85a"></div>
-      <div class="res-conf-seg" style="width:${(medCount/totalIns*100).toFixed(1)}%;background:#C4A35A"></div>
-      <div class="res-conf-seg" style="width:${(lowCount/totalIns*100).toFixed(1)}%;background:#ff6b6b"></div>
+      <div class="res-conf-seg" style="width:${(highCount/Math.max(totalIns, 1)*100).toFixed(1)}%;background:#7ec85a"></div>
+      <div class="res-conf-seg" style="width:${(medCount/Math.max(totalIns, 1)*100).toFixed(1)}%;background:#C4A35A"></div>
+      <div class="res-conf-seg" style="width:${(lowCount/Math.max(totalIns, 1)*100).toFixed(1)}%;background:#ff6b6b"></div>
     </div>
     <div class="res-conf-legend">
       <span><span class="res-conf-dot" style="background:#7ec85a"></span>High (${highCount})</span>
@@ -2053,7 +2053,7 @@ ${CSS}
 
 
 <script>
-\${CLIENT_JS}
+${CLIENT_JS}
 </script>
 </body>
 </html>`;

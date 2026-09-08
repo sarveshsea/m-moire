@@ -145,3 +145,21 @@ it('requires explicit consent before reading a Codex task or invoking its runner
     '--suite', 'suite', '--experiment', 'experiment', '--repeat', '1', '--evidence-dir', root, '--store-root', root])).rejects.toThrow('requires --execute');
   expect(execute).not.toHaveBeenCalled();
 });
+
+it.each([[true, true], [true, false], [false, true], [false, false]])('records Codex trial accepted=%s json=%s with explicit runner settings', async (accepted, json) => {
+  const task = await fixture('codex-task.json', { id: 'audit', intent: 'Audit fixture', rubric: { minimumValidCitations: 1, requiredTerms: ['fixture'] } });
+  const record = {
+    schemaVersion: 1, runId: 'codex-local-test', experimentId: 'experiment', suiteId: 'suite', taskId: 'audit', repeat: 3, condition: 'baseline',
+    repository: { pathHash: 'sha256:fixture', revision: 'a'.repeat(40), dirty: false },
+    harness: { id: 'codex-custom', modelId: 'local-test-model', reasoningEffort: 'low' },
+    timing: { startedAt: '2026-09-08T00:00:00Z', completedAt: '2026-09-08T00:00:01Z', wallTimeMs: 1000, toolTimeMs: 5 },
+    usage: workflowResult(accepted, false).adapter.usage, tools: workflowResult(accepted, false).adapter.tools,
+    outcome: { accepted, testsPassed: accepted, qualityScore: accepted ? 100 : 20, defects: accepted ? 0 : 1, humanInterventions: 0 }, evidenceRefs: ['local-fixture'],
+  };
+  const execute = vi.spyOn(codexRunner, 'runCodexCaseStudy').mockResolvedValue({ record, grade: { accepted }, evidenceDirectory: join(root, 'raw-evidence') } as never);
+  const output = await cli(['codex-run', task, '--condition', 'baseline', '--repository', root, '--suite', 'suite', '--experiment', 'experiment', '--repeat', '3',
+    '--evidence-dir', join(root, 'raw-evidence'), '--store-root', root, '--codex', '/test/codex', '--model', 'local-test-model', '--reasoning', 'low', '--harness', 'codex-custom', '--memi-cli', join(root, 'cli.js'), '--timeout-ms', '2000', '--execute', ...(json ? ['--json'] : [])]);
+  expect(execute).toHaveBeenCalledWith(expect.objectContaining({ repositoryRoot: root, repeat: 3, timeoutMs: 2000, codexPath: '/test/codex', modelId: 'local-test-model', reasoningEffort: 'low', harnessId: 'codex-custom', memiCliPath: join(root, 'cli.js') }));
+  if (json) expect(JSON.parse(output.at(-1)!)).toMatchObject({ status: accepted ? 'accepted' : 'failed-quality-gate', run: record });
+  else expect(output.join('\n')).toContain(accepted ? 'Accepted codex-local-test' : 'Quality gate failed');
+});

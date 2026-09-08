@@ -19,7 +19,7 @@ function filterByTag(tag, el) {
   el.classList.add('active');
 
   document.querySelectorAll('.insight').forEach(i => {
-    const tags = i.dataset.tags.split(',');
+    const tags = JSON.parse(i.dataset.tags);
     i.style.display = tags.includes(tag) ? '' : 'none';
   });
 
@@ -29,3 +29,8 @@ function filterByTag(tag, el) {
   document.querySelector('.tab-btn').classList.add('active');
   document.getElementById('tab-findings').classList.add('active');
 }
+
+// Read tag values from HTML data, never from JavaScript source in attributes.
+document.querySelectorAll('.tag[data-tag]').forEach((element) => {
+  element.addEventListener('click', () => filterByTag(element.dataset.tag, element));
+});
