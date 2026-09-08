@@ -14,6 +14,7 @@ release gates pass.
 
 ### Release audit follow-up (unreleased)
 
+- `aeee0618` — fix: preserve exact Windows file identities during persistence
 - Preserve exact BigInt file identities for Windows report writes and lock/receipt validation; reject adjacent-ID substitutions without rounding.
 
 - `cbdef4cf` — fix: close diagnosis policy gaps and enforce release evidence
