@@ -1,10 +1,10 @@
 # Trust Core acceptance ledger
 
-**Beta2 preparation:** `2.8.0-beta.2` is an unpublished correction candidate. Use only a reviewed local build reporting that version to test the candidate; do not install beta2 from npm. Published npm beta `2.8.0-beta.1` remains available on `next`, and `latest` remains `2.7.9`. Beta1’s immutable record is retained. Native Windows package-path handling and macOS arm64 JSON output require fresh verification before corrected native downloads are claimed.
+**Distribution guidance:** These recipes target `2.8.0-beta.2`. For an unpublished candidate, use a reviewed local build reporting that exact version. Before installing, check `npm view @memi-design/cli@2.8.0-beta.2 version`; only install after that exact version is confirmed available. Inspect `npm view @memi-design/cli dist-tags --json` for current channels. The independent stable compatibility baseline is `2.7.9`. See [current release state](https://github.com/memi-design/memi/blob/main/docs/CURRENT_RELEASE.md) for publication status. Native verification is artifact-specific; beta1 records do not validate beta2.
 
-Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c47a8b549d`, PR #133. npm stable remains 2.7.9; beta 2.8.0-beta.1 is published on `next`. The beta does not promote stable channels.
+Audit date: 2026-09-08 UTC. Recovered baseline: `f4880afcd5f5b77487d3f2b6417a88c47a8b549d`, PR #133. At the beta1 publication checkpoint, npm stable was 2.7.9 and beta 2.8.0-beta.1 was published on `next`. That historical checkpoint does not establish current channel values or beta2 verification.
 
-## Frontend implementation checkpoint
+## Beta1 frontend implementation checkpoint
 
 The historical `codex/2.8-frontend-engine` work extended the Trust Core baseline. The published npm source is `71d17ecb8b44a39d81e18a831155eb010779bdfe`; see the [verification record](FRONTEND_2_8_VERIFICATION.md) for its native CI, registry receipts and remaining qualification limits.
 

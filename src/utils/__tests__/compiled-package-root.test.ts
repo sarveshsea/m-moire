@@ -15,6 +15,8 @@ afterEach(async () => {
 describe("compiled package version sidecar resolution", () => {
   it.each([
     "file:///B:/~BUN/root/memi.exe",
+    "file:///B:/%7EBUN/root/probe.exe",
+    "file:///b:/%7ebun/root/probe.exe",
     "file:///b:/~bun/root/memi.exe",
     "file:///$bunfs/root/memi",
   ])("reads the executable sidecar for virtual module URL %s", async moduleUrl => {

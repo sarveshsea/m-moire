@@ -34,8 +34,8 @@ export function packageRoot(): string {
 
 /** Recognize the virtual module roots used by standalone runtimes. */
 export function isCompiledModuleUrl(url: string): boolean {
-  // Bun 1.3.11 uses B:\~BUN\ on Windows instead of /$bunfs/.
-  return /^file:\/\/\/B:\/~BUN\//i.test(url)
+  // Bun 1.3.11 uses B:\~BUN\ on Windows; its URL encodes ~ as %7E.
+  return /^file:\/\/\/B:\/(?:~|%7e)BUN\//i.test(url)
     || url.includes("$bunfs")
     || url.startsWith("embedded:")
     || url.startsWith("compiled:");

@@ -7,6 +7,8 @@ import { describe, expect, it } from "vitest";
 describe("compiled logger transport", () => {
   it.each([
     ["file:///B:/~BUN/root/memi.exe", false],
+    ["file:///B:/%7EBUN/root/probe.exe", false],
+    ["file:///b:/%7ebun/root/probe.exe", false],
     ["file:///$bunfs/root/memi", false],
     ["file:///project/~BUN/src/engine/logger.ts", true],
   ])("selects the appropriate transport for module URL %s", (moduleUrl, expected) => {
