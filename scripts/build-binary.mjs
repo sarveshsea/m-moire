@@ -15,6 +15,7 @@
  */
 
 import { spawnSync } from "node:child_process";
+import { copyStandaloneRuntimeAssets } from "./lib/standalone-runtime-assets.mjs";
 import { createHash } from "node:crypto";
 import { cp, mkdir, rm, readFile, writeFile, access, appendFile } from "node:fs/promises";
 import { dirname, join, resolve, basename } from "node:path";
@@ -77,12 +78,14 @@ if (bunResult.status !== 0) {
   process.exit(bunResult.status ?? 1);
 }
 
+await copyStandaloneRuntimeAssets(ROOT, stageDir);
+console.log("  + preview/templates + studio/harness-manifest.json (required bootstrap assets)");
+
 // 2. Copy sidecar assets — required at runtime by packageRoot() in compiled mode.
 const sidecars = [
   "skills",
   "notes",
   "plugin",
-  "preview/templates",
   "package.json",
   "README.md",
   "LICENSE",
