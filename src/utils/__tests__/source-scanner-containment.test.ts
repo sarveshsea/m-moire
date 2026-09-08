@@ -1,4 +1,4 @@
-import { link, mkdir, mkdtemp, readdir, rename, rm, symlink, writeFile } from "node:fs/promises";
+import { link, mkdir, mkdtemp, opendir, rename, rm, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -6,10 +6,10 @@ import { scanSourcesWithMetadata } from "../source-scanner.js";
 
 vi.mock("node:fs/promises", async importOriginal => {
   const actual = await importOriginal<typeof import("node:fs/promises")>();
-  return { ...actual, readdir: vi.fn(actual.readdir) };
+  return { ...actual, opendir: vi.fn(actual.opendir) };
 });
 const roots: string[] = [];
-afterEach(async () => { vi.restoreAllMocks(); vi.mocked(readdir).mockReset(); await Promise.all(roots.splice(0).map(path => rm(path, { recursive: true, force: true }))); });
+afterEach(async () => { vi.restoreAllMocks(); vi.mocked(opendir).mockReset(); await Promise.all(roots.splice(0).map(path => rm(path, { recursive: true, force: true }))); });
 async function root() { const path = await mkdtemp(join(tmpdir(), "memi-scan-boundary-")); roots.push(path); return path; }
 
 describe("source scanner contained reads", () => {
@@ -29,8 +29,8 @@ describe("source scanner contained reads", () => {
     await writeFile(join(outside, "Secret.tsx"), "OUTSIDE_SENTINEL");
     const actual = await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises");
     let swapped = false;
-    vi.mocked(readdir).mockImplementation((async (path: string, options: unknown) => {
-      const entries = await actual.readdir(path, options as never);
+    vi.mocked(opendir).mockImplementation((async (path: string) => {
+      const entries = await actual.opendir(path);
       if (path === source && !swapped) {
         swapped = true; await rename(source, `${source}-parked`); await symlink(outside, source, "dir");
       }

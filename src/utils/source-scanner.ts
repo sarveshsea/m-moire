@@ -1,4 +1,5 @@
-import { lstat, readdir, realpath, stat } from "node:fs/promises";
+import { lstat, opendir, realpath, stat } from "node:fs/promises";
+import type { Dirent } from "node:fs";
 import { extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { isPrivateOrLocalHostname } from "../security/network-address.js";
 import { fetchPublicText } from "../security/safe-fetch.js";
@@ -50,10 +51,12 @@ const DEFAULT_MAX_FILES = 500;
 const DEFAULT_CONCURRENCY = 16;
 const DEFAULT_FETCH_TIMEOUT_MS = 15000;
 const DEFAULT_MAX_RESPONSE_BYTES = 750_000;
+const MAX_TRAVERSAL_ENTRIES = 5000;
+const MAX_TRAVERSAL_DEPTH = 20;
 
 export interface SourceScanOmission {
   path: string;
-  reason: "max-files" | "oversized" | "unreadable" | "excluded" | "symlink" | "linked-style-limit";
+  reason: "max-files" | "oversized" | "unreadable" | "excluded" | "symlink" | "linked-style-limit" | "entry-limit" | "depth-limit";
 }
 export interface SourceScanCompleteness {
   /** Complete only for eligible files within configured extensions/target/exclusions, never the entire repository. */
@@ -63,6 +66,8 @@ export interface SourceScanCompleteness {
   scannedFiles: number;
   maxFiles: number;
   maxBytesPerFile?: number;
+  /** Local discovery counts are lower bounds when discoveryComplete is false. */
+  traversal?: { maxEntries: number; maxDepth: number; entriesVisited: number; discoveryComplete: boolean };
   omissions: SourceScanOmission[];
 }
 export interface SourceScanResult {
@@ -97,13 +102,14 @@ export async function scanSourcesWithMetadata(options: SourceScanOptions): Promi
   const extensions = normalizeExtensions(options.extensions);
   const omissions: SourceScanOmission[] = [];
   const candidates: string[] = [];
+  const traversal = { entriesVisited: 0 };
   const ignoreDirs = new Set([...DEFAULT_IGNORE_DIRS, ...(options.ignoreDirs ?? [])]);
   if (targetStat.isFile()) {
     const path = normalizePath(relative(root, resolvedTarget));
     if (options.excludePath?.(path)) omissions.push({ path, reason: "excluded" });
     else if (extensions.has(extname(resolvedTarget).toLowerCase())) candidates.push(resolvedTarget);
   } else if (targetStat.isDirectory()) {
-    await walkCandidates(root, resolvedTarget, extensions, ignoreDirs, candidates, omissions, options.excludePath, options.signal);
+    await walkCandidates(root, resolvedTarget, extensions, ignoreDirs, candidates, omissions, traversal, 0, options.excludePath, options.signal);
   } else throw new Error(`Unsupported source target: ${target}`);
   options.signal?.throwIfAborted();
   const selected = candidates.slice(0, maxFiles);
@@ -121,7 +127,11 @@ export async function scanSourcesWithMetadata(options: SourceScanOptions): Promi
   options.signal?.throwIfAborted();
   const sources = results.flatMap(result => "source" in result ? [result.source] : []);
   const allOmissions = [...omissions, ...results.flatMap(result => "omission" in result ? [result.omission] : [])];
-  return scanResult(sources, allOmissions, candidates.length, boundedOptions, maxFiles);
+  const result = scanResult(sources, allOmissions, candidates.length, boundedOptions, maxFiles);
+  return { ...result, completeness: { ...result.completeness, traversal: {
+    maxEntries: MAX_TRAVERSAL_ENTRIES, maxDepth: MAX_TRAVERSAL_DEPTH, entriesVisited: traversal.entriesVisited,
+    discoveryComplete: !omissions.some(omission => ["entry-limit", "depth-limit", "unreadable", "symlink"].includes(omission.reason)),
+  } } };
 }
 
 function scanResult(sources: ScannedSourceFile[], omissions: SourceScanOmission[], discoveredFiles: number,
@@ -138,11 +148,29 @@ function scanResult(sources: ScannedSourceFile[], omissions: SourceScanOmission[
 }
 
 async function walkCandidates(projectRoot: string, dir: string, extensions: Set<string>, ignoreDirs: Set<string>,
-  files: string[], omissions: SourceScanOmission[], excludePath?: (projectPath: string) => boolean, signal?: AbortSignal): Promise<void> {
+  files: string[], omissions: SourceScanOmission[], traversal: { entriesVisited: number }, depth: number,
+  excludePath?: (projectPath: string) => boolean, signal?: AbortSignal): Promise<void> {
   signal?.throwIfAborted();
-  let entries;
-  try { entries = await readdir(dir, { withFileTypes: true }); }
-  catch { signal?.throwIfAborted(); omissions.push({ path: normalizePath(relative(projectRoot, dir)) || ".", reason: "unreadable" }); return; }
+  const directoryPath = normalizePath(relative(projectRoot, dir)) || ".";
+  if (depth > MAX_TRAVERSAL_DEPTH) { omissions.push({ path: directoryPath, reason: "depth-limit" }); return; }
+  if (traversal.entriesVisited >= MAX_TRAVERSAL_ENTRIES) { omissions.push({ path: directoryPath, reason: "entry-limit" }); return; }
+  const entries: Dirent[] = [];
+  try {
+    const canonicalRoot = await realpath(projectRoot);
+    const canonicalDir = await realpath(dir);
+    assertPathWithinRoot(canonicalRoot, canonicalDir);
+    if ((await lstat(dir)).isSymbolicLink()) { omissions.push({ path: directoryPath, reason: "symlink" }); return; }
+    // Read only a bounded prefix, then sort it. A truncated directory is explicitly
+    // incomplete: its selected prefix is filesystem order, not the entire sorted tree.
+    for await (const entry of await opendir(dir)) {
+      signal?.throwIfAborted();
+      if (traversal.entriesVisited >= MAX_TRAVERSAL_ENTRIES) {
+        omissions.push({ path: directoryPath, reason: "entry-limit" }); break;
+      }
+      traversal.entriesVisited += 1;
+      entries.push(entry);
+    }
+  } catch { signal?.throwIfAborted(); omissions.push({ path: directoryPath, reason: "unreadable" }); return; }
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     signal?.throwIfAborted();
     const fullPath = join(dir, entry.name);
@@ -150,7 +178,7 @@ async function walkCandidates(projectRoot: string, dir: string, extensions: Set<
     if (entry.isSymbolicLink()) { omissions.push({ path, reason: "symlink" }); continue; }
     if (entry.isDirectory()) {
       if (ignoreDirs.has(entry.name) || excludePath?.(path)) omissions.push({ path, reason: "excluded" });
-      else await walkCandidates(projectRoot, fullPath, extensions, ignoreDirs, files, omissions, excludePath, signal);
+      else await walkCandidates(projectRoot, fullPath, extensions, ignoreDirs, files, omissions, traversal, depth + 1, excludePath, signal);
     } else if (entry.isFile() && extensions.has(extname(entry.name).toLowerCase())) {
       if (excludePath?.(path)) omissions.push({ path, reason: "excluded" });
       else files.push(fullPath);
